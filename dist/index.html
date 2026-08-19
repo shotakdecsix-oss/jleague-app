@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b6b3a">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon.svg">
+<title>Jリーグ ダッシュボード</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#fff; --ink:#15181d; --sub:#6b7280; --line:#e3e6ea;
+    --accent:#0b6b3a; --accent-sub:#0b6b3a; --accent-ink:#fff; --accent-sub-ink:#fff;
+    --win:#1a7f45; --draw:#8a8f98; --loss:#c0392b;
+    --promo:#1a7f45; --po:#d99e0b; --releg:#c0392b;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--accent); color:var(--ink); /* 1stカラーのベタ塗り(グラデーションは使わない) */
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI",sans-serif;
+    font-size:15px; line-height:1.55;
+    padding-bottom:24px;
+  }
+
+  /* ヘッダー+タブバーをまとめて上部固定 */
+  #headerWrap{position:sticky; top:0; z-index:10}
+  header{
+    background:var(--accent); color:var(--accent-ink); /* 1stカラーのベタ塗り */
+    padding:20px 16px 18px;
+    box-shadow:0 1px 6px rgba(0,0,0,.15);
+  }
+  header h1{margin:0 0 10px; font-size:15px; font-weight:600; letter-spacing:.04em; opacity:.9}
+
+  #tabbar{
+    display:flex; background:var(--accent-sub); /* 2ndカラーのベタ塗り */
+    box-shadow:0 1px 6px rgba(0,0,0,.06);
+  }
+  #tabbar button{
+    flex:1; border:none; background:none; padding:12px 4px 10px;
+    font-size:12px; font-weight:700; color:var(--accent-sub-ink); opacity:.7;
+    font-family:inherit; cursor:pointer;
+    border-bottom:3px solid transparent;
+  }
+  #tabbar button.active{opacity:1; border-bottom-color:var(--accent)}
+  select{
+    width:100%; padding:10px 12px; font-size:16px; font-weight:600;
+    border:none; border-radius:10px; background:#fff; color:var(--ink);
+    -webkit-appearance:none; appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat:no-repeat; background-position:right 14px center;
+  }
+  main{padding:16px; max-width:640px; margin:0 auto}
+  section{margin-bottom:22px}
+  h2{
+    /* 背景(1stカラー)の上に直接載るので、輝度反転させたaccent-inkを使う(var(--sub)だと濃紺クラブ等で読めない) */
+    font-size:12px; font-weight:700; letter-spacing:.12em; color:var(--accent-ink);
+    margin:0 0 8px 2px; text-transform:uppercase;
+  }
+  .card{
+    background:#fff; border:2px solid var(--accent-sub); border-radius:var(--radius); padding:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,.10);
+  }
+  .muted{color:var(--sub)}
+  .small{font-size:12px}
+
+  /* 次戦 */
+  .next-meta{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--sub); margin-bottom:10px}
+  .tag{
+    display:inline-block; padding:2px 8px; border-radius:999px;
+    font-size:11px; font-weight:700; letter-spacing:.04em;
+  }
+  .tag.home{background:var(--accent); color:#fff}
+  .tag.away{background:#eceff3; color:#4b5563}
+  .next-date{font-size:22px; font-weight:700; letter-spacing:.01em}
+  .next-opp{font-size:17px; font-weight:600; margin-top:4px}
+  .next-venue{font-size:13px; color:var(--sub); margin-top:6px}
+
+  /* 直近結果 */
+  ul.results{list-style:none; margin:0; padding:0}
+  ul.results li{
+    display:grid; grid-template-columns:auto 26px 1fr auto auto;
+    align-items:center; gap:10px;
+    padding:11px 0; border-bottom:1px solid var(--line);
+  }
+  ul.results li:last-child{border-bottom:none}
+  .r-date{font-size:12px; color:var(--sub); font-variant-numeric:tabular-nums; white-space:nowrap}
+  .r-ha{font-size:11px; font-weight:700; color:var(--sub); text-align:center}
+  .r-opp{font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .r-score{font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.02em}
+  .pill{
+    width:20px; height:20px; border-radius:6px; color:#fff;
+    font-size:11px; font-weight:700; line-height:20px; text-align:center; flex:none;
+  }
+  .pill.W{background:var(--win)} .pill.D{background:var(--draw)} .pill.L{background:var(--loss)}
+
+  /* 日程 */
+  .schedule-controls{display:flex; gap:8px; align-items:center; margin-bottom:14px; flex-wrap:wrap}
+  .seg-toggle{display:flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; flex:none}
+  .seg-toggle button{
+    border:none; background:#fff; color:var(--sub); font-size:12px; font-weight:700;
+    padding:8px 12px; cursor:pointer; font-family:inherit;
+  }
+  .seg-toggle button.active{background:var(--accent); color:var(--accent-ink)}
+  .schedule-controls select{width:auto; flex:1; min-width:110px; padding:8px 10px; font-size:13px; font-weight:600}
+  .sched-round{margin-top:18px; scroll-margin-top:90px}
+  .sched-round:first-child{margin-top:0}
+  .sched-round-title{font-size:11px; font-weight:700; color:var(--sub); margin:0 0 6px 2px}
+  .sched-row{
+    display:grid; grid-template-columns:26px 1fr auto; align-items:center; gap:8px;
+    padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;
+  }
+  .sched-row.all{grid-template-columns:1fr auto 1fr}
+  .sched-row.all .sched-team:last-child{text-align:right}
+  .sched-row:last-child{border-bottom:none}
+  .sched-ha{font-size:11px; font-weight:700; color:var(--sub); text-align:center}
+  .sched-score{font-weight:700; font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap}
+
+  /* 順位表 */
+  table{width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums}
+  th,td{padding:7px 3px; text-align:right; font-size:13px; border-bottom:1px solid var(--line)}
+  th{font-size:10px; color:var(--sub); font-weight:600; letter-spacing:.04em; border-bottom-width:2px}
+  td.rank,th.rank{text-align:center; width:26px; font-weight:600}
+  td.club,th.club{text-align:left; padding-left:6px}
+  td.form,th.form{text-align:left; padding-left:8px}
+  tr.me td{background:var(--me-bg,#eaf6ef); font-weight:700}
+  tr.me td.club{box-shadow:inset 3px 0 0 var(--accent)}
+  .zone{display:inline-block; width:4px; height:16px; border-radius:2px; vertical-align:-3px; margin-right:5px}
+  .diff{font-size:10px; color:#b45309; margin-left:3px; font-weight:600}
+  .form-row{display:flex; gap:3px}
+  .form-row .pill{width:16px; height:16px; line-height:16px; font-size:9px; border-radius:4px}
+  .legend{display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; font-size:11px; color:var(--sub)}
+  .legend span{display:flex; align-items:center; gap:5px}
+  .sw{width:10px; height:10px; border-radius:3px; display:inline-block}
+
+  a.btn{
+    display:block; text-align:center; text-decoration:none;
+    background:var(--card); color:var(--accent); font-weight:700; font-size:14px;
+    padding:14px; border-radius:var(--radius); border:1px solid var(--line);
+  }
+  footer{text-align:center; font-size:11px; color:var(--accent-ink); margin-top:24px; padding:0 16px}
+  .err{background:#fff2f0; border:1px solid #f3c6c0; color:#8a2b20; padding:14px; border-radius:var(--radius); font-size:13px}
+
+  /* 昇格確率 */
+  .promo-grid{display:flex; gap:10px}
+  .promo-cell{flex:1; text-align:center; padding:12px 4px; border-radius:10px; background:#f7f8fa}
+  .promo-num{font-size:22px; font-weight:700; font-variant-numeric:tabular-nums}
+  .promo-label{font-size:11px; color:var(--sub); margin-top:3px}
+  .promo-auto{color:var(--promo)} .promo-po{color:var(--po)} .promo-releg{color:var(--releg)}
+  .promo-note{margin:10px 0 0; font-size:12px; color:var(--sub)}
+  /* 消化試合が少ない序盤に、注記を目立たせる(赤系は使わない) */
+  .promo-note-emphasis{
+    margin:10px 0 0; padding:10px 12px; border-radius:10px;
+    background:#f7f8fa; font-size:12px; font-weight:700; color:var(--ink);
+  }
+
+  /* ニュース */
+  ul.news-list{list-style:none; margin:0; padding:0}
+  ul.news-list li.news-item{display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--line)}
+  ul.news-list li.news-item:last-child{border-bottom:none}
+  .news-thumb{width:72px; height:72px; flex:none; border-radius:8px; object-fit:cover; background:#f0f1f3}
+  .news-item-body{min-width:0; flex:1}
+  .news-item a{color:var(--ink); text-decoration:none; font-size:14px; font-weight:600; display:block}
+  .news-item a:hover{text-decoration:underline}
+  .news-meta{font-size:11px; color:var(--sub); margin-top:3px}
+  .news-ob{margin-top:16px; padding-top:14px; border-top:1px solid var(--line)}
+  .news-ob-name{font-size:13px; font-weight:700; margin:0 0 6px}
+
+  /* スタッツ */
+  .stats-subtabs{display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap}
+  .stats-subtabs button{
+    flex:1; min-width:70px; border:1px solid var(--line); background:#f7f8fa; color:var(--sub);
+    font-size:12px; font-weight:700; padding:8px 4px; border-radius:999px; cursor:pointer; font-family:inherit;
+  }
+  .stats-subtabs button.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  .stat-group{margin-top:16px}
+  .stat-group:first-child{margin-top:0}
+  .stat-group-title{font-size:11px; font-weight:700; color:var(--sub); margin:0 0 4px 2px}
+  td.stat-rank-top{color:var(--accent); font-weight:700}
+
+  /* 今季の主役 / 選手一覧 */
+  td.p-name,th.p-name{text-align:left; padding-left:6px}
+  .leaders{display:flex; flex-direction:column; gap:8px}
+  .leader-row{display:flex; align-items:baseline; gap:8px; font-size:13px}
+  .leader-cat{color:var(--sub); font-size:11px; width:76px; flex:none}
+  .leader-name{flex:1; font-weight:600}
+  .leader-name a{color:var(--ink); text-decoration:none}
+  .leader-name a:hover{text-decoration:underline}
+  .leader-val{font-weight:700; font-variant-numeric:tabular-nums}
+  td.p-name a{color:var(--ink); text-decoration:none}
+  td.p-name a:hover{text-decoration:underline}
+
+  /* シーズン別成績 */
+  details > summary{cursor:pointer; font-size:13px; font-weight:600; color:var(--accent); padding:2px 0}
+  details[open] > summary{margin-bottom:10px}
+
+  /* クリックでクラブ切替できる要素(タップ可能に見せる: 下線+シェブロン) */
+  .team-link{
+    text-decoration:underline; text-decoration-style:dotted; text-decoration-color:var(--sub);
+    text-underline-offset:2px; cursor:pointer;
+  }
+  .team-link::after{content:" \203A"; color:var(--sub); text-decoration:none}
+
+  /* レーダーチャート */
+  .radar-wrap{display:flex; justify-content:center}
+  .radar-label-name{font-size:10px; font-weight:700; fill:var(--ink)}
+  .radar-label-rank{font-size:9px; fill:var(--sub)}
+  .radar-hit{cursor:pointer}
+  #radarTooltip{
+    margin-top:8px; min-height:18px; text-align:center;
+    font-size:12px; font-weight:600; color:var(--ink);
+  }
+  .radar-limit-note{margin:10px 0 0; font-size:11px; color:var(--sub); line-height:1.5}
+</style>
+</head>
+<body>
+
+<div id="headerWrap">
+<header>
+  <h1>Jリーグ ダッシュボード</h1>
+  <select id="clubSelect" aria-label="応援クラブを選ぶ"></select>
+</header>
+<nav id="tabbar"></nav>
+</div>
+
+<main id="app">
+  <p class="muted">読み込み中…</p>
+</main>
+
+<footer id="footer"></footer>
+
+<script>
+"use strict";
+
+const LEAGUES = {
+  j1: { name: "J1", master: "data/masters/j1_teams_2026-27.json" },
+  j2: { name: "J2", master: "data/masters/j2_master_2026-27.json" },
+  j3: { name: "J3", master: "data/masters/j3_teams_2026-27.json" },
+};
+const STORE_KEY = "jleague-app.favoriteTeam";
+
+const TABS = [
+  { id: "home", label: "ホーム" },
+  { id: "schedule", label: "日程" },
+  { id: "standings", label: "順位" },
+  { id: "stats", label: "スタッツ" },
+  { id: "players", label: "選手" },
+  { id: "news", label: "ニュース" },
+];
+
+const state = {
+  masters: {}, cache: {}, idTeam: null, league: null,
+  news: undefined, clubExtra: undefined, // undefined=未取得, null=取得試行済みでデータ無し
+  activeTab: "home",
+  statsGroup: "model", // スタッツタブのレーダー切替(既定は「モデル」)
+  scheduleMode: "mine", // 日程タブ: "mine"=自クラブのみ(既定) / "all"=リーグ全体
+  scheduleRound: null,   // 日程タブ: 表示中の節。nullなら初回表示時に直近の節を計算する
+};
+
+/* ---------- クラブカラーのテーマ適用 ---------- */
+
+function hexToRgb(hex) {
+  const h = String(hex || "").replace("#", "");
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+/* 相対輝度。明るいクラブカラー(柏の黄など)の上では文字を黒にするために使う */
+function luminance(hex) {
+  const [r, g, b] = hexToRgb(hex).map(v => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+function mixWhite(hex, ratio) { // ratio=0で白、1でそのまま
+  const [r, g, b] = hexToRgb(hex);
+  const f = v => Math.round(255 - (255 - v) * ratio);
+  return "rgb(" + f(r) + "," + f(g) + "," + f(b) + ")";
+}
+/* colorを暗くした派生色を作る(マスタのcolor/colorSubはそのまま、コード側で3色目を生成する)。
+   HSL変換はせず、各チャンネルを単純に factor 倍するだけの簡易版。 */
+function darken(hex, factor) {
+  const [r, g, b] = hexToRgb(hex);
+  const f = v => Math.round(v * factor);
+  return "rgb(" + f(r) + "," + f(g) + "," + f(b) + ")";
+}
+function toRgba(hex, alpha) {
+  const [r, g, b] = hexToRgb(hex);
+  return "rgba(" + r + "," + g + "," + b + "," + alpha + ")";
+}
+function applyTheme(team) {
+  const c = team.color || "#0b6b3a";       // 1stカラー: ヘッダー/ボディ背景にベタ塗り
+  const sub = team.colorSub || c;          // 2ndカラー: タブバーのベタ塗り/カードの枠線
+  const root = document.documentElement.style;
+  root.setProperty("--accent", c);
+  root.setProperty("--accent-sub", sub);
+  // 背景の上に直接載る文字色は、それぞれの背景色の輝度で個別に反転させる
+  // (1stとsubは明るさが逆のことが多いので、まとめて1つの判定にしないこと)
+  root.setProperty("--accent-ink", luminance(c) > 0.5 ? "#111111" : "#ffffff");
+  root.setProperty("--accent-sub-ink", luminance(sub) > 0.5 ? "#111111" : "#ffffff");
+  root.setProperty("--me-bg", mixWhite(c, 0.14)); // 順位表の自クラブ行(カード内なので通常どおり薄く)
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", c);
+}
+
+/* localStorageが使えない環境でも落ちないようにする */
+function loadFav() {
+  try { return localStorage.getItem(STORE_KEY); } catch (e) { return null; }
+}
+function saveFav(id) {
+  try { localStorage.setItem(STORE_KEY, id); } catch (e) { /* 無視 */ }
+}
+
+async function getJson(path) {
+  const res = await fetch(path, { cache: "no-store" });
+  if (!res.ok) throw new Error(path + " が読めません (HTTP " + res.status + ")");
+  return res.json();
+}
+/* 昇格確率・ニュース・公式データ由来の各セクションは無くてもアプリ全体を落とさない
+   (該当セクションを出さないだけ)。 */
+async function getJsonOptional(path) {
+  try {
+    const res = await fetch(path, { cache: "no-store" });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+const WD = ["日", "月", "火", "水", "木", "金", "土"];
+/*
+  端末のタイムゾーンに一切依存させない。
+  kickoffJst は必ず "YYYY-MM-DDTHH:MM:SS+09:00" 形式のJSTなので、
+  new Date() に渡して getHours() すると端末のTZに変換されてしまう(UTC端末だと9時間ずれる)。
+  文字列から直接取り出すこと。
+*/
+function fmtDate(iso, withTime) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(iso || "");
+  if (!m) return "－";
+  const y = +m[1], mo = +m[2], d = +m[3];
+  const wd = WD[new Date(Date.UTC(y, mo - 1, d)).getUTCDay()];
+  const base = mo + "/" + d + "(" + wd + ")";
+  return withTime ? base + " " + m[4] + ":" + m[5] : base;
+}
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+/* ---------- タブ ---------- */
+
+function buildTabBar() {
+  const bar = document.getElementById("tabbar");
+  bar.innerHTML = TABS.map(t =>
+    '<button type="button" data-tab="' + t.id + '">' + esc(t.label) + '</button>'
+  ).join("");
+  bar.addEventListener("click", ev => {
+    const btn = ev.target.closest("button[data-tab]");
+    if (!btn) return;
+    setActiveTab(btn.dataset.tab);
+  });
+}
+function updateTabBarActive() {
+  const bar = document.getElementById("tabbar");
+  for (const btn of bar.querySelectorAll("button[data-tab]")) {
+    btn.classList.toggle("active", btn.dataset.tab === state.activeTab);
+  }
+}
+function currentTabFromHash() {
+  const h = (location.hash || "").replace("#", "");
+  return TABS.some(t => t.id === h) ? h : "home";
+}
+function setActiveTab(tabId) {
+  if (!TABS.some(t => t.id === tabId)) tabId = "home";
+  state.activeTab = tabId;
+  if (location.hash.replace("#", "") !== tabId) location.hash = tabId;
+  updateTabBarActive();
+  window.scrollTo(0, 0);
+  renderActiveTab();
+}
+
+/* ---------- データの遅延読み込み(タブごとに必要なものだけ取得しキャッシュする) ---------- */
+
+function leagueCache(league) {
+  return state.cache[league] || (state.cache[league] = {});
+}
+async function ensureMatches(league) {
+  const c = leagueCache(league);
+  if (!c.matches) c.matches = await getJson("data/processed/" + league + "_matches.json");
+  return c.matches;
+}
+async function ensureStandings(league) {
+  const c = leagueCache(league);
+  if (!c.standings) c.standings = await getJson("data/processed/" + league + "_standings.json");
+  return c.standings;
+}
+async function ensureSimulation(league) {
+  const c = leagueCache(league);
+  if (c.simulation === undefined) c.simulation = await getJsonOptional("data/processed/" + league + "_simulation.json");
+  return c.simulation;
+}
+async function ensureStats(league) {
+  const c = leagueCache(league);
+  if (c.stats === undefined) c.stats = await getJsonOptional("data/processed/" + league + "_stats.json");
+  return c.stats;
+}
+async function ensureClubExtra() {
+  if (state.clubExtra === undefined) state.clubExtra = await getJsonOptional("data/processed/club_extra.json");
+  return state.clubExtra;
+}
+async function ensureNews() {
+  if (state.news === undefined) state.news = await getJsonOptional("data/processed/news.json");
+  return state.news;
+}
+async function ensureTabData(league, tabId) {
+  if (tabId === "home") {
+    await ensureMatches(league);
+    await ensureSimulation(league);
+  } else if (tabId === "schedule") {
+    await ensureMatches(league); // 全380試合が既に入っているので追加取得は不要
+  } else if (tabId === "standings") {
+    await ensureStandings(league);
+  } else if (tabId === "stats") {
+    await ensureStats(league);
+  } else if (tabId === "players") {
+    await ensureClubExtra();
+  } else if (tabId === "news") {
+    await ensureClubExtra();
+    await ensureNews();
+  }
+}
+
+/* ---------- 起動 ---------- */
+
+async function init() {
+  const app = document.getElementById("app");
+  try {
+    for (const key of Object.keys(LEAGUES)) {
+      state.masters[key] = await getJson(LEAGUES[key].master);
+    }
+  } catch (e) {
+    app.innerHTML = '<div class="err"><b>データを読み込めませんでした。</b><br>' + esc(e.message) +
+      '<br><br>プロジェクトのルートで <code>python -m http.server 8000</code> を起動し、' +
+      '<code>http://localhost:8000/</code> を開いてください。' +
+      'ファイルを直接ダブルクリックで開くとブラウザがJSONの読み込みを拒否します。</div>';
+    return;
+  }
+
+  state.activeTab = currentTabFromHash();
+  buildTabBar();
+  updateTabBarActive();
+
+  buildSelect();
+
+  const saved = loadFav();
+  const initial = (saved && findTeam(saved)) ? saved : findFavoriteTeam();
+  document.getElementById("clubSelect").value = initial;
+  await selectTeam(initial);
+
+  document.getElementById("clubSelect").addEventListener("change", ev => {
+    saveFav(ev.target.value);
+    selectTeam(ev.target.value);
+  });
+
+  window.addEventListener("hashchange", () => {
+    const tabId = currentTabFromHash();
+    if (tabId !== state.activeTab) {
+      state.activeTab = tabId;
+      updateTabBarActive();
+      renderActiveTab();
+    }
+  });
+
+  // イベント委譲: クラブ名クリックでの切替(data-idteam)とレーダーの頂点タップ(ツールチップ)を1つのリスナーで拾う。
+  // 行ごと/要素ごとにリスナーを張らないこと。
+  document.addEventListener("click", ev => {
+    const radarHit = ev.target.closest(".radar-hit");
+    if (radarHit) {
+      const tip = document.getElementById("radarTooltip");
+      if (tip) tip.textContent = radarHit.dataset.tooltip || "";
+      return;
+    }
+
+    const groupBtn = ev.target.closest("[data-statsgroup]");
+    if (groupBtn) {
+      state.statsGroup = groupBtn.dataset.statsgroup;
+      renderActiveTab();
+      return;
+    }
+
+    const modeBtn = ev.target.closest("[data-schedulemode]");
+    if (modeBtn) {
+      state.scheduleMode = modeBtn.dataset.schedulemode;
+      renderActiveTab();
+      return;
+    }
+
+    const el = ev.target.closest("[data-idteam]");
+    if (!el) return;
+    const idTeam = el.dataset.idteam;
+    if (!idTeam || idTeam === state.idTeam) return;
+    if (!findTeam(idTeam)) return;
+    document.getElementById("clubSelect").value = idTeam;
+    saveFav(idTeam);
+    selectTeam(idTeam);
+  });
+
+  // 日程タブの節セレクタ(再描画のたびに要素が作り直されるのでイベント委譲で拾う)
+  document.addEventListener("change", ev => {
+    if (ev.target && ev.target.id === "roundJump") {
+      state.scheduleRound = Number(ev.target.value);
+      renderActiveTab();
+    }
+  });
+}
+
+function findTeam(idTeam) {
+  for (const key of Object.keys(LEAGUES)) {
+    const t = state.masters[key].teams.find(x => x.idTeam === idTeam);
+    if (t) return { league: key, team: t };
+  }
+  return null;
+}
+function findFavoriteTeam() {
+  for (const key of Object.keys(LEAGUES)) {
+    const t = state.masters[key].teams.find(x => x.isFavorite);
+    if (t) return t.idTeam;
+  }
+  return state.masters.j1.teams[0].idTeam;
+}
+
+function buildSelect() {
+  const sel = document.getElementById("clubSelect");
+  sel.innerHTML = "";
+  for (const key of Object.keys(LEAGUES)) {
+    const g = document.createElement("optgroup");
+    g.label = state.masters[key].meta.leagueNameJa || LEAGUES[key].name;
+    for (const t of [...state.masters[key].teams].sort((a, b) => a.ja.localeCompare(b.ja, "ja"))) {
+      const o = document.createElement("option");
+      o.value = t.idTeam;
+      o.textContent = t.ja;
+      g.appendChild(o);
+    }
+    sel.appendChild(g);
+  }
+}
+
+async function selectTeam(idTeam) {
+  const found = findTeam(idTeam);
+  if (!found) return;
+  state.idTeam = idTeam;
+  state.league = found.league;
+  applyTheme(found.team);
+  await renderActiveTab();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- 描画(タブごと) ---------- */
+
+async function renderActiveTab() {
+  const found = findTeam(state.idTeam);
+  if (!found) return;
+  const { league, team } = found;
+  const master = state.masters[league];
+  const app = document.getElementById("app");
+  app.innerHTML = '<p class="muted">読み込み中…</p>';
+
+  try {
+    await ensureTabData(league, state.activeTab);
+  } catch (e) {
+    app.innerHTML = '<div class="err">' + esc(e.message) + '</div>';
+    return;
+  }
+
+  const cache = leagueCache(league);
+  const venues = master.venues || {};
+  const all = (cache.matches && cache.matches.matches) || [];
+  const mine = all.filter(m => m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam);
+
+  let html;
+  if (state.activeTab === "schedule") {
+    html = renderScheduleTab(cache.matches, team);
+  } else if (state.activeTab === "standings") {
+    html = renderStandings(cache.standings, team, master);
+  } else if (state.activeTab === "stats") {
+    html = renderStatsTab(cache.stats, team);
+  } else if (state.activeTab === "players") {
+    html = renderLeaders(state.clubExtra, team) + renderPlayers(state.clubExtra, team) + renderSeasonalPerformances(state.clubExtra, team);
+  } else if (state.activeTab === "news") {
+    const newsHtml = renderNews(state.news, state.clubExtra, team, league);
+    html = newsHtml || '<section><h2>ニュース</h2><div class="card"><p class="muted" style="margin:0">関連ニュースが見つかりませんでした。</p></div></section>';
+  } else {
+    html = renderNext(mine, team, venues) + renderResults(mine, team) + renderPromotion(cache.simulation, team, all);
+  }
+  app.innerHTML = html;
+
+  if (state.activeTab === "schedule" && state.scheduleRound != null) {
+    const target = document.getElementById("round-" + state.scheduleRound);
+    if (target) target.scrollIntoView({ block: "start" });
+  }
+
+  const genMeta = (cache.matches && cache.matches.meta) || (cache.standings && cache.standings.meta) || (cache.stats && cache.stats.meta);
+  const gen = genMeta && genMeta.generatedAtJst;
+  document.getElementById("footer").textContent =
+    "データ取得: " + (gen ? fmtDate(gen, true) : "不明") + " ／ 出典: TheSportsDB";
+}
+
+function renderNext(mine, team, venues) {
+  const now = Date.now();
+  const upcoming = mine
+    .filter(m => !m.finished)
+    .filter(m => m.kickoffTbd || new Date(m.kickoffJst).getTime() >= now)
+    .sort((a, b) => (a.kickoffJst || "9999").localeCompare(b.kickoffJst || "9999"));
+  const m = upcoming[0];
+
+  let body;
+  if (!m) {
+    body = '<p class="muted" style="margin:0">予定されている試合はありません。</p>';
+  } else {
+    const isHome = m.home.idTeam === team.idTeam;
+    const opp = isHome ? m.away : m.home;
+    const venue = venues[m.idVenue];
+    body =
+      '<div class="next-meta">' +
+        '<span class="tag ' + (isHome ? "home" : "away") + '">' + (isHome ? "ホーム" : "アウェイ") + '</span>' +
+        '<span>第' + m.round + '節</span>' +
+      '</div>' +
+      '<div class="next-date">' + (m.kickoffTbd ? "日時未定" : esc(fmtDate(m.kickoffJst, true))) + '</div>' +
+      '<div class="next-opp">vs <span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + esc(opp.ja) + '</span></div>' +
+      (venue ? '<div class="next-venue">' + esc(venue.ja) + '</div>' : "") +
+      (m.kickoffTbd ? '<div class="next-venue">※ 延期などで日程が確定していません</div>' : "");
+  }
+  return '<section><h2>次の試合</h2><div class="card">' + body + '</div></section>';
+}
+
+function renderResults(mine, team) {
+  const done = mine.filter(m => m.finished)
+    .sort((a, b) => (b.kickoffJst || "").localeCompare(a.kickoffJst || ""))
+    .slice(0, 5);
+
+  let body;
+  if (!done.length) {
+    body = '<p class="muted" style="margin:0">まだ消化した試合がありません。</p>';
+  } else {
+    body = '<ul class="results">' + done.map(m => {
+      const isHome = m.home.idTeam === team.idTeam;
+      const me = isHome ? m.home : m.away;
+      const opp = isHome ? m.away : m.home;
+      const mark = me.score > opp.score ? "W" : (me.score < opp.score ? "L" : "D");
+      return '<li>' +
+        '<span class="r-date">' + esc(fmtDate(m.kickoffJst, false)) + '</span>' +
+        '<span class="r-ha">' + (isHome ? "H" : "A") + '</span>' +
+        '<span class="r-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + esc(opp.ja) + '</span></span>' +
+        '<span class="r-score">' + me.score + ' - ' + opp.score + '</span>' +
+        '<span class="pill ' + mark + '">' + mark + '</span>' +
+      '</li>';
+    }).join("") + '</ul>';
+  }
+  return '<section><h2>直近の結果</h2><div class="card">' + body + '</div></section>';
+}
+
+/* ---------- 日程(全38節。データはmatches.jsonに既にあるので追加取得は不要) ---------- */
+
+function groupMatchesByRound(matches) {
+  const rounds = {};
+  for (const m of matches) {
+    (rounds[m.round] = rounds[m.round] || []).push(m);
+  }
+  return rounds;
+}
+
+/* maxPlayed(消化済みの最終節)の次の節。誰も消化していなければ第1節。 */
+function computeCurrentRound(allMatches) {
+  let maxRound = 0;
+  for (const m of allMatches) {
+    if (m.finished && m.round > maxRound) maxRound = m.round;
+  }
+  return Math.min(maxRound + 1, 38) || 1;
+}
+
+function scheduleRowHtml(m, team, mode) {
+  const timeOrScore = m.finished
+    ? m.home.score + " - " + m.away.score
+    : (m.kickoffTbd ? "日時未定" : fmtDate(m.kickoffJst, true));
+
+  if (mode === "mine") {
+    const isHome = m.home.idTeam === team.idTeam;
+    const opp = isHome ? m.away : m.home;
+    return '<div class="sched-row">' +
+      '<span class="sched-ha">' + (isHome ? "H" : "A") + '</span>' +
+      '<span class="sched-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + esc(opp.ja) + '</span></span>' +
+      '<span class="sched-score">' + esc(timeOrScore) + '</span>' +
+    '</div>';
+  }
+  return '<div class="sched-row all">' +
+    '<span class="sched-team"><span class="team-link" data-idteam="' + esc(m.home.idTeam) + '">' + esc(m.home.short || m.home.ja) + '</span></span>' +
+    '<span class="sched-score">' + esc(timeOrScore) + '</span>' +
+    '<span class="sched-team"><span class="team-link" data-idteam="' + esc(m.away.idTeam) + '">' + esc(m.away.short || m.away.ja) + '</span></span>' +
+  '</div>';
+}
+
+function renderScheduleTab(matchesData, team) {
+  if (!matchesData) return '<section><h2>日程</h2><div class="card"><p class="muted" style="margin:0">日程データがまだありません。</p></div></section>';
+  const all = matchesData.matches || [];
+
+  if (state.scheduleRound == null) state.scheduleRound = computeCurrentRound(all);
+  const mode = state.scheduleMode || "mine";
+
+  const rounds = groupMatchesByRound(all);
+  const roundNumbers = Object.keys(rounds).map(Number).sort((a, b) => a - b);
+
+  const toggleHtml = '<div class="seg-toggle">' +
+    '<button type="button" class="' + (mode === "mine" ? "active" : "") + '" data-schedulemode="mine">自クラブのみ</button>' +
+    '<button type="button" class="' + (mode === "all" ? "active" : "") + '" data-schedulemode="all">リーグ全体</button>' +
+  '</div>';
+
+  const selectHtml = '<select id="roundJump" aria-label="節を選ぶ">' +
+    roundNumbers.map(r => '<option value="' + r + '"' + (r === state.scheduleRound ? " selected" : "") + '>第' + r + '節</option>').join("") +
+  '</select>';
+
+  const blocksHtml = roundNumbers.map(r => {
+    let rows = rounds[r];
+    if (mode === "mine") {
+      rows = rows.filter(m => m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam);
+      if (!rows.length) return "";
+    }
+    const rowsHtml = rows.map(m => scheduleRowHtml(m, team, mode)).join("");
+    return '<div class="sched-round" id="round-' + r + '"><h3 class="sched-round-title">第' + r + '節</h3>' + rowsHtml + '</div>';
+  }).join("");
+
+  return '<section><h2>日程</h2><div class="card">' +
+    '<div class="schedule-controls">' + toggleHtml + selectHtml + '</div>' +
+    '<div id="scheduleList">' + blocksHtml + '</div>' +
+  '</div></section>';
+}
+
+function zoneColor(rank, rules) {
+  if (!rules) return null;
+  if ((rules.autoPromotion || []).includes(rank)) return { c: "var(--promo)", label: "自動昇格" };
+  if ((rules.playoff || []).includes(rank)) return { c: "var(--po)", label: "プレーオフ" };
+  if ((rules.relegation || []).includes(rank)) return { c: "var(--releg)", label: "降格" };
+  return null;
+}
+
+function renderStandings(standings, team, master) {
+  const rules = master.promotionRules;
+  const rows = standings.table.map(r => {
+    const z = zoneColor(r.rank, rules);
+    const form = (r.recent5 || []).map(x => '<span class="pill ' + x + '">' + x + '</span>').join("");
+    return '<tr class="' + (r.idTeam === team.idTeam ? "me" : "") + '">' +
+      '<td class="rank">' + r.rank + '</td>' +
+      '<td class="club">' +
+        (z ? '<span class="zone" style="background:' + z.c + '"></span>' : '<span class="zone" style="background:transparent"></span>') +
+        '<span class="team-link" data-idteam="' + esc(r.idTeam) + '">' + esc(r.short || r.ja) + '</span>' +
+      '</td>' +
+      '<td>' + r.played + (r.playedDiff ? '<span class="diff">-' + r.playedDiff + '</span>' : '') + '</td>' +
+      '<td>' + r.win + '</td><td>' + r.draw + '</td><td>' + r.loss + '</td>' +
+      '<td>' + (r.gd > 0 ? "+" : "") + r.gd + '</td>' +
+      '<td><b>' + r.points + '</b></td>' +
+      '<td class="form"><span class="form-row">' + form + '</span></td>' +
+    '</tr>';
+  }).join("");
+
+  const legend = [];
+  if (rules) {
+    if (rules.autoPromotion) legend.push('<span><i class="sw" style="background:var(--promo)"></i>自動昇格</span>');
+    if (rules.playoff) legend.push('<span><i class="sw" style="background:var(--po)"></i>プレーオフ</span>');
+    if (rules.relegation) legend.push('<span><i class="sw" style="background:var(--releg)"></i>降格</span>');
+  }
+  legend.push('<span><b style="color:#b45309">-1</b> は消化試合が1つ少ないことを示します</span>');
+
+  return '<section><h2>' + esc(master.meta.leagueNameJa || "順位表") + '</h2><div class="card">' +
+    '<table><thead><tr>' +
+      '<th class="rank">#</th><th class="club">クラブ</th><th>試</th><th>勝</th><th>分</th><th>負</th><th>差</th><th>点</th>' +
+      '<th class="form">直近</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<div class="legend">' + legend.join("") + '</div>' +
+  '</div></section>';
+}
+
+/* リーグ全体の消化試合数(simulation.meta.basedOnMatches)は、クラブごとの消化試合数とは違う数字なので
+   そのまま文言に出すと「湘南はまだ2試合なのに20試合時点と出る」ような誤解を招く。
+   各クラブの消化試合数(節数)から「第N節終了時点」を組み立てる。延期などでクラブ間に差があれば幅で表す。 */
+function computePlayedRange(allMatches) {
+  const played = {};
+  for (const m of allMatches || []) {
+    played[m.home.idTeam] = played[m.home.idTeam] || 0;
+    played[m.away.idTeam] = played[m.away.idTeam] || 0;
+    if (m.finished) {
+      played[m.home.idTeam]++;
+      played[m.away.idTeam]++;
+    }
+  }
+  const vals = Object.values(played);
+  if (!vals.length) return { min: 0, max: 0 };
+  return { min: Math.min(...vals), max: Math.max(...vals) };
+}
+
+function renderPromotion(simulation, team, allMatches) {
+  if (!simulation) return "";
+  const t = (simulation.teams || []).find(x => x.idTeam === team.idTeam);
+  if (!t) return "";
+
+  const range = computePlayedRange(allMatches);
+  const early = range.max > 0 && range.max < 5;
+  let noteHtml = "";
+  if (range.max > 0) {
+    const playedLabel = range.min === range.max
+      ? "各クラブ" + range.max + "試合消化"
+      : "各クラブ" + range.min + "〜" + range.max + "試合消化";
+    const noteClass = early ? "promo-note-emphasis" : "promo-note";
+    noteHtml = '<p class="' + noteClass + '">※ 第' + range.max + '節終了時点(' + playedLabel + ')の推定です。' +
+      (early ? ' 序盤はブレが大きくなります。' : '') + '</p>';
+  }
+
+  let body;
+  if (t.autoPromotion !== null && t.autoPromotion !== undefined) {
+    const pct = x => ((x || 0) * 100).toFixed(1) + "%"; // 小数第1位までのパーセント表示に固定
+    body =
+      '<div class="promo-grid">' +
+        '<div class="promo-cell"><div class="promo-num promo-auto">' + pct(t.autoPromotion) + '</div><div class="promo-label">自動昇格</div></div>' +
+        '<div class="promo-cell"><div class="promo-num promo-po">' + pct(t.playoff) + '</div><div class="promo-label">プレーオフ</div></div>' +
+        '<div class="promo-cell"><div class="promo-num promo-releg">' + pct(t.relegation) + '</div><div class="promo-label">降格</div></div>' +
+      '</div>';
+  } else {
+    body =
+      '<div class="promo-grid">' +
+        '<div class="promo-cell"><div class="promo-num">' + t.expectedRank.toFixed(1) + '位</div><div class="promo-label">予想順位</div></div>' +
+        '<div class="promo-cell"><div class="promo-num">' + t.expectedPoints.toFixed(1) + '</div><div class="promo-label">予想勝点</div></div>' +
+      '</div>';
+  }
+
+  const explainHtml =
+    '<details><summary>この確率の出し方</summary>' +
+      '<p>消化済みの試合から、クラブごとの攻撃力と守備力、それにホームアドバンテージを推定します。ただしシーズン序盤は' +
+      '試合数が少なく、1試合の結果に引きずられて極端な値になるため、<b>リーグ平均に強く寄せる補正(縮約)</b>をかけています。' +
+      '消化6試合で「自チームの実績」と「リーグ平均」がちょうど半々になる強さです。</p>' +
+      '<p>そのうえで、残っている全試合の得点を<b>ポアソン分布</b>(サッカーの得点分布によく当てはまる分布)から' +
+      'ランダムに生成し、シーズンを最後まで実行します。これを<b>10,000回</b>繰り返し、各クラブが何位で終わったかを' +
+      '数え上げたものが、この確率です。順位の決め方は順位表と同じ関数を使っているので、勝点が並んだときの' +
+      '当該チーム間比較まで再現しています。</p>' +
+      '<p><b>この推定の限界</b></p>' +
+      '<ul>' +
+        '<li>得点を<b>独立</b>に扱っているため、0-0や1-1のような噛み合った試合が実際より少なく出ます</li>' +
+        '<li>移籍・負傷・出場停止・日程の過密を<b>一切考慮していません</b></li>' +
+        '<li>消化試合が少ないうちは、ほぼ「リーグ平均からの距離」しか見ていません。<b>序盤の数字は参考程度に</b></li>' +
+      '</ul>' +
+    '</details>';
+
+  return '<section><h2>昇格確率(シミュレーション)</h2><div class="card">' + body + noteHtml + explainHtml + '</div></section>';
+}
+
+/* ---------- スタッツ(stats.py: 自前計算 + 公式サイト由来の指標をまとめたもの) ---------- */
+
+function fmtStatValue(value, format) {
+  if (value == null) return "－";
+  if (format === "signedInt") return (value > 0 ? "+" : "") + value;
+  if (format === "float2") return Number(value).toFixed(2);
+  if (format === "signed2") {
+    const v = Number(value);
+    return (v > 0 ? "+" : "") + v.toFixed(2);
+  }
+  if (format === "percent1") return Number(value).toFixed(1) + "%";
+  return String(value); // "int" / "raw"(公式値そのまま)
+}
+function fmtStatRank(rank, clubCount) {
+  if (rank == null) return "";
+  return rank + "位" + (clubCount ? "/" + clubCount : "");
+}
+
+/* ---------- レーダーチャート(インラインSVG。選択クラブ1つぶんのみ、グループごとに1枚) ----------
+   stats.json の metrics[].group に沿ってグループ分けする。既定表示は「モデル」。
+   基礎グループは 勝点/勝利数/得点/失点/得失点差 が互いに強く相関するため、
+   隣接軸が似た情報にならないよう、勝点と得失点差を隣り合わせない順番にしてある。 */
+
+const RADAR_GROUPS = [
+  { id: "basic", tabLabel: "基礎", keys: ["points", "win", "gd", "ga", "gf"] },
+  { id: "average", tabLabel: "平均", keys: ["pointsPerGame", "gaPerGame", "homePoints", "awayPoints", "form5Points"] },
+  { id: "model", tabLabel: "モデル", keys: ["attackRating", "defenseRating", "xPoints", "pointsOverX", "remainingDifficulty"] },
+  { id: "official", tabLabel: "公式スタッツ", keys: ["scorePg", "passCountPg", "ballRate", "distance", "sprint", "cleanSheet"] },
+];
+// J2/J3にはdistance/sprintが無い(公式サイトの提供指標がリーグによって違うため)。
+// データが無くても軸のラベルだけは出す必要があるので、その場合だけのフォールバック表示名。
+const RADAR_LABEL_FALLBACK = { distance: "走行距離", sprint: "スプリント" };
+
+function polarPoint(cx, cy, r, angleDeg) {
+  const rad = (angleDeg - 90) * Math.PI / 180; // 0度=真上
+  return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+}
+
+function renderStatsGroupTable(stats, team, groupDef) {
+  const t = (stats.teams || []).find(x => x.idTeam === team.idTeam);
+  if (!t) return "";
+  const clubCount = stats.meta && stats.meta.clubCount;
+  const metricByKey = {};
+  for (const m of stats.metrics || []) metricByKey[m.key] = m;
+
+  const rows = groupDef.keys.map(key => {
+    const m = metricByKey[key];
+    if (!m) return ""; // このリーグには無い指標(J2/J3のdistance等)。レーダー側は「データなし」軸として出す
+    const val = t.values ? t.values[key] : undefined;
+    const rank = t.ranks ? t.ranks[key] : undefined;
+    const isTop3 = rank != null && rank <= 3;
+    return '<tr>' +
+      '<td class="p-name">' + esc(m.label) + '</td>' +
+      '<td>' + esc(fmtStatValue(val, m.format)) + '</td>' +
+      '<td class="' + (isTop3 ? "stat-rank-top" : "") + '">' + esc(fmtStatRank(rank, clubCount)) + '</td>' +
+    '</tr>';
+  }).join("");
+
+  return '<div class="stat-group"><table><tbody>' + rows + '</tbody></table></div>';
+}
+
+function renderRadarForGroup(stats, team, groupDef) {
+  const t = (stats.teams || []).find(x => x.idTeam === team.idTeam);
+  if (!t) return "";
+  const clubCount = stats.meta && stats.meta.clubCount;
+  const metricByKey = {};
+  for (const m of stats.metrics || []) metricByKey[m.key] = m;
+
+  const axisDefs = groupDef.keys.map(key => ({
+    key,
+    m: metricByKey[key],
+    label: metricByKey[key] ? metricByKey[key].label : (RADAR_LABEL_FALLBACK[key] || key),
+  }));
+  if (axisDefs.length < 3) return ""; // 軸が3本未満は図が成立しないので出さない(呼び出し側は表のみ表示)
+
+  const n = axisDefs.length;
+  const cx = 150, cy = 150, R = 100;
+  const angleStep = 360 / n;
+
+  const color = team.color || "#0b6b3a";
+  const light = luminance(color) > 0.5;
+  // クラブカラーが明るいと2pxの線・マーカーが白背景に埋もれるため、暗い派生色を使う
+  const strokeColor = light ? darken(color, 0.55) : color;
+  const fillColor = toRgba(color, 0.18);
+
+  const rings = [0.25, 0.5, 0.75, 1.0].map(frac => {
+    const pts = [];
+    for (let i = 0; i < n; i++) {
+      const [x, y] = polarPoint(cx, cy, R * frac, i * angleStep);
+      pts.push(x.toFixed(1) + "," + y.toFixed(1));
+    }
+    const stroke = frac === 0.5 ? "#c7ccd3" : "#e3e6ea"; // 0.5(リーグ中位)だけ少し濃く
+    return '<polygon points="' + pts.join(" ") + '" fill="none" stroke="' + stroke + '" stroke-width="1"/>';
+  }).join("");
+
+  const spokes = [];
+  for (let i = 0; i < n; i++) {
+    const [x, y] = polarPoint(cx, cy, R, i * angleStep);
+    spokes.push('<line x1="' + cx + '" y1="' + cy + '" x2="' + x.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="#e3e6ea" stroke-width="1"/>');
+  }
+
+  const axisData = axisDefs.map((a, i) => {
+    const rank = (a.m && t.ranks) ? t.ranks[a.key] : null;
+    const value = (a.m && t.values) ? t.values[a.key] : null;
+    const available = !!a.m && rank != null && !!clubCount;
+    const norm = available ? (clubCount - rank) / (clubCount - 1) : 0;
+    return { ...a, rank, value, available, norm, angle: i * angleStep };
+  });
+
+  const dataPts = axisData.map(d => polarPoint(cx, cy, R * d.norm, d.angle));
+  const dataPolygon = dataPts.map(([x, y]) => x.toFixed(1) + "," + y.toFixed(1)).join(" ");
+
+  const markers = axisData.map((d, i) => {
+    const [x, y] = dataPts[i];
+    const tip = d.available
+      ? d.label + ": " + fmtStatValue(d.value, d.m.format) + " (" + d.rank + "位/" + clubCount + ")"
+      : d.label + ": データなし";
+    return (
+      '<circle class="radar-hit" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="14" fill="transparent" data-tooltip="' + esc(tip) + '"></circle>' +
+      '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4.5" fill="' + strokeColor + '" stroke="#fff" stroke-width="1.5"></circle>'
+    );
+  }).join("");
+
+  const labels = axisData.map(d => {
+    const [x, y] = polarPoint(cx, cy, R + 20, d.angle);
+    let anchor = "middle";
+    if (d.angle > 5 && d.angle < 175) anchor = "start";
+    else if (d.angle > 185 && d.angle < 355) anchor = "end";
+    const rankText = d.available ? (d.rank + "位/" + clubCount) : "データなし";
+    return (
+      '<text x="' + x.toFixed(1) + '" y="' + (y - 4).toFixed(1) + '" text-anchor="' + anchor + '" class="radar-label-name">' + esc(d.label) + '</text>' +
+      '<text x="' + x.toFixed(1) + '" y="' + (y + 9).toFixed(1) + '" text-anchor="' + anchor + '" class="radar-label-rank">' + esc(rankText) + '</text>'
+    );
+  }).join("");
+
+  const svg =
+    '<svg viewBox="0 0 300 300" width="300" height="300" xmlns="http://www.w3.org/2000/svg">' +
+      rings + spokes.join("") +
+      '<polygon points="' + dataPolygon + '" fill="' + fillColor + '" stroke="' + strokeColor + '" stroke-width="2"></polygon>' +
+      markers + labels +
+    '</svg>';
+
+  const limitNote =
+    '<p class="radar-limit-note">各軸はリーグ内順位を外周(1位)〜中心(最下位)に置き換えたものです。面積の大小に意味はありません。' +
+    '軸の並び順によって形が変わるため、クラブ間の比較は形ではなく各軸の順位で行ってください。</p>';
+
+  return '<div class="radar-wrap">' + svg + '</div><div id="radarTooltip"></div>' + limitNote;
+}
+
+function renderStatsTab(stats, team) {
+  if (!stats) {
+    return '<section><h2>スタッツ</h2><div class="card"><p class="muted" style="margin:0">スタッツデータがまだありません。</p></div></section>';
+  }
+  const t = (stats.teams || []).find(x => x.idTeam === team.idTeam);
+  if (!t) {
+    return '<section><h2>スタッツ</h2><div class="card"><p class="muted" style="margin:0">このクラブのスタッツが見つかりません。</p></div></section>';
+  }
+
+  if (!RADAR_GROUPS.some(g => g.id === state.statsGroup)) state.statsGroup = "model";
+  const activeGroup = RADAR_GROUPS.find(g => g.id === state.statsGroup);
+
+  const subtabHtml = '<div class="stats-subtabs">' + RADAR_GROUPS.map(g =>
+    '<button type="button" class="' + (g.id === activeGroup.id ? "active" : "") + '" data-statsgroup="' + g.id + '">' + esc(g.tabLabel) + '</button>'
+  ).join("") + '</div>';
+
+  const radarHtml = renderRadarForGroup(stats, team, activeGroup);
+  const tableHtml = renderStatsGroupTable(stats, team, activeGroup);
+  const noteHtml = (stats.meta && stats.meta.note) ? '<p class="promo-note">' + esc(stats.meta.note) + '</p>' : "";
+
+  return '<section><h2>スタッツ</h2><div class="card">' + subtabHtml + radarHtml + tableHtml + noteHtml + '</div></section>';
+}
+
+/* ---------- 今季の主役(得点/アシスト/デュエル勝利数トップ。club_extra.json由来) ---------- */
+
+function playerUrl(playerId) {
+  return playerId ? "https://www.jleague.jp/player/" + encodeURIComponent(playerId) + "/" : null;
+}
+
+function renderLeaders(clubExtra, team) {
+  const c = clubExtra && clubExtra.clubs && clubExtra.clubs[team.idTeam];
+  if (!c || !c.leaders) return "";
+
+  const rows = Object.keys(c.leaders).map(cat => {
+    const info = c.leaders[cat];
+    const top = (info.players || [])[0];
+    if (!top) return "";
+    const url = playerUrl(top.playerId);
+    const nameHtml = url
+      ? '<a href="' + url + '" target="_blank" rel="noopener">' + esc(top.name || "－") + '</a>'
+      : esc(top.name || "－");
+    return '<div class="leader-row"><span class="leader-cat">' + esc(info.label || "") + '</span>' +
+      '<span class="leader-name">' + nameHtml + '</span>' +
+      '<span class="leader-val">' + esc(String(top.statsValue == null ? "－" : top.statsValue)) + '</span></div>';
+  }).join("");
+  if (!rows) return "";
+
+  return '<section><h2>今季の主役</h2><div class="card"><div class="leaders">' + rows + '</div></div></section>';
+}
+
+/* ---------- 選手一覧(club_extra.json由来。無ければ公式リンク1本にフォールバック) ---------- */
+
+const POSITION_ORDER = { GK: 0, DF: 1, MF: 2, FW: 3 };
+function fmtBirthday(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
+  if (!m) return "－";
+  return (+m[1]) + "/" + (+m[2]) + "/" + (+m[3]);
+}
+
+function renderPlayers(clubExtra, team) {
+  const c = clubExtra && clubExtra.clubs && clubExtra.clubs[team.idTeam];
+  if (!c || !c.players || !c.players.length) {
+    return '<section><h2>選手一覧</h2><div class="card">' +
+      '<a class="btn" href="' + esc(team.playersUrl) + '" target="_blank" rel="noopener">' +
+      esc(team.ja) + ' の選手一覧を見る（Jリーグ公式）</a></div></section>';
+  }
+
+  const sorted = [...c.players].sort((a, b) => {
+    const pa = POSITION_ORDER[a.position] ?? 9, pb = POSITION_ORDER[b.position] ?? 9;
+    if (pa !== pb) return pa - pb;
+    return (+a.uniformNo || 999) - (+b.uniformNo || 999);
+  });
+
+  const rows = sorted.map(p => {
+    const url = playerUrl(p.playerId);
+    const nameHtml = url
+      ? '<a href="' + url + '" target="_blank" rel="noopener">' + esc(p.name || "－") + '</a>'
+      : esc(p.name || "－");
+    return '<tr>' +
+      '<td class="rank">' + esc(p.uniformNo || "－") + '</td>' +
+      '<td class="p-name">' + nameHtml + (p.isHomeGrown ? ' <span class="small muted">HG</span>' : '') + '</td>' +
+      '<td>' + esc(p.position || "－") + '</td>' +
+      '<td>' + esc(fmtBirthday(p.birthday)) + '</td>' +
+      '<td>' + (p.totalGameCount == null ? "－" : p.totalGameCount) + '</td>' +
+      '<td>' + (p.totalGoalCount == null ? "－" : p.totalGoalCount) + '</td>' +
+    '</tr>';
+  }).join("");
+
+  return '<section><h2>選手一覧</h2><div class="card">' +
+    '<table><thead><tr>' +
+      '<th class="rank">番</th><th class="p-name">選手名</th><th>位置</th><th>生年月日</th><th>出場</th><th>得点</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<div class="legend"><span>HG=ホームグロウン選手 ／ 出場・得点は当該シーズンのレギュラーシーズン</span></div>' +
+  '</div></section>';
+}
+
+/* ---------- シーズン別成績(club_extra.json由来。折りたたみ表示) ---------- */
+
+function renderSeasonalPerformances(clubExtra, team) {
+  const c = clubExtra && clubExtra.clubs && clubExtra.clubs[team.idTeam];
+  if (!c || !c.seasonalPerformances || !c.seasonalPerformances.length) return "";
+
+  const rows = c.seasonalPerformances.map(p =>
+    '<tr><td class="p-name">' + esc(p.year) + '</td><td>' + esc(p.leagueName || "－") + '</td><td><b>' + esc(p.resultLabel) + '</b></td></tr>'
+  ).join("");
+
+  return '<section><h2>シーズン別成績</h2><div class="card">' +
+    '<details><summary>過去の成績を見る(' + c.seasonalPerformances.length + '件)</summary>' +
+    '<table><thead><tr><th class="p-name">年度</th><th>大会</th><th>成績</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '</details>' +
+  '</div></section>';
+}
+
+/* ---------- ニュース ----------
+   出典は4種類:
+     - official: 公式サイトのクラブページ(club_extra.json)
+     - feed:     ゲキサカ/サッカーキング(リーグ全体フィードをクラブ名で振り分け。news.json)
+     - google:   Google News(watchlist記載クラブのみ。news.json)
+   OB選手(卒業生)は公式サイトに情報が無いため、引き続きGoogle News RSS(news.json.obPlayers)を使う。 */
+
+function rssNewsItemHtml(item) {
+  return '<li class="news-item">' +
+    '<div class="news-item-body">' +
+      '<a href="' + esc(item.link) + '" target="_blank" rel="noopener">' + esc(item.title) + '</a>' +
+      '<div class="news-meta">' + (item.publishedJst ? esc(fmtDate(item.publishedJst, false)) : "") +
+        (item.source ? ' ・ ' + esc(item.source) : '') + '</div>' +
+    '</div>' +
+  '</li>';
+}
+
+const NEWS_SOURCE_LABEL = { official: "Jリーグ公式" };
+
+/* 画像は公式サイト由来のURLをそのまま参照(ホットリンク)するだけで、ダウンロード・保存はしない。
+   imageUrlが無いニュースはサムネイル枠自体を出さない(グレーのプレースホルダは置かない)。
+   公式側のURLが変わって読み込みに失敗した場合は onerror で要素ごと消し、リンク切れアイコンを出さない。 */
+function newsItemHtml(item, league) {
+  const isOfficial = item.sourceType === "official";
+  const url = isOfficial
+    ? "https://www.jleague.jp/news/article/" + encodeURIComponent(item.id) + "/?navicode=" + esc(league)
+    : item.link;
+  const thumb = isOfficial && item.imageUrl
+    ? '<img class="news-thumb" src="' + esc(item.imageUrl) + '" alt="" loading="lazy" onerror="this.remove()">'
+    : "";
+  const sourceLabel = NEWS_SOURCE_LABEL[item.sourceType] || item.source || "";
+  return '<li class="news-item">' +
+    thumb +
+    '<div class="news-item-body">' +
+      '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(item.title) + '</a>' +
+      '<div class="news-meta">' + (item.publishedJst ? esc(fmtDate(item.publishedJst, false)) : "") +
+        (sourceLabel ? ' ・ ' + esc(sourceLabel) : '') + '</div>' +
+    '</div>' +
+  '</li>';
+}
+
+function renderNews(news, clubExtra, team, league) {
+  const c = clubExtra && clubExtra.clubs && clubExtra.clubs[team.idTeam];
+  const officialItems = ((c && c.news) || []).map(it => Object.assign({ sourceType: "official" }, it));
+  const teamNewsItems = (news && news.teams && news.teams[team.idTeam]) || [];
+  // 公式+ゲキサカ+サッカーキング+Google Newsをまとめて新しい順に1本の一覧にする
+  const combined = officialItems.concat(teamNewsItems)
+    .sort((a, b) => (b.publishedJst || "").localeCompare(a.publishedJst || ""));
+
+  const obPlayers = (news && news.obPlayers) || {};
+  const obNames = Object.keys(obPlayers).filter(name => (obPlayers[name] || []).length);
+
+  if (!combined.length && !obNames.length) return "";
+
+  let mainHtml;
+  if (!combined.length) {
+    mainHtml = '<p class="muted" style="margin:0">関連ニュースが見つかりませんでした。</p>';
+  } else {
+    mainHtml = '<ul class="news-list">' + combined.map(item => newsItemHtml(item, league)).join("") + '</ul>';
+  }
+
+  const obHtml = obNames.map(name => {
+    const items = obPlayers[name].slice(0, 10);
+    return '<div class="news-ob"><h3 class="news-ob-name">' + esc(name) + ' のニュース</h3>' +
+      '<ul class="news-list">' + items.map(rssNewsItemHtml).join("") + '</ul></div>';
+  }).join("");
+
+  return '<section><h2>ニュース</h2><div class="card">' + mainHtml + obHtml + '</div></section>';
+}
+
+init();
+</script>
+</body>
+</html>

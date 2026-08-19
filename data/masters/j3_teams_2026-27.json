@@ -1,0 +1,449 @@
+{
+  "meta": {
+    "idLeague": "4967",
+    "leagueNameJa": "明治安田J3リーグ",
+    "season": "2026-2027",
+    "clubCount": 20,
+    "idTeamNote": "第1節(2026-08-08〜09)のeventsround結果と照合し、全20クラブのidTeamを自動補完済み(2026-08-12)。レイラック滋賀FCも旧名フォールバック不要で一致した。",
+    "matchingNote": "照合は en を優先し、失敗したら aliases を順に試す。大文字小文字・ピリオド・アクセント記号・中黒は正規化してから比較すること。",
+    "venueNote": "homeVenueJa は表示用の参考値。ネーミングライツで変わりやすいため、unverified フラグ付きのものは実際の試合データが出たら要確認。",
+    "changesFrom2025": {
+      "relegatedFromJ2": [
+        "ロアッソ熊本",
+        "レノファ山口FC",
+        "愛媛FC"
+      ],
+      "promotedFromJFL": [
+        "レイラック滋賀FC"
+      ],
+      "promotedToJ2": [
+        "栃木シティ",
+        "ヴァンラーレ八戸",
+        "テゲバジャーロ宮崎"
+      ],
+      "withdrawnToJFL": [
+        "アスルクラロ沼津"
+      ]
+    },
+    "generatedAt": "2026-08-10",
+    "clubLinkNote": "jleagueSlug はJリーグ公式のクラブページのURLスラッグ。選手一覧は https://www.jleague.jp/club/{jleagueSlug}/#player 。TheSportsDBの選手データは無料キーだと1チーム10人が上限で経歴・SNSも空のため、選手一覧はアプリ内に持たず公式へリンクする方針(2026-08-13決定)。",
+    "colorNote": "color(1stカラー)はWeb調査値(aoma23.com のJリーグ全60チーム カラーコード一覧)。レイラック滋賀FCのみ同表に無く、Wikipediaの『ブルーとパープル』から仮設定した要確認値。colorSub(2ndカラー)は color から機械生成した同系色(明るい色は暗く、暗い色は明るく)。実際の2ndカラー(湘南の青など)を使いたい場合はここを直接書き換えてよい。表示専用で計算には使わない。",
+    "aliasesJaNote": "aliasesJa はニュース記事のクラブ振り分け専用の日本語別名。TheSportsDBのチーム名照合には使わない（そちらは en / aliases）。複数クラブで曖昧な地名（大阪・東京・横浜・栃木など）と、選手の姓と一致する地名（町田・山口・清水・秋田など）は意図的に除外してある。追加するときは、その語が他クラブや人名に部分一致しないか必ず確認すること。",
+    "aliasesJaExcluded": {
+      "大阪": "G大阪/C大阪/FC大阪の3クラブで曖昧",
+      "東京": "FC東京/東京ヴェルディで曖昧",
+      "横浜": "横浜F・マリノス/横浜FCで曖昧。『横浜F』も『横浜FC』に部分一致するため不可",
+      "栃木": "栃木SC/栃木シティで曖昧",
+      "千葉": "地名として頻出。柏レイソルも千葉県のクラブ",
+      "柏": "1文字。『柏木』などの姓に部分一致する",
+      "町田": "町田浩樹（日本代表DF）と一致",
+      "山口": "山口蛍と一致",
+      "清水": "選手・記者の姓として頻出",
+      "松本": "選手の姓として頻出",
+      "秋田": "秋田豊（元日本代表・解説者）と一致",
+      "宮崎": "宮崎純真・宮崎智彦など選手の姓と一致",
+      "富山": "富山貴光など選手の姓と一致",
+      "長野": "長野風雅など選手の姓と一致",
+      "福島": "選手の姓として使われる。『福島ユナイテッド』のみ採用",
+      "岡山": "岡山一成など選手の姓と一致",
+      "神戸": "INAC神戸レオネッサ（女子）と混同。『ヴィッセル』のみ採用",
+      "川崎": "川崎フロンターレ以外の競技クラブと混同。『川崎F』『フロンターレ』のみ採用"
+    }
+  },
+  "teams": [
+    {
+      "idTeam": "141246",
+      "en": "Fukushima United FC",
+      "aliases": [
+        "Fukushima United",
+        "Fukushima"
+      ],
+      "ja": "福島ユナイテッドFC",
+      "short": "福島",
+      "homeVenueJa": "とうほう・みんなのスタジアム",
+      "jleagueSlug": "fukushima",
+      "playersUrl": "https://www.jleague.jp/club/fukushima/player/",
+      "color": "#e60012",
+      "colorSub": "#ef5965",
+      "squadUrl": "https://www.jleague.jp/club/fukushima/player/",
+      "aliasesJa": [
+        "福島ユナイテッド",
+        "福島ユナイテッドＦＣ"
+      ]
+    },
+    {
+      "idTeam": "139896",
+      "en": "Tochigi SC",
+      "aliases": [
+        "Tochigi"
+      ],
+      "ja": "栃木SC",
+      "short": "栃木SC",
+      "homeVenueJa": "カンセキスタジアムとちぎ",
+      "jleagueSlug": "tochigi",
+      "playersUrl": "https://www.jleague.jp/club/tochigi/player/",
+      "color": "#fff100",
+      "colorSub": "#948c00",
+      "squadUrl": "https://www.jleague.jp/club/tochigi/player/",
+      "aliasesJa": [
+        "栃木ＳＣ"
+      ]
+    },
+    {
+      "idTeam": "139897",
+      "en": "Thespa Gunma",
+      "aliases": [
+        "Thespakusatsu Gunma",
+        "Thespa Kusatsu Gunma",
+        "Gunma"
+      ],
+      "ja": "ザスパ群馬",
+      "short": "群馬",
+      "homeVenueJa": "正田醤油スタジアム群馬",
+      "jleagueSlug": "kusatsu",
+      "playersUrl": "https://www.jleague.jp/club/kusatsu/player/",
+      "color": "#002c5b",
+      "colorSub": "#597694",
+      "squadUrl": "https://www.jleague.jp/club/kusatsu/player/",
+      "aliasesJa": [
+        "ザスパ",
+        "群馬"
+      ]
+    },
+    {
+      "idTeam": "140510",
+      "en": "SC Sagamihara",
+      "aliases": [
+        "Sagamihara"
+      ],
+      "ja": "SC相模原",
+      "short": "相模原",
+      "homeVenueJa": "相模原ギオンスタジアム",
+      "jleagueSlug": "sagamihara",
+      "playersUrl": "https://www.jleague.jp/club/sagamihara/player/",
+      "color": "#005250",
+      "colorSub": "#598f8d",
+      "squadUrl": "https://www.jleague.jp/club/sagamihara/player/",
+      "aliasesJa": [
+        "相模原",
+        "ＳＣ相模原"
+      ]
+    },
+    {
+      "idTeam": "139890",
+      "en": "Matsumoto Yamaga FC",
+      "aliases": [
+        "Matsumoto Yamaga",
+        "Matsumoto"
+      ],
+      "ja": "松本山雅FC",
+      "short": "松本",
+      "homeVenueJa": "サンプロ アルウィン",
+      "jleagueSlug": "matsumoto",
+      "playersUrl": "https://www.jleague.jp/club/matsumoto/player/",
+      "color": "#008136",
+      "colorSub": "#59ad7c",
+      "squadUrl": "https://www.jleague.jp/club/matsumoto/player/",
+      "aliasesJa": [
+        "松本山雅",
+        "山雅"
+      ]
+    },
+    {
+      "idTeam": "141252",
+      "en": "AC Nagano Parceiro",
+      "aliases": [
+        "Nagano Parceiro",
+        "Nagano"
+      ],
+      "ja": "AC長野パルセイロ",
+      "short": "長野",
+      "homeVenueJa": "長野Uスタジアム",
+      "jleagueSlug": "nagano",
+      "playersUrl": "https://www.jleague.jp/club/nagano/player/",
+      "color": "#eb6100",
+      "colorSub": "#883800",
+      "squadUrl": "https://www.jleague.jp/club/nagano/player/",
+      "aliasesJa": [
+        "パルセイロ",
+        "ＡＣ長野パルセイロ"
+      ]
+    },
+    {
+      "idTeam": "139902",
+      "en": "Zweigen Kanazawa",
+      "aliases": [
+        "Kanazawa"
+      ],
+      "ja": "ツエーゲン金沢",
+      "short": "金沢",
+      "homeVenueJa": "金沢ゴーゴーカレースタジアム",
+      "jleagueSlug": "kanazawa",
+      "playersUrl": "https://www.jleague.jp/club/kanazawa/player/",
+      "color": "#d80c1e",
+      "colorSub": "#e6616d",
+      "squadUrl": "https://www.jleague.jp/club/kanazawa/player/",
+      "aliasesJa": [
+        "ツエーゲン",
+        "金沢"
+      ]
+    },
+    {
+      "idTeam": "139904",
+      "en": "FC Gifu",
+      "aliases": [
+        "Gifu"
+      ],
+      "ja": "FC岐阜",
+      "short": "岐阜",
+      "homeVenueJa": "岐阜メモリアルセンター長良川競技場",
+      "jleagueSlug": "gifu",
+      "playersUrl": "https://www.jleague.jp/club/gifu/player/",
+      "color": "#00633d",
+      "colorSub": "#599a81",
+      "squadUrl": "https://www.jleague.jp/club/gifu/player/",
+      "aliasesJa": [
+        "岐阜",
+        "ＦＣ岐阜"
+      ]
+    },
+    {
+      "idTeam": "150625",
+      "en": "Reilac Shiga FC",
+      "aliases": [
+        "Reilac Shiga",
+        "Leylac Shiga",
+        "MIO Biwako Shiga",
+        "Shiga"
+      ],
+      "ja": "レイラック滋賀FC",
+      "short": "滋賀",
+      "homeVenueJa": "東近江市布引運動公園陸上競技場",
+      "unverifiedVenue": true,
+      "note": "2026/27がJリーグ初参戦。APIには'Reilac Shiga'名義で登録済み(2026-08-12確認)。",
+      "jleagueSlug": "shiga",
+      "playersUrl": "https://www.jleague.jp/club/shiga/player/",
+      "color": "#7b62b5",
+      "colorSub": "#a999cf",
+      "squadUrl": "https://www.jleague.jp/club/shiga/player/",
+      "aliasesJa": [
+        "レイラック",
+        "レイラック滋賀",
+        "滋賀"
+      ]
+    },
+    {
+      "idTeam": "147070",
+      "en": "FC Osaka",
+      "aliases": [
+        "Osaka"
+      ],
+      "ja": "FC大阪",
+      "short": "FC大阪",
+      "homeVenueJa": "東大阪市花園ラグビー場",
+      "jleagueSlug": "fosaka",
+      "playersUrl": "https://www.jleague.jp/club/fosaka/player/",
+      "color": "#7fcaf1",
+      "colorSub": "#4a758c",
+      "squadUrl": "https://www.jleague.jp/club/fosaka/player/",
+      "aliasesJa": [
+        "ＦＣ大阪"
+      ]
+    },
+    {
+      "idTeam": "147069",
+      "en": "Nara Club",
+      "aliases": [
+        "Nara"
+      ],
+      "ja": "奈良クラブ",
+      "short": "奈良",
+      "homeVenueJa": "ロートフィールド奈良",
+      "jleagueSlug": "nara",
+      "playersUrl": "https://www.jleague.jp/club/nara/player/",
+      "color": "#011d64",
+      "colorSub": "#5a6c9a",
+      "squadUrl": "https://www.jleague.jp/club/nara/player/",
+      "aliasesJa": [
+        "奈良"
+      ]
+    },
+    {
+      "idTeam": "141247",
+      "en": "Gainare Tottori",
+      "aliases": [
+        "Tottori"
+      ],
+      "ja": "ガイナーレ鳥取",
+      "short": "鳥取",
+      "homeVenueJa": "Axisバードスタジアム",
+      "jleagueSlug": "tottori",
+      "playersUrl": "https://www.jleague.jp/club/tottori/player/",
+      "color": "#6eba3d",
+      "colorSub": "#406c23",
+      "squadUrl": "https://www.jleague.jp/club/tottori/player/",
+      "aliasesJa": [
+        "ガイナーレ",
+        "鳥取"
+      ]
+    },
+    {
+      "idTeam": "141250",
+      "en": "Kamatamare Sanuki",
+      "aliases": [
+        "Sanuki"
+      ],
+      "ja": "カマタマーレ讃岐",
+      "short": "讃岐",
+      "homeVenueJa": "Pikaraスタジアム",
+      "jleagueSlug": "sanuki",
+      "playersUrl": "https://www.jleague.jp/club/sanuki/player/",
+      "color": "#65aadd",
+      "colorSub": "#3b6380",
+      "squadUrl": "https://www.jleague.jp/club/sanuki/player/",
+      "aliasesJa": [
+        "カマタマーレ",
+        "讃岐"
+      ]
+    },
+    {
+      "idTeam": "139885",
+      "en": "Giravanz Kitakyushu",
+      "aliases": [
+        "Kitakyushu"
+      ],
+      "ja": "ギラヴァンツ北九州",
+      "short": "北九州",
+      "homeVenueJa": "ミクニワールドスタジアム北九州",
+      "jleagueSlug": "kitakyushu",
+      "playersUrl": "https://www.jleague.jp/club/kitakyushu/player/",
+      "color": "#fff100",
+      "colorSub": "#948c00",
+      "squadUrl": "https://www.jleague.jp/club/kitakyushu/player/",
+      "aliasesJa": [
+        "ギラヴァンツ",
+        "北九州"
+      ]
+    },
+    {
+      "idTeam": "150223",
+      "en": "Kochi United SC",
+      "aliases": [
+        "Kochi United",
+        "Kochi"
+      ],
+      "ja": "高知ユナイテッドSC",
+      "short": "高知",
+      "homeVenueJa": "春野総合運動公園陸上競技場",
+      "jleagueSlug": "kochi",
+      "playersUrl": "https://www.jleague.jp/club/kochi/player/",
+      "color": "#b81c22",
+      "colorSub": "#d16b6f",
+      "squadUrl": "https://www.jleague.jp/club/kochi/player/",
+      "aliasesJa": [
+        "高知ユナイテッド",
+        "高知",
+        "高知ユナイテッドＳＣ"
+      ]
+    },
+    {
+      "idTeam": "139903",
+      "en": "Kagoshima United FC",
+      "aliases": [
+        "Kagoshima United",
+        "Kagoshima"
+      ],
+      "ja": "鹿児島ユナイテッドFC",
+      "short": "鹿児島",
+      "homeVenueJa": "白波スタジアム",
+      "jleagueSlug": "kagoshima",
+      "playersUrl": "https://www.jleague.jp/club/kagoshima/player/",
+      "color": "#182f60",
+      "colorSub": "#697898",
+      "squadUrl": "https://www.jleague.jp/club/kagoshima/player/",
+      "aliasesJa": [
+        "鹿児島ユナイテッド",
+        "鹿児島",
+        "鹿児島ユナイテッドＦＣ"
+      ]
+    },
+    {
+      "idTeam": "139895",
+      "en": "FC Ryukyu",
+      "aliases": [
+        "Ryukyu",
+        "Ryukyu Okinawa"
+      ],
+      "ja": "FC琉球",
+      "short": "琉球",
+      "homeVenueJa": "タピック県総ひやごんスタジアム",
+      "jleagueSlug": "ryukyu",
+      "playersUrl": "https://www.jleague.jp/club/ryukyu/player/",
+      "color": "#ca0915",
+      "colorSub": "#dd5f67",
+      "squadUrl": "https://www.jleague.jp/club/ryukyu/player/",
+      "aliasesJa": [
+        "琉球",
+        "ＦＣ琉球"
+      ]
+    },
+    {
+      "idTeam": "141253",
+      "en": "Roasso Kumamoto",
+      "aliases": [
+        "Kumamoto"
+      ],
+      "ja": "ロアッソ熊本",
+      "short": "熊本",
+      "homeVenueJa": "えがお健康スタジアム",
+      "jleagueSlug": "kumamoto",
+      "playersUrl": "https://www.jleague.jp/club/kumamoto/player/",
+      "color": "#b62013",
+      "colorSub": "#d06e66",
+      "squadUrl": "https://www.jleague.jp/club/kumamoto/player/",
+      "aliasesJa": [
+        "ロアッソ",
+        "熊本"
+      ]
+    },
+    {
+      "idTeam": "139894",
+      "en": "Renofa Yamaguchi FC",
+      "aliases": [
+        "Renofa Yamaguchi",
+        "Yamaguchi"
+      ],
+      "ja": "レノファ山口FC",
+      "short": "山口",
+      "homeVenueJa": "維新みらいふスタジアム",
+      "jleagueSlug": "yamaguchi",
+      "playersUrl": "https://www.jleague.jp/club/yamaguchi/player/",
+      "color": "#eb5e00",
+      "colorSub": "#883700",
+      "squadUrl": "https://www.jleague.jp/club/yamaguchi/player/",
+      "aliasesJa": [
+        "レノファ",
+        "レノファ山口"
+      ]
+    },
+    {
+      "idTeam": "139883",
+      "en": "Ehime FC",
+      "aliases": [
+        "Ehime"
+      ],
+      "ja": "愛媛FC",
+      "short": "愛媛",
+      "homeVenueJa": "ニンジニアスタジアム",
+      "jleagueSlug": "ehime",
+      "playersUrl": "https://www.jleague.jp/club/ehime/player/",
+      "color": "#f39800",
+      "colorSub": "#8d5800",
+      "squadUrl": "https://www.jleague.jp/club/ehime/player/",
+      "aliasesJa": [
+        "愛媛",
+        "愛媛ＦＣ"
+      ]
+    }
+  ]
+}

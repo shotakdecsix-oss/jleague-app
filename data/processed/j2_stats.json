@@ -1,0 +1,1914 @@
+{
+  "meta": {
+    "league": "j2",
+    "season": "2026-2027",
+    "generatedAtJst": "2026-08-17T17:30:29+09:00",
+    "basedOnMatches": 20,
+    "clubCount": 20,
+    "note": "順位は同値同順位、次は飛ぶ方式(1,2,2,4)。シュート数はデータソースに存在しないため対象外。公式スタッツ(source:official)はJリーグ公式サイトの値・順位をそのまま使用(非公開データ。club_extra.jsonが無い場合はこのグループ自体を省略)"
+  },
+  "metrics": [
+    {
+      "key": "points",
+      "label": "勝点",
+      "betterIsHigh": true,
+      "format": "int",
+      "group": "基礎",
+      "source": "computed"
+    },
+    {
+      "key": "played",
+      "label": "消化",
+      "betterIsHigh": null,
+      "format": "int",
+      "group": "基礎",
+      "source": "computed"
+    },
+    {
+      "key": "win",
+      "label": "勝",
+      "betterIsHigh": true,
+      "format": "int",
+      "group": "基礎",
+      "source": "computed"
+    },
+    {
+      "key": "draw",
+      "label": "分",
+      "betterIsHigh": null,
+      "format": "int",
+      "group": "基礎",
+      "source": "computed"
+    },
+    {
+      "key": "loss",
+      "label": "敗",
+      "betterIsHigh": false,
+      "format": "int",
+      "group": "基礎",
+      "source": "computed"
+    },
+    {
+      "key": "gf",
+      "label": "得点",
+      "betterIsHigh": true,
+      "format": "int",
+      "group": "基礎",
+      "source": "computed"
+    },
+    {
+      "key": "ga",
+      "label": "失点",
+      "betterIsHigh": false,
+      "format": "int",
+      "group": "基礎",
+      "source": "computed"
+    },
+    {
+      "key": "gd",
+      "label": "得失点差",
+      "betterIsHigh": true,
+      "format": "signedInt",
+      "group": "基礎",
+      "source": "computed"
+    },
+    {
+      "key": "gaPerGame",
+      "label": "平均失点",
+      "betterIsHigh": false,
+      "format": "float2",
+      "group": "平均",
+      "source": "computed"
+    },
+    {
+      "key": "pointsPerGame",
+      "label": "平均勝点",
+      "betterIsHigh": true,
+      "format": "float2",
+      "group": "平均",
+      "source": "computed"
+    },
+    {
+      "key": "homePoints",
+      "label": "ホーム勝点",
+      "betterIsHigh": true,
+      "format": "int",
+      "group": "平均",
+      "source": "computed"
+    },
+    {
+      "key": "awayPoints",
+      "label": "アウェイ勝点",
+      "betterIsHigh": true,
+      "format": "int",
+      "group": "平均",
+      "source": "computed"
+    },
+    {
+      "key": "blanks",
+      "label": "無得点",
+      "betterIsHigh": false,
+      "format": "int",
+      "group": "平均",
+      "source": "computed"
+    },
+    {
+      "key": "form5Points",
+      "label": "直近5試合の勝点",
+      "betterIsHigh": true,
+      "format": "int",
+      "group": "平均",
+      "source": "computed"
+    },
+    {
+      "key": "attackRating",
+      "label": "攻撃力",
+      "betterIsHigh": true,
+      "format": "float2",
+      "group": "モデル",
+      "source": "computed"
+    },
+    {
+      "key": "defenseRating",
+      "label": "守備力",
+      "betterIsHigh": false,
+      "format": "float2",
+      "group": "モデル",
+      "source": "computed"
+    },
+    {
+      "key": "xPoints",
+      "label": "期待勝点",
+      "betterIsHigh": true,
+      "format": "float2",
+      "group": "モデル",
+      "source": "computed"
+    },
+    {
+      "key": "pointsOverX",
+      "label": "勝点の上振れ",
+      "betterIsHigh": true,
+      "format": "signed2",
+      "group": "モデル",
+      "source": "computed"
+    },
+    {
+      "key": "remainingDifficulty",
+      "label": "残り日程の難易度",
+      "betterIsHigh": false,
+      "format": "float2",
+      "group": "モデル",
+      "source": "computed"
+    },
+    {
+      "key": "scorePg",
+      "label": "1試合平均得点数",
+      "betterIsHigh": true,
+      "format": "raw",
+      "group": "公式スタッツ",
+      "source": "official"
+    },
+    {
+      "key": "passCountPg",
+      "label": "1試合平均パス数",
+      "betterIsHigh": true,
+      "format": "raw",
+      "group": "公式スタッツ",
+      "source": "official"
+    },
+    {
+      "key": "ballRate",
+      "label": "平均ボール保持率",
+      "betterIsHigh": true,
+      "format": "percent1",
+      "group": "公式スタッツ",
+      "source": "official"
+    },
+    {
+      "key": "airBattleWinCountPg",
+      "label": "空中戦勝利",
+      "betterIsHigh": true,
+      "format": "raw",
+      "group": "公式スタッツ",
+      "source": "official"
+    },
+    {
+      "key": "interceptCount",
+      "label": "インターセプト総数",
+      "betterIsHigh": true,
+      "format": "raw",
+      "group": "公式スタッツ",
+      "source": "official"
+    },
+    {
+      "key": "cleanSheet",
+      "label": "無失点試合総数",
+      "betterIsHigh": true,
+      "format": "raw",
+      "group": "公式スタッツ",
+      "source": "official"
+    }
+  ],
+  "teams": [
+    {
+      "idTeam": "137715",
+      "ja": "湘南ベルマーレ",
+      "short": "湘南",
+      "values": {
+        "points": 6,
+        "played": 2,
+        "win": 2,
+        "draw": 0,
+        "loss": 0,
+        "gf": 2,
+        "ga": 0,
+        "gd": 2,
+        "gaPerGame": 0.0,
+        "pointsPerGame": 3.0,
+        "homePoints": 3,
+        "awayPoints": 3,
+        "blanks": 0,
+        "form5Points": 6,
+        "attackRating": 0.97,
+        "defenseRating": 0.75,
+        "xPoints": 3.07,
+        "pointsOverX": 2.93,
+        "remainingDifficulty": 1.08,
+        "scorePg": 1,
+        "passCountPg": 388,
+        "ballRate": 44.3,
+        "airBattleWinCountPg": 23,
+        "interceptCount": 1,
+        "cleanSheet": 1
+      },
+      "ranks": {
+        "points": 1,
+        "played": null,
+        "win": 1,
+        "draw": null,
+        "loss": 1,
+        "gf": 9,
+        "ga": 1,
+        "gd": 4,
+        "gaPerGame": 1,
+        "pointsPerGame": 1,
+        "homePoints": 2,
+        "awayPoints": 1,
+        "blanks": 1,
+        "form5Points": 1,
+        "attackRating": 9,
+        "defenseRating": 1,
+        "xPoints": 6,
+        "pointsOverX": 1,
+        "remainingDifficulty": 6,
+        "scorePg": 7,
+        "passCountPg": 11,
+        "ballRate": 17,
+        "airBattleWinCountPg": 5,
+        "interceptCount": 8,
+        "cleanSheet": 1
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": 7,
+          "rankComputed": 7
+        },
+        "passCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 11
+        },
+        "ballRate": {
+          "rankOfficial": null,
+          "rankComputed": 17
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": 5,
+          "rankComputed": 5
+        },
+        "interceptCount": {
+          "rankOfficial": 8,
+          "rankComputed": 8
+        },
+        "cleanSheet": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        }
+      }
+    },
+    {
+      "idTeam": "137706",
+      "ja": "北海道コンサドーレ札幌",
+      "short": "札幌",
+      "values": {
+        "points": 3,
+        "played": 2,
+        "win": 1,
+        "draw": 0,
+        "loss": 1,
+        "gf": 3,
+        "ga": 2,
+        "gd": 1,
+        "gaPerGame": 1.0,
+        "pointsPerGame": 1.5,
+        "homePoints": 3,
+        "awayPoints": 0,
+        "blanks": 0,
+        "form5Points": 3,
+        "attackRating": 1.08,
+        "defenseRating": 0.97,
+        "xPoints": 3.04,
+        "pointsOverX": -0.04,
+        "remainingDifficulty": 1.08,
+        "scorePg": 2,
+        "passCountPg": 438,
+        "ballRate": 47,
+        "airBattleWinCountPg": 13,
+        "interceptCount": 1,
+        "cleanSheet": 1
+      },
+      "ranks": {
+        "points": 6,
+        "played": null,
+        "win": 5,
+        "draw": null,
+        "loss": 6,
+        "gf": 6,
+        "ga": 7,
+        "gd": 8,
+        "gaPerGame": 7,
+        "pointsPerGame": 6,
+        "homePoints": 2,
+        "awayPoints": 9,
+        "blanks": 1,
+        "form5Points": 6,
+        "attackRating": 6,
+        "defenseRating": 7,
+        "xPoints": 7,
+        "pointsOverX": 11,
+        "remainingDifficulty": 10,
+        "scorePg": 1,
+        "passCountPg": 7,
+        "ballRate": 14,
+        "airBattleWinCountPg": 15,
+        "interceptCount": 8,
+        "cleanSheet": 1
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "passCountPg": {
+          "rankOfficial": 7,
+          "rankComputed": 7
+        },
+        "ballRate": {
+          "rankOfficial": null,
+          "rankComputed": 14
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 15
+        },
+        "interceptCount": {
+          "rankOfficial": 8,
+          "rankComputed": 8
+        },
+        "cleanSheet": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        }
+      }
+    },
+    {
+      "idTeam": "137711",
+      "ja": "大分トリニータ",
+      "short": "大分",
+      "values": {
+        "points": 1,
+        "played": 2,
+        "win": 0,
+        "draw": 1,
+        "loss": 1,
+        "gf": 0,
+        "ga": 1,
+        "gd": -1,
+        "gaPerGame": 0.5,
+        "pointsPerGame": 0.5,
+        "homePoints": 0,
+        "awayPoints": 1,
+        "blanks": 2,
+        "form5Points": 1,
+        "attackRating": 0.75,
+        "defenseRating": 0.86,
+        "xPoints": 2.49,
+        "pointsOverX": -1.49,
+        "remainingDifficulty": 1.09,
+        "scorePg": 0,
+        "passCountPg": 520,
+        "ballRate": 55.7,
+        "airBattleWinCountPg": 27,
+        "interceptCount": 0,
+        "cleanSheet": 0
+      },
+      "ranks": {
+        "points": 13,
+        "played": null,
+        "win": 13,
+        "draw": null,
+        "loss": 6,
+        "gf": 18,
+        "ga": 3,
+        "gd": 11,
+        "gaPerGame": 3,
+        "pointsPerGame": 13,
+        "homePoints": 16,
+        "awayPoints": 5,
+        "blanks": 18,
+        "form5Points": 13,
+        "attackRating": 18,
+        "defenseRating": 3,
+        "xPoints": 12,
+        "pointsOverX": 18,
+        "remainingDifficulty": 17,
+        "scorePg": 13,
+        "passCountPg": 3,
+        "ballRate": 4,
+        "airBattleWinCountPg": 3,
+        "interceptCount": 15,
+        "cleanSheet": 2
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": null,
+          "rankComputed": 13
+        },
+        "passCountPg": {
+          "rankOfficial": 3,
+          "rankComputed": 3
+        },
+        "ballRate": {
+          "rankOfficial": 4,
+          "rankComputed": 4
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": 3,
+          "rankComputed": 3
+        },
+        "interceptCount": {
+          "rankOfficial": null,
+          "rankComputed": 15
+        },
+        "cleanSheet": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        }
+      }
+    },
+    {
+      "idTeam": "137712",
+      "ja": "サガン鳥栖",
+      "short": "鳥栖",
+      "values": {
+        "points": 4,
+        "played": 2,
+        "win": 1,
+        "draw": 1,
+        "loss": 0,
+        "gf": 2,
+        "ga": 0,
+        "gd": 2,
+        "gaPerGame": 0.0,
+        "pointsPerGame": 2.0,
+        "homePoints": 3,
+        "awayPoints": 1,
+        "blanks": 1,
+        "form5Points": 4,
+        "attackRating": 0.97,
+        "defenseRating": 0.75,
+        "xPoints": 3.41,
+        "pointsOverX": 0.59,
+        "remainingDifficulty": 1.08,
+        "scorePg": 2,
+        "passCountPg": 363,
+        "ballRate": 49.6,
+        "airBattleWinCountPg": 14,
+        "interceptCount": 0,
+        "cleanSheet": 1
+      },
+      "ranks": {
+        "points": 5,
+        "played": null,
+        "win": 5,
+        "draw": null,
+        "loss": 1,
+        "gf": 9,
+        "ga": 1,
+        "gd": 4,
+        "gaPerGame": 1,
+        "pointsPerGame": 5,
+        "homePoints": 2,
+        "awayPoints": 5,
+        "blanks": 9,
+        "form5Points": 5,
+        "attackRating": 9,
+        "defenseRating": 1,
+        "xPoints": 3,
+        "pointsOverX": 7,
+        "remainingDifficulty": 11,
+        "scorePg": 1,
+        "passCountPg": 14,
+        "ballRate": 11,
+        "airBattleWinCountPg": 13,
+        "interceptCount": 15,
+        "cleanSheet": 1
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "passCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 14
+        },
+        "ballRate": {
+          "rankOfficial": null,
+          "rankComputed": 11
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 13
+        },
+        "interceptCount": {
+          "rankOfficial": null,
+          "rankComputed": 15
+        },
+        "cleanSheet": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        }
+      }
+    },
+    {
+      "idTeam": "137718",
+      "ja": "ベガルタ仙台",
+      "short": "仙台",
+      "values": {
+        "points": 1,
+        "played": 2,
+        "win": 0,
+        "draw": 1,
+        "loss": 1,
+        "gf": 0,
+        "ga": 2,
+        "gd": -2,
+        "gaPerGame": 1.0,
+        "pointsPerGame": 0.5,
+        "homePoints": 1,
+        "awayPoints": 0,
+        "blanks": 2,
+        "form5Points": 1,
+        "attackRating": 0.75,
+        "defenseRating": 0.97,
+        "xPoints": 2.18,
+        "pointsOverX": -1.18,
+        "remainingDifficulty": 1.08,
+        "scorePg": 0,
+        "passCountPg": 555,
+        "ballRate": 61.1,
+        "airBattleWinCountPg": 26,
+        "interceptCount": 1,
+        "cleanSheet": 0
+      },
+      "ranks": {
+        "points": 13,
+        "played": null,
+        "win": 13,
+        "draw": null,
+        "loss": 6,
+        "gf": 18,
+        "ga": 7,
+        "gd": 14,
+        "gaPerGame": 7,
+        "pointsPerGame": 13,
+        "homePoints": 12,
+        "awayPoints": 9,
+        "blanks": 18,
+        "form5Points": 13,
+        "attackRating": 18,
+        "defenseRating": 7,
+        "xPoints": 17,
+        "pointsOverX": 15,
+        "remainingDifficulty": 9,
+        "scorePg": 13,
+        "passCountPg": 2,
+        "ballRate": 2,
+        "airBattleWinCountPg": 4,
+        "interceptCount": 8,
+        "cleanSheet": 2
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": null,
+          "rankComputed": 13
+        },
+        "passCountPg": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        },
+        "ballRate": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": 4,
+          "rankComputed": 4
+        },
+        "interceptCount": {
+          "rankOfficial": 8,
+          "rankComputed": 8
+        },
+        "cleanSheet": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        }
+      }
+    },
+    {
+      "idTeam": "137720",
+      "ja": "横浜FC",
+      "short": "横浜FC",
+      "values": {
+        "points": 6,
+        "played": 2,
+        "win": 2,
+        "draw": 0,
+        "loss": 0,
+        "gf": 4,
+        "ga": 1,
+        "gd": 3,
+        "gaPerGame": 0.5,
+        "pointsPerGame": 3.0,
+        "homePoints": 3,
+        "awayPoints": 3,
+        "blanks": 0,
+        "form5Points": 6,
+        "attackRating": 1.18,
+        "defenseRating": 0.86,
+        "xPoints": 3.52,
+        "pointsOverX": 2.48,
+        "remainingDifficulty": 1.08,
+        "scorePg": 1,
+        "passCountPg": 386,
+        "ballRate": 48.9,
+        "airBattleWinCountPg": 15,
+        "interceptCount": 2,
+        "cleanSheet": 1
+      },
+      "ranks": {
+        "points": 1,
+        "played": null,
+        "win": 1,
+        "draw": null,
+        "loss": 1,
+        "gf": 3,
+        "ga": 3,
+        "gd": 2,
+        "gaPerGame": 3,
+        "pointsPerGame": 1,
+        "homePoints": 2,
+        "awayPoints": 1,
+        "blanks": 1,
+        "form5Points": 1,
+        "attackRating": 3,
+        "defenseRating": 3,
+        "xPoints": 2,
+        "pointsOverX": 3,
+        "remainingDifficulty": 5,
+        "scorePg": 7,
+        "passCountPg": 12,
+        "ballRate": 13,
+        "airBattleWinCountPg": 12,
+        "interceptCount": 1,
+        "cleanSheet": 1
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": 7,
+          "rankComputed": 7
+        },
+        "passCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 12
+        },
+        "ballRate": {
+          "rankOfficial": null,
+          "rankComputed": 13
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 12
+        },
+        "interceptCount": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "cleanSheet": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        }
+      }
+    },
+    {
+      "idTeam": "139881",
+      "ja": "アルビレックス新潟",
+      "short": "新潟",
+      "values": {
+        "points": 3,
+        "played": 2,
+        "win": 1,
+        "draw": 0,
+        "loss": 1,
+        "gf": 2,
+        "ga": 2,
+        "gd": 0,
+        "gaPerGame": 1.0,
+        "pointsPerGame": 1.5,
+        "homePoints": 3,
+        "awayPoints": 0,
+        "blanks": 1,
+        "form5Points": 3,
+        "attackRating": 0.97,
+        "defenseRating": 0.97,
+        "xPoints": 2.53,
+        "pointsOverX": 0.47,
+        "remainingDifficulty": 1.08,
+        "scorePg": 0,
+        "passCountPg": 470,
+        "ballRate": 54,
+        "airBattleWinCountPg": 17,
+        "interceptCount": 1,
+        "cleanSheet": 0
+      },
+      "ranks": {
+        "points": 6,
+        "played": null,
+        "win": 5,
+        "draw": null,
+        "loss": 6,
+        "gf": 9,
+        "ga": 7,
+        "gd": 10,
+        "gaPerGame": 7,
+        "pointsPerGame": 6,
+        "homePoints": 2,
+        "awayPoints": 9,
+        "blanks": 9,
+        "form5Points": 6,
+        "attackRating": 9,
+        "defenseRating": 7,
+        "xPoints": 11,
+        "pointsOverX": 8,
+        "remainingDifficulty": 4,
+        "scorePg": 13,
+        "passCountPg": 5,
+        "ballRate": 6,
+        "airBattleWinCountPg": 9,
+        "interceptCount": 8,
+        "cleanSheet": 2
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": null,
+          "rankComputed": 13
+        },
+        "passCountPg": {
+          "rankOfficial": 5,
+          "rankComputed": 5
+        },
+        "ballRate": {
+          "rankOfficial": 6,
+          "rankComputed": 6
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": 9,
+          "rankComputed": 9
+        },
+        "interceptCount": {
+          "rankOfficial": 8,
+          "rankComputed": 8
+        },
+        "cleanSheet": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        }
+      }
+    },
+    {
+      "idTeam": "139887",
+      "ja": "ジュビロ磐田",
+      "short": "磐田",
+      "values": {
+        "points": 1,
+        "played": 2,
+        "win": 0,
+        "draw": 1,
+        "loss": 1,
+        "gf": 2,
+        "ga": 4,
+        "gd": -2,
+        "gaPerGame": 2.0,
+        "pointsPerGame": 0.5,
+        "homePoints": 1,
+        "awayPoints": 0,
+        "blanks": 0,
+        "form5Points": 1,
+        "attackRating": 0.97,
+        "defenseRating": 1.18,
+        "xPoints": 2.65,
+        "pointsOverX": -1.65,
+        "remainingDifficulty": 1.09,
+        "scorePg": 1,
+        "passCountPg": 355,
+        "ballRate": 54.6,
+        "airBattleWinCountPg": 29,
+        "interceptCount": 0,
+        "cleanSheet": 0
+      },
+      "ranks": {
+        "points": 13,
+        "played": null,
+        "win": 13,
+        "draw": null,
+        "loss": 6,
+        "gf": 9,
+        "ga": 16,
+        "gd": 14,
+        "gaPerGame": 16,
+        "pointsPerGame": 13,
+        "homePoints": 12,
+        "awayPoints": 9,
+        "blanks": 1,
+        "form5Points": 13,
+        "attackRating": 9,
+        "defenseRating": 16,
+        "xPoints": 8,
+        "pointsOverX": 19,
+        "remainingDifficulty": 15,
+        "scorePg": 7,
+        "passCountPg": 16,
+        "ballRate": 5,
+        "airBattleWinCountPg": 2,
+        "interceptCount": 15,
+        "cleanSheet": 2
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": 7,
+          "rankComputed": 7
+        },
+        "passCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 16
+        },
+        "ballRate": {
+          "rankOfficial": 5,
+          "rankComputed": 5
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        },
+        "interceptCount": {
+          "rankOfficial": null,
+          "rankComputed": 15
+        },
+        "cleanSheet": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        }
+      }
+    },
+    {
+      "idTeam": "139892",
+      "ja": "モンテディオ山形",
+      "short": "山形",
+      "values": {
+        "points": 3,
+        "played": 2,
+        "win": 1,
+        "draw": 0,
+        "loss": 1,
+        "gf": 2,
+        "ga": 1,
+        "gd": 1,
+        "gaPerGame": 0.5,
+        "pointsPerGame": 1.5,
+        "homePoints": 3,
+        "awayPoints": 0,
+        "blanks": 1,
+        "form5Points": 3,
+        "attackRating": 0.97,
+        "defenseRating": 0.86,
+        "xPoints": 2.61,
+        "pointsOverX": 0.39,
+        "remainingDifficulty": 1.07,
+        "scorePg": 2,
+        "passCountPg": 460,
+        "ballRate": 50.5,
+        "airBattleWinCountPg": 12,
+        "interceptCount": 2,
+        "cleanSheet": 1
+      },
+      "ranks": {
+        "points": 6,
+        "played": null,
+        "win": 5,
+        "draw": null,
+        "loss": 6,
+        "gf": 9,
+        "ga": 3,
+        "gd": 8,
+        "gaPerGame": 3,
+        "pointsPerGame": 6,
+        "homePoints": 2,
+        "awayPoints": 9,
+        "blanks": 9,
+        "form5Points": 6,
+        "attackRating": 9,
+        "defenseRating": 3,
+        "xPoints": 9,
+        "pointsOverX": 10,
+        "remainingDifficulty": 2,
+        "scorePg": 1,
+        "passCountPg": 6,
+        "ballRate": 9,
+        "airBattleWinCountPg": 16,
+        "interceptCount": 1,
+        "cleanSheet": 1
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "passCountPg": {
+          "rankOfficial": 6,
+          "rankComputed": 6
+        },
+        "ballRate": {
+          "rankOfficial": 9,
+          "rankComputed": 9
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 16
+        },
+        "interceptCount": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "cleanSheet": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        }
+      }
+    },
+    {
+      "idTeam": "139893",
+      "ja": "RB大宮アルディージャ",
+      "short": "大宮",
+      "values": {
+        "points": 6,
+        "played": 2,
+        "win": 2,
+        "draw": 0,
+        "loss": 0,
+        "gf": 4,
+        "ga": 2,
+        "gd": 2,
+        "gaPerGame": 1.0,
+        "pointsPerGame": 3.0,
+        "homePoints": 3,
+        "awayPoints": 3,
+        "blanks": 0,
+        "form5Points": 6,
+        "attackRating": 1.18,
+        "defenseRating": 0.97,
+        "xPoints": 3.19,
+        "pointsOverX": 2.81,
+        "remainingDifficulty": 1.08,
+        "scorePg": 1,
+        "passCountPg": 391,
+        "ballRate": 46,
+        "airBattleWinCountPg": 22,
+        "interceptCount": 0,
+        "cleanSheet": 1
+      },
+      "ranks": {
+        "points": 1,
+        "played": null,
+        "win": 1,
+        "draw": null,
+        "loss": 1,
+        "gf": 3,
+        "ga": 7,
+        "gd": 4,
+        "gaPerGame": 7,
+        "pointsPerGame": 1,
+        "homePoints": 2,
+        "awayPoints": 1,
+        "blanks": 1,
+        "form5Points": 1,
+        "attackRating": 3,
+        "defenseRating": 7,
+        "xPoints": 5,
+        "pointsOverX": 2,
+        "remainingDifficulty": 8,
+        "scorePg": 7,
+        "passCountPg": 10,
+        "ballRate": 15,
+        "airBattleWinCountPg": 7,
+        "interceptCount": 15,
+        "cleanSheet": 1
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": 7,
+          "rankComputed": 7
+        },
+        "passCountPg": {
+          "rankOfficial": 10,
+          "rankComputed": 10
+        },
+        "ballRate": {
+          "rankOfficial": null,
+          "rankComputed": 15
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": 7,
+          "rankComputed": 7
+        },
+        "interceptCount": {
+          "rankOfficial": null,
+          "rankComputed": 15
+        },
+        "cleanSheet": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        }
+      }
+    },
+    {
+      "idTeam": "139898",
+      "ja": "徳島ヴォルティス",
+      "short": "徳島",
+      "values": {
+        "points": 1,
+        "played": 2,
+        "win": 0,
+        "draw": 1,
+        "loss": 1,
+        "gf": 0,
+        "ga": 2,
+        "gd": -2,
+        "gaPerGame": 1.0,
+        "pointsPerGame": 0.5,
+        "homePoints": 1,
+        "awayPoints": 0,
+        "blanks": 2,
+        "form5Points": 1,
+        "attackRating": 0.75,
+        "defenseRating": 0.97,
+        "xPoints": 2.09,
+        "pointsOverX": -1.09,
+        "remainingDifficulty": 1.09,
+        "scorePg": 0,
+        "passCountPg": 492,
+        "ballRate": 53,
+        "airBattleWinCountPg": 16,
+        "interceptCount": 2,
+        "cleanSheet": 0
+      },
+      "ranks": {
+        "points": 13,
+        "played": null,
+        "win": 13,
+        "draw": null,
+        "loss": 6,
+        "gf": 18,
+        "ga": 7,
+        "gd": 14,
+        "gaPerGame": 7,
+        "pointsPerGame": 13,
+        "homePoints": 12,
+        "awayPoints": 9,
+        "blanks": 18,
+        "form5Points": 13,
+        "attackRating": 18,
+        "defenseRating": 7,
+        "xPoints": 19,
+        "pointsOverX": 13,
+        "remainingDifficulty": 13,
+        "scorePg": 13,
+        "passCountPg": 4,
+        "ballRate": 7,
+        "airBattleWinCountPg": 11,
+        "interceptCount": 1,
+        "cleanSheet": 2
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": null,
+          "rankComputed": 13
+        },
+        "passCountPg": {
+          "rankOfficial": 4,
+          "rankComputed": 4
+        },
+        "ballRate": {
+          "rankOfficial": 7,
+          "rankComputed": 7
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 11
+        },
+        "interceptCount": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "cleanSheet": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        }
+      }
+    },
+    {
+      "idTeam": "139900",
+      "ja": "ヴァンフォーレ甲府",
+      "short": "甲府",
+      "values": {
+        "points": 1,
+        "played": 2,
+        "win": 0,
+        "draw": 1,
+        "loss": 1,
+        "gf": 1,
+        "ga": 3,
+        "gd": -2,
+        "gaPerGame": 1.5,
+        "pointsPerGame": 0.5,
+        "homePoints": 1,
+        "awayPoints": 0,
+        "blanks": 1,
+        "form5Points": 1,
+        "attackRating": 0.86,
+        "defenseRating": 1.08,
+        "xPoints": 2.4,
+        "pointsOverX": -1.4,
+        "remainingDifficulty": 1.09,
+        "scorePg": 0,
+        "passCountPg": 429,
+        "ballRate": 50.4,
+        "airBattleWinCountPg": 12,
+        "interceptCount": 1,
+        "cleanSheet": 0
+      },
+      "ranks": {
+        "points": 13,
+        "played": null,
+        "win": 13,
+        "draw": null,
+        "loss": 6,
+        "gf": 15,
+        "ga": 15,
+        "gd": 14,
+        "gaPerGame": 15,
+        "pointsPerGame": 13,
+        "homePoints": 12,
+        "awayPoints": 9,
+        "blanks": 9,
+        "form5Points": 13,
+        "attackRating": 15,
+        "defenseRating": 15,
+        "xPoints": 14,
+        "pointsOverX": 16,
+        "remainingDifficulty": 14,
+        "scorePg": 13,
+        "passCountPg": 8,
+        "ballRate": 10,
+        "airBattleWinCountPg": 16,
+        "interceptCount": 8,
+        "cleanSheet": 2
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": null,
+          "rankComputed": 13
+        },
+        "passCountPg": {
+          "rankOfficial": 8,
+          "rankComputed": 8
+        },
+        "ballRate": {
+          "rankOfficial": 10,
+          "rankComputed": 10
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 16
+        },
+        "interceptCount": {
+          "rankOfficial": 8,
+          "rankComputed": 8
+        },
+        "cleanSheet": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        }
+      }
+    },
+    {
+      "idTeam": "140509",
+      "ja": "ブラウブリッツ秋田",
+      "short": "秋田",
+      "values": {
+        "points": 1,
+        "played": 2,
+        "win": 0,
+        "draw": 1,
+        "loss": 1,
+        "gf": 1,
+        "ga": 5,
+        "gd": -4,
+        "gaPerGame": 2.5,
+        "pointsPerGame": 0.5,
+        "homePoints": 0,
+        "awayPoints": 1,
+        "blanks": 1,
+        "form5Points": 1,
+        "attackRating": 0.86,
+        "defenseRating": 1.29,
+        "xPoints": 2.1,
+        "pointsOverX": -1.1,
+        "remainingDifficulty": 1.1,
+        "scorePg": 1,
+        "passCountPg": 279,
+        "ballRate": 45.4,
+        "airBattleWinCountPg": 35,
+        "interceptCount": 1,
+        "cleanSheet": 0
+      },
+      "ranks": {
+        "points": 13,
+        "played": null,
+        "win": 13,
+        "draw": null,
+        "loss": 6,
+        "gf": 15,
+        "ga": 18,
+        "gd": 20,
+        "gaPerGame": 18,
+        "pointsPerGame": 13,
+        "homePoints": 16,
+        "awayPoints": 5,
+        "blanks": 9,
+        "form5Points": 13,
+        "attackRating": 15,
+        "defenseRating": 18,
+        "xPoints": 18,
+        "pointsOverX": 14,
+        "remainingDifficulty": 20,
+        "scorePg": 7,
+        "passCountPg": 17,
+        "ballRate": 16,
+        "airBattleWinCountPg": 1,
+        "interceptCount": 8,
+        "cleanSheet": 2
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": 7,
+          "rankComputed": 7
+        },
+        "passCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 17
+        },
+        "ballRate": {
+          "rankOfficial": null,
+          "rankComputed": 16
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "interceptCount": {
+          "rankOfficial": 8,
+          "rankComputed": 8
+        },
+        "cleanSheet": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        }
+      }
+    },
+    {
+      "idTeam": "141245",
+      "ja": "藤枝MYFC",
+      "short": "藤枝",
+      "values": {
+        "points": 6,
+        "played": 2,
+        "win": 2,
+        "draw": 0,
+        "loss": 0,
+        "gf": 5,
+        "ga": 1,
+        "gd": 4,
+        "gaPerGame": 0.5,
+        "pointsPerGame": 3.0,
+        "homePoints": 6,
+        "awayPoints": 0,
+        "blanks": 0,
+        "form5Points": 6,
+        "attackRating": 1.29,
+        "defenseRating": 0.86,
+        "xPoints": 4.94,
+        "pointsOverX": 1.06,
+        "remainingDifficulty": 1.1,
+        "scorePg": 2,
+        "passCountPg": 265,
+        "ballRate": 38.9,
+        "airBattleWinCountPg": 10,
+        "interceptCount": 0,
+        "cleanSheet": 1
+      },
+      "ranks": {
+        "points": 1,
+        "played": null,
+        "win": 1,
+        "draw": null,
+        "loss": 1,
+        "gf": 1,
+        "ga": 3,
+        "gd": 1,
+        "gaPerGame": 3,
+        "pointsPerGame": 1,
+        "homePoints": 1,
+        "awayPoints": 9,
+        "blanks": 1,
+        "form5Points": 1,
+        "attackRating": 1,
+        "defenseRating": 3,
+        "xPoints": 1,
+        "pointsOverX": 4,
+        "remainingDifficulty": 19,
+        "scorePg": 1,
+        "passCountPg": 19,
+        "ballRate": 19,
+        "airBattleWinCountPg": 18,
+        "interceptCount": 15,
+        "cleanSheet": 1
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "passCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 19
+        },
+        "ballRate": {
+          "rankOfficial": null,
+          "rankComputed": 19
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 18
+        },
+        "interceptCount": {
+          "rankOfficial": null,
+          "rankComputed": 15
+        },
+        "cleanSheet": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        }
+      }
+    },
+    {
+      "idTeam": "141249",
+      "ja": "FC今治",
+      "short": "今治",
+      "values": {
+        "points": 0,
+        "played": 2,
+        "win": 0,
+        "draw": 0,
+        "loss": 2,
+        "gf": 3,
+        "ga": 5,
+        "gd": -2,
+        "gaPerGame": 2.5,
+        "pointsPerGame": 0.0,
+        "homePoints": 0,
+        "awayPoints": 0,
+        "blanks": 0,
+        "form5Points": 0,
+        "attackRating": 1.08,
+        "defenseRating": 1.29,
+        "xPoints": 2.37,
+        "pointsOverX": -2.37,
+        "remainingDifficulty": 1.09,
+        "scorePg": 1,
+        "passCountPg": 368,
+        "ballRate": 56.7,
+        "airBattleWinCountPg": 17,
+        "interceptCount": 1,
+        "cleanSheet": 0
+      },
+      "ranks": {
+        "points": 20,
+        "played": null,
+        "win": 13,
+        "draw": null,
+        "loss": 20,
+        "gf": 6,
+        "ga": 18,
+        "gd": 14,
+        "gaPerGame": 18,
+        "pointsPerGame": 20,
+        "homePoints": 16,
+        "awayPoints": 9,
+        "blanks": 1,
+        "form5Points": 20,
+        "attackRating": 6,
+        "defenseRating": 18,
+        "xPoints": 15,
+        "pointsOverX": 20,
+        "remainingDifficulty": 18,
+        "scorePg": 7,
+        "passCountPg": 13,
+        "ballRate": 3,
+        "airBattleWinCountPg": 9,
+        "interceptCount": 8,
+        "cleanSheet": 2
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": 7,
+          "rankComputed": 7
+        },
+        "passCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 13
+        },
+        "ballRate": {
+          "rankOfficial": 3,
+          "rankComputed": 3
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": 9,
+          "rankComputed": 9
+        },
+        "interceptCount": {
+          "rankOfficial": 8,
+          "rankComputed": 8
+        },
+        "cleanSheet": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        }
+      }
+    },
+    {
+      "idTeam": "141251",
+      "ja": "カターレ富山",
+      "short": "富山",
+      "values": {
+        "points": 3,
+        "played": 2,
+        "win": 1,
+        "draw": 0,
+        "loss": 1,
+        "gf": 4,
+        "ga": 2,
+        "gd": 2,
+        "gaPerGame": 1.0,
+        "pointsPerGame": 1.5,
+        "homePoints": 0,
+        "awayPoints": 3,
+        "blanks": 1,
+        "form5Points": 3,
+        "attackRating": 1.18,
+        "defenseRating": 0.97,
+        "xPoints": 2.27,
+        "pointsOverX": 0.73,
+        "remainingDifficulty": 1.07,
+        "scorePg": 0,
+        "passCountPg": 668,
+        "ballRate": 65.8,
+        "airBattleWinCountPg": 14,
+        "interceptCount": 0,
+        "cleanSheet": 0
+      },
+      "ranks": {
+        "points": 6,
+        "played": null,
+        "win": 5,
+        "draw": null,
+        "loss": 6,
+        "gf": 3,
+        "ga": 7,
+        "gd": 4,
+        "gaPerGame": 7,
+        "pointsPerGame": 6,
+        "homePoints": 16,
+        "awayPoints": 1,
+        "blanks": 9,
+        "form5Points": 6,
+        "attackRating": 3,
+        "defenseRating": 7,
+        "xPoints": 16,
+        "pointsOverX": 6,
+        "remainingDifficulty": 1,
+        "scorePg": 13,
+        "passCountPg": 1,
+        "ballRate": 1,
+        "airBattleWinCountPg": 13,
+        "interceptCount": 15,
+        "cleanSheet": 2
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": null,
+          "rankComputed": 13
+        },
+        "passCountPg": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "ballRate": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 13
+        },
+        "interceptCount": {
+          "rankOfficial": null,
+          "rankComputed": 15
+        },
+        "cleanSheet": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        }
+      }
+    },
+    {
+      "idTeam": "141254",
+      "ja": "テゲバジャーロ宮崎",
+      "short": "宮崎",
+      "values": {
+        "points": 1,
+        "played": 2,
+        "win": 0,
+        "draw": 1,
+        "loss": 1,
+        "gf": 1,
+        "ga": 2,
+        "gd": -1,
+        "gaPerGame": 1.0,
+        "pointsPerGame": 0.5,
+        "homePoints": 0,
+        "awayPoints": 1,
+        "blanks": 1,
+        "form5Points": 1,
+        "attackRating": 0.86,
+        "defenseRating": 0.97,
+        "xPoints": 2.48,
+        "pointsOverX": -1.48,
+        "remainingDifficulty": 1.09,
+        "scorePg": 0,
+        "passCountPg": 417,
+        "ballRate": 51.1,
+        "airBattleWinCountPg": 10,
+        "interceptCount": 2,
+        "cleanSheet": 0
+      },
+      "ranks": {
+        "points": 13,
+        "played": null,
+        "win": 13,
+        "draw": null,
+        "loss": 6,
+        "gf": 15,
+        "ga": 7,
+        "gd": 11,
+        "gaPerGame": 7,
+        "pointsPerGame": 13,
+        "homePoints": 16,
+        "awayPoints": 5,
+        "blanks": 9,
+        "form5Points": 13,
+        "attackRating": 15,
+        "defenseRating": 7,
+        "xPoints": 13,
+        "pointsOverX": 17,
+        "remainingDifficulty": 16,
+        "scorePg": 13,
+        "passCountPg": 9,
+        "ballRate": 8,
+        "airBattleWinCountPg": 18,
+        "interceptCount": 1,
+        "cleanSheet": 2
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": null,
+          "rankComputed": 13
+        },
+        "passCountPg": {
+          "rankOfficial": 9,
+          "rankComputed": 9
+        },
+        "ballRate": {
+          "rankOfficial": 8,
+          "rankComputed": 8
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 18
+        },
+        "interceptCount": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "cleanSheet": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        }
+      }
+    },
+    {
+      "idTeam": "141255",
+      "ja": "ヴァンラーレ八戸",
+      "short": "八戸",
+      "values": {
+        "points": 3,
+        "played": 2,
+        "win": 1,
+        "draw": 0,
+        "loss": 1,
+        "gf": 2,
+        "ga": 5,
+        "gd": -3,
+        "gaPerGame": 2.5,
+        "pointsPerGame": 1.5,
+        "homePoints": 3,
+        "awayPoints": 0,
+        "blanks": 1,
+        "form5Points": 3,
+        "attackRating": 0.97,
+        "defenseRating": 1.29,
+        "xPoints": 1.99,
+        "pointsOverX": 1.01,
+        "remainingDifficulty": 1.08,
+        "scorePg": 2,
+        "passCountPg": 219,
+        "ballRate": 34.2,
+        "airBattleWinCountPg": 9,
+        "interceptCount": 2,
+        "cleanSheet": 1
+      },
+      "ranks": {
+        "points": 6,
+        "played": null,
+        "win": 5,
+        "draw": null,
+        "loss": 6,
+        "gf": 9,
+        "ga": 18,
+        "gd": 19,
+        "gaPerGame": 18,
+        "pointsPerGame": 6,
+        "homePoints": 2,
+        "awayPoints": 9,
+        "blanks": 9,
+        "form5Points": 6,
+        "attackRating": 9,
+        "defenseRating": 18,
+        "xPoints": 20,
+        "pointsOverX": 5,
+        "remainingDifficulty": 12,
+        "scorePg": 1,
+        "passCountPg": 20,
+        "ballRate": 20,
+        "airBattleWinCountPg": 20,
+        "interceptCount": 1,
+        "cleanSheet": 1
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "passCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 20
+        },
+        "ballRate": {
+          "rankOfficial": null,
+          "rankComputed": 20
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 20
+        },
+        "interceptCount": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "cleanSheet": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        }
+      }
+    },
+    {
+      "idTeam": "144685",
+      "ja": "いわきFC",
+      "short": "いわき",
+      "values": {
+        "points": 3,
+        "played": 2,
+        "win": 1,
+        "draw": 0,
+        "loss": 1,
+        "gf": 3,
+        "ga": 4,
+        "gd": -1,
+        "gaPerGame": 2.0,
+        "pointsPerGame": 1.5,
+        "homePoints": 3,
+        "awayPoints": 0,
+        "blanks": 0,
+        "form5Points": 3,
+        "attackRating": 1.08,
+        "defenseRating": 1.18,
+        "xPoints": 2.61,
+        "pointsOverX": 0.39,
+        "remainingDifficulty": 1.08,
+        "scorePg": 2,
+        "passCountPg": 267,
+        "ballRate": 43.3,
+        "airBattleWinCountPg": 23,
+        "interceptCount": 2,
+        "cleanSheet": 0
+      },
+      "ranks": {
+        "points": 6,
+        "played": null,
+        "win": 5,
+        "draw": null,
+        "loss": 6,
+        "gf": 6,
+        "ga": 16,
+        "gd": 11,
+        "gaPerGame": 16,
+        "pointsPerGame": 6,
+        "homePoints": 2,
+        "awayPoints": 9,
+        "blanks": 1,
+        "form5Points": 6,
+        "attackRating": 6,
+        "defenseRating": 16,
+        "xPoints": 10,
+        "pointsOverX": 9,
+        "remainingDifficulty": 7,
+        "scorePg": 1,
+        "passCountPg": 18,
+        "ballRate": 18,
+        "airBattleWinCountPg": 5,
+        "interceptCount": 1,
+        "cleanSheet": 2
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "passCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 18
+        },
+        "ballRate": {
+          "rankOfficial": null,
+          "rankComputed": 18
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": 5,
+          "rankComputed": 5
+        },
+        "interceptCount": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "cleanSheet": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        }
+      }
+    },
+    {
+      "idTeam": "150222",
+      "ja": "栃木シティ",
+      "short": "栃木C",
+      "values": {
+        "points": 3,
+        "played": 2,
+        "win": 1,
+        "draw": 0,
+        "loss": 1,
+        "gf": 5,
+        "ga": 2,
+        "gd": 3,
+        "gaPerGame": 1.0,
+        "pointsPerGame": 1.5,
+        "homePoints": 3,
+        "awayPoints": 0,
+        "blanks": 1,
+        "form5Points": 3,
+        "attackRating": 1.29,
+        "defenseRating": 0.97,
+        "xPoints": 3.41,
+        "pointsOverX": -0.41,
+        "remainingDifficulty": 1.07,
+        "scorePg": 0,
+        "passCountPg": 362,
+        "ballRate": 49.5,
+        "airBattleWinCountPg": 22,
+        "interceptCount": 2,
+        "cleanSheet": 0
+      },
+      "ranks": {
+        "points": 6,
+        "played": null,
+        "win": 5,
+        "draw": null,
+        "loss": 6,
+        "gf": 1,
+        "ga": 7,
+        "gd": 2,
+        "gaPerGame": 7,
+        "pointsPerGame": 6,
+        "homePoints": 2,
+        "awayPoints": 9,
+        "blanks": 9,
+        "form5Points": 6,
+        "attackRating": 1,
+        "defenseRating": 7,
+        "xPoints": 4,
+        "pointsOverX": 12,
+        "remainingDifficulty": 3,
+        "scorePg": 13,
+        "passCountPg": 15,
+        "ballRate": 12,
+        "airBattleWinCountPg": 7,
+        "interceptCount": 1,
+        "cleanSheet": 2
+      },
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": null,
+          "rankComputed": 13
+        },
+        "passCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 15
+        },
+        "ballRate": {
+          "rankOfficial": null,
+          "rankComputed": 12
+        },
+        "airBattleWinCountPg": {
+          "rankOfficial": 7,
+          "rankComputed": 7
+        },
+        "interceptCount": {
+          "rankOfficial": 1,
+          "rankComputed": 1
+        },
+        "cleanSheet": {
+          "rankOfficial": 2,
+          "rankComputed": 2
+        }
+      }
+    }
+  ]
+}
