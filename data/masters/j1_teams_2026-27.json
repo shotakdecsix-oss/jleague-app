@@ -20,28 +20,7 @@
     },
     "generatedAt": "2026-08-10",
     "clubLinkNote": "jleagueSlug はJリーグ公式のクラブページのURLスラッグ。選手一覧は https://www.jleague.jp/club/{jleagueSlug}/#player 。TheSportsDBの選手データは無料キーだと1チーム10人が上限で経歴・SNSも空のため、選手一覧はアプリ内に持たず公式へリンクする方針(2026-08-13決定)。",
-    "colorNote": "color(1stカラー)はWeb調査値(aoma23.com のJリーグ全60チーム カラーコード一覧)。レイラック滋賀FCのみ同表に無く、Wikipediaの『ブルーとパープル』から仮設定した要確認値。colorSub(2ndカラー)は color から機械生成した同系色(明るい色は暗く、暗い色は明るく)。実際の2ndカラー(湘南の青など)を使いたい場合はここを直接書き換えてよい。表示専用で計算には使わない。",
-    "aliasesJaNote": "aliasesJa はニュース記事のクラブ振り分け専用の日本語別名。TheSportsDBのチーム名照合には使わない（そちらは en / aliases）。複数クラブで曖昧な地名（大阪・東京・横浜・栃木など）と、選手の姓と一致する地名（町田・山口・清水・秋田など）は意図的に除外してある。追加するときは、その語が他クラブや人名に部分一致しないか必ず確認すること。",
-    "aliasesJaExcluded": {
-      "大阪": "G大阪/C大阪/FC大阪の3クラブで曖昧",
-      "東京": "FC東京/東京ヴェルディで曖昧",
-      "横浜": "横浜F・マリノス/横浜FCで曖昧。『横浜F』も『横浜FC』に部分一致するため不可",
-      "栃木": "栃木SC/栃木シティで曖昧",
-      "千葉": "地名として頻出。柏レイソルも千葉県のクラブ",
-      "柏": "1文字。『柏木』などの姓に部分一致する",
-      "町田": "町田浩樹（日本代表DF）と一致",
-      "山口": "山口蛍と一致",
-      "清水": "選手・記者の姓として頻出",
-      "松本": "選手の姓として頻出",
-      "秋田": "秋田豊（元日本代表・解説者）と一致",
-      "宮崎": "宮崎純真・宮崎智彦など選手の姓と一致",
-      "富山": "富山貴光など選手の姓と一致",
-      "長野": "長野風雅など選手の姓と一致",
-      "福島": "選手の姓として使われる。『福島ユナイテッド』のみ採用",
-      "岡山": "岡山一成など選手の姓と一致",
-      "神戸": "INAC神戸レオネッサ（女子）と混同。『ヴィッセル』のみ採用",
-      "川崎": "川崎フロンターレ以外の競技クラブと混同。『川崎F』『フロンターレ』のみ採用"
-    }
+    "colorNote": "color(1stカラー)はWeb調査値(aoma23.com のJリーグ全60チーム カラーコード一覧)。レイラック滋賀FCのみ同表に無く、Wikipediaの『ブルーとパープル』から仮設定した要確認値。colorSub(2ndカラー)は color から機械生成した同系色(明るい色は暗く、暗い色は明るく)。実際の2ndカラー(湘南の青など)を使いたい場合はここを直接書き換えてよい。表示専用で計算には使わない。"
   },
   "teams": [
     {
@@ -57,11 +36,7 @@
       "playersUrl": "https://www.jleague.jp/club/kashima/player/",
       "color": "#b8193f",
       "colorSub": "#d16a82",
-      "squadUrl": "https://www.jleague.jp/club/kashima/player/",
-      "aliasesJa": [
-        "アントラーズ",
-        "鹿島"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/kashima/player/"
     },
     {
       "idTeam": "137716",
@@ -77,11 +52,7 @@
       "playersUrl": "https://www.jleague.jp/club/urawa/player/",
       "color": "#e6002d",
       "colorSub": "#ef5977",
-      "squadUrl": "https://www.jleague.jp/club/urawa/player/",
-      "aliasesJa": [
-        "レッズ",
-        "浦和"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/urawa/player/"
     },
     {
       "idTeam": "137708",
@@ -96,10 +67,7 @@
       "playersUrl": "https://www.jleague.jp/club/kashiwa/player/",
       "color": "#fff100",
       "colorSub": "#948c00",
-      "squadUrl": "https://www.jleague.jp/club/kashiwa/player/",
-      "aliasesJa": [
-        "レイソル"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/kashiwa/player/"
     },
     {
       "idTeam": "139886",
@@ -115,12 +83,7 @@
       "playersUrl": "https://www.jleague.jp/club/chiba/player/",
       "color": "#ffe100",
       "colorSub": "#948200",
-      "squadUrl": "https://www.jleague.jp/club/chiba/player/",
-      "aliasesJa": [
-        "ジェフ千葉",
-        "ジェフユナイテッド",
-        "ジェフ"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/chiba/player/"
     },
     {
       "idTeam": "139891",
@@ -136,11 +99,7 @@
       "playersUrl": "https://www.jleague.jp/club/mito/player/",
       "color": "#005ca2",
       "colorSub": "#5995c3",
-      "squadUrl": "https://www.jleague.jp/club/mito/player/",
-      "aliasesJa": [
-        "ホーリーホック",
-        "水戸"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/mito/player/"
     },
     {
       "idTeam": "137704",
@@ -155,10 +114,7 @@
       "playersUrl": "https://www.jleague.jp/club/ftokyo/player/",
       "color": "#11216c",
       "colorSub": "#646f9f",
-      "squadUrl": "https://www.jleague.jp/club/ftokyo/player/",
-      "aliasesJa": [
-        "ＦＣ東京"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/ftokyo/player/"
     },
     {
       "idTeam": "139901",
@@ -174,12 +130,7 @@
       "playersUrl": "https://www.jleague.jp/club/tokyov/player/",
       "color": "#006d30",
       "colorSub": "#59a078",
-      "squadUrl": "https://www.jleague.jp/club/tokyov/player/",
-      "aliasesJa": [
-        "ヴェルディ",
-        "東京V",
-        "東京Ｖ"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/tokyov/player/"
     },
     {
       "idTeam": "139889",
@@ -195,11 +146,7 @@
       "playersUrl": "https://www.jleague.jp/club/machida/player/",
       "color": "#0054a7",
       "colorSub": "#5990c6",
-      "squadUrl": "https://www.jleague.jp/club/machida/player/",
-      "aliasesJa": [
-        "ゼルビア",
-        "ＦＣ町田ゼルビア"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/machida/player/"
     },
     {
       "idTeam": "137709",
@@ -214,12 +161,7 @@
       "playersUrl": "https://www.jleague.jp/club/kawasakif/player/",
       "color": "#38a1db",
       "colorSub": "#205d7f",
-      "squadUrl": "https://www.jleague.jp/club/kawasakif/player/",
-      "aliasesJa": [
-        "フロンターレ",
-        "川崎F",
-        "川崎Ｆ"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/kawasakif/player/"
     },
     {
       "idTeam": "137719",
@@ -236,13 +178,7 @@
       "playersUrl": "https://www.jleague.jp/club/yokohamafm/player/",
       "color": "#004098",
       "colorSub": "#5983bc",
-      "squadUrl": "https://www.jleague.jp/club/yokohamafm/player/",
-      "aliasesJa": [
-        "マリノス",
-        "横浜FM",
-        "横浜ＦＭ",
-        "横浜Ｆ・マリノス"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/yokohamafm/player/"
     },
     {
       "idTeam": "137714",
@@ -258,10 +194,7 @@
       "playersUrl": "https://www.jleague.jp/club/shimizu/player/",
       "color": "#f18900",
       "colorSub": "#8c4f00",
-      "squadUrl": "https://www.jleague.jp/club/shimizu/player/",
-      "aliasesJa": [
-        "エスパルス"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/shimizu/player/"
     },
     {
       "idTeam": "137710",
@@ -277,11 +210,7 @@
       "playersUrl": "https://www.jleague.jp/club/nagoya/player/",
       "color": "#e6002d",
       "colorSub": "#ef5977",
-      "squadUrl": "https://www.jleague.jp/club/nagoya/player/",
-      "aliasesJa": [
-        "グランパス",
-        "名古屋"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/nagoya/player/"
     },
     {
       "idTeam": "139888",
@@ -298,11 +227,7 @@
       "playersUrl": "https://www.jleague.jp/club/kyoto/player/",
       "color": "#750069",
       "colorSub": "#a5599e",
-      "squadUrl": "https://www.jleague.jp/club/kyoto/player/",
-      "aliasesJa": [
-        "京都サンガ",
-        "サンガ"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/kyoto/player/"
     },
     {
       "idTeam": "137705",
@@ -317,12 +242,7 @@
       "playersUrl": "https://www.jleague.jp/club/gosaka/player/",
       "color": "#00458d",
       "colorSub": "#5986b5",
-      "squadUrl": "https://www.jleague.jp/club/gosaka/player/",
-      "aliasesJa": [
-        "ガンバ",
-        "G大阪",
-        "Ｇ大阪"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/gosaka/player/"
     },
     {
       "idTeam": "137703",
@@ -337,12 +257,7 @@
       "playersUrl": "https://www.jleague.jp/club/cosaka/player/",
       "color": "#da005c",
       "colorSub": "#e75995",
-      "squadUrl": "https://www.jleague.jp/club/cosaka/player/",
-      "aliasesJa": [
-        "セレッソ",
-        "C大阪",
-        "Ｃ大阪"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/cosaka/player/"
     },
     {
       "idTeam": "137717",
@@ -357,10 +272,7 @@
       "playersUrl": "https://www.jleague.jp/club/kobe/player/",
       "color": "#a9002e",
       "colorSub": "#c75977",
-      "squadUrl": "https://www.jleague.jp/club/kobe/player/",
-      "aliasesJa": [
-        "ヴィッセル"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/kobe/player/"
     },
     {
       "idTeam": "139884",
@@ -375,10 +287,7 @@
       "playersUrl": "https://www.jleague.jp/club/okayama/player/",
       "color": "#b6003d",
       "colorSub": "#d05981",
-      "squadUrl": "https://www.jleague.jp/club/okayama/player/",
-      "aliasesJa": [
-        "ファジアーノ"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/okayama/player/"
     },
     {
       "idTeam": "137713",
@@ -393,11 +302,7 @@
       "playersUrl": "https://www.jleague.jp/club/hiroshima/player/",
       "color": "#51318f",
       "colorSub": "#8e79b6",
-      "squadUrl": "https://www.jleague.jp/club/hiroshima/player/",
-      "aliasesJa": [
-        "サンフレッチェ",
-        "広島"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/hiroshima/player/"
     },
     {
       "idTeam": "139882",
@@ -412,11 +317,7 @@
       "playersUrl": "https://www.jleague.jp/club/fukuoka/player/",
       "color": "#001b5b",
       "colorSub": "#596b94",
-      "squadUrl": "https://www.jleague.jp/club/fukuoka/player/",
-      "aliasesJa": [
-        "アビスパ",
-        "福岡"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/fukuoka/player/"
     },
     {
       "idTeam": "139899",
@@ -433,13 +334,24 @@
       "playersUrl": "https://www.jleague.jp/club/nagasaki/player/",
       "color": "#003894",
       "colorSub": "#597eb9",
-      "squadUrl": "https://www.jleague.jp/club/nagasaki/player/",
-      "aliasesJa": [
-        "V・ファーレン",
-        "Ｖ・ファーレン",
-        "ヴィファーレン",
-        "長崎"
-      ]
+      "squadUrl": "https://www.jleague.jp/club/nagasaki/player/"
     }
-  ]
+  ],
+  "promotionRules": {
+    "champion": [
+      1
+    ],
+    "relegation": [
+      18,
+      19,
+      20
+    ],
+    "labels": {
+      "champion": "優勝",
+      "relegation": "降格"
+    },
+    "totalRounds": 38,
+    "source": "goal.com「Jリーグ2026-27の昇降格条件は？」(2026-08-19確認)",
+    "note": "J1は最上位リーグ。昇格は無く、争点は優勝と残留。降格は18〜20位の3クラブ。"
+  }
 }

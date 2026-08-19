@@ -12,6 +12,9 @@
     data/masters/*.json
     data/processed/*.json      (club_extra.json / live.jsonも含む、全部)
 
+生成するもの(コピーではなく、ビルドの都度ここで新しく書く):
+    deploy-time.txt            (デプロイ時刻の鮮度表示用。index.htmlのフッターに小さく出す)
+
 コピーしないもの(配信に不要なだけで、規約上の理由ではない):
     scripts/ docs/ data/config/ data/fixtures/ data/tmp/
 
@@ -23,7 +26,11 @@ from __future__ import annotations
 
 import shutil
 import sys
+from datetime import datetime
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from time_utils import JST  # noqa: E402
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DIST_DIR = BASE_DIR / "dist"
@@ -64,6 +71,17 @@ def copy_dirs() -> None:
         print(f"[info] コピー: {rel}/ ({count}ファイル)")
 
 
+def write_deploy_time() -> None:
+    """
+    dist/deploy-time.txt に、いまこの瞬間のJST時刻を書く(デバッグ用の小さな鮮度表示)。
+    ソースには存在しない、distをビルドする直前にフレッシュな値をここで生成するファイル。
+    index.htmlがこれを取得してフッターに小さく出す(表示できなくてもアプリは落ちない設計)。
+    """
+    now = datetime.now(JST).strftime("%Y-%m-%d %H:%M JST")
+    (DIST_DIR / "deploy-time.txt").write_text(now, encoding="utf-8")
+    print(f"[info] デプロイ時刻を記録: {now}")
+
+
 def report_size() -> None:
     files = [f for f in DIST_DIR.rglob("*") if f.is_file()]
     total_bytes = sum(f.stat().st_size for f in files)
@@ -82,6 +100,7 @@ def main() -> None:
     clean_dist()
     copy_top_level_files()
     copy_dirs()
+    write_deploy_time()
     report_size()
     print("\n[info] dist/ のビルド完了")
 

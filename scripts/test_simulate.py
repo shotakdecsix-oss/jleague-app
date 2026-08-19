@@ -52,6 +52,9 @@ def test_same_seed_gives_identical_result() -> None:
         assert t1["expectedPoints"] == t2["expectedPoints"], "同じseedなら勝点期待値もビット単位で一致するはず"
         assert t1["rankDistribution"] == t2["rankDistribution"]
         assert t1["autoPromotion"] == t2["autoPromotion"]
+        assert t1["champion"] == t2["champion"]
+        assert t1["projectedRank"] == t2["projectedRank"]
+        assert t1["medianRank"] == t2["medianRank"]
     print("OK: 同じseedで2回実行すると完全に同じ結果になる")
 
 
@@ -163,12 +166,85 @@ def test_no_promotion_rules_gives_null_zones() -> None:
     ]
     r = run_simulation(matches, TEAMS_4, None, trials=20, seed=1, progress=False)
     for t in r["teams"]:
+        assert t["champion"] is None
         assert t["autoPromotion"] is None
         assert t["playoff"] is None
         assert t["relegation"] is None
         assert t["expectedRank"] is not None
         assert t["expectedPoints"] is not None
-    print("OK: promotionRules無しのリーグではautoPromotion/playoff/relegationがnull")
+        # promotionRulesが無くても予想最終順位表に必要な指標は必ず出る
+        assert t["projectedRank"] is not None
+        assert t["medianRank"] is not None
+        assert t["rankP10"] is not None
+        assert t["rankP90"] is not None
+    print("OK: promotionRules無しのリーグではchampion/autoPromotion/playoff/relegationがnull")
+
+
+def test_champion_zone_without_auto_promotion() -> None:
+    """
+    J1のように autoPromotion が無く champion だけのルールでも、championキーを走査して
+    正しく確率化されること(simulate.py側がautoPromotion決め打ちをやめたことの確認)。
+    """
+    matches = [
+        M("A", 2, "B", 1),
+        M("C", 1, "D", 1),
+        M("A", None, "C", None, finished=False, kickoff="2026-02-01T10:00:00+09:00"),
+        M("B", None, "D", None, finished=False, kickoff="2026-02-01T10:00:00+09:00"),
+    ]
+    rules = {"champion": [1], "relegation": [4]}
+    r = run_simulation(matches, TEAMS_4, rules, trials=300, seed=3, progress=False)
+    for t in r["teams"]:
+        assert t["autoPromotion"] is None, "autoPromotionキーが無いルールではnullのまま"
+        assert t["playoff"] is None
+        assert t["champion"] is not None and 0.0 <= t["champion"] <= 1.0
+        assert t["relegation"] is not None and 0.0 <= t["relegation"] <= 1.0
+    # 1位タイの試行があり得るため、championの合計は1.0以上になりうる(rankDistributionの
+    # 同順位合計と同じ理屈。test_per_rank_sum_across_teamsを参照)。ここでは0より大きいことだけ確認する。
+    total_champion = sum(t["champion"] for t in r["teams"])
+    assert total_champion >= 1.0 - 1e-9, total_champion
+    print("OK: autoPromotion無し・championのみのルールでもchampion確率が正しく出る")
+
+
+def test_projected_rank_is_sequential_and_delta_matches_current() -> None:
+    """
+    projectedRankが1からクラブ数まで過不足なく1回ずつ現れ、rankDeltaがcurrentRank-projectedRankと
+    一致すること。rankP10 <= medianRank <= rankP90 も成立すること。
+    """
+    matches = [
+        M("A", 2, "B", 1),
+        M("C", 1, "D", 1),
+        M("A", None, "C", None, finished=False, kickoff="2026-02-01T10:00:00+09:00"),
+        M("B", None, "D", None, finished=False, kickoff="2026-02-01T10:00:00+09:00"),
+    ]
+    r = run_simulation(matches, TEAMS_4, PROMOTION_RULES, trials=500, seed=11, progress=False)
+    projected_ranks = sorted(t["projectedRank"] for t in r["teams"])
+    assert projected_ranks == list(range(1, len(TEAMS_4) + 1)), projected_ranks
+    for t in r["teams"]:
+        assert t["rankDelta"] == t["currentRank"] - t["projectedRank"], t
+        assert t["rankP10"] <= t["medianRank"] <= t["rankP90"], t
+    # teams[]自体がprojectedRankの昇順で並んでいること
+    assert [t["projectedRank"] for t in r["teams"]] == list(range(1, len(TEAMS_4) + 1))
+    print("OK: projectedRankが1からクラブ数まで過不足なく1回ずつ現れ、rankDeltaとteams[]の並び順も正しい")
+
+
+def test_percentile_rank_matches_deterministic_distribution() -> None:
+    """
+    pending試合0件(=1trialで結果が完全に決まる)なら、medianRank/rankP10/rankP90は
+    全て実際の最終順位と一致すること(分布に幅が無いケースの境界確認)。
+    """
+    matches = [
+        M("A", 3, "B", 0),  # A: pts3,gd3 (1位) / B: pts0,gd-3 (4位)
+        M("C", 1, "D", 0),  # C: pts3,gd1 (2位) / D: pts0,gd-1 (3位)
+    ]
+    r = run_simulation(matches, TEAMS_4, None, trials=1, seed=1, progress=False)
+    by_id = {t["idTeam"]: t for t in r["teams"]}
+    expected_rank_of = {"A": 1, "C": 2, "D": 3, "B": 4}
+    for tid, rank in expected_rank_of.items():
+        t = by_id[tid]
+        assert t["medianRank"] == rank, t
+        assert t["rankP10"] == rank, t
+        assert t["rankP90"] == rank, t
+    print("OK: 決定的な分布ではmedianRank/rankP10/rankP90が全て実際の順位と一致する")
 
 
 def main() -> None:
@@ -179,6 +255,9 @@ def main() -> None:
         test_zero_finished_matches_gives_neutral_ratings,
         test_auto_promotion_plus_playoff_does_not_exceed_one,
         test_no_promotion_rules_gives_null_zones,
+        test_champion_zone_without_auto_promotion,
+        test_projected_rank_is_sequential_and_delta_matches_current,
+        test_percentile_rank_matches_deterministic_distribution,
     ]
     for t in tests:
         t()

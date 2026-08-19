@@ -52,6 +52,36 @@ MASTER_FILES = {
 DEFAULT_TRIALS = 10000
 DEFAULT_SEED = 42
 
+# promotionRulesの区分キー。値が無い(null/キー無し)区分は結果からnullで返す。
+# リーグ名やラベル文字列では判定しない(将来リーグの区分が変わっても壊れないように、キーの有無だけで判定する)。
+ZONE_KEYS = ["champion", "autoPromotion", "playoff", "relegation"]
+
+
+def zone_rank_sets(promotion_rules: dict | None) -> dict[str, set[int]]:
+    """promotionRulesから、区分名 -> 順位集合 の辞書を作る。値がnull/キー無しの区分は含めない。"""
+    if not promotion_rules:
+        return {}
+    zones: dict[str, set[int]] = {}
+    for key in ZONE_KEYS:
+        ranks = promotion_rules.get(key)
+        if ranks:
+            zones[key] = set(ranks)
+    return zones
+
+
+def percentile_rank(counts: list[int], trials: int, p: float) -> int:
+    """
+    順位ごとの試行回数配列(counts[0]=1位の回数, ...)から、p分位点の順位(整数)を求める。
+    累積試行回数が最初に trials*p 以上になった順位を返す(離散分布のパーセンタイル)。
+    """
+    threshold = p * trials
+    cum = 0
+    for i, c in enumerate(counts):
+        cum += c
+        if cum >= threshold:
+            return i + 1
+    return len(counts)
+
 
 def rank_groups_to_rank_of(groups: list[list[str]]) -> dict[str, int]:
     """rank_teams()の出力(タイのグループ列)を idTeam -> 競技順位(1,1,3,...) に変換する。"""
@@ -88,13 +118,10 @@ def run_simulation(
 
     rank_counts: dict[str, list[int]] = {tid: [0] * n_teams for tid in all_ids}
     points_sum: dict[str, float] = {tid: 0.0 for tid in all_ids}
+    zones = zone_rank_sets(promotion_rules)
     zone_counts: dict[str, dict[str, int]] | None = None
-    if promotion_rules:
-        zone_counts = {tid: {"autoPromotion": 0, "playoff": 0, "relegation": 0} for tid in all_ids}
-
-    auto_promo_ranks = set(promotion_rules.get("autoPromotion", [])) if promotion_rules else set()
-    playoff_ranks = set(promotion_rules.get("playoff", [])) if promotion_rules else set()
-    relegation_ranks = set(promotion_rules.get("relegation", [])) if promotion_rules else set()
+    if zones:
+        zone_counts = {tid: {key: 0 for key in zones} for tid in all_ids}
 
     rnd = random.Random(seed)
 
@@ -123,12 +150,9 @@ def run_simulation(
                 rank_counts[tid][r - 1] += 1
                 points_sum[tid] += sim_records[tid].points
                 if zone_counts is not None:
-                    if r in auto_promo_ranks:
-                        zone_counts[tid]["autoPromotion"] += 1
-                    if r in playoff_ranks:
-                        zone_counts[tid]["playoff"] += 1
-                    if r in relegation_ranks:
-                        zone_counts[tid]["relegation"] += 1
+                    for key, ranks in zones.items():
+                        if r in ranks:
+                            zone_counts[tid][key] += 1
             r += len(group)
 
         if progress and trial % 1000 == 0:
@@ -137,6 +161,11 @@ def run_simulation(
     # 注意: ここでは丸めない(round()はJSON出力直前のmain()側だけでやる)。
     # rankDistributionを丸めてから合計を検算すると1e-9以内には収まらなくなるため、
     # 生の値をそのまま返す。テスト(test_simulate.py)もこの生の値を検証する。
+    def zone_prob(tid: str, key: str) -> float | None:
+        if zone_counts is None or key not in zone_counts[tid]:
+            return None
+        return zone_counts[tid][key] / trials
+
     team_lookup = {t["idTeam"]: t for t in master_teams}
     teams_out = []
     for tid in all_ids:
@@ -152,16 +181,25 @@ def run_simulation(
             "currentRank": current_rank_of.get(tid),
             "expectedPoints": points_sum[tid] / trials,
             "expectedRank": expected_rank,
-            "autoPromotion": (zone_counts[tid]["autoPromotion"] / trials) if zone_counts else None,
-            "playoff": (zone_counts[tid]["playoff"] / trials) if zone_counts else None,
-            "relegation": (zone_counts[tid]["relegation"] / trials) if zone_counts else None,
+            "medianRank": percentile_rank(counts, trials, 0.5),
+            "rankP10": percentile_rank(counts, trials, 0.10),
+            "rankP90": percentile_rank(counts, trials, 0.90),
+            "champion": zone_prob(tid, "champion"),
+            "autoPromotion": zone_prob(tid, "autoPromotion"),
+            "playoff": zone_prob(tid, "playoff"),
+            "relegation": zone_prob(tid, "relegation"),
             "rankDistribution": rank_distribution,
             "attackRating": atk,
             "defenseRating": de,
         }
         teams_out.append(entry)
 
-    teams_out.sort(key=lambda t: t["expectedRank"])
+    # projectedRank: expectedRankの昇順(同値ならexpectedPointsの高い方を上位)で1から重複無く振る。
+    # 同値のままだとフロントのprojectedRank昇順ソートで順序が不定になるため、決定的なタイブレークが必須。
+    teams_out.sort(key=lambda t: (t["expectedRank"], -t["expectedPoints"]))
+    for i, t in enumerate(teams_out):
+        t["projectedRank"] = i + 1
+        t["rankDelta"] = (t["currentRank"] - t["projectedRank"]) if t["currentRank"] is not None else None
 
     return {
         "trials": trials,
@@ -216,8 +254,14 @@ def main() -> None:
             "ja": t["ja"],
             "short": t["short"],
             "currentRank": t["currentRank"],
+            "projectedRank": t["projectedRank"],
+            "rankDelta": t["rankDelta"],
             "expectedPoints": round(t["expectedPoints"], 1),
             "expectedRank": round(t["expectedRank"], 2),
+            "medianRank": t["medianRank"],
+            "rankP10": t["rankP10"],
+            "rankP90": t["rankP90"],
+            "champion": r_or_none(t["champion"], 3),
             "autoPromotion": r_or_none(t["autoPromotion"], 3),
             "playoff": r_or_none(t["playoff"], 3),
             "relegation": r_or_none(t["relegation"], 3),
