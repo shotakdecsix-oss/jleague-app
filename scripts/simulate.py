@@ -83,6 +83,18 @@ def percentile_rank(counts: list[int], trials: int, p: float) -> int:
     return len(counts)
 
 
+def mode_rank_from_counts(counts: list[int], expected_rank: float) -> tuple[int, int]:
+    """
+    rankDistribution(counts, 0-indexed)の最頻値(=最もあり得る最終順位)を求める。
+    最大値を取る順位が複数あるとき(タイ)は、expected_rank(平均順位)に近いほうを採用する。
+    戻り値は (1-indexedの順位, その順位になった試行回数)。
+    """
+    max_count = max(counts)
+    candidates = [i for i, c in enumerate(counts) if c == max_count]  # 0-indexed
+    best = min(candidates, key=lambda i: abs((i + 1) - expected_rank))
+    return best + 1, counts[best]
+
+
 def rank_groups_to_rank_of(groups: list[list[str]]) -> dict[str, int]:
     """rank_teams()の出力(タイのグループ列)を idTeam -> 競技順位(1,1,3,...) に変換する。"""
     rank_of: dict[str, int] = {}
@@ -172,6 +184,7 @@ def run_simulation(
         counts = rank_counts[tid]
         rank_distribution = [c / trials for c in counts]
         expected_rank = sum((i + 1) * c for i, c in enumerate(counts)) / trials
+        mode_rank, mode_count = mode_rank_from_counts(counts, expected_rank)
         atk, de = ratings[tid]
         info = team_lookup.get(tid, {})
         entry = {
@@ -184,6 +197,8 @@ def run_simulation(
             "medianRank": percentile_rank(counts, trials, 0.5),
             "rankP10": percentile_rank(counts, trials, 0.10),
             "rankP90": percentile_rank(counts, trials, 0.90),
+            "modeRank": mode_rank,
+            "modeRankProb": mode_count / trials,
             "champion": zone_prob(tid, "champion"),
             "autoPromotion": zone_prob(tid, "autoPromotion"),
             "playoff": zone_prob(tid, "playoff"),
@@ -194,12 +209,7 @@ def run_simulation(
         }
         teams_out.append(entry)
 
-    # projectedRank: expectedRankの昇順(同値ならexpectedPointsの高い方を上位)で1から重複無く振る。
-    # 同値のままだとフロントのprojectedRank昇順ソートで順序が不定になるため、決定的なタイブレークが必須。
-    teams_out.sort(key=lambda t: (t["expectedRank"], -t["expectedPoints"]))
-    for i, t in enumerate(teams_out):
-        t["projectedRank"] = i + 1
-        t["rankDelta"] = (t["currentRank"] - t["projectedRank"]) if t["currentRank"] is not None else None
+    teams_out.sort(key=lambda t: t["expectedRank"])
 
     return {
         "trials": trials,
@@ -254,13 +264,13 @@ def main() -> None:
             "ja": t["ja"],
             "short": t["short"],
             "currentRank": t["currentRank"],
-            "projectedRank": t["projectedRank"],
-            "rankDelta": t["rankDelta"],
             "expectedPoints": round(t["expectedPoints"], 1),
             "expectedRank": round(t["expectedRank"], 2),
             "medianRank": t["medianRank"],
             "rankP10": t["rankP10"],
             "rankP90": t["rankP90"],
+            "modeRank": t["modeRank"],
+            "modeRankProb": round(t["modeRankProb"], 3),
             "champion": r_or_none(t["champion"], 3),
             "autoPromotion": r_or_none(t["autoPromotion"], 3),
             "playoff": r_or_none(t["playoff"], 3),

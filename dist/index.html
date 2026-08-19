@@ -160,6 +160,13 @@
     margin:10px 0 0; padding:10px 12px; border-radius:10px;
     background:#f7f8fa; font-size:12px; font-weight:700; color:var(--ink);
   }
+  /* 予想順位(最頻値)ブロック。確率タイルと同じカード内の別セクションとして下に積む */
+  .mode-rank{margin-top:14px; padding-top:14px; border-top:1px solid var(--line); text-align:center}
+  .mode-rank:first-child{margin-top:0; padding-top:0; border-top:none}
+  .mode-rank-label{font-size:11px; color:var(--sub)}
+  .mode-rank-num{font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; margin-top:2px}
+  .mode-rank-sub{font-size:12px; color:var(--sub); margin-top:4px}
+  .mode-rank-warn{font-size:12px; font-weight:700; color:var(--ink); margin-top:4px}
 
   /* ニュース */
   ul.news-list{list-style:none; margin:0; padding:0}
@@ -262,7 +269,6 @@ const state = {
   statsGroup: "model", // スタッツタブのレーダー切替(既定は「モデル」)
   scheduleMode: "mine", // 日程タブ: "mine"=自クラブのみ(既定) / "all"=リーグ全体
   scheduleRound: null,   // 日程タブ: 表示中の節。nullなら初回表示時に直近の節を計算する
-  standingsView: "current", // 順位タブ: "current"=現在の順位表(既定) / "projected"=予想最終順位表
   deployTime: undefined, // デプロイ時刻(deploy-time.txt)。undefined=未取得、null=取得失敗(表示しない)
 };
 
@@ -438,7 +444,6 @@ async function ensureTabData(league, tabId) {
     await ensureMatches(league); // 全380試合が既に入っているので追加取得は不要
   } else if (tabId === "standings") {
     await ensureStandings(league);
-    await ensureSimulation(league); // 予想最終順位表のサブ切替で使う
   } else if (tabId === "stats") {
     await ensureStats(league);
   } else if (tabId === "players") {
@@ -513,13 +518,6 @@ async function init() {
     const modeBtn = ev.target.closest("[data-schedulemode]");
     if (modeBtn) {
       state.scheduleMode = modeBtn.dataset.schedulemode;
-      renderActiveTab();
-      return;
-    }
-
-    const viewBtn = ev.target.closest("[data-standingsview]");
-    if (viewBtn) {
-      state.standingsView = viewBtn.dataset.standingsview;
       renderActiveTab();
       return;
     }
@@ -610,7 +608,7 @@ async function renderActiveTab() {
   if (state.activeTab === "schedule") {
     html = renderScheduleTab(cache.matches, team);
   } else if (state.activeTab === "standings") {
-    html = renderStandings(cache.standings, cache.simulation, team, master, all);
+    html = renderStandings(cache.standings, team, master);
   } else if (state.activeTab === "stats") {
     html = renderStatsTab(cache.stats, team);
   } else if (state.activeTab === "players") {
@@ -812,7 +810,8 @@ function zoneColor(rank, rules) {
   return null;
 }
 
-function renderCurrentStandingsTable(standings, team, rules) {
+function renderStandings(standings, team, master) {
+  const rules = master.promotionRules;
   const zones = resolveZones(rules);
   const rows = standings.table.map(r => {
     const z = zoneColor(r.rank, rules);
@@ -834,70 +833,13 @@ function renderCurrentStandingsTable(standings, team, rules) {
   const legend = zones.map(z => '<span><i class="sw" style="background:' + z.color + '"></i>' + esc(z.label) + '</span>');
   legend.push('<span><b style="color:#b45309">-1</b> は消化試合が1つ少ないことを示します</span>');
 
-  return '<table><thead><tr>' +
+  return '<section><h2>' + esc(master.meta.leagueNameJa || "順位表") + '</h2><div class="card">' +
+    '<table><thead><tr>' +
       '<th class="rank">#</th><th class="club">クラブ</th><th>試</th><th>勝</th><th>分</th><th>負</th><th>差</th><th>点</th>' +
       '<th class="form">直近</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>' +
-    '<div class="legend">' + legend.join("") + '</div>';
-}
-
-/* 予想最終順位表(全リーグ共通。昇降格の区分に依存しない。rankDistributionから導いたprojectedRank順で出す) */
-function renderProjectedStandingsTable(simulation, team, rules, allMatches) {
-  if (!simulation || !simulation.teams || !simulation.teams.length) {
-    return '<p class="muted" style="margin:0">シミュレーションデータがまだありません。</p>';
-  }
-  const zones = resolveZones(rules);
-  const teams = [...simulation.teams].sort((a, b) => a.projectedRank - b.projectedRank);
-
-  const rows = teams.map(t => {
-    const z = zoneColor(t.projectedRank, rules);
-    let deltaHtml;
-    if (!t.rankDelta) {
-      deltaHtml = '<span class="muted">－</span>';
-    } else if (t.rankDelta > 0) {
-      deltaHtml = '<span style="color:var(--promo)">↑' + t.rankDelta + '</span>';
-    } else {
-      deltaHtml = '<span style="color:var(--releg)">↓' + Math.abs(t.rankDelta) + '</span>';
-    }
-    const rangeLabel = t.rankP10 === t.rankP90 ? (t.rankP10 + "位") : (t.rankP10 + "〜" + t.rankP90 + "位");
-    return '<tr class="' + (t.idTeam === team.idTeam ? "me" : "") + '">' +
-      '<td class="rank">' +
-        (z ? '<span class="zone" style="background:' + z.color + '"></span>' : '<span class="zone" style="background:transparent"></span>') +
-        t.projectedRank +
-      '</td>' +
-      '<td class="club"><span class="team-link" data-idteam="' + esc(t.idTeam) + '">' + esc(t.short || t.ja) + '</span></td>' +
-      '<td>' + t.expectedPoints.toFixed(1) + '</td>' +
-      '<td class="small">' + esc(rangeLabel) + '</td>' +
-      '<td>' + deltaHtml + '</td>' +
-    '</tr>';
-  }).join("");
-
-  const legend = zones.map(z => '<span><i class="sw" style="background:' + z.color + '"></i>' + esc(z.label) + '</span>');
-  const trialsLabel = (simulation.meta && simulation.meta.trials) ? simulation.meta.trials.toLocaleString("ja-JP") : "多数";
-  const noteHtml = simulationNoteHtml(allMatches, trialsLabel + "回のシミュレーションの平均で、幅は上位10%〜下位10%の範囲です。");
-
-  return '<table><thead><tr>' +
-      '<th class="rank">予想</th><th class="club">クラブ</th><th>予想勝点</th><th class="small">幅</th><th>増減</th>' +
-    '</tr></thead><tbody>' + rows + '</tbody></table>' +
-    (legend.length ? '<div class="legend">' + legend.join("") + '</div>' : "") +
-    noteHtml + simulationExplainHtml();
-}
-
-function renderStandings(standings, simulation, team, master, allMatches) {
-  const rules = master.promotionRules;
-  if (state.standingsView !== "current" && state.standingsView !== "projected") state.standingsView = "current";
-  const view = state.standingsView;
-
-  const toggleHtml = '<div class="stats-subtabs">' +
-    '<button type="button" class="' + (view === "current" ? "active" : "") + '" data-standingsview="current">現在</button>' +
-    '<button type="button" class="' + (view === "projected" ? "active" : "") + '" data-standingsview="projected">予想最終順位</button>' +
-  '</div>';
-
-  const bodyHtml = view === "current"
-    ? renderCurrentStandingsTable(standings, team, rules)
-    : renderProjectedStandingsTable(simulation, team, rules, allMatches);
-
-  return '<section><h2>' + esc(master.meta.leagueNameJa || "順位表") + '</h2><div class="card">' + toggleHtml + bodyHtml + '</div></section>';
+    '<div class="legend">' + legend.join("") + '</div>' +
+  '</div></section>';
 }
 
 /* リーグ全体の消化試合数(simulation.meta.basedOnMatches)は、クラブごとの消化試合数とは違う数字なので
@@ -962,23 +904,31 @@ function renderPromotion(simulation, team, allMatches, rules) {
 
   const pct = x => ((x || 0) * 100).toFixed(1) + "%"; // 小数第1位までのパーセント表示に固定
   const zones = resolveZones(rules);
-  let body;
-  if (zones.length) {
-    body = '<div class="promo-grid">' + zones.map(z =>
-      '<div class="promo-cell"><div class="promo-num" style="color:' + z.color + '">' + pct(t[z.key]) + '</div><div class="promo-label">' + esc(z.label) + '</div></div>'
-    ).join("") + '</div>';
-  } else {
-    body =
-      '<div class="promo-grid">' +
-        '<div class="promo-cell"><div class="promo-num">' + t.expectedRank.toFixed(1) + '位</div><div class="promo-label">予想順位</div></div>' +
-        '<div class="promo-cell"><div class="promo-num">' + t.expectedPoints.toFixed(1) + '</div><div class="promo-label">予想勝点</div></div>' +
-      '</div>';
-  }
+  const tilesHtml = zones.length
+    ? '<div class="promo-grid">' + zones.map(z =>
+        '<div class="promo-cell"><div class="promo-num" style="color:' + z.color + '">' + pct(t[z.key]) + '</div><div class="promo-label">' + esc(z.label) + '</div></div>'
+      ).join("") + '</div>'
+    : "";
+
+  // 「最もあり得る最終順位」(rankDistributionの最頻値)。平均(expectedRank)ではない。
+  // 序盤は分布が平坦で最頻値でも確率が低いことが多いので、確率と幅を必ず併記する
+  // (順位の数字だけ大きく出すと「その順位で決まり」に見えてしまうため)。
+  const rangeLabel = t.rankP10 === t.rankP90 ? (t.rankP10 + "位") : (t.rankP10 + "〜" + t.rankP90 + "位");
+  const modeRankWarnHtml = (t.modeRankProb || 0) < 0.20
+    ? '<div class="mode-rank-warn">まだ大きく動きます</div>'
+    : "";
+  const modeRankHtml =
+    '<div class="mode-rank">' +
+      '<div class="mode-rank-label">予想順位</div>' +
+      '<div class="mode-rank-num">' + t.modeRank + '位</div>' +
+      '<div class="mode-rank-sub">その確率 ' + pct(t.modeRankProb) + ' ／ ' + esc(rangeLabel) + 'に入る可能性が高い</div>' +
+      modeRankWarnHtml +
+    '</div>';
 
   // 見出しも区分の有無で切り替える。autoPromotionが無いリーグ(最上位リーグ想定)は「昇格」の文字を出さない
   const heading = (rules && !rules.autoPromotion) ? "優勝・残留確率(シミュレーション)" : "昇格確率(シミュレーション)";
 
-  return '<section><h2>' + esc(heading) + '</h2><div class="card">' + body + noteHtml + simulationExplainHtml() + '</div></section>';
+  return '<section><h2>' + esc(heading) + '</h2><div class="card">' + tilesHtml + modeRankHtml + noteHtml + simulationExplainHtml() + '</div></section>';
 }
 
 /* ---------- スタッツ(stats.py: 自前計算 + 公式サイト由来の指標をまとめたもの) ---------- */

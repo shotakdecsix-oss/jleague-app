@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from simulate import compute_league_stats, compute_ratings, run_simulation, seed_all_teams  # noqa: E402
+from simulate import compute_league_stats, compute_ratings, mode_rank_from_counts, run_simulation, seed_all_teams  # noqa: E402
 from standings import build_records  # noqa: E402
 
 
@@ -53,8 +53,9 @@ def test_same_seed_gives_identical_result() -> None:
         assert t1["rankDistribution"] == t2["rankDistribution"]
         assert t1["autoPromotion"] == t2["autoPromotion"]
         assert t1["champion"] == t2["champion"]
-        assert t1["projectedRank"] == t2["projectedRank"]
         assert t1["medianRank"] == t2["medianRank"]
+        assert t1["modeRank"] == t2["modeRank"]
+        assert t1["modeRankProb"] == t2["modeRankProb"]
     print("OK: 同じseedで2回実行すると完全に同じ結果になる")
 
 
@@ -172,11 +173,12 @@ def test_no_promotion_rules_gives_null_zones() -> None:
         assert t["relegation"] is None
         assert t["expectedRank"] is not None
         assert t["expectedPoints"] is not None
-        # promotionRulesが無くても予想最終順位表に必要な指標は必ず出る
-        assert t["projectedRank"] is not None
+        # promotionRulesが無くても「予想順位」ブロックに必要な指標は必ず出る
         assert t["medianRank"] is not None
         assert t["rankP10"] is not None
         assert t["rankP90"] is not None
+        assert t["modeRank"] is not None
+        assert t["modeRankProb"] is not None
     print("OK: promotionRules無しのリーグではchampion/autoPromotion/playoff/relegationがnull")
 
 
@@ -205,26 +207,49 @@ def test_champion_zone_without_auto_promotion() -> None:
     print("OK: autoPromotion無し・championのみのルールでもchampion確率が正しく出る")
 
 
-def test_projected_rank_is_sequential_and_delta_matches_current() -> None:
+def test_mode_rank_matches_rank_distribution_argmax() -> None:
     """
-    projectedRankが1からクラブ数まで過不足なく1回ずつ現れ、rankDeltaがcurrentRank-projectedRankと
-    一致すること。rankP10 <= medianRank <= rankP90 も成立すること。
+    modeRankが、rankDistribution(確率の配列)の最大値の位置と一致すること。
+    実装(mode_rank_from_counts)を使わず、rankDistributionから素朴に読み直して照合する
+    (同じロジックを2回書いて自己一致するだけのテストにならないようにするため)。
     """
     matches = [
         M("A", 2, "B", 1),
         M("C", 1, "D", 1),
         M("A", None, "C", None, finished=False, kickoff="2026-02-01T10:00:00+09:00"),
         M("B", None, "D", None, finished=False, kickoff="2026-02-01T10:00:00+09:00"),
+        M("A", None, "D", None, finished=False, kickoff="2026-02-08T10:00:00+09:00"),
+        M("B", None, "C", None, finished=False, kickoff="2026-02-08T10:00:00+09:00"),
     ]
-    r = run_simulation(matches, TEAMS_4, PROMOTION_RULES, trials=500, seed=11, progress=False)
-    projected_ranks = sorted(t["projectedRank"] for t in r["teams"])
-    assert projected_ranks == list(range(1, len(TEAMS_4) + 1)), projected_ranks
+    r = run_simulation(matches, TEAMS_4, PROMOTION_RULES, trials=2000, seed=5, progress=False)
     for t in r["teams"]:
-        assert t["rankDelta"] == t["currentRank"] - t["projectedRank"], t
+        dist = t["rankDistribution"]
+        naive_max_prob = max(dist)
+        # 最大値を取る順位が複数ありうるので、modeRankが「最大値のどれか」であることを確認する
+        assert dist[t["modeRank"] - 1] == naive_max_prob, t
+        assert abs(t["modeRankProb"] - naive_max_prob) < 1e-9, t
         assert t["rankP10"] <= t["medianRank"] <= t["rankP90"], t
-    # teams[]自体がprojectedRankの昇順で並んでいること
-    assert [t["projectedRank"] for t in r["teams"]] == list(range(1, len(TEAMS_4) + 1))
-    print("OK: projectedRankが1からクラブ数まで過不足なく1回ずつ現れ、rankDeltaとteams[]の並び順も正しい")
+    print("OK: modeRankはrankDistributionの最大値の位置と一致する")
+
+
+def test_mode_rank_tie_break_prefers_expected_rank() -> None:
+    """
+    mode_rank_from_counts単体のテスト。最大値が複数の順位で同値のときは、
+    expected_rankに近いほうを選ぶこと(add-projected-table-rev2.mdの明示的な仕様)。
+    """
+    # 1位と4位がどちらもカウント5で同率最大。expected_rankが1位寄りなら1位を選ぶはず。
+    counts = [5, 1, 1, 5]
+    rank, count = mode_rank_from_counts(counts, expected_rank=1.5)
+    assert rank == 1 and count == 5, (rank, count)
+
+    # expected_rankが4位寄りなら4位を選ぶはず。
+    rank2, count2 = mode_rank_from_counts(counts, expected_rank=3.5)
+    assert rank2 == 4 and count2 == 5, (rank2, count2)
+
+    # タイが無い素直なケースでは単純に最大値の順位を返す。
+    rank3, count3 = mode_rank_from_counts([1, 2, 8, 1], expected_rank=3.0)
+    assert rank3 == 3 and count3 == 8, (rank3, count3)
+    print("OK: 最頻値が複数順位で同率のときはexpected_rankに近いほうを選ぶ")
 
 
 def test_percentile_rank_matches_deterministic_distribution() -> None:
@@ -256,7 +281,8 @@ def main() -> None:
         test_auto_promotion_plus_playoff_does_not_exceed_one,
         test_no_promotion_rules_gives_null_zones,
         test_champion_zone_without_auto_promotion,
-        test_projected_rank_is_sequential_and_delta_matches_current,
+        test_mode_rank_matches_rank_distribution_argmax,
+        test_mode_rank_tie_break_prefers_expected_rank,
         test_percentile_rank_matches_deterministic_distribution,
     ]
     for t in tests:
