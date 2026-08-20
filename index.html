@@ -33,6 +33,8 @@
     box-shadow:0 1px 6px rgba(0,0,0,.15);
   }
   header h1{margin:0 0 10px; font-size:15px; font-weight:600; letter-spacing:.04em; opacity:.9}
+  /* デプロイ日時・バージョンのデバッグ表示。目立たせない(色はh1と同じaccent-ink継承、不透明度だけ落とす) */
+  .deploy-badge{font-size:9px; opacity:.55; margin:-6px 0 10px; letter-spacing:.02em}
 
   #tabbar{
     display:flex; background:var(--accent-sub); /* 2ndカラーのベタ塗り */
@@ -232,6 +234,7 @@
 <div id="headerWrap">
 <header>
   <h1>Jリーグ ダッシュボード</h1>
+  <div id="deployBadge" class="deploy-badge"></div>
   <select id="clubSelect" aria-label="応援クラブを選ぶ"></select>
 </header>
 <nav id="tabbar"></nav>
@@ -270,6 +273,7 @@ const state = {
   scheduleMode: "mine", // 日程タブ: "mine"=自クラブのみ(既定) / "all"=リーグ全体
   scheduleRound: null,   // 日程タブ: 表示中の節。nullなら初回表示時に直近の節を計算する
   deployTime: undefined, // デプロイ時刻(deploy-time.txt)。undefined=未取得、null=取得失敗(表示しない)
+  deployVersion: undefined, // デプロイバージョン=直近gitコミットの短縮ハッシュ(deploy-version.txt)
 };
 
 /* ---------- クラブカラーのテーマ適用 ---------- */
@@ -470,8 +474,13 @@ async function init() {
     return;
   }
 
-  // デプロイ時刻(デバッグ用の鮮度表示)。無くても/失敗してもアプリ本体には影響させない。
-  getTextOptional("deploy-time.txt").then(t => { state.deployTime = t; });
+  // デプロイ日時・バージョン(デバッグ用、ヘッダーに小さく出す)。無くても/失敗してもアプリ本体には影響させない。
+  Promise.all([getTextOptional("deploy-time.txt"), getTextOptional("deploy-version.txt")]).then(([t, v]) => {
+    state.deployTime = t;
+    state.deployVersion = v;
+    const badge = document.getElementById("deployBadge");
+    if (badge) badge.textContent = [v ? "v" + v : "", t || ""].filter(Boolean).join(" ・ ");
+  });
 
   state.activeTab = currentTabFromHash();
   buildTabBar();
@@ -629,8 +638,7 @@ async function renderActiveTab() {
   const genMeta = (cache.matches && cache.matches.meta) || (cache.standings && cache.standings.meta) || (cache.stats && cache.stats.meta);
   const gen = genMeta && genMeta.generatedAtJst;
   document.getElementById("footer").textContent =
-    "データ取得: " + (gen ? fmtDate(gen, true) : "不明") + " ／ 出典: TheSportsDB" +
-    (state.deployTime ? " ／ デプロイ: " + state.deployTime : "");
+    "データ取得: " + (gen ? fmtDate(gen, true) : "不明") + " ／ 出典: TheSportsDB";
 }
 
 function renderNext(mine, team, venues) {

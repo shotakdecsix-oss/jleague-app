@@ -13,7 +13,8 @@
     data/processed/*.json      (club_extra.json / live.jsonも含む、全部)
 
 生成するもの(コピーではなく、ビルドの都度ここで新しく書く):
-    deploy-time.txt            (デプロイ時刻の鮮度表示用。index.htmlのフッターに小さく出す)
+    deploy-time.txt            (デプロイ時刻の鮮度表示用。index.htmlのヘッダーに小さく出す)
+    deploy-version.txt         (直近のgitコミットの短縮ハッシュ。同上。git管理下でなければ書かない)
 
 コピーしないもの(配信に不要なだけで、規約上の理由ではない):
     scripts/ docs/ data/config/ data/fixtures/ data/tmp/
@@ -25,6 +26,7 @@ CLI:
 from __future__ import annotations
 
 import shutil
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -82,6 +84,29 @@ def write_deploy_time() -> None:
     print(f"[info] デプロイ時刻を記録: {now}")
 
 
+def write_deploy_version() -> None:
+    """
+    dist/deploy-version.txt に、直近のgitコミットの短縮ハッシュを書く(デバッグ用のバージョン表示)。
+    このビルド自体はまだコミットされていない(distの中身自体がこれからコミットされる側)ので、
+    厳密には「1つ前のコミット」を指す点に注意。それでも「ブラウザが古いキャッシュを見ていないか」を
+    確認する用途には十分。gitが無い/コミットが1つも無い環境では黙ってスキップする(アプリは落とさない)。
+    """
+    try:
+        out = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=BASE_DIR, capture_output=True, text=True, timeout=5,
+        )
+    except Exception as e:  # noqa: BLE001
+        print(f"[warn] gitコミットハッシュの取得に失敗、デプロイバージョン表示はスキップ: {e}", file=sys.stderr)
+        return
+    if out.returncode != 0:
+        print(f"[warn] git rev-parseが失敗(gitリポジトリでない?)、デプロイバージョン表示はスキップ", file=sys.stderr)
+        return
+    version = out.stdout.strip()
+    (DIST_DIR / "deploy-version.txt").write_text(version, encoding="utf-8")
+    print(f"[info] デプロイバージョンを記録: {version}")
+
+
 def report_size() -> None:
     files = [f for f in DIST_DIR.rglob("*") if f.is_file()]
     total_bytes = sum(f.stat().st_size for f in files)
@@ -101,6 +126,7 @@ def main() -> None:
     copy_top_level_files()
     copy_dirs()
     write_deploy_time()
+    write_deploy_version()
     report_size()
     print("\n[info] dist/ のビルド完了")
 
