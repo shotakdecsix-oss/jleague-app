@@ -5,6 +5,12 @@ CLI:
     python scripts/fetch_batch.py --league j2
     python scripts/fetch_batch.py --league j2 --rounds 1-5      # 部分取得(検証用)
     python scripts/fetch_batch.py --league all
+    python scripts/fetch_batch.py --league all --incremental    # 増分取得(第11弾、GitHub Actions用)
+
+第11弾: --incremental を付けると、既存の {league}_matches.json から「取得すべき節」を
+リーグごとに自動判定する(determine_incremental_rounds())。毎回38節×3リーグを取り直すと
+無料枠(private repoは月2000分)を圧迫するため、通常運転はこちらを使う。
+既存データが無い(初回実行)リーグは全節取得にフォールバックする。--roundsと同時指定はできない。
 
 やっていること(この順):
   1. マスタJSON(生のteams配列)を読む
@@ -23,7 +29,7 @@ import argparse
 import json
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -51,6 +57,74 @@ def parse_rounds(spec: str | None) -> list[int] | None:
         return None
     a, b = spec.split("-")
     return list(range(int(a), int(b) + 1))
+
+
+# 増分取得(第11弾4章)で「未消化試合の節」を対象に含める時間窓。
+# 「次節」をroundの値では括らない他の場所(他会場インパクト等)と違い、ここは節の取得要否を
+# 決めるだけなので、時間窓に入った節を丸ごと対象にしてよい(1試合だけ拾うわけではないため)。
+INCREMENTAL_WINDOW_DAYS = 14
+
+
+def load_existing_matches(league: str) -> list[dict] | None:
+    """既存の{league}_matches.jsonからmatches配列だけ読む。無ければNone(=初回実行、全節取得へフォールバック)。"""
+    path = PROCESSED_DIR / f"{league}_matches.json"
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+    return data.get("matches")
+
+
+def determine_incremental_rounds(matches: list[dict] | None, now: datetime) -> list[int] | None:
+    """
+    増分取得の対象roundを決める(第11弾4章)。matchesが無ければ全節取得にフォールバックしてNoneを返す。
+
+    対象 = 次の1と2の和集合:
+      1. 未消化(finished=false)の試合のうち、kickoffJstが now から+14日以内のものが属する節
+         (kickoffJstが無い=日程未定の試合は対象に含めない。日程が付いた瞬間にまた取りに行けばよいため)
+      2. 直近で消化された試合(kickoffJstが最も新しいfinished=trueの試合)が属する節
+         (スコア訂正・後追い反映の回収用)
+
+    和集合が空(=シーズン開幕前や完全に何も無い状態)なら、最小1節は必ず取る:
+    未消化試合の中でキックオフが最も早い節。それも無ければ最終節(全消化済み)。
+    """
+    if not matches:
+        return None
+
+    horizon = now + timedelta(days=INCREMENTAL_WINDOW_DAYS)
+    rounds: set[int] = set()
+
+    for m in matches:
+        if m.get("finished") or m.get("round") is None:
+            continue
+        kj = m.get("kickoffJst")
+        if not kj:
+            continue
+        try:
+            dt = datetime.fromisoformat(kj)
+        except ValueError:
+            continue
+        if dt <= horizon:
+            rounds.add(m["round"])
+
+    finished = [m for m in matches if m.get("finished") and m.get("kickoffJst") and m.get("round") is not None]
+    if finished:
+        latest = max(finished, key=lambda m: m["kickoffJst"])
+        rounds.add(latest["round"])
+
+    if not rounds:
+        pending = [m for m in matches if not m.get("finished") and m.get("round") is not None]
+        if pending:
+            earliest = min(pending, key=lambda m: m.get("kickoffJst") or "9999-99-99")
+            rounds.add(earliest["round"])
+        else:
+            all_rounds = [m["round"] for m in matches if m.get("round") is not None]
+            if all_rounds:
+                rounds.add(max(all_rounds))
+
+    return sorted(rounds) if rounds else None
 
 
 def load_master_raw_teams(league: str) -> list[dict]:
@@ -239,11 +313,19 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Jリーグ試合データ取得バッチ")
     parser.add_argument("--league", choices=["j1", "j2", "j3", "all"], required=True)
     parser.add_argument("--rounds", default=None, help='部分取得。例: "1-5"')
+    parser.add_argument(
+        "--incremental", action="store_true",
+        help="既存データから取得すべき節をリーグごとに自動判定する(第11弾。--roundsとは併用不可)",
+    )
     parser.add_argument("--sleep-between", type=float, default=DEFAULT_SLEEP_BETWEEN)
     args = parser.parse_args()
 
+    if args.incremental and args.rounds:
+        print("[error] --incremental と --rounds は同時に指定できません", file=sys.stderr)
+        sys.exit(2)
+
     target_leagues = ["j1", "j2", "j3"] if args.league == "all" else [args.league]
-    rounds = parse_rounds(args.rounds)
+    fixed_rounds = parse_rounds(args.rounds)  # --incremental時はNone(リーグごとに別途決める)
 
     start = time.time()
     total_requests = 0       # 実HTTPリクエスト数(リトライ・フォールバック込み)
@@ -252,6 +334,10 @@ def main() -> None:
     had_failure = False
 
     for league in target_leagues:
+        if args.incremental:
+            rounds = determine_incremental_rounds(load_existing_matches(league), datetime.now(JST))
+        else:
+            rounds = fixed_rounds
         print(f"\n=== {league} 取得開始 (rounds={rounds or f'1-{TOTAL_ROUNDS}'}) ===")
         proc = process_league(league, rounds, sleep_between=args.sleep_between)
         fr: FetchAllResult = proc["fetch_result"]

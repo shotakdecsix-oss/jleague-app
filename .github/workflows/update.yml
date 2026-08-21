@@ -1,0 +1,154 @@
+name: update
+
+# 定期バッチ(第11弾)。4時間おきにJST 01:30/05:30/09:30/13:30/17:30/21:30に走る
+# (cronはUTCで書くため "30 */4 * * *" になる)。
+#
+# 30分ずらしているのは、ちょうどの時刻だと19:00キックオフの試合が終わった直後に当たり、
+# eventsround.phpのステータスがまだFTに変わっていないことがあるため。21:30ならほぼ反映済み。
+#
+# リポジトリがprivateなのでActionsの無料枠は月2000分。毎回38節×3リーグを取り直すと
+# すぐに枯渇するため、通常は増分取得(fetch_batch.py --incremental)にする。
+# 日曜JST 01:30(=UTC土曜16:30)の回だけ、日程変更・延期の取りこぼしを回収するために全38節を取る。
+
+on:
+  schedule:
+    - cron: "30 */4 * * *"
+  workflow_dispatch:
+    inputs:
+      full_sync:
+        description: "全38節をフル同期する(通常は増分取得)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # dataとdistをpushするために必要。これ以外は付けない
+
+concurrency:
+  group: update-batch
+  cancel-in-progress: false   # 走行中のバッチを途中で殺さない(中途半端な状態でのコミットを避ける)
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # 後段のgit pull --rebaseのために全履歴を取る
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Determine sync mode
+        id: mode
+        run: |
+          DOW=$(date -u +%u)   # 1=Mon ... 6=Sat, 7=Sun
+          HOUR=$(date -u +%H)
+          FULL="false"
+          # JST日曜01:30 = UTC土曜16:30。cronは "30 */4 * * *" なので、この時刻は必ずどこかの実行に含まれる。
+          if [ "$DOW" = "6" ] && [ "$HOUR" = "16" ]; then FULL="true"; fi
+          if [ "${{ github.event.inputs.full_sync }}" = "true" ]; then FULL="true"; fi
+          echo "full=$FULL" >> "$GITHUB_OUTPUT"
+          echo "[info] full_sync=$FULL (dow(UTC)=$DOW hour(UTC)=$HOUR, manual_input=${{ github.event.inputs.full_sync }})"
+
+      # fetch_batchが失敗したら、以降のステップは全てスキップしてジョブをfailさせる
+      # (standings/simulateを欠損データの上で走らせないため。continue-on-errorは付けない)。
+      - name: fetch_batch
+        run: |
+          if [ "${{ steps.mode.outputs.full }}" = "true" ]; then
+            echo "=== フル同期(全38節) ==="
+            python scripts/fetch_batch.py --league all
+          else
+            echo "=== 増分取得 ==="
+            python scripts/fetch_batch.py --league all --incremental
+          fi
+
+      - name: build_calendar
+        run: python scripts/build_calendar.py
+
+      - name: standings
+        run: |
+          python scripts/standings.py --league j1
+          python scripts/standings.py --league j2
+          python scripts/standings.py --league j3
+
+      - name: simulate
+        run: |
+          python scripts/simulate.py --league j1 --quiet
+          python scripts/simulate.py --league j2 --quiet
+          python scripts/simulate.py --league j3 --quiet
+
+      # ここから先は失敗しても致命的ではない(試合データ側の更新はコミットしてよい)。
+      # continue-on-errorでジョブ全体を止めず、最後にサマリだけ出す。
+      - name: fetch_news
+        id: fetch_news
+        continue-on-error: true
+        run: python scripts/fetch_news.py
+
+      - name: fetch_official
+        id: fetch_official
+        continue-on-error: true
+        run: python scripts/fetch_official.py
+
+      # stats.pyはclub_extra.json(直前のfetch_official)の公式スタッツを取り込むため、その後に置く。
+      # fetch_officialが失敗していても、既存(前回分)のclub_extra.jsonを使って動くので実行はする。
+      - name: stats
+        run: |
+          python scripts/stats.py --league j1
+          python scripts/stats.py --league j2
+          python scripts/stats.py --league j3
+
+      # fetch_batch/standings/simulate/build_calendarは、試合データが実質的に変わっていなくても
+      # generatedAtJst等のタイムスタンプ欄とmeta.jsonのrunsログを毎回書き直す。
+      # 素朴なgit diffだとこれを「差分あり」と誤判定し、6章の「変更が無ければコミットしない」が
+      # 機能しなくなる(深夜帯でも4時間おきに無駄なコミット+Renderデプロイが発生し続ける)ため、
+      # タイムスタンプ欄を除いて実質的な変更の有無を判定する。
+      - name: Check for data changes
+        id: changes
+        run: |
+          if python scripts/git_diff_ignoring_timestamps.py data/processed data/history; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "[info] 実質的な変更なし。build_dist/コミットをスキップします"
+          fi
+
+      - name: build_dist
+        if: steps.changes.outputs.changed == 'true'
+        run: python scripts/build_dist.py
+
+      - name: Optional steps summary
+        if: always()
+        run: |
+          echo "fetch_news: ${{ steps.fetch_news.outcome }}"
+          echo "fetch_official: ${{ steps.fetch_official.outcome }}"
+
+      - name: Commit and push
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A data/processed data/history dist
+
+          if git diff --cached --quiet; then
+            echo "変更なし(念のための二重チェック)"
+            exit 0
+          fi
+
+          JST_TIME=$(date -u -d '+9 hours' '+%Y-%m-%d %H:%M')
+          git commit -m "auto: データ更新 ${JST_TIME} JST"
+
+          # ローカルPCからのpushと競合する前提で、push前に必ずrebaseする。失敗したら2回までリトライ。
+          for i in 1 2 3; do
+            if git pull --rebase origin main && git push origin main; then
+              echo "push成功 (試行$i回目)"
+              break
+            fi
+            echo "push失敗、リトライします ($i/3)"
+            sleep 5
+          done

@@ -1,0 +1,37 @@
+name: test
+
+# pushのたびにscripts/test_*.pyを全部回す(軽量チェック)。
+# 定期バッチ(update.yml)側でテストを回すと毎回時間を食うので、テストはここだけでやる。
+# Python 3.12を使う(ローカルは3.10.12だがコードはX | None記法などで3.10以上互換)。
+# 第11弾の定期バッチを有効化する前に、まずこれが通ることを確認すること。
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run all scripts/test_*.py
+        run: |
+          fail=0
+          for f in scripts/test_*.py; do
+            echo "=== $f ==="
+            python "$f" || fail=1
+            echo
+          done
+          if [ "$fail" = "1" ]; then
+            echo "::error::一部のテストが失敗しました"
+            exit 1
+          fi
