@@ -7,18 +7,36 @@ simulate.py の検証。ネットワーク不要、小さな合成データの�
 
 from __future__ import annotations
 
+import json
 import sys
+import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from simulate import compute_league_stats, compute_ratings, mode_rank_from_counts, run_simulation, seed_all_teams  # noqa: E402
+import simulate as simulate_module  # noqa: E402
+from simulate import (  # noqa: E402
+    append_history_snapshot,
+    compute_league_stats,
+    compute_ratings,
+    find_impact_window,
+    mode_rank_from_counts,
+    run_simulation,
+    seed_all_teams,
+)
 from standings import build_records  # noqa: E402
 
 
-def M(home: str, hs: int, away: str, as_: int, finished: bool = True, kickoff: str | None = "2026-01-01T00:00:00+09:00") -> dict:
+def M(
+    home: str, hs: int, away: str, as_: int, finished: bool = True,
+    kickoff: str | None = "2026-01-01T00:00:00+09:00",
+    id_event: str | None = None, kickoff_tbd: bool = False, round_no: int | None = None,
+) -> dict:
     return {
+        "idEvent": id_event,
+        "round": round_no,
         "finished": finished,
         "kickoffJst": kickoff,
+        "kickoffTbd": kickoff_tbd,
         "home": {"idTeam": home, "score": hs if finished else None},
         "away": {"idTeam": away, "score": as_ if finished else None},
     }
@@ -272,6 +290,215 @@ def test_percentile_rank_matches_deterministic_distribution() -> None:
     print("OK: 決定的な分布ではmedianRank/rankP10/rankP90が全て実際の順位と一致する")
 
 
+def test_append_history_snapshot_overwrites_same_date() -> None:
+    """同じ日付で2回追記しても、dates配列の長さが増えず、値が最後の呼び出しで上書きされること。"""
+    history = {"meta": {}, "dates": [], "basedOnMatches": [], "teams": {}}
+    teams_v1 = [{
+        "idTeam": "A", "ja": "Aクラブ", "short": "A", "currentRank": 1, "currentPoints": 3,
+        "expectedPoints": 50.0, "autoPromotion": 0.5, "playoff": 0.3, "relegation": 0.01,
+    }]
+    history = append_history_snapshot(
+        history, "j1", "2026-2027", "2026-08-20", 10, teams_v1,
+        ["autoPromotion", "playoff", "relegation"], "2026-08-20T06:00:00+09:00",
+    )
+    assert history["dates"] == ["2026-08-20"]
+    assert history["teams"]["A"]["points"] == [3]
+
+    teams_v2 = [{
+        "idTeam": "A", "ja": "Aクラブ", "short": "A", "currentRank": 1, "currentPoints": 6,
+        "expectedPoints": 55.0, "autoPromotion": 0.6, "playoff": 0.25, "relegation": 0.0,
+    }]
+    history = append_history_snapshot(
+        history, "j1", "2026-2027", "2026-08-20", 11, teams_v2,
+        ["autoPromotion", "playoff", "relegation"], "2026-08-20T12:00:00+09:00",
+    )
+    assert history["dates"] == ["2026-08-20"], "同じ日付なのでdatesは増えないはず"
+    assert history["basedOnMatches"] == [11], "basedOnMatchesも上書きされるはず"
+    assert history["teams"]["A"]["points"] == [6], "値は最後の呼び出しで上書きされるはず(appendしない)"
+    assert history["teams"]["A"]["autoPromotion"] == [0.6]
+    print("OK: 同じ日付で2回追記しても配列長は増えず、値は後勝ちで上書きされる")
+
+
+def test_append_history_snapshot_pads_new_team_and_new_date() -> None:
+    """
+    途中からマスタにチームが増えたとき、そのチームの配列がnullで先頭パディングされ、
+    全チームの配列長がdatesと一致すること。
+    """
+    history = {"meta": {}, "dates": [], "basedOnMatches": [], "teams": {}}
+    day1_teams = [
+        {"idTeam": "A", "ja": "Aクラブ", "short": "A", "currentRank": 1, "currentPoints": 3, "expectedPoints": 50.0, "champion": 0.1},
+    ]
+    history = append_history_snapshot(history, "j1", "2026-2027", "2026-08-08", 1, day1_teams, ["champion"], "2026-08-08T06:00:00+09:00")
+
+    day2_teams = [
+        {"idTeam": "A", "ja": "Aクラブ", "short": "A", "currentRank": 1, "currentPoints": 6, "expectedPoints": 52.0, "champion": 0.15},
+        {"idTeam": "B", "ja": "新規参入クラブ", "short": "新", "currentRank": 2, "currentPoints": 3, "expectedPoints": 40.0, "champion": 0.02},
+    ]
+    history = append_history_snapshot(history, "j1", "2026-2027", "2026-08-15", 2, day2_teams, ["champion"], "2026-08-15T06:00:00+09:00")
+
+    assert history["dates"] == ["2026-08-08", "2026-08-15"]
+    assert history["teams"]["A"]["points"] == [3, 6]
+    assert history["teams"]["A"]["champion"] == [0.1, 0.15]
+    # 新規チームBは先頭(8/8ぶん)がnullでパディングされ、8/15だけ値が入る
+    assert history["teams"]["B"]["points"] == [None, 3]
+    assert history["teams"]["B"]["champion"] == [None, 0.02]
+    for entry in history["teams"].values():
+        for key in ("rank", "points", "expectedPoints", "champion"):
+            assert len(entry[key]) == len(history["dates"]), (entry, key)
+    print("OK: 新規チームの配列はnullで先頭パディングされ、全チームの配列長がdatesと一致する")
+
+
+def test_append_history_snapshot_omits_undefined_zone_keys() -> None:
+    """promotionRulesにゾーンが定義されていない場合(J1のautoPromotion等)、キーごと省略されること。"""
+    history = {"meta": {}, "dates": [], "basedOnMatches": [], "teams": {}}
+    teams = [{
+        "idTeam": "A", "ja": "Aクラブ", "short": "A", "currentRank": 1, "currentPoints": 3,
+        "expectedPoints": 50.0, "champion": 0.1, "relegation": 0.02,
+    }]
+    history = append_history_snapshot(history, "j1", "2026-2027", "2026-08-08", 1, teams, ["champion", "relegation"], "2026-08-08T06:00:00+09:00")
+    entry = history["teams"]["A"]
+    assert "champion" in entry and "relegation" in entry
+    assert "autoPromotion" not in entry and "playoff" not in entry
+    print("OK: 定義されていないゾーンキー(autoPromotion/playoff)はキーごと省略される")
+
+
+def test_no_history_flag_leaves_history_file_untouched() -> None:
+    """--no-historyを付けたら、simulation.jsonは通常どおり書かれてもdata/history/側は一切変化しないこと。"""
+    tmp_dir = Path(tempfile.mkdtemp())
+    processed_dir = tmp_dir / "processed"
+    history_dir = tmp_dir / "history"
+    masters_dir = tmp_dir / "masters"
+    for d in (processed_dir, history_dir, masters_dir):
+        d.mkdir(parents=True, exist_ok=True)
+
+    master = {
+        "teams": [
+            {"idTeam": "A", "en": "A FC", "ja": "Aクラブ", "short": "A"},
+            {"idTeam": "B", "en": "B FC", "ja": "Bクラブ", "short": "B"},
+            {"idTeam": "C", "en": "C FC", "ja": "Cクラブ", "short": "C"},
+            {"idTeam": "D", "en": "D FC", "ja": "Dクラブ", "short": "D"},
+        ],
+        "promotionRules": {"autoPromotion": [1], "playoff": [2, 3], "relegation": [4]},
+    }
+    master_path = masters_dir / "j1_teams_2026-27.json"
+    master_path.write_text(json.dumps(master), encoding="utf-8")
+
+    matches = {
+        "meta": {"season": "2026-2027"},
+        "matches": [
+            M("A", 2, "B", 1),
+            M("C", 1, "D", 1),
+            M("A", None, "C", None, finished=False, kickoff="2026-02-01T10:00:00+09:00"),
+            M("B", None, "D", None, finished=False, kickoff="2026-02-01T10:00:00+09:00"),
+        ],
+    }
+    (processed_dir / "j1_matches.json").write_text(json.dumps(matches), encoding="utf-8")
+
+    orig_processed = simulate_module.PROCESSED_DIR
+    orig_history = simulate_module.HISTORY_DIR
+    orig_master_files = dict(simulate_module.MASTER_FILES)
+    orig_argv = sys.argv
+    try:
+        simulate_module.PROCESSED_DIR = processed_dir
+        simulate_module.HISTORY_DIR = history_dir
+        simulate_module.MASTER_FILES["j1"] = master_path
+        sys.argv = ["simulate.py", "--league", "j1", "--trials", "20", "--seed", "1", "--quiet", "--no-history"]
+        simulate_module.main()
+    finally:
+        simulate_module.PROCESSED_DIR = orig_processed
+        simulate_module.HISTORY_DIR = orig_history
+        simulate_module.MASTER_FILES.clear()
+        simulate_module.MASTER_FILES.update(orig_master_files)
+        sys.argv = orig_argv
+
+    assert (processed_dir / "j1_simulation.json").exists(), "simulation.jsonは通常どおり書かれるはず"
+    assert not any(history_dir.iterdir()), "--no-historyなのでdata/history/には何も書かれないはず"
+    print("OK: --no-historyでhistory側が一切変化しない(simulation.jsonは通常どおり書かれる)")
+
+
+def test_find_impact_window_uses_72h_not_round() -> None:
+    """
+    「次節」はroundの値では括らない(延期でroundが実際の日付とずれるため)。
+    同じround(5)でも72時間以内でなければ対象外になり、逆に違うround(6)でも72時間以内なら対象になること。
+    """
+    m1 = M("A", None, "B", None, finished=False, kickoff="2026-08-22T14:00:00+09:00", id_event="e1", round_no=5)
+    m2_postponed = M("C", None, "D", None, finished=False, kickoff="2026-09-15T14:00:00+09:00", id_event="e2", round_no=5)
+    m3 = M("A", None, "C", None, finished=False, kickoff="2026-08-23T14:00:00+09:00", id_event="e3", round_no=6)
+    m4_far = M("B", None, "D", None, finished=False, kickoff="2026-08-30T14:00:00+09:00", id_event="e4", round_no=7)
+
+    window = find_impact_window([m1, m2_postponed, m3, m4_far])
+    ids = [m["idEvent"] for m in window]
+    assert ids == ["e1", "e3"], ids
+    print("OK: 次節の判定はroundではなくkickoffJstの72時間窓で決まる(延期試合は同roundでも除外)")
+
+
+def test_find_impact_window_excludes_tbd_and_caps_at_max() -> None:
+    """kickoffTbd(時刻未定)の試合は対象から除外され、上限件数で切られること。"""
+    tbd = M("A", None, "B", None, finished=False, kickoff="2026-08-22T00:00:00+09:00", id_event="tbd1", kickoff_tbd=True)
+    timed = [
+        M("A", None, "B", None, finished=False, kickoff=f"2026-08-22T{10+i:02d}:00:00+09:00", id_event=f"e{i}")
+        for i in range(14)
+    ]
+    window = find_impact_window([tbd] + timed, max_matches=12)
+    assert "tbd1" not in [m["idEvent"] for m in window]
+    assert len(window) == 12
+    print("OK: kickoffTbdの試合は除外され、上限件数で切られる")
+
+
+def test_find_impact_window_empty_when_no_pending() -> None:
+    """未消化試合が無ければ(シーズン終了/中断期)、空リストを返すこと。"""
+    assert find_impact_window([]) == []
+    print("OK: 未消化試合が0件なら空リストを返す")
+
+
+def test_impact_conditional_weighted_average_reconstructs_baseline() -> None:
+    """
+    最重要の検証: 層別集計(H/D/Aごとの条件付き確率)を試行回数で加重平均すると、
+    無条件のbaseline(通常のゾーン確率)に一致すること。これが層別集計が正しいことの最も強い検証になる。
+    """
+    matches = [
+        M("A", 2, "B", 1),
+        M("C", 1, "D", 1),
+        M("A", None, "C", None, finished=False, kickoff="2026-08-22T10:00:00+09:00", id_event="e1"),
+        M("B", None, "D", None, finished=False, kickoff="2026-08-23T10:00:00+09:00", id_event="e2"),
+        M("A", None, "D", None, finished=False, kickoff="2026-09-20T10:00:00+09:00", id_event="e3"),  # 窓の外
+    ]
+    pending = [m for m in matches if not m["finished"]]
+    window = find_impact_window(pending)
+    assert [m["idEvent"] for m in window] == ["e1", "e2"], window
+
+    trials = 4000
+    r = run_simulation(matches, TEAMS_4, PROMOTION_RULES, trials=trials, seed=11, progress=False, impact_matches=window)
+
+    assert len(r["impactMatches"]) == 2
+    baseline = r["baselineByTeam"]
+    for m in r["impactMatches"]:
+        tc = m["trialCounts"]
+        assert tc["H"] + tc["D"] + tc["A"] == trials, tc
+        for tid in baseline:
+            for key in baseline[tid]:
+                weighted = 0.0
+                for outcome in ("H", "D", "A"):
+                    v = m["conditional"][tid][outcome][key]
+                    n = tc[outcome]
+                    if v is None or n == 0:
+                        continue
+                    weighted += v * n
+                avg = weighted / trials
+                assert abs(avg - baseline[tid][key]) < 1e-9, (m["idEvent"], tid, key, avg, baseline[tid][key])
+    print("OK: 条件付き確率をtrialCountsで加重平均するとbaselineに一致する(層別集計の最重要検証)")
+
+
+def test_impact_zero_unfinished_matches_gives_empty_list() -> None:
+    """未消化試合が無ければ、impactMatchesは空リストであり、例外も起きないこと。"""
+    matches = [M("A", 2, "B", 1), M("C", 1, "D", 1)]
+    window = find_impact_window([m for m in matches if not m["finished"]])
+    assert window == []
+    r = run_simulation(matches, TEAMS_4, PROMOTION_RULES, trials=10, seed=1, progress=False, impact_matches=window)
+    assert r["impactMatches"] == []
+    print("OK: 未消化試合が0件ならimpactMatchesは空リスト(例外にならない)")
+
+
 def main() -> None:
     tests = [
         test_same_seed_gives_identical_result,
@@ -284,6 +511,15 @@ def main() -> None:
         test_mode_rank_matches_rank_distribution_argmax,
         test_mode_rank_tie_break_prefers_expected_rank,
         test_percentile_rank_matches_deterministic_distribution,
+        test_append_history_snapshot_overwrites_same_date,
+        test_append_history_snapshot_pads_new_team_and_new_date,
+        test_append_history_snapshot_omits_undefined_zone_keys,
+        test_no_history_flag_leaves_history_file_untouched,
+        test_find_impact_window_uses_72h_not_round,
+        test_find_impact_window_excludes_tbd_and_caps_at_max,
+        test_find_impact_window_empty_when_no_pending,
+        test_impact_conditional_weighted_average_reconstructs_baseline,
+        test_impact_zero_unfinished_matches_gives_empty_list,
     ]
     for t in tests:
         t()

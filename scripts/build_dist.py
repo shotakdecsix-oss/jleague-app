@@ -11,10 +11,13 @@
     icons/*                    (manifest.webmanifestが参照するアイコン)
     data/masters/*.json
     data/processed/*.json      (club_extra.json / live.jsonも含む、全部)
+    data/history/*.json        (確率推移履歴。ics_state.jsonも含むが配信には使わない)
 
 生成するもの(コピーではなく、ビルドの都度ここで新しく書く):
     deploy-time.txt            (デプロイ時刻の鮮度表示用。index.htmlのヘッダーに小さく出す)
     deploy-version.txt         (直近のgitコミットの短縮ハッシュ。同上。git管理下でなければ書かない)
+    ics/{idTeam}.ics           (60クラブぶんのカレンダー。build_ics.pyがdist直下に直接生成する。
+                                 ソースツリーに60ファイルをコミットしたくないのでCOPY_DIRSではなくここで呼ぶ)
 
 コピーしないもの(配信に不要なだけで、規約上の理由ではない):
     scripts/ docs/ data/config/ data/fixtures/ data/tmp/
@@ -33,12 +36,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from time_utils import JST  # noqa: E402
+import build_ics  # noqa: E402
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DIST_DIR = BASE_DIR / "dist"
 
 TOP_LEVEL_FILES = ["index.html", "manifest.webmanifest", "robots.txt"]
-COPY_DIRS = ["icons", "data/masters", "data/processed"]
+COPY_DIRS = ["icons", "data/masters", "data/processed", "data/history"]
+
+# フロントが直接使わない内部状態ファイルは、data/history/をコピーする際にだけ除外する
+# (ics_state.jsonはSEQUENCE永続化用の内部状態で、リポジトリにはコミットするがdist配信には不要なため)。
+COPY_DIRS_EXCLUDE: dict[str, set[str]] = {"data/history": {"ics_state.json"}}
 
 
 def clean_dist() -> None:
@@ -65,9 +73,10 @@ def copy_dirs() -> None:
             continue
         dst = DIST_DIR / rel
         dst.mkdir(parents=True, exist_ok=True)
+        exclude = COPY_DIRS_EXCLUDE.get(rel, set())
         count = 0
         for f in src.iterdir():
-            if f.is_file():
+            if f.is_file() and f.name not in exclude:
                 shutil.copy2(f, dst / f.name)
                 count += 1
         print(f"[info] コピー: {rel}/ ({count}ファイル)")
@@ -107,6 +116,16 @@ def write_deploy_version() -> None:
     print(f"[info] デプロイバージョンを記録: {version}")
 
 
+def build_ics_calendars() -> None:
+    """
+    dist/ics/{idTeam}.ics を60クラブぶん生成する。COPY_DIRSでのコピーではなく、
+    build_ics.pyにdist直下へ直接書かせる(ソースツリーに60ファイルをコミットしたくないため)。
+    SEQUENCE永続化用のdata/history/ics_state.jsonは、副作用としてこの呼び出し中にリポジトリ側で更新される。
+    """
+    club_count, cancelled_count = build_ics.build_all(dist_dir=DIST_DIR)
+    print(f"[info] カレンダー(.ics)を生成: {club_count}クラブ (今回新たにCANCELLEDにしたイベント: {cancelled_count})")
+
+
 def report_size() -> None:
     files = [f for f in DIST_DIR.rglob("*") if f.is_file()]
     total_bytes = sum(f.stat().st_size for f in files)
@@ -127,6 +146,7 @@ def main() -> None:
     copy_dirs()
     write_deploy_time()
     write_deploy_version()
+    build_ics_calendars()
     report_size()
     print("\n[info] dist/ のビルド完了")
 

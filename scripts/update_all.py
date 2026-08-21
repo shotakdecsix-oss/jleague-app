@@ -37,8 +37,10 @@ STEPS: list[tuple[str, list[str]]] = [
     ("stats(J1)", [PY, str(SCRIPTS_DIR / "stats.py"), "--league", "j1"]),
     ("stats(J2)", [PY, str(SCRIPTS_DIR / "stats.py"), "--league", "j2"]),
     ("stats(J3)", [PY, str(SCRIPTS_DIR / "stats.py"), "--league", "j3"]),
-    # dist/のビルドは最後に置く(全データの更新が終わった状態でコピーするため)
-    ("build_dist(配信用ディレクトリ作成)", [PY, str(SCRIPTS_DIR / "build_dist.py")]),
+    # dist/のビルドは最後に置く(全データの更新が終わった状態でコピーするため)。
+    # build_ics.py(カレンダー生成・SEQUENCE永続化)はbuild_dist.pyの内部から呼ばれる
+    # (dist/ics/の60ファイルをソースツリーにコミットしたくないため、distの一部として生成する)。
+    ("build_dist(配信用ディレクトリ+ics生成)", [PY, str(SCRIPTS_DIR / "build_dist.py")]),
 ]
 
 

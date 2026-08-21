@@ -227,6 +227,41 @@
     font-size:12px; font-weight:600; color:var(--ink);
   }
   .radar-limit-note{margin:10px 0 0; font-size:11px; color:var(--sub); line-height:1.5}
+
+  /* 確率推移グラフ(第8弾A) */
+  .chart-series-tabs{display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap}
+  .chart-series-tabs button{
+    flex:1; min-width:70px; border:1px solid var(--line); background:#f7f8fa; color:var(--sub);
+    font-size:12px; font-weight:700; padding:8px 4px; border-radius:999px; cursor:pointer; font-family:inherit;
+  }
+  .chart-series-tabs button.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  .chart-chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px}
+  .chart-chip{
+    border:1px solid var(--line); background:#fff; color:var(--sub); font-size:11px; font-weight:700;
+    padding:6px 10px; border-radius:999px; cursor:pointer; font-family:inherit;
+  }
+  .chart-chip.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  .chart-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch}
+  .chart-scroll svg{display:block}
+  .chart-axis-label{font-size:9px; fill:var(--sub)}
+  .chart-result-mark{font-size:11px; font-weight:700; fill:var(--ink)}
+
+  /* 他会場インパクト(第8弾B) */
+  .impact-own{padding-bottom:12px; margin-bottom:12px; border-bottom:1px solid var(--line)}
+  .impact-own-vals{font-size:14px; font-weight:700; margin-top:4px}
+  .impact-row{padding:8px 0; border-bottom:1px solid var(--line); font-size:13px}
+  .impact-row:last-child{border-bottom:none}
+  .impact-row-title{font-size:11px; color:var(--sub)}
+  .impact-row-vals{margin-top:2px; font-weight:600}
+
+  /* カレンダー配信(第8弾C) */
+  .ics-block{margin-bottom:16px}
+  .ics-block .btn{margin-bottom:8px}
+  .btn-secondary{
+    display:block; width:100%; text-align:center; background:none; border:1px solid var(--line);
+    color:var(--sub); font-weight:700; font-size:13px; padding:10px; border-radius:var(--radius);
+    cursor:pointer; font-family:inherit; margin-bottom:8px;
+  }
 </style>
 </head>
 <body>
@@ -274,6 +309,9 @@ const state = {
   scheduleRound: null,   // 日程タブ: 表示中の節。nullなら初回表示時に直近の節を計算する
   deployTime: undefined, // デプロイ時刻(deploy-time.txt)。undefined=未取得、null=取得失敗(表示しない)
   deployVersion: undefined, // デプロイバージョン=直近gitコミットの短縮ハッシュ(deploy-version.txt)
+  chartLeague: null,  // 確率推移グラフが最後に描画されたリーグ。変わったらchartClubs/chartSeriesをリセットする
+  chartClubs: null,   // 確率推移グラフのオーバーレイ対象クラブ(idTeamの配列、最大5)。nullなら初回描画時に[自クラブ]で初期化
+  chartSeries: null,  // 確率推移グラフの系列(autoPromotion等)。nullなら初回描画時にリーグの先頭ゾーンで初期化
 };
 
 /* ---------- クラブカラーのテーマ適用 ---------- */
@@ -432,6 +470,16 @@ async function ensureStats(league) {
   if (c.stats === undefined) c.stats = await getJsonOptional("data/processed/" + league + "_stats.json");
   return c.stats;
 }
+async function ensureHistory(league) {
+  const c = leagueCache(league);
+  if (c.history === undefined) c.history = await getJsonOptional("data/history/" + league + "_probability_history.json");
+  return c.history;
+}
+async function ensureImpact(league) {
+  const c = leagueCache(league);
+  if (c.impact === undefined) c.impact = await getJsonOptional("data/processed/" + league + "_impact.json");
+  return c.impact;
+}
 async function ensureClubExtra() {
   if (state.clubExtra === undefined) state.clubExtra = await getJsonOptional("data/processed/club_extra.json");
   return state.clubExtra;
@@ -444,12 +492,15 @@ async function ensureTabData(league, tabId) {
   if (tabId === "home") {
     await ensureMatches(league);
     await ensureSimulation(league);
+    await ensureImpact(league);
   } else if (tabId === "schedule") {
     await ensureMatches(league); // 全380試合が既に入っているので追加取得は不要
   } else if (tabId === "standings") {
     await ensureStandings(league);
   } else if (tabId === "stats") {
     await ensureStats(league);
+    await ensureMatches(league); // 確率推移グラフの自クラブ試合結果マーカー用
+    await ensureHistory(league);
   } else if (tabId === "players") {
     await ensureClubExtra();
   } else if (tabId === "news") {
@@ -528,6 +579,40 @@ async function init() {
     if (modeBtn) {
       state.scheduleMode = modeBtn.dataset.schedulemode;
       renderActiveTab();
+      return;
+    }
+
+    const seriesBtn = ev.target.closest("[data-chartseries]");
+    if (seriesBtn) {
+      state.chartSeries = seriesBtn.dataset.chartseries;
+      renderActiveTab();
+      return;
+    }
+
+    const chipBtn = ev.target.closest("[data-chartclub]");
+    if (chipBtn) {
+      const tid = chipBtn.dataset.chartclub;
+      const list = state.chartClubs || [];
+      if (list.includes(tid)) {
+        state.chartClubs = list.filter(x => x !== tid);
+      } else if (list.length < 5) {
+        state.chartClubs = list.concat([tid]);
+      }
+      renderActiveTab();
+      return;
+    }
+
+    const copyBtn = ev.target.closest("[data-icscopy]");
+    if (copyBtn) {
+      const url = copyBtn.dataset.icscopy;
+      const done = () => {
+        const original = "URLをコピー";
+        copyBtn.textContent = "コピーしました";
+        setTimeout(() => { copyBtn.textContent = original; }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(done).catch(() => {});
+      }
       return;
     }
 
@@ -619,14 +704,15 @@ async function renderActiveTab() {
   } else if (state.activeTab === "standings") {
     html = renderStandings(cache.standings, team, master);
   } else if (state.activeTab === "stats") {
-    html = renderStatsTab(cache.stats, team);
+    html = renderStatsTab(cache.stats, team) + renderProbabilityChart(cache.history, all, team, master, league);
   } else if (state.activeTab === "players") {
     html = renderLeaders(state.clubExtra, team) + renderPlayers(state.clubExtra, team) + renderSeasonalPerformances(state.clubExtra, team);
   } else if (state.activeTab === "news") {
     const newsHtml = renderNews(state.news, state.clubExtra, team, league);
     html = newsHtml || '<section><h2>ニュース</h2><div class="card"><p class="muted" style="margin:0">関連ニュースが見つかりませんでした。</p></div></section>';
   } else {
-    html = renderNext(mine, team, venues) + renderResults(mine, team) + renderPromotion(cache.simulation, team, all, master.promotionRules);
+    html = renderNext(mine, team, venues) + renderResults(mine, team) + renderPromotion(cache.simulation, team, all, master.promotionRules) +
+      renderImpactSection(cache.impact, team, master.promotionRules);
   }
   app.innerHTML = html;
 
@@ -754,8 +840,25 @@ function scheduleRowHtml(m, team, mode) {
   '</div>';
 }
 
+/* ---------- カレンダー配信(.ics)導線 ---------- */
+
+function icsUrls(idTeam) {
+  const httpsUrl = new URL("ics/" + encodeURIComponent(idTeam) + ".ics", location.href).href;
+  const webcalUrl = httpsUrl.replace(/^https?:/, "webcal:");
+  return { httpsUrl, webcalUrl };
+}
+function renderIcsButton(team) {
+  const { httpsUrl, webcalUrl } = icsUrls(team.idTeam);
+  return '<div class="ics-block">' +
+    '<a class="btn" href="' + esc(webcalUrl) + '">カレンダーに登録</a>' +
+    '<button type="button" class="btn-secondary" data-icscopy="' + esc(httpsUrl) + '">URLをコピー</button>' +
+    '<p class="promo-note">※ カレンダーアプリの更新間隔は端末側の設定に依存します。日程変更がすぐ反映されないことがあります。</p>' +
+  '</div>';
+}
+
 function renderScheduleTab(matchesData, team) {
-  if (!matchesData) return '<section><h2>日程</h2><div class="card"><p class="muted" style="margin:0">日程データがまだありません。</p></div></section>';
+  const icsHtml = renderIcsButton(team);
+  if (!matchesData) return icsHtml + '<section><h2>日程</h2><div class="card"><p class="muted" style="margin:0">日程データがまだありません。</p></div></section>';
   const all = matchesData.matches || [];
 
   if (state.scheduleRound == null) state.scheduleRound = computeCurrentRound(all);
@@ -783,7 +886,7 @@ function renderScheduleTab(matchesData, team) {
     return '<div class="sched-round" id="round-' + r + '"><h3 class="sched-round-title">第' + r + '節</h3>' + rowsHtml + '</div>';
   }).join("");
 
-  return '<section><h2>日程</h2><div class="card">' +
+  return icsHtml + '<section><h2>日程</h2><div class="card">' +
     '<div class="schedule-controls">' + toggleHtml + selectHtml + '</div>' +
     '<div id="scheduleList">' + blocksHtml + '</div>' +
   '</div></section>';
@@ -937,6 +1040,94 @@ function renderPromotion(simulation, team, allMatches, rules) {
   const heading = (rules && !rules.autoPromotion) ? "優勝・残留確率(シミュレーション)" : "昇格確率(シミュレーション)";
 
   return '<section><h2>' + esc(heading) + '</h2><div class="card">' + tilesHtml + modeRankHtml + noteHtml + simulationExplainHtml() + '</div></section>';
+}
+
+/* ---------- 他会場インパクト(第8弾B。ホームタブ、今節の他試合が自クラブの確率をどう動かすか) ----------
+   「各試合×勝分敗ごとに個別シミュレーションを回す」のではなく、simulate.py側が既存の1回のループ内で
+   層別集計したdata/processed/{league}_impact.jsonをそのまま読むだけ。ここでは表示専用の整形のみ行う。 */
+
+/* 自クラブ視点でH/D/Aを 勝ち/分け/負け に対応させる(ホーム/アウェイで反転) */
+function outcomeForOwnClub(m, ownIdTeam) {
+  const isHome = m.home.idTeam === ownIdTeam;
+  return { win: isHome ? "H" : "A", draw: "D", lose: isHome ? "A" : "H" };
+}
+/* 影響度(その試合の結果次第で自クラブの確率がどれだけ動くか) = H/D/Aの中の最大-最小 */
+function impactMagnitudeForTeam(m, tid, zoneKey) {
+  const c = m.conditional && m.conditional[tid];
+  if (!c) return 0;
+  const vals = ["H", "D", "A"].map(o => (c[o] && c[o][zoneKey] != null) ? c[o][zoneKey] : null).filter(v => v != null);
+  if (vals.length < 2) return 0;
+  return Math.max(...vals) - Math.min(...vals);
+}
+/* 0.5ポイント刻みの符号付き差分表示。「+4.2%」のような生の1桁小数は出さない(層別で誤差±1pt程度あるため)。
+   trialCountsが少なすぎる条件(既定500未満)は「－」にして、フロント側で表示を抑制する。 */
+function fmtDeltaPt(cond, baseline, trialCount, minTrials) {
+  if (cond == null || baseline == null || (trialCount != null && trialCount < minTrials)) return "－";
+  const pts = Math.round((cond - baseline) * 200) / 2;
+  if (pts === 0) return "±0pt";
+  return (pts > 0 ? "+" : "") + pts.toFixed(1) + "pt";
+}
+
+const IMPACT_MIN_TRIALS = 500;
+const IMPACT_SMALL_PT = 1.0; // これ未満(ポイント)は「その他」に畳む(指示書に具体的な閾値の指定は無いための実装判断)
+
+function renderImpactSection(impact, team, rules) {
+  if (!impact || !impact.matches || !impact.matches.length) return "";
+  const zones = resolveZones(rules);
+  if (!zones.length) return "";
+  const zone = zones[0]; // 表示は主区分(autoPromotion優先、無ければchampion)の1本に絞る
+
+  const baseline = (impact.baseline && impact.baseline[team.idTeam]) || {};
+  const baseVal = baseline[zone.key];
+
+  const ownMatch = impact.matches.find(m => m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam);
+  const others = impact.matches.filter(m => m !== ownMatch)
+    .map(m => ({ m, mag: impactMagnitudeForTeam(m, team.idTeam, zone.key) }))
+    .sort((a, b) => b.mag - a.mag);
+
+  let ownHtml = "";
+  if (ownMatch) {
+    const map = outcomeForOwnClub(ownMatch, team.idTeam);
+    const cond = ownMatch.conditional[team.idTeam] || {};
+    const tc = ownMatch.trialCounts || {};
+    const pct = o => {
+      const v = cond[o] && cond[o][zone.key];
+      if (v == null || (tc[o] != null && tc[o] < IMPACT_MIN_TRIALS)) return "－";
+      return (v * 100).toFixed(1) + "%";
+    };
+    const opp = ownMatch.home.idTeam === team.idTeam ? ownMatch.away : ownMatch.home;
+    ownHtml =
+      '<div class="impact-own">' +
+        '<div class="impact-row-title">' + esc(fmtDate(ownMatch.kickoffJst, true)) + ' vs ' + esc(opp.short) +
+          '(' + esc(zone.label) + ')</div>' +
+        '<div class="impact-own-vals">勝てば ' + pct(map.win) + ' ／ 引き分けなら ' + pct(map.draw) + ' ／ 負ければ ' + pct(map.lose) + '</div>' +
+      '</div>';
+  }
+
+  const rowHtml = (m) => {
+    const cond = m.conditional[team.idTeam] || {};
+    const tc = m.trialCounts || {};
+    const d = o => fmtDeltaPt(cond[o] && cond[o][zone.key], baseVal, tc[o], IMPACT_MIN_TRIALS);
+    return '<div class="impact-row">' +
+      '<div class="impact-row-title">' + esc(fmtDate(m.kickoffJst, false)) + ' ' + esc(m.home.short) + ' vs ' + esc(m.away.short) + '</div>' +
+      '<div class="impact-row-vals">' + esc(m.home.short) + '勝 ' + d("H") + ' ／ 引分 ' + d("D") + ' ／ ' + esc(m.away.short) + '勝 ' + d("A") + '</div>' +
+    '</div>';
+  };
+
+  const big = others.filter(o => o.mag * 100 >= IMPACT_SMALL_PT);
+  const small = others.filter(o => o.mag * 100 < IMPACT_SMALL_PT);
+  const bigHtml = big.map(o => rowHtml(o.m)).join("");
+  const smallHtml = small.length
+    ? '<details><summary>その他(' + small.length + '件)</summary>' + small.map(o => rowHtml(o.m)).join("") + '</details>'
+    : "";
+
+  if (!ownHtml && !bigHtml && !smallHtml) return "";
+
+  return '<section><h2>今節の他会場</h2><div class="card">' +
+    (ownHtml || '<p class="muted small" style="margin:0 0 10px">この期間に自クラブの試合はありません。</p>') +
+    bigHtml + smallHtml +
+    '<p class="promo-note">※ シミュレーション上の目安です(誤差±1ポイント程度)</p>' +
+  '</div></section>';
 }
 
 /* ---------- スタッツ(stats.py: 自前計算 + 公式サイト由来の指標をまとめたもの) ---------- */
@@ -1109,6 +1300,136 @@ function renderStatsTab(stats, team) {
   const noteHtml = (stats.meta && stats.meta.note) ? '<p class="promo-note">' + esc(stats.meta.note) + '</p>' : "";
 
   return '<section><h2>スタッツ</h2><div class="card">' + subtabHtml + radarHtml + tableHtml + noteHtml + '</div></section>';
+}
+
+/* ---------- 確率推移グラフ(第8弾A。スタッツタブ、インラインSVG・外部ライブラリ不使用) ----------
+   dates配列と同じ長さの各クラブの確率配列(data/history/{league}_probability_history.json)を折れ線で描く。
+   「あの敗戦で確率が落ちた」が読めることが目的なので、自クラブの試合結果(○/△/●)を必ず重ねる。 */
+
+/* 試合日(kickoffDate)以降で最初のスナップショット日のインデックスを返す(完全一致しなくてもよい)。 */
+function findSnapshotIndexOnOrAfter(dates, targetDate) {
+  if (!targetDate || !dates || !dates.length) return null;
+  for (let i = 0; i < dates.length; i++) {
+    if (dates[i] >= targetDate) return i;
+  }
+  return dates.length - 1;
+}
+
+function buildProbabilityChartSvg(history, seriesKey, selectedClubIds, masterTeamsById, ownIdTeam, ownFinishedMatches) {
+  const dates = history.dates || [];
+  if (!dates.length) return "";
+  const n = dates.length;
+  const W = Math.max(320, n * 16);
+  const H = 200;
+  const padL = 28, padR = 10, padT = 10, padB = 22;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const xAt = i => padL + (n === 1 ? plotW / 2 : (plotW * i) / (n - 1));
+  const yAt = p => padT + plotH * (1 - p);
+
+  const gridHtml = [0, 0.25, 0.5, 0.75, 1.0].map(f => {
+    const y = yAt(f).toFixed(1);
+    return '<line x1="' + padL + '" y1="' + y + '" x2="' + (W - padR) + '" y2="' + y + '" stroke="#e3e6ea" stroke-width="1"/>' +
+      '<text x="' + (padL - 5) + '" y="' + (Number(y) + 3) + '" text-anchor="end" class="chart-axis-label">' + Math.round(f * 100) + '</text>';
+  }).join("");
+
+  const labelStep = Math.max(1, Math.ceil(n / 6));
+  const xLabelsHtml = dates.map((d, i) => {
+    if (i % labelStep !== 0 && i !== n - 1) return "";
+    const md = /^\d{4}-(\d{2})-(\d{2})/.exec(d);
+    const label = md ? (+md[1]) + "/" + (+md[2]) : d;
+    return '<text x="' + xAt(i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" class="chart-axis-label">' + esc(label) + '</text>';
+  }).join("");
+
+  const basedOn = history.basedOnMatches || [];
+  const linesHtml = selectedClubIds.map(tid => {
+    const teamHist = (history.teams || {})[tid];
+    if (!teamHist) return "";
+    const arr = teamHist[seriesKey] || [];
+    const teamInfo = masterTeamsById[tid];
+    const color = (teamInfo && teamInfo.color) || "#0b6b3a";
+    const pts = [];
+    for (let i = 0; i < n; i++) {
+      if (arr[i] == null) continue;
+      pts.push([i, arr[i]]);
+    }
+    if (!pts.length) return "";
+    const pathD = pts.map(([i, v], idx) => (idx === 0 ? "M" : "L") + xAt(i).toFixed(1) + "," + yAt(v).toFixed(1)).join(" ");
+    // 前日からbasedOnMatchesが変わっていない日(試合が無かった日)はマーカーを出さない。線はそのまま繋げる。
+    const markerPts = pts.filter(([i]) => i === 0 || basedOn[i] !== basedOn[i - 1]);
+    const markers = markerPts.map(([i, v]) =>
+      '<circle cx="' + xAt(i).toFixed(1) + '" cy="' + yAt(v).toFixed(1) + '" r="2.5" fill="' + color + '"/>'
+    ).join("");
+    return '<path d="' + pathD + '" fill="none" stroke="' + color + '" stroke-width="2"/>' + markers;
+  }).join("");
+
+  let resultMarkersHtml = "";
+  if (selectedClubIds.includes(ownIdTeam)) {
+    const ownArr = ((history.teams || {})[ownIdTeam] || {})[seriesKey] || [];
+    resultMarkersHtml = (ownFinishedMatches || []).map(m => {
+      const targetDate = m.kickoffDate || (m.kickoffJst || "").slice(0, 10);
+      const idx = findSnapshotIndexOnOrAfter(dates, targetDate);
+      if (idx == null || ownArr[idx] == null) return "";
+      const isHome = m.home.idTeam === ownIdTeam;
+      const meScore = isHome ? m.home.score : m.away.score;
+      const oppScore = isHome ? m.away.score : m.home.score;
+      const mark = meScore > oppScore ? "○" : (meScore < oppScore ? "●" : "△");
+      const x = xAt(idx).toFixed(1);
+      const y = (yAt(ownArr[idx]) - 10).toFixed(1);
+      return '<text x="' + x + '" y="' + y + '" text-anchor="middle" class="chart-result-mark">' + mark + '</text>';
+    }).join("");
+  }
+
+  return '<div class="chart-scroll"><svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg">' +
+    gridHtml + xLabelsHtml + linesHtml + resultMarkersHtml +
+  '</svg></div>';
+}
+
+function renderProbabilityChart(history, matches, team, master, league) {
+  const rules = master.promotionRules;
+  const zones = resolveZones(rules);
+  if (!history || !history.dates || !history.dates.length || !zones.length) return "";
+
+  if (state.chartLeague !== league) {
+    state.chartLeague = league;
+    state.chartClubs = [team.idTeam];
+    state.chartSeries = null;
+  }
+  if (!state.chartSeries || !zones.some(z => z.key === state.chartSeries)) {
+    state.chartSeries = zones[0].key;
+  }
+  const selected = (state.chartClubs && state.chartClubs.length) ? state.chartClubs : [team.idTeam];
+
+  const seriesHtml = zones.length > 1
+    ? '<div class="chart-series-tabs">' + zones.map(z =>
+        '<button type="button" class="' + (z.key === state.chartSeries ? "active" : "") + '" data-chartseries="' + z.key + '">' + esc(z.label) + '</button>'
+      ).join("") + '</div>'
+    : "";
+
+  const clubsSorted = [...master.teams].sort((a, b) => a.ja.localeCompare(b.ja, "ja"));
+  const chipsHtml = '<div class="chart-chips">' + clubsSorted.map(t => {
+    const on = selected.includes(t.idTeam);
+    return '<button type="button" class="chart-chip' + (on ? " active" : "") + '" data-chartclub="' + esc(t.idTeam) + '">' + esc(t.short || t.ja) + '</button>';
+  }).join("") + '</div>';
+
+  const masterTeamsById = {};
+  for (const t of master.teams) masterTeamsById[t.idTeam] = t;
+  const ownFinished = (matches || []).filter(m => m.finished && (m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam));
+
+  const svgHtml = buildProbabilityChartSvg(history, state.chartSeries, selected, masterTeamsById, team.idTeam, ownFinished);
+
+  const legendHtml = '<div class="legend">' + selected.map(tid => {
+    const t = masterTeamsById[tid];
+    if (!t) return "";
+    return '<span><i class="sw" style="background:' + esc(t.color || "#999") + '"></i>' + esc(t.short || t.ja) + '</span>';
+  }).join("") + '<span>○=勝利 △=引分 ●=敗戦(自クラブ)</span></div>';
+
+  const activeZone = zones.find(z => z.key === state.chartSeries);
+
+  return '<section><h2>' + esc(activeZone ? activeZone.label + "確率の推移" : "確率の推移") + '</h2><div class="card">' +
+    seriesHtml + chipsHtml + svgHtml + legendHtml +
+    '<p class="promo-note">※ 開幕直後はモデルがリーグ平均に寄るため、確率の動きは実力変化を意味しません</p>' +
+  '</div></section>';
 }
 
 /* ---------- 今季の主役(得点/アシスト/デュエル勝利数トップ。club_extra.json由来) ---------- */
