@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-08-21T22:25:44+09:00",
+    "generatedAtJst": "2026-08-22T02:01:11+09:00",
     "trials": 10000,
     "windowStartJst": "2026-08-22T18:00:00+09:00",
     "windowEndJst": "2026-08-25T18:00:00+09:00",
@@ -9,84 +9,84 @@
   },
   "baseline": {
     "137707": {
-      "champion": 0.05,
-      "relegation": 0.006
+      "champion": 0.033,
+      "relegation": 0.197
     },
     "137716": {
-      "champion": 0.0,
-      "relegation": 0.417
+      "champion": 0.035,
+      "relegation": 0.196
     },
     "137708": {
-      "champion": 0.292,
-      "relegation": 0.0
+      "champion": 0.076,
+      "relegation": 0.013
     },
     "139886": {
       "champion": 0.0,
-      "relegation": 0.634
+      "relegation": 0.368
     },
     "139891": {
-      "champion": 0.006,
+      "champion": 0.07,
       "relegation": 0.108
     },
     "137704": {
-      "champion": 0.036,
-      "relegation": 0.0
+      "champion": 0.077,
+      "relegation": 0.009
     },
     "139901": {
-      "champion": 0.0,
-      "relegation": 0.266
+      "champion": 0.068,
+      "relegation": 0.111
     },
     "139889": {
-      "champion": 0.206,
-      "relegation": 0.001
+      "champion": 0.07,
+      "relegation": 0.109
     },
     "137709": {
-      "champion": 0.01,
-      "relegation": 0.088
+      "champion": 0.036,
+      "relegation": 0.176
     },
     "137719": {
-      "champion": 0.059,
-      "relegation": 0.005
+      "champion": 0.074,
+      "relegation": 0.112
     },
     "137714": {
-      "champion": 0.001,
-      "relegation": 0.203
+      "champion": 0.058,
+      "relegation": 0.133
     },
     "137710": {
-      "champion": 0.001,
-      "relegation": 0.221
+      "champion": 0.071,
+      "relegation": 0.105
     },
     "139888": {
-      "champion": 0.006,
-      "relegation": 0.102
+      "champion": 0.076,
+      "relegation": 0.11
     },
     "137705": {
-      "champion": 0.006,
-      "relegation": 0.086
+      "champion": 0.037,
+      "relegation": 0.182
     },
     "137703": {
-      "champion": 0.0,
-      "relegation": 0.338
+      "champion": 0.062,
+      "relegation": 0.12
     },
     "137717": {
-      "champion": 0.011,
-      "relegation": 0.069
+      "champion": 0.035,
+      "relegation": 0.193
     },
     "139884": {
-      "champion": 0.074,
-      "relegation": 0.004
+      "champion": 0.037,
+      "relegation": 0.179
     },
     "137713": {
-      "champion": 0.122,
-      "relegation": 0.001
+      "champion": 0.073,
+      "relegation": 0.111
     },
     "139882": {
-      "champion": 0.132,
-      "relegation": 0.001
+      "champion": 0.033,
+      "relegation": 0.202
     },
     "139899": {
-      "champion": 0.0,
-      "relegation": 0.432
+      "champion": 0.001,
+      "relegation": 0.236
     }
   },
   "matches": [
@@ -102,289 +102,289 @@
         "short": "福岡"
       },
       "trialCounts": {
-        "H": 3234,
-        "D": 2374,
-        "A": 4392
+        "H": 5407,
+        "D": 1974,
+        "A": 2619
       },
       "conditional": {
         "137707": {
           "H": {
-            "champion": 0.137,
-            "relegation": 0.0
+            "champion": 0.057,
+            "relegation": 0.019
           },
           "D": {
-            "champion": 0.021,
-            "relegation": 0.0
+            "champion": 0.01,
+            "relegation": 0.292
           },
           "A": {
-            "champion": 0.001,
-            "relegation": 0.013
+            "champion": 0.0,
+            "relegation": 0.493
           }
         },
         "137716": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.415
+            "champion": 0.033,
+            "relegation": 0.204
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.432
+            "champion": 0.036,
+            "relegation": 0.196
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.411
+            "champion": 0.036,
+            "relegation": 0.181
           }
         },
         "137708": {
           "H": {
-            "champion": 0.318,
-            "relegation": 0.0
+            "champion": 0.075,
+            "relegation": 0.015
           },
           "D": {
-            "champion": 0.309,
-            "relegation": 0.0
+            "champion": 0.078,
+            "relegation": 0.009
           },
           "A": {
-            "champion": 0.265,
-            "relegation": 0.0
+            "champion": 0.077,
+            "relegation": 0.01
           }
         },
         "139886": {
           "H": {
             "champion": 0.0,
-            "relegation": 0.628
+            "relegation": 0.369
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.643
+            "champion": 0.001,
+            "relegation": 0.374
           },
           "A": {
             "champion": 0.0,
-            "relegation": 0.635
+            "relegation": 0.361
           }
         },
         "139891": {
           "H": {
-            "champion": 0.01,
-            "relegation": 0.108
+            "champion": 0.07,
+            "relegation": 0.107
           },
           "D": {
-            "champion": 0.003,
-            "relegation": 0.116
+            "champion": 0.075,
+            "relegation": 0.113
           },
           "A": {
-            "champion": 0.005,
-            "relegation": 0.105
+            "champion": 0.065,
+            "relegation": 0.107
           }
         },
         "137704": {
           "H": {
-            "champion": 0.039,
-            "relegation": 0.0
+            "champion": 0.078,
+            "relegation": 0.011
           },
           "D": {
-            "champion": 0.044,
-            "relegation": 0.0
+            "champion": 0.081,
+            "relegation": 0.006
           },
           "A": {
-            "champion": 0.029,
-            "relegation": 0.0
+            "champion": 0.073,
+            "relegation": 0.008
           }
         },
         "139901": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.266
+            "champion": 0.069,
+            "relegation": 0.113
           },
           "D": {
-            "champion": 0.001,
-            "relegation": 0.265
+            "champion": 0.069,
+            "relegation": 0.11
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.267
+            "champion": 0.065,
+            "relegation": 0.106
           }
         },
         "139889": {
           "H": {
-            "champion": 0.204,
-            "relegation": 0.001
+            "champion": 0.073,
+            "relegation": 0.119
           },
           "D": {
-            "champion": 0.227,
-            "relegation": 0.0
+            "champion": 0.078,
+            "relegation": 0.102
           },
           "A": {
-            "champion": 0.196,
-            "relegation": 0.001
+            "champion": 0.057,
+            "relegation": 0.094
           }
         },
         "137709": {
           "H": {
-            "champion": 0.008,
-            "relegation": 0.087
+            "champion": 0.037,
+            "relegation": 0.185
           },
           "D": {
-            "champion": 0.011,
-            "relegation": 0.087
+            "champion": 0.034,
+            "relegation": 0.174
           },
           "A": {
-            "champion": 0.01,
-            "relegation": 0.089
+            "champion": 0.034,
+            "relegation": 0.161
           }
         },
         "137719": {
           "H": {
-            "champion": 0.067,
-            "relegation": 0.006
+            "champion": 0.076,
+            "relegation": 0.112
           },
           "D": {
-            "champion": 0.064,
-            "relegation": 0.004
+            "champion": 0.072,
+            "relegation": 0.122
           },
           "A": {
-            "champion": 0.049,
-            "relegation": 0.005
+            "champion": 0.071,
+            "relegation": 0.104
           }
         },
         "137714": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.203
+            "champion": 0.06,
+            "relegation": 0.135
           },
           "D": {
-            "champion": 0.001,
-            "relegation": 0.196
+            "champion": 0.064,
+            "relegation": 0.126
           },
           "A": {
-            "champion": 0.001,
-            "relegation": 0.206
+            "champion": 0.048,
+            "relegation": 0.133
           }
         },
         "137710": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.215
+            "champion": 0.068,
+            "relegation": 0.109
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.225
+            "champion": 0.072,
+            "relegation": 0.108
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.223
+            "champion": 0.077,
+            "relegation": 0.095
           }
         },
         "139888": {
           "H": {
-            "champion": 0.004,
-            "relegation": 0.109
+            "champion": 0.076,
+            "relegation": 0.112
           },
           "D": {
-            "champion": 0.007,
-            "relegation": 0.096
+            "champion": 0.084,
+            "relegation": 0.1
           },
           "A": {
-            "champion": 0.008,
-            "relegation": 0.1
+            "champion": 0.071,
+            "relegation": 0.113
           }
         },
         "137705": {
           "H": {
-            "champion": 0.009,
-            "relegation": 0.08
+            "champion": 0.036,
+            "relegation": 0.186
           },
           "D": {
-            "champion": 0.006,
-            "relegation": 0.092
+            "champion": 0.041,
+            "relegation": 0.181
           },
           "A": {
-            "champion": 0.005,
-            "relegation": 0.086
+            "champion": 0.034,
+            "relegation": 0.176
           }
         },
         "137703": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.342
+            "champion": 0.064,
+            "relegation": 0.13
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.335
+            "champion": 0.057,
+            "relegation": 0.112
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.336
+            "champion": 0.06,
+            "relegation": 0.108
           }
         },
         "137717": {
           "H": {
-            "champion": 0.01,
-            "relegation": 0.07
+            "champion": 0.037,
+            "relegation": 0.197
           },
           "D": {
-            "champion": 0.015,
-            "relegation": 0.068
+            "champion": 0.028,
+            "relegation": 0.185
           },
           "A": {
-            "champion": 0.01,
-            "relegation": 0.068
+            "champion": 0.034,
+            "relegation": 0.191
           }
         },
         "139884": {
           "H": {
-            "champion": 0.076,
-            "relegation": 0.006
+            "champion": 0.033,
+            "relegation": 0.179
           },
           "D": {
-            "champion": 0.088,
-            "relegation": 0.003
+            "champion": 0.047,
+            "relegation": 0.174
           },
           "A": {
-            "champion": 0.065,
-            "relegation": 0.004
+            "champion": 0.037,
+            "relegation": 0.182
           }
         },
         "137713": {
           "H": {
-            "champion": 0.123,
-            "relegation": 0.0
+            "champion": 0.071,
+            "relegation": 0.117
           },
           "D": {
-            "champion": 0.135,
-            "relegation": 0.003
+            "champion": 0.081,
+            "relegation": 0.097
           },
           "A": {
-            "champion": 0.114,
-            "relegation": 0.0
+            "champion": 0.07,
+            "relegation": 0.109
           }
         },
         "139882": {
           "H": {
-            "champion": 0.007,
-            "relegation": 0.004
+            "champion": 0.001,
+            "relegation": 0.308
           },
           "D": {
-            "champion": 0.079,
-            "relegation": 0.0
+            "champion": 0.019,
+            "relegation": 0.171
           },
           "A": {
-            "champion": 0.252,
-            "relegation": 0.0
+            "champion": 0.111,
+            "relegation": 0.008
           }
         },
         "139899": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.444
+            "champion": 0.001,
+            "relegation": 0.248
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.421
+            "champion": 0.001,
+            "relegation": 0.219
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.43
+            "champion": 0.001,
+            "relegation": 0.226
           }
         }
       }
@@ -401,289 +401,289 @@
         "short": "東京V"
       },
       "trialCounts": {
-        "H": 4696,
-        "D": 2397,
-        "A": 2907
+        "H": 5416,
+        "D": 1946,
+        "A": 2638
       },
       "conditional": {
         "137707": {
           "H": {
-            "champion": 0.044,
-            "relegation": 0.006
+            "champion": 0.033,
+            "relegation": 0.203
           },
           "D": {
-            "champion": 0.048,
-            "relegation": 0.005
+            "champion": 0.038,
+            "relegation": 0.192
           },
           "A": {
-            "champion": 0.06,
-            "relegation": 0.006
+            "champion": 0.03,
+            "relegation": 0.19
           }
         },
         "137716": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.39
+            "champion": 0.039,
+            "relegation": 0.207
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.431
+            "champion": 0.03,
+            "relegation": 0.198
           },
           "A": {
-            "champion": 0.001,
-            "relegation": 0.45
+            "champion": 0.029,
+            "relegation": 0.173
           }
         },
         "137708": {
           "H": {
-            "champion": 0.272,
-            "relegation": 0.0
+            "champion": 0.084,
+            "relegation": 0.014
           },
           "D": {
-            "champion": 0.307,
-            "relegation": 0.0
+            "champion": 0.076,
+            "relegation": 0.01
           },
           "A": {
-            "champion": 0.313,
-            "relegation": 0.0
+            "champion": 0.06,
+            "relegation": 0.01
           }
         },
         "139886": {
           "H": {
             "champion": 0.0,
-            "relegation": 0.614
+            "relegation": 0.374
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.632
+            "champion": 0.001,
+            "relegation": 0.368
           },
           "A": {
             "champion": 0.0,
-            "relegation": 0.669
+            "relegation": 0.356
           }
         },
         "139891": {
           "H": {
-            "champion": 0.004,
-            "relegation": 0.096
+            "champion": 0.068,
+            "relegation": 0.114
           },
           "D": {
-            "champion": 0.008,
-            "relegation": 0.105
+            "champion": 0.084,
+            "relegation": 0.107
           },
           "A": {
-            "champion": 0.007,
-            "relegation": 0.131
+            "champion": 0.063,
+            "relegation": 0.097
           }
         },
         "137704": {
           "H": {
-            "champion": 0.032,
-            "relegation": 0.0
+            "champion": 0.077,
+            "relegation": 0.01
           },
           "D": {
-            "champion": 0.035,
-            "relegation": 0.0
+            "champion": 0.089,
+            "relegation": 0.006
           },
           "A": {
-            "champion": 0.042,
-            "relegation": 0.0
+            "champion": 0.07,
+            "relegation": 0.009
           }
         },
         "139901": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.418
+            "champion": 0.001,
+            "relegation": 0.176
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.26
+            "champion": 0.051,
+            "relegation": 0.077
           },
           "A": {
-            "champion": 0.001,
-            "relegation": 0.025
+            "champion": 0.217,
+            "relegation": 0.002
           }
         },
         "139889": {
           "H": {
-            "champion": 0.198,
-            "relegation": 0.001
+            "champion": 0.072,
+            "relegation": 0.113
           },
           "D": {
-            "champion": 0.212,
-            "relegation": 0.001
+            "champion": 0.078,
+            "relegation": 0.104
           },
           "A": {
-            "champion": 0.214,
-            "relegation": 0.001
+            "champion": 0.06,
+            "relegation": 0.104
           }
         },
         "137709": {
           "H": {
-            "champion": 0.009,
-            "relegation": 0.081
+            "champion": 0.039,
+            "relegation": 0.18
           },
           "D": {
-            "champion": 0.01,
-            "relegation": 0.085
+            "champion": 0.034,
+            "relegation": 0.181
           },
           "A": {
-            "champion": 0.011,
-            "relegation": 0.102
+            "champion": 0.031,
+            "relegation": 0.165
           }
         },
         "137719": {
           "H": {
-            "champion": 0.055,
-            "relegation": 0.004
+            "champion": 0.076,
+            "relegation": 0.114
           },
           "D": {
-            "champion": 0.058,
-            "relegation": 0.006
+            "champion": 0.076,
+            "relegation": 0.112
           },
           "A": {
-            "champion": 0.065,
-            "relegation": 0.005
+            "champion": 0.068,
+            "relegation": 0.107
           }
         },
         "137714": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.2
+            "champion": 0.063,
+            "relegation": 0.133
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.206
+            "champion": 0.063,
+            "relegation": 0.138
           },
           "A": {
-            "champion": 0.001,
-            "relegation": 0.206
+            "champion": 0.043,
+            "relegation": 0.127
           }
         },
         "137710": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.209
+            "champion": 0.074,
+            "relegation": 0.105
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.214
+            "champion": 0.069,
+            "relegation": 0.101
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.245
+            "champion": 0.066,
+            "relegation": 0.109
           }
         },
         "139888": {
           "H": {
-            "champion": 0.005,
-            "relegation": 0.087
+            "champion": 0.078,
+            "relegation": 0.114
           },
           "D": {
-            "champion": 0.009,
-            "relegation": 0.1
+            "champion": 0.087,
+            "relegation": 0.096
           },
           "A": {
-            "champion": 0.007,
-            "relegation": 0.126
+            "champion": 0.066,
+            "relegation": 0.112
           }
         },
         "137705": {
           "H": {
-            "champion": 0.006,
-            "relegation": 0.083
+            "champion": 0.039,
+            "relegation": 0.191
           },
           "D": {
-            "champion": 0.008,
-            "relegation": 0.086
+            "champion": 0.035,
+            "relegation": 0.177
           },
           "A": {
-            "champion": 0.005,
-            "relegation": 0.089
+            "champion": 0.033,
+            "relegation": 0.17
           }
         },
         "137703": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.319
+            "champion": 0.064,
+            "relegation": 0.131
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.341
+            "champion": 0.067,
+            "relegation": 0.104
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.365
+            "champion": 0.054,
+            "relegation": 0.111
           }
         },
         "137717": {
           "H": {
-            "champion": 0.009,
-            "relegation": 0.064
+            "champion": 0.035,
+            "relegation": 0.204
           },
           "D": {
-            "champion": 0.014,
-            "relegation": 0.073
+            "champion": 0.032,
+            "relegation": 0.185
           },
           "A": {
-            "champion": 0.012,
-            "relegation": 0.072
+            "champion": 0.036,
+            "relegation": 0.176
           }
         },
         "139884": {
           "H": {
-            "champion": 0.146,
-            "relegation": 0.0
+            "champion": 0.066,
+            "relegation": 0.016
           },
           "D": {
-            "champion": 0.022,
-            "relegation": 0.001
+            "champion": 0.006,
+            "relegation": 0.281
           },
           "A": {
-            "champion": 0.001,
-            "relegation": 0.015
+            "champion": 0.0,
+            "relegation": 0.439
           }
         },
         "137713": {
           "H": {
-            "champion": 0.115,
-            "relegation": 0.001
+            "champion": 0.077,
+            "relegation": 0.115
           },
           "D": {
-            "champion": 0.123,
-            "relegation": 0.002
+            "champion": 0.072,
+            "relegation": 0.099
           },
           "A": {
-            "champion": 0.131,
-            "relegation": 0.001
+            "champion": 0.064,
+            "relegation": 0.111
           }
         },
         "139882": {
           "H": {
-            "champion": 0.116,
-            "relegation": 0.001
+            "champion": 0.036,
+            "relegation": 0.212
           },
           "D": {
-            "champion": 0.155,
-            "relegation": 0.002
+            "champion": 0.03,
+            "relegation": 0.199
           },
           "A": {
-            "champion": 0.139,
-            "relegation": 0.001
+            "champion": 0.03,
+            "relegation": 0.185
           }
         },
         "139899": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.409
+            "champion": 0.001,
+            "relegation": 0.246
           },
           "D": {
             "champion": 0.0,
-            "relegation": 0.429
+            "relegation": 0.236
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.474
+            "champion": 0.001,
+            "relegation": 0.216
           }
         }
       }
@@ -700,289 +700,289 @@
         "short": "水戸"
       },
       "trialCounts": {
-        "H": 3799,
-        "D": 2414,
-        "A": 3787
+        "H": 5402,
+        "D": 1942,
+        "A": 2656
       },
       "conditional": {
         "137707": {
           "H": {
-            "champion": 0.055,
-            "relegation": 0.007
+            "champion": 0.03,
+            "relegation": 0.202
           },
           "D": {
-            "champion": 0.047,
-            "relegation": 0.004
+            "champion": 0.036,
+            "relegation": 0.199
           },
           "A": {
-            "champion": 0.046,
-            "relegation": 0.005
+            "champion": 0.037,
+            "relegation": 0.187
           }
         },
         "137716": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.413
+            "champion": 0.036,
+            "relegation": 0.192
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.427
+            "champion": 0.039,
+            "relegation": 0.213
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.416
+            "champion": 0.028,
+            "relegation": 0.193
           }
         },
         "137708": {
           "H": {
-            "champion": 0.3,
-            "relegation": 0.0
+            "champion": 0.078,
+            "relegation": 0.015
           },
           "D": {
-            "champion": 0.285,
-            "relegation": 0.0
+            "champion": 0.079,
+            "relegation": 0.007
           },
           "A": {
-            "champion": 0.29,
-            "relegation": 0.0
+            "champion": 0.07,
+            "relegation": 0.011
           }
         },
         "139886": {
           "H": {
             "champion": 0.0,
-            "relegation": 0.637
+            "relegation": 0.367
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.616
+            "champion": 0.001,
+            "relegation": 0.383
           },
           "A": {
             "champion": 0.0,
-            "relegation": 0.643
+            "relegation": 0.36
           }
         },
         "139891": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.237
+            "champion": 0.001,
+            "relegation": 0.17
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.076
+            "champion": 0.052,
+            "relegation": 0.08
           },
           "A": {
-            "champion": 0.016,
-            "relegation": 0.0
+            "champion": 0.221,
+            "relegation": 0.003
           }
         },
         "137704": {
           "H": {
-            "champion": 0.036,
-            "relegation": 0.0
+            "champion": 0.08,
+            "relegation": 0.009
           },
           "D": {
-            "champion": 0.041,
-            "relegation": 0.0
+            "champion": 0.083,
+            "relegation": 0.01
           },
           "A": {
-            "champion": 0.033,
-            "relegation": 0.0
+            "champion": 0.067,
+            "relegation": 0.008
           }
         },
         "139901": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.264
+            "champion": 0.068,
+            "relegation": 0.114
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.28
+            "champion": 0.072,
+            "relegation": 0.107
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.259
+            "champion": 0.065,
+            "relegation": 0.105
           }
         },
         "139889": {
           "H": {
-            "champion": 0.201,
-            "relegation": 0.001
+            "champion": 0.066,
+            "relegation": 0.112
           },
           "D": {
-            "champion": 0.219,
-            "relegation": 0.002
+            "champion": 0.074,
+            "relegation": 0.106
           },
           "A": {
-            "champion": 0.203,
-            "relegation": 0.0
+            "champion": 0.074,
+            "relegation": 0.106
           }
         },
         "137709": {
           "H": {
-            "champion": 0.009,
-            "relegation": 0.079
+            "champion": 0.036,
+            "relegation": 0.179
           },
           "D": {
-            "champion": 0.009,
-            "relegation": 0.097
+            "champion": 0.037,
+            "relegation": 0.181
           },
           "A": {
-            "champion": 0.011,
-            "relegation": 0.091
+            "champion": 0.034,
+            "relegation": 0.166
           }
         },
         "137719": {
           "H": {
-            "champion": 0.061,
-            "relegation": 0.004
+            "champion": 0.075,
+            "relegation": 0.114
           },
           "D": {
-            "champion": 0.064,
-            "relegation": 0.003
+            "champion": 0.08,
+            "relegation": 0.113
           },
           "A": {
-            "champion": 0.053,
-            "relegation": 0.007
+            "champion": 0.067,
+            "relegation": 0.106
           }
         },
         "137714": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.206
+            "champion": 0.061,
+            "relegation": 0.136
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.201
+            "champion": 0.062,
+            "relegation": 0.122
           },
           "A": {
-            "champion": 0.001,
-            "relegation": 0.201
+            "champion": 0.048,
+            "relegation": 0.134
           }
         },
         "137710": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.215
+            "champion": 0.072,
+            "relegation": 0.107
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.232
+            "champion": 0.082,
+            "relegation": 0.109
           },
           "A": {
-            "champion": 0.001,
-            "relegation": 0.219
+            "champion": 0.061,
+            "relegation": 0.1
           }
         },
         "139888": {
           "H": {
-            "champion": 0.016,
-            "relegation": 0.0
+            "champion": 0.133,
+            "relegation": 0.006
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.084
+            "champion": 0.021,
+            "relegation": 0.162
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.215
+            "champion": 0.001,
+            "relegation": 0.284
           }
         },
         "137705": {
           "H": {
-            "champion": 0.006,
-            "relegation": 0.083
+            "champion": 0.041,
+            "relegation": 0.187
           },
           "D": {
-            "champion": 0.008,
-            "relegation": 0.097
+            "champion": 0.037,
+            "relegation": 0.172
           },
           "A": {
-            "champion": 0.006,
-            "relegation": 0.08
+            "champion": 0.028,
+            "relegation": 0.181
           }
         },
         "137703": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.342
+            "champion": 0.062,
+            "relegation": 0.124
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.342
+            "champion": 0.071,
+            "relegation": 0.116
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.33
+            "champion": 0.056,
+            "relegation": 0.116
           }
         },
         "137717": {
           "H": {
-            "champion": 0.011,
-            "relegation": 0.067
+            "champion": 0.037,
+            "relegation": 0.197
           },
           "D": {
-            "champion": 0.012,
-            "relegation": 0.069
+            "champion": 0.037,
+            "relegation": 0.186
           },
           "A": {
-            "champion": 0.012,
-            "relegation": 0.07
+            "champion": 0.027,
+            "relegation": 0.191
           }
         },
         "139884": {
           "H": {
-            "champion": 0.072,
-            "relegation": 0.006
+            "champion": 0.035,
+            "relegation": 0.182
           },
           "D": {
-            "champion": 0.07,
-            "relegation": 0.003
+            "champion": 0.044,
+            "relegation": 0.163
           },
           "A": {
-            "champion": 0.079,
-            "relegation": 0.004
+            "champion": 0.035,
+            "relegation": 0.185
           }
         },
         "137713": {
           "H": {
-            "champion": 0.113,
-            "relegation": 0.001
+            "champion": 0.07,
+            "relegation": 0.116
           },
           "D": {
-            "champion": 0.12,
-            "relegation": 0.001
+            "champion": 0.081,
+            "relegation": 0.1
           },
           "A": {
-            "champion": 0.132,
-            "relegation": 0.001
+            "champion": 0.072,
+            "relegation": 0.108
           }
         },
         "139882": {
           "H": {
-            "champion": 0.13,
-            "relegation": 0.001
+            "champion": 0.035,
+            "relegation": 0.207
           },
           "D": {
-            "champion": 0.135,
-            "relegation": 0.001
+            "champion": 0.035,
+            "relegation": 0.208
           },
           "A": {
-            "champion": 0.133,
-            "relegation": 0.002
+            "champion": 0.027,
+            "relegation": 0.188
           }
         },
         "139899": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.422
+            "champion": 0.001,
+            "relegation": 0.235
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.444
+            "champion": 0.001,
+            "relegation": 0.233
           },
           "A": {
             "champion": 0.0,
-            "relegation": 0.436
+            "relegation": 0.241
           }
         }
       }
@@ -999,289 +999,289 @@
         "short": "清水"
       },
       "trialCounts": {
-        "H": 3179,
-        "D": 2461,
-        "A": 4360
+        "H": 5440,
+        "D": 1955,
+        "A": 2605
       },
       "conditional": {
         "137707": {
           "H": {
-            "champion": 0.047,
-            "relegation": 0.006
+            "champion": 0.03,
+            "relegation": 0.203
           },
           "D": {
-            "champion": 0.056,
-            "relegation": 0.004
+            "champion": 0.04,
+            "relegation": 0.201
           },
           "A": {
-            "champion": 0.048,
-            "relegation": 0.006
+            "champion": 0.033,
+            "relegation": 0.183
           }
         },
         "137716": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.418
+            "champion": 0.035,
+            "relegation": 0.198
           },
           "D": {
-            "champion": 0.001,
-            "relegation": 0.408
+            "champion": 0.038,
+            "relegation": 0.196
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.422
+            "champion": 0.03,
+            "relegation": 0.193
           }
         },
         "137708": {
           "H": {
-            "champion": 0.292,
-            "relegation": 0.0
+            "champion": 0.076,
+            "relegation": 0.013
           },
           "D": {
-            "champion": 0.291,
-            "relegation": 0.0
+            "champion": 0.072,
+            "relegation": 0.012
           },
           "A": {
-            "champion": 0.294,
-            "relegation": 0.0
+            "champion": 0.079,
+            "relegation": 0.011
           }
         },
         "139886": {
           "H": {
             "champion": 0.0,
-            "relegation": 0.648
+            "relegation": 0.373
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.625
+            "champion": 0.001,
+            "relegation": 0.363
           },
           "A": {
             "champion": 0.0,
-            "relegation": 0.63
+            "relegation": 0.362
           }
         },
         "139891": {
           "H": {
-            "champion": 0.009,
-            "relegation": 0.113
-          },
-          "D": {
-            "champion": 0.004,
+            "champion": 0.067,
             "relegation": 0.11
           },
-          "A": {
-            "champion": 0.005,
+          "D": {
+            "champion": 0.075,
             "relegation": 0.105
+          },
+          "A": {
+            "champion": 0.071,
+            "relegation": 0.107
           }
         },
         "137704": {
           "H": {
-            "champion": 0.031,
-            "relegation": 0.0
+            "champion": 0.073,
+            "relegation": 0.01
           },
           "D": {
-            "champion": 0.039,
-            "relegation": 0.0
+            "champion": 0.084,
+            "relegation": 0.01
           },
           "A": {
-            "champion": 0.038,
-            "relegation": 0.0
+            "champion": 0.081,
+            "relegation": 0.007
           }
         },
         "139901": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.281
+            "champion": 0.073,
+            "relegation": 0.113
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.259
+            "champion": 0.068,
+            "relegation": 0.099
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.259
+            "champion": 0.058,
+            "relegation": 0.115
           }
         },
         "139889": {
           "H": {
-            "champion": 0.212,
-            "relegation": 0.001
+            "champion": 0.07,
+            "relegation": 0.11
           },
           "D": {
-            "champion": 0.202,
-            "relegation": 0.001
+            "champion": 0.085,
+            "relegation": 0.118
           },
           "A": {
-            "champion": 0.203,
-            "relegation": 0.0
+            "champion": 0.058,
+            "relegation": 0.099
           }
         },
         "137709": {
           "H": {
-            "champion": 0.01,
-            "relegation": 0.091
+            "champion": 0.034,
+            "relegation": 0.178
           },
           "D": {
-            "champion": 0.012,
-            "relegation": 0.085
+            "champion": 0.043,
+            "relegation": 0.168
           },
           "A": {
-            "champion": 0.008,
-            "relegation": 0.087
+            "champion": 0.034,
+            "relegation": 0.178
           }
         },
         "137719": {
           "H": {
-            "champion": 0.059,
-            "relegation": 0.004
+            "champion": 0.073,
+            "relegation": 0.117
           },
           "D": {
-            "champion": 0.054,
-            "relegation": 0.005
+            "champion": 0.077,
+            "relegation": 0.106
           },
           "A": {
-            "champion": 0.061,
-            "relegation": 0.005
+            "champion": 0.072,
+            "relegation": 0.104
           }
         },
         "137714": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.45
+            "champion": 0.001,
+            "relegation": 0.212
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.227
+            "champion": 0.038,
+            "relegation": 0.086
           },
           "A": {
-            "champion": 0.002,
-            "relegation": 0.009
+            "champion": 0.19,
+            "relegation": 0.002
           }
         },
         "137710": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.228
+            "champion": 0.074,
+            "relegation": 0.107
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.22
+            "champion": 0.075,
+            "relegation": 0.103
           },
           "A": {
-            "champion": 0.001,
-            "relegation": 0.216
+            "champion": 0.063,
+            "relegation": 0.104
           }
         },
         "139888": {
           "H": {
-            "champion": 0.007,
-            "relegation": 0.101
+            "champion": 0.075,
+            "relegation": 0.113
           },
           "D": {
-            "champion": 0.005,
-            "relegation": 0.097
+            "champion": 0.087,
+            "relegation": 0.105
           },
           "A": {
-            "champion": 0.006,
-            "relegation": 0.105
+            "champion": 0.071,
+            "relegation": 0.108
           }
         },
         "137705": {
           "H": {
-            "champion": 0.007,
-            "relegation": 0.091
+            "champion": 0.037,
+            "relegation": 0.185
           },
           "D": {
-            "champion": 0.006,
-            "relegation": 0.069
+            "champion": 0.045,
+            "relegation": 0.179
           },
           "A": {
-            "champion": 0.006,
-            "relegation": 0.091
+            "champion": 0.03,
+            "relegation": 0.179
           }
         },
         "137703": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.039
+            "champion": 0.107,
+            "relegation": 0.008
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.349
+            "champion": 0.019,
+            "relegation": 0.178
           },
           "A": {
             "champion": 0.0,
-            "relegation": 0.548
+            "relegation": 0.311
           }
         },
         "137717": {
           "H": {
-            "champion": 0.01,
-            "relegation": 0.061
+            "champion": 0.038,
+            "relegation": 0.188
           },
           "D": {
-            "champion": 0.015,
-            "relegation": 0.065
+            "champion": 0.035,
+            "relegation": 0.192
           },
           "A": {
-            "champion": 0.01,
-            "relegation": 0.076
+            "champion": 0.026,
+            "relegation": 0.204
           }
         },
         "139884": {
           "H": {
-            "champion": 0.07,
-            "relegation": 0.004
+            "champion": 0.04,
+            "relegation": 0.182
           },
           "D": {
-            "champion": 0.079,
-            "relegation": 0.004
+            "champion": 0.039,
+            "relegation": 0.19
           },
           "A": {
-            "champion": 0.074,
-            "relegation": 0.005
+            "champion": 0.029,
+            "relegation": 0.164
           }
         },
         "137713": {
           "H": {
-            "champion": 0.121,
-            "relegation": 0.001
+            "champion": 0.076,
+            "relegation": 0.111
           },
           "D": {
-            "champion": 0.116,
-            "relegation": 0.001
+            "champion": 0.074,
+            "relegation": 0.122
           },
           "A": {
-            "champion": 0.126,
-            "relegation": 0.001
+            "champion": 0.064,
+            "relegation": 0.104
           }
         },
         "139882": {
           "H": {
-            "champion": 0.136,
-            "relegation": 0.001
+            "champion": 0.037,
+            "relegation": 0.203
           },
           "D": {
-            "champion": 0.131,
-            "relegation": 0.002
+            "champion": 0.028,
+            "relegation": 0.206
           },
           "A": {
-            "champion": 0.129,
-            "relegation": 0.001
+            "champion": 0.03,
+            "relegation": 0.198
           }
         },
         "139899": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.445
+            "champion": 0.001,
+            "relegation": 0.238
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.446
+            "champion": 0.001,
+            "relegation": 0.232
           },
           "A": {
             "champion": 0.0,
-            "relegation": 0.416
+            "relegation": 0.237
           }
         }
       }
@@ -1298,289 +1298,289 @@
         "short": "G大阪"
       },
       "trialCounts": {
-        "H": 3443,
-        "D": 2468,
-        "A": 4089
+        "H": 5444,
+        "D": 1990,
+        "A": 2566
       },
       "conditional": {
         "137707": {
           "H": {
-            "champion": 0.054,
-            "relegation": 0.004
+            "champion": 0.03,
+            "relegation": 0.194
           },
           "D": {
-            "champion": 0.049,
-            "relegation": 0.007
+            "champion": 0.036,
+            "relegation": 0.208
           },
           "A": {
-            "champion": 0.047,
-            "relegation": 0.006
+            "champion": 0.036,
+            "relegation": 0.196
           }
         },
         "137716": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.437
+            "champion": 0.035,
+            "relegation": 0.193
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.422
+            "champion": 0.033,
+            "relegation": 0.206
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.397
+            "champion": 0.035,
+            "relegation": 0.196
           }
         },
         "137708": {
           "H": {
-            "champion": 0.299,
-            "relegation": 0.0
+            "champion": 0.075,
+            "relegation": 0.013
           },
           "D": {
-            "champion": 0.3,
-            "relegation": 0.0
+            "champion": 0.081,
+            "relegation": 0.013
           },
           "A": {
-            "champion": 0.283,
-            "relegation": 0.0
+            "champion": 0.075,
+            "relegation": 0.012
           }
         },
         "139886": {
           "H": {
             "champion": 0.0,
-            "relegation": 0.646
+            "relegation": 0.372
           },
           "D": {
             "champion": 0.0,
-            "relegation": 0.625
+            "relegation": 0.362
           },
           "A": {
             "champion": 0.0,
-            "relegation": 0.63
+            "relegation": 0.364
           }
         },
         "139891": {
           "H": {
-            "champion": 0.006,
-            "relegation": 0.125
+            "champion": 0.065,
+            "relegation": 0.106
           },
           "D": {
-            "champion": 0.007,
-            "relegation": 0.105
+            "champion": 0.082,
+            "relegation": 0.107
           },
           "A": {
-            "champion": 0.006,
-            "relegation": 0.097
+            "champion": 0.069,
+            "relegation": 0.114
           }
         },
         "137704": {
           "H": {
-            "champion": 0.037,
-            "relegation": 0.0
+            "champion": 0.075,
+            "relegation": 0.011
           },
           "D": {
-            "champion": 0.034,
-            "relegation": 0.0
+            "champion": 0.093,
+            "relegation": 0.006
           },
           "A": {
-            "champion": 0.036,
-            "relegation": 0.0
+            "champion": 0.07,
+            "relegation": 0.007
           }
         },
         "139901": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.268
+            "champion": 0.065,
+            "relegation": 0.114
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.274
+            "champion": 0.08,
+            "relegation": 0.101
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.259
+            "champion": 0.065,
+            "relegation": 0.111
           }
         },
         "139889": {
           "H": {
-            "champion": 0.203,
-            "relegation": 0.001
+            "champion": 0.074,
+            "relegation": 0.112
           },
           "D": {
-            "champion": 0.209,
-            "relegation": 0.0
+            "champion": 0.065,
+            "relegation": 0.112
           },
           "A": {
-            "champion": 0.207,
-            "relegation": 0.001
+            "champion": 0.066,
+            "relegation": 0.1
           }
         },
         "137709": {
           "H": {
-            "champion": 0.008,
-            "relegation": 0.094
+            "champion": 0.036,
+            "relegation": 0.169
           },
           "D": {
-            "champion": 0.01,
-            "relegation": 0.094
+            "champion": 0.034,
+            "relegation": 0.169
           },
           "A": {
-            "champion": 0.011,
-            "relegation": 0.079
+            "champion": 0.037,
+            "relegation": 0.198
           }
         },
         "137719": {
           "H": {
-            "champion": 0.06,
-            "relegation": 0.006
+            "champion": 0.071,
+            "relegation": 0.11
           },
           "D": {
-            "champion": 0.056,
-            "relegation": 0.003
+            "champion": 0.082,
+            "relegation": 0.103
           },
           "A": {
-            "champion": 0.059,
-            "relegation": 0.006
+            "champion": 0.071,
+            "relegation": 0.123
           }
         },
         "137714": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.207
+            "champion": 0.057,
+            "relegation": 0.127
           },
           "D": {
-            "champion": 0.001,
-            "relegation": 0.209
+            "champion": 0.061,
+            "relegation": 0.147
           },
           "A": {
-            "champion": 0.001,
-            "relegation": 0.197
+            "champion": 0.055,
+            "relegation": 0.135
           }
         },
         "137710": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.008
+            "champion": 0.123,
+            "relegation": 0.006
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.215
+            "champion": 0.02,
+            "relegation": 0.162
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.403
+            "champion": 0.001,
+            "relegation": 0.272
           }
         },
         "139888": {
           "H": {
-            "champion": 0.005,
-            "relegation": 0.107
+            "champion": 0.075,
+            "relegation": 0.114
           },
           "D": {
-            "champion": 0.007,
-            "relegation": 0.098
+            "champion": 0.083,
+            "relegation": 0.104
           },
           "A": {
-            "champion": 0.006,
-            "relegation": 0.099
+            "champion": 0.074,
+            "relegation": 0.107
           }
         },
         "137705": {
           "H": {
             "champion": 0.0,
-            "relegation": 0.196
+            "relegation": 0.28
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.073
+            "champion": 0.021,
+            "relegation": 0.142
           },
           "A": {
-            "champion": 0.016,
-            "relegation": 0.0
+            "champion": 0.127,
+            "relegation": 0.007
           }
         },
         "137703": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.351
+            "champion": 0.062,
+            "relegation": 0.123
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.346
+            "champion": 0.066,
+            "relegation": 0.118
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.321
+            "champion": 0.059,
+            "relegation": 0.117
           }
         },
         "137717": {
           "H": {
-            "champion": 0.012,
-            "relegation": 0.069
+            "champion": 0.034,
+            "relegation": 0.195
           },
           "D": {
-            "champion": 0.014,
-            "relegation": 0.066
+            "champion": 0.042,
+            "relegation": 0.191
           },
           "A": {
-            "champion": 0.009,
-            "relegation": 0.069
+            "champion": 0.03,
+            "relegation": 0.19
           }
         },
         "139884": {
           "H": {
-            "champion": 0.072,
-            "relegation": 0.003
+            "champion": 0.037,
+            "relegation": 0.176
           },
           "D": {
-            "champion": 0.07,
-            "relegation": 0.004
+            "champion": 0.041,
+            "relegation": 0.17
           },
           "A": {
-            "champion": 0.079,
-            "relegation": 0.006
+            "champion": 0.034,
+            "relegation": 0.191
           }
         },
         "137713": {
           "H": {
-            "champion": 0.123,
-            "relegation": 0.001
+            "champion": 0.073,
+            "relegation": 0.113
           },
           "D": {
-            "champion": 0.118,
-            "relegation": 0.001
+            "champion": 0.068,
+            "relegation": 0.112
           },
           "A": {
-            "champion": 0.124,
-            "relegation": 0.001
+            "champion": 0.076,
+            "relegation": 0.106
           }
         },
         "139882": {
           "H": {
-            "champion": 0.131,
-            "relegation": 0.001
+            "champion": 0.032,
+            "relegation": 0.204
           },
           "D": {
-            "champion": 0.137,
-            "relegation": 0.002
+            "champion": 0.029,
+            "relegation": 0.201
           },
           "A": {
-            "champion": 0.13,
-            "relegation": 0.001
+            "champion": 0.039,
+            "relegation": 0.2
           }
         },
         "139899": {
           "H": {
             "champion": 0.0,
-            "relegation": 0.457
+            "relegation": 0.24
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.438
+            "champion": 0.002,
+            "relegation": 0.24
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.408
+            "champion": 0.002,
+            "relegation": 0.226
           }
         }
       }
@@ -1597,289 +1597,289 @@
         "short": "川崎F"
       },
       "trialCounts": {
-        "H": 4801,
-        "D": 2186,
-        "A": 3013
+        "H": 5377,
+        "D": 1987,
+        "A": 2636
       },
       "conditional": {
         "137707": {
           "H": {
-            "champion": 0.045,
-            "relegation": 0.005
+            "champion": 0.033,
+            "relegation": 0.196
           },
           "D": {
-            "champion": 0.046,
-            "relegation": 0.007
+            "champion": 0.039,
+            "relegation": 0.197
           },
           "A": {
-            "champion": 0.06,
-            "relegation": 0.006
+            "champion": 0.028,
+            "relegation": 0.199
           }
         },
         "137716": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.408
+            "champion": 0.035,
+            "relegation": 0.196
           },
           "D": {
-            "champion": 0.001,
-            "relegation": 0.414
+            "champion": 0.035,
+            "relegation": 0.202
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.434
+            "champion": 0.033,
+            "relegation": 0.192
           }
         },
         "137708": {
           "H": {
-            "champion": 0.262,
-            "relegation": 0.0
+            "champion": 0.075,
+            "relegation": 0.014
           },
           "D": {
-            "champion": 0.321,
-            "relegation": 0.0
+            "champion": 0.078,
+            "relegation": 0.008
           },
           "A": {
-            "champion": 0.321,
-            "relegation": 0.0
+            "champion": 0.077,
+            "relegation": 0.013
           }
         },
         "139886": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.629
+            "champion": 0.001,
+            "relegation": 0.373
           },
           "D": {
             "champion": 0.0,
-            "relegation": 0.629
+            "relegation": 0.366
           },
           "A": {
             "champion": 0.0,
-            "relegation": 0.647
+            "relegation": 0.358
           }
         },
         "139891": {
           "H": {
-            "champion": 0.006,
-            "relegation": 0.102
+            "champion": 0.072,
+            "relegation": 0.11
           },
           "D": {
-            "champion": 0.005,
-            "relegation": 0.113
+            "champion": 0.075,
+            "relegation": 0.108
           },
           "A": {
-            "champion": 0.006,
-            "relegation": 0.116
+            "champion": 0.061,
+            "relegation": 0.104
           }
         },
         "137704": {
           "H": {
-            "champion": 0.03,
-            "relegation": 0.0
+            "champion": 0.075,
+            "relegation": 0.01
           },
           "D": {
-            "champion": 0.039,
-            "relegation": 0.0
+            "champion": 0.082,
+            "relegation": 0.006
           },
           "A": {
-            "champion": 0.042,
-            "relegation": 0.0
+            "champion": 0.079,
+            "relegation": 0.01
           }
         },
         "139901": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.262
+            "champion": 0.065,
+            "relegation": 0.116
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.268
+            "champion": 0.07,
+            "relegation": 0.111
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.271
+            "champion": 0.071,
+            "relegation": 0.099
           }
         },
         "139889": {
           "H": {
-            "champion": 0.183,
-            "relegation": 0.001
+            "champion": 0.064,
+            "relegation": 0.104
           },
           "D": {
-            "champion": 0.225,
-            "relegation": 0.0
+            "champion": 0.072,
+            "relegation": 0.111
           },
           "A": {
-            "champion": 0.228,
-            "relegation": 0.001
+            "champion": 0.08,
+            "relegation": 0.117
           }
         },
         "137709": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.15
+            "champion": 0.001,
+            "relegation": 0.27
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.073
+            "champion": 0.023,
+            "relegation": 0.142
           },
           "A": {
-            "champion": 0.032,
-            "relegation": 0.0
+            "champion": 0.117,
+            "relegation": 0.011
           }
         },
         "137719": {
           "H": {
-            "champion": 0.051,
-            "relegation": 0.004
+            "champion": 0.069,
+            "relegation": 0.104
           },
           "D": {
-            "champion": 0.065,
-            "relegation": 0.006
+            "champion": 0.084,
+            "relegation": 0.116
           },
           "A": {
-            "champion": 0.067,
-            "relegation": 0.005
+            "champion": 0.074,
+            "relegation": 0.124
           }
         },
         "137714": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.197
+            "champion": 0.058,
+            "relegation": 0.137
           },
           "D": {
-            "champion": 0.001,
-            "relegation": 0.21
+            "champion": 0.062,
+            "relegation": 0.128
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.207
+            "champion": 0.054,
+            "relegation": 0.128
           }
         },
         "137710": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.21
+            "champion": 0.072,
+            "relegation": 0.1
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.225
+            "champion": 0.08,
+            "relegation": 0.116
           },
           "A": {
-            "champion": 0.001,
-            "relegation": 0.235
+            "champion": 0.064,
+            "relegation": 0.109
           }
         },
         "139888": {
           "H": {
-            "champion": 0.006,
-            "relegation": 0.099
+            "champion": 0.076,
+            "relegation": 0.113
           },
           "D": {
-            "champion": 0.004,
-            "relegation": 0.105
+            "champion": 0.073,
+            "relegation": 0.111
           },
           "A": {
-            "champion": 0.009,
-            "relegation": 0.103
+            "champion": 0.079,
+            "relegation": 0.104
           }
         },
         "137705": {
           "H": {
-            "champion": 0.007,
-            "relegation": 0.082
+            "champion": 0.037,
+            "relegation": 0.18
           },
           "D": {
-            "champion": 0.004,
-            "relegation": 0.092
+            "champion": 0.039,
+            "relegation": 0.184
           },
           "A": {
-            "champion": 0.006,
-            "relegation": 0.086
+            "champion": 0.035,
+            "relegation": 0.186
           }
         },
         "137703": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.33
+            "champion": 0.058,
+            "relegation": 0.124
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.332
+            "champion": 0.063,
+            "relegation": 0.109
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.354
+            "champion": 0.068,
+            "relegation": 0.122
           }
         },
         "137717": {
           "H": {
-            "champion": 0.009,
-            "relegation": 0.065
+            "champion": 0.034,
+            "relegation": 0.196
           },
           "D": {
-            "champion": 0.014,
-            "relegation": 0.069
+            "champion": 0.036,
+            "relegation": 0.18
           },
           "A": {
-            "champion": 0.013,
-            "relegation": 0.074
+            "champion": 0.033,
+            "relegation": 0.197
           }
         },
         "139884": {
           "H": {
-            "champion": 0.063,
-            "relegation": 0.004
+            "champion": 0.037,
+            "relegation": 0.178
           },
           "D": {
-            "champion": 0.088,
-            "relegation": 0.005
+            "champion": 0.043,
+            "relegation": 0.177
           },
           "A": {
-            "champion": 0.082,
-            "relegation": 0.006
+            "champion": 0.031,
+            "relegation": 0.183
           }
         },
         "137713": {
           "H": {
-            "champion": 0.225,
-            "relegation": 0.0
+            "champion": 0.127,
+            "relegation": 0.009
           },
           "D": {
-            "champion": 0.057,
-            "relegation": 0.0
+            "champion": 0.023,
+            "relegation": 0.168
           },
           "A": {
-            "champion": 0.005,
-            "relegation": 0.003
+            "champion": 0.0,
+            "relegation": 0.277
           }
         },
         "139882": {
           "H": {
-            "champion": 0.124,
-            "relegation": 0.001
+            "champion": 0.031,
+            "relegation": 0.203
           },
           "D": {
-            "champion": 0.142,
-            "relegation": 0.001
+            "champion": 0.041,
+            "relegation": 0.205
           },
           "A": {
-            "champion": 0.138,
-            "relegation": 0.001
+            "champion": 0.031,
+            "relegation": 0.199
           }
         },
         "139899": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.432
+            "champion": 0.001,
+            "relegation": 0.239
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.433
+            "champion": 0.001,
+            "relegation": 0.228
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.433
+            "champion": 0.001,
+            "relegation": 0.237
           }
         }
       }
@@ -1896,289 +1896,289 @@
         "short": "神戸"
       },
       "trialCounts": {
-        "H": 4147,
-        "D": 2432,
-        "A": 3421
+        "H": 5518,
+        "D": 1895,
+        "A": 2587
       },
       "conditional": {
         "137707": {
           "H": {
-            "champion": 0.044,
-            "relegation": 0.004
+            "champion": 0.03,
+            "relegation": 0.199
           },
           "D": {
-            "champion": 0.058,
-            "relegation": 0.005
+            "champion": 0.034,
+            "relegation": 0.202
           },
           "A": {
-            "champion": 0.051,
-            "relegation": 0.008
+            "champion": 0.037,
+            "relegation": 0.19
           }
         },
         "137716": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.417
+            "champion": 0.037,
+            "relegation": 0.192
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.415
+            "champion": 0.034,
+            "relegation": 0.193
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.419
+            "champion": 0.03,
+            "relegation": 0.207
           }
         },
         "137708": {
           "H": {
-            "champion": 0.285,
-            "relegation": 0.0
+            "champion": 0.077,
+            "relegation": 0.011
           },
           "D": {
-            "champion": 0.306,
-            "relegation": 0.0
+            "champion": 0.074,
+            "relegation": 0.013
           },
           "A": {
-            "champion": 0.292,
-            "relegation": 0.0
+            "champion": 0.076,
+            "relegation": 0.015
           }
         },
         "139886": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.619
+            "champion": 0.001,
+            "relegation": 0.367
           },
           "D": {
             "champion": 0.0,
-            "relegation": 0.632
+            "relegation": 0.372
           },
           "A": {
             "champion": 0.0,
-            "relegation": 0.654
+            "relegation": 0.367
           }
         },
         "139891": {
           "H": {
-            "champion": 0.005,
-            "relegation": 0.101
+            "champion": 0.07,
+            "relegation": 0.105
           },
           "D": {
-            "champion": 0.007,
-            "relegation": 0.114
+            "champion": 0.077,
+            "relegation": 0.107
           },
           "A": {
-            "champion": 0.007,
-            "relegation": 0.114
+            "champion": 0.063,
+            "relegation": 0.117
           }
         },
         "137704": {
           "H": {
-            "champion": 0.032,
-            "relegation": 0.0
+            "champion": 0.074,
+            "relegation": 0.009
           },
           "D": {
-            "champion": 0.035,
-            "relegation": 0.0
+            "champion": 0.097,
+            "relegation": 0.006
           },
           "A": {
-            "champion": 0.041,
-            "relegation": 0.0
+            "champion": 0.07,
+            "relegation": 0.011
           }
         },
         "139901": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.261
+            "champion": 0.062,
+            "relegation": 0.111
           },
           "D": {
-            "champion": 0.001,
-            "relegation": 0.273
+            "champion": 0.08,
+            "relegation": 0.109
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.267
+            "champion": 0.072,
+            "relegation": 0.11
           }
         },
         "139889": {
           "H": {
-            "champion": 0.202,
-            "relegation": 0.0
+            "champion": 0.064,
+            "relegation": 0.115
           },
           "D": {
-            "champion": 0.2,
-            "relegation": 0.001
+            "champion": 0.078,
+            "relegation": 0.102
           },
           "A": {
-            "champion": 0.215,
-            "relegation": 0.001
+            "champion": 0.076,
+            "relegation": 0.102
           }
         },
         "137709": {
           "H": {
-            "champion": 0.007,
-            "relegation": 0.089
+            "champion": 0.035,
+            "relegation": 0.179
           },
           "D": {
-            "champion": 0.013,
-            "relegation": 0.079
+            "champion": 0.037,
+            "relegation": 0.181
           },
           "A": {
-            "champion": 0.01,
-            "relegation": 0.093
+            "champion": 0.036,
+            "relegation": 0.167
           }
         },
         "137719": {
           "H": {
             "champion": 0.126,
-            "relegation": 0.0
+            "relegation": 0.007
           },
           "D": {
-            "champion": 0.025,
-            "relegation": 0.0
+            "champion": 0.02,
+            "relegation": 0.162
           },
           "A": {
             "champion": 0.001,
-            "relegation": 0.014
+            "relegation": 0.297
           }
         },
         "137714": {
           "H": {
-            "champion": 0.001,
-            "relegation": 0.202
+            "champion": 0.057,
+            "relegation": 0.13
           },
           "D": {
-            "champion": 0.001,
-            "relegation": 0.202
+            "champion": 0.055,
+            "relegation": 0.125
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.205
+            "champion": 0.061,
+            "relegation": 0.143
           }
         },
         "137710": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.22
+            "champion": 0.071,
+            "relegation": 0.104
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.219
+            "champion": 0.07,
+            "relegation": 0.104
           },
           "A": {
-            "champion": 0.001,
-            "relegation": 0.223
+            "champion": 0.072,
+            "relegation": 0.109
           }
         },
         "139888": {
           "H": {
-            "champion": 0.007,
-            "relegation": 0.091
+            "champion": 0.074,
+            "relegation": 0.114
           },
           "D": {
-            "champion": 0.007,
-            "relegation": 0.116
+            "champion": 0.082,
+            "relegation": 0.112
           },
           "A": {
-            "champion": 0.005,
-            "relegation": 0.104
+            "champion": 0.076,
+            "relegation": 0.101
           }
         },
         "137705": {
           "H": {
-            "champion": 0.005,
-            "relegation": 0.072
+            "champion": 0.036,
+            "relegation": 0.179
           },
           "D": {
-            "champion": 0.01,
-            "relegation": 0.095
+            "champion": 0.044,
+            "relegation": 0.186
           },
           "A": {
-            "champion": 0.005,
-            "relegation": 0.096
+            "champion": 0.033,
+            "relegation": 0.186
           }
         },
         "137703": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.325
+            "champion": 0.06,
+            "relegation": 0.126
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.344
+            "champion": 0.064,
+            "relegation": 0.107
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.348
+            "champion": 0.065,
+            "relegation": 0.119
           }
         },
         "137717": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.137
+            "champion": 0.001,
+            "relegation": 0.297
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.048
+            "champion": 0.024,
+            "relegation": 0.145
           },
           "A": {
-            "champion": 0.033,
-            "relegation": 0.0
+            "champion": 0.114,
+            "relegation": 0.007
           }
         },
         "139884": {
           "H": {
-            "champion": 0.07,
-            "relegation": 0.003
+            "champion": 0.037,
+            "relegation": 0.177
           },
           "D": {
-            "champion": 0.077,
-            "relegation": 0.004
+            "champion": 0.038,
+            "relegation": 0.178
           },
           "A": {
-            "champion": 0.077,
-            "relegation": 0.006
+            "champion": 0.036,
+            "relegation": 0.183
           }
         },
         "137713": {
           "H": {
-            "champion": 0.111,
-            "relegation": 0.001
+            "champion": 0.072,
+            "relegation": 0.114
           },
           "D": {
-            "champion": 0.125,
-            "relegation": 0.002
+            "champion": 0.084,
+            "relegation": 0.111
           },
           "A": {
-            "champion": 0.132,
-            "relegation": 0.0
+            "champion": 0.066,
+            "relegation": 0.105
           }
         },
         "139882": {
           "H": {
-            "champion": 0.116,
-            "relegation": 0.001
+            "champion": 0.037,
+            "relegation": 0.2
           },
           "D": {
-            "champion": 0.144,
-            "relegation": 0.001
+            "champion": 0.024,
+            "relegation": 0.209
           },
           "A": {
-            "champion": 0.144,
-            "relegation": 0.001
+            "champion": 0.031,
+            "relegation": 0.203
           }
         },
         "139899": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.436
+            "champion": 0.001,
+            "relegation": 0.237
           },
           "D": {
             "champion": 0.0,
-            "relegation": 0.429
+            "relegation": 0.243
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.431
+            "champion": 0.002,
+            "relegation": 0.23
           }
         }
       }
@@ -2195,289 +2195,289 @@
         "short": "浦和"
       },
       "trialCounts": {
-        "H": 6116,
-        "D": 1913,
-        "A": 1971
+        "H": 5429,
+        "D": 1944,
+        "A": 2627
       },
       "conditional": {
         "137707": {
           "H": {
-            "champion": 0.045,
-            "relegation": 0.004
+            "champion": 0.032,
+            "relegation": 0.207
           },
           "D": {
-            "champion": 0.055,
-            "relegation": 0.008
+            "champion": 0.031,
+            "relegation": 0.188
           },
           "A": {
-            "champion": 0.059,
-            "relegation": 0.008
+            "champion": 0.037,
+            "relegation": 0.184
           }
         },
         "137716": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.556
+            "champion": 0.001,
+            "relegation": 0.299
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.354
+            "champion": 0.023,
+            "relegation": 0.167
           },
           "A": {
-            "champion": 0.002,
-            "relegation": 0.049
+            "champion": 0.113,
+            "relegation": 0.006
           }
         },
         "137708": {
           "H": {
-            "champion": 0.259,
-            "relegation": 0.0
+            "champion": 0.075,
+            "relegation": 0.015
           },
           "D": {
-            "champion": 0.334,
-            "relegation": 0.0
+            "champion": 0.076,
+            "relegation": 0.006
           },
           "A": {
-            "champion": 0.355,
-            "relegation": 0.0
+            "champion": 0.078,
+            "relegation": 0.011
           }
         },
         "139886": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.618
+            "champion": 0.001,
+            "relegation": 0.358
           },
           "D": {
             "champion": 0.0,
-            "relegation": 0.619
+            "relegation": 0.377
           },
           "A": {
             "champion": 0.0,
-            "relegation": 0.701
+            "relegation": 0.382
           }
         },
         "139891": {
           "H": {
-            "champion": 0.006,
-            "relegation": 0.1
+            "champion": 0.075,
+            "relegation": 0.102
           },
           "D": {
-            "champion": 0.007,
-            "relegation": 0.107
+            "champion": 0.063,
+            "relegation": 0.101
           },
           "A": {
-            "champion": 0.006,
-            "relegation": 0.135
+            "champion": 0.064,
+            "relegation": 0.127
           }
         },
         "137704": {
           "H": {
-            "champion": 0.028,
-            "relegation": 0.0
+            "champion": 0.076,
+            "relegation": 0.01
           },
           "D": {
-            "champion": 0.035,
-            "relegation": 0.0
+            "champion": 0.083,
+            "relegation": 0.006
           },
           "A": {
-            "champion": 0.062,
-            "relegation": 0.0
+            "champion": 0.076,
+            "relegation": 0.01
           }
         },
         "139901": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.249
+            "champion": 0.067,
+            "relegation": 0.109
           },
           "D": {
-            "champion": 0.001,
-            "relegation": 0.29
+            "champion": 0.077,
+            "relegation": 0.127
           },
           "A": {
-            "champion": 0.001,
-            "relegation": 0.297
+            "champion": 0.063,
+            "relegation": 0.102
           }
         },
         "139889": {
           "H": {
-            "champion": 0.306,
-            "relegation": 0.0
+            "champion": 0.121,
+            "relegation": 0.006
           },
           "D": {
-            "champion": 0.088,
-            "relegation": 0.0
+            "champion": 0.021,
+            "relegation": 0.156
           },
           "A": {
-            "champion": 0.01,
-            "relegation": 0.004
+            "champion": 0.0,
+            "relegation": 0.287
           }
         },
         "137709": {
           "H": {
-            "champion": 0.009,
-            "relegation": 0.081
+            "champion": 0.036,
+            "relegation": 0.176
           },
           "D": {
-            "champion": 0.01,
-            "relegation": 0.087
+            "champion": 0.038,
+            "relegation": 0.175
           },
           "A": {
-            "champion": 0.011,
-            "relegation": 0.112
+            "champion": 0.033,
+            "relegation": 0.179
           }
         },
         "137719": {
           "H": {
-            "champion": 0.049,
-            "relegation": 0.004
+            "champion": 0.07,
+            "relegation": 0.118
           },
           "D": {
-            "champion": 0.071,
-            "relegation": 0.005
+            "champion": 0.077,
+            "relegation": 0.095
           },
           "A": {
-            "champion": 0.077,
-            "relegation": 0.007
+            "champion": 0.078,
+            "relegation": 0.112
           }
         },
         "137714": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.19
+            "champion": 0.054,
+            "relegation": 0.133
           },
           "D": {
-            "champion": 0.001,
-            "relegation": 0.202
+            "champion": 0.067,
+            "relegation": 0.136
           },
           "A": {
-            "champion": 0.002,
-            "relegation": 0.245
+            "champion": 0.057,
+            "relegation": 0.13
           }
         },
         "137710": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.213
+            "champion": 0.066,
+            "relegation": 0.106
           },
           "D": {
-            "champion": 0.001,
-            "relegation": 0.224
+            "champion": 0.08,
+            "relegation": 0.106
           },
           "A": {
-            "champion": 0.002,
-            "relegation": 0.244
+            "champion": 0.074,
+            "relegation": 0.104
           }
         },
         "139888": {
           "H": {
-            "champion": 0.005,
-            "relegation": 0.095
+            "champion": 0.074,
+            "relegation": 0.109
           },
           "D": {
-            "champion": 0.007,
-            "relegation": 0.098
+            "champion": 0.086,
+            "relegation": 0.117
           },
           "A": {
-            "champion": 0.008,
-            "relegation": 0.126
+            "champion": 0.074,
+            "relegation": 0.107
           }
         },
         "137705": {
           "H": {
-            "champion": 0.006,
-            "relegation": 0.078
+            "champion": 0.034,
+            "relegation": 0.179
           },
           "D": {
-            "champion": 0.005,
-            "relegation": 0.087
+            "champion": 0.043,
+            "relegation": 0.182
           },
           "A": {
-            "champion": 0.008,
-            "relegation": 0.108
+            "champion": 0.037,
+            "relegation": 0.191
           }
         },
         "137703": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.321
+            "champion": 0.061,
+            "relegation": 0.118
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.351
+            "champion": 0.061,
+            "relegation": 0.117
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.376
+            "champion": 0.065,
+            "relegation": 0.128
           }
         },
         "137717": {
           "H": {
-            "champion": 0.009,
-            "relegation": 0.062
+            "champion": 0.031,
+            "relegation": 0.198
           },
           "D": {
-            "champion": 0.016,
-            "relegation": 0.073
+            "champion": 0.046,
+            "relegation": 0.18
           },
           "A": {
-            "champion": 0.012,
-            "relegation": 0.083
+            "champion": 0.033,
+            "relegation": 0.193
           }
         },
         "139884": {
           "H": {
-            "champion": 0.066,
-            "relegation": 0.004
+            "champion": 0.036,
+            "relegation": 0.181
           },
           "D": {
-            "champion": 0.084,
-            "relegation": 0.006
+            "champion": 0.04,
+            "relegation": 0.177
           },
           "A": {
-            "champion": 0.091,
-            "relegation": 0.005
+            "champion": 0.035,
+            "relegation": 0.175
           }
         },
         "137713": {
           "H": {
-            "champion": 0.104,
-            "relegation": 0.0
+            "champion": 0.073,
+            "relegation": 0.105
           },
           "D": {
-            "champion": 0.138,
-            "relegation": 0.001
+            "champion": 0.076,
+            "relegation": 0.12
           },
           "A": {
-            "champion": 0.162,
-            "relegation": 0.003
+            "champion": 0.069,
+            "relegation": 0.116
           }
         },
         "139882": {
           "H": {
-            "champion": 0.119,
-            "relegation": 0.0
+            "champion": 0.034,
+            "relegation": 0.204
           },
           "D": {
-            "champion": 0.153,
-            "relegation": 0.003
+            "champion": 0.034,
+            "relegation": 0.206
           },
           "A": {
-            "champion": 0.153,
-            "relegation": 0.002
+            "champion": 0.03,
+            "relegation": 0.197
           }
         },
         "139899": {
           "H": {
-            "champion": 0.0,
-            "relegation": 0.406
+            "champion": 0.001,
+            "relegation": 0.241
           },
           "D": {
-            "champion": 0.0,
-            "relegation": 0.469
+            "champion": 0.001,
+            "relegation": 0.23
           },
           "A": {
-            "champion": 0.0,
-            "relegation": 0.479
+            "champion": 0.001,
+            "relegation": 0.231
           }
         }
       }
