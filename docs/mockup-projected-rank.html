@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>予想順位の見せ方 3案</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --line:#272c36; --fg:#e8eaef; --mut:#9aa3b2;
+    --auto:#2f7d55; --po:#2b5f8f; --rel:#8a3341;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:20px;background:var(--bg);color:var(--fg);
+       font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+       font-size:14px;line-height:1.5}
+  h1{font-size:17px;margin:0 0 4px}
+  .sub{color:var(--mut);font-size:12px;margin-bottom:18px}
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));align-items:start}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;overflow:hidden}
+  .ptitle{font-size:14px;font-weight:600;margin:0 0 2px}
+  .pnote{font-size:11.5px;color:var(--mut);margin:0 0 12px;min-height:32px}
+  .legend{display:flex;gap:10px;font-size:10.5px;color:var(--mut);margin-bottom:8px;flex-wrap:wrap}
+  .sw{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:-1px;margin-right:3px}
+  table{width:100%;border-collapse:collapse}
+  td{padding:3px 0;vertical-align:middle}
+  .rk{width:20px;color:var(--mut);font-size:11px;text-align:right;padding-right:6px;font-variant-numeric:tabular-nums}
+  .nm{width:48px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pt{width:34px;text-align:right;font-size:11px;color:var(--mut);font-variant-numeric:tabular-nums;padding-left:6px}
+  .track{position:relative;height:20px;background:#1f232c;border-radius:4px;overflow:hidden}
+  .band{position:absolute;top:0;bottom:0;opacity:.30}
+  .bar{position:absolute;top:4px;bottom:4px;border-radius:3px;opacity:.92}
+  .med{position:absolute;top:2px;bottom:2px;width:2px;background:#fff;opacity:.85;border-radius:1px}
+  .cur{position:absolute;top:50%;width:7px;height:7px;margin-top:-3.5px;margin-left:-3.5px;
+       border-radius:50%;background:#0f1115;border:2px solid #fff;opacity:.9}
+  .fav td{background:#20252f}
+  .fav .nm{font-weight:700}
+  .axis{display:flex;justify-content:space-between;font-size:10px;color:var(--mut);
+        margin-left:74px;margin-right:40px;margin-top:4px}
+  .detail{margin:2px 0 8px 74px;padding:9px 11px;background:#1c212b;border-left:3px solid #82c039;border-radius:0 6px 6px 0}
+  .detail .big{font-size:12px;margin-bottom:6px}
+  .detail .big b{font-size:19px}
+  .kv{display:flex;gap:14px;font-size:11px;color:var(--mut);flex-wrap:wrap}
+  .kv b{color:var(--fg);font-weight:600}
+  .plain td{border-bottom:1px solid #1e222a}
+  .plain .big{font-size:13px}
+  .zone{width:3px;border-radius:2px}
+  .caution{margin-top:10px;font-size:11px;color:#e3a33c;background:#2a2116;border:1px solid #4a3a1d;
+           border-radius:6px;padding:8px 10px}
+  .foot{margin-top:16px;font-size:11.5px;color:var(--mut)}
+</style>
+</head>
+<body>
+<h1>予想順位の見せ方 3案</h1>
+<div class="sub">実データ（J2・20試合消化時点／10000試行）で描画。●＝現在順位、白い縦線＝中央値。</div>
+
+<div class="grid">
+
+  <!-- A -->
+  <div class="panel">
+    <p class="ptitle">A. P10〜P90の帯</p>
+    <p class="pnote">順位の「振れ幅」を横バーで表現。バーが長いほど未確定。重なり具合で混戦度が読める。</p>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--auto)"></i>自動昇格(1-2)</span>
+      <span><i class="sw" style="background:var(--po)"></i>PO(3-6)</span>
+      <span><i class="sw" style="background:var(--rel)"></i>降格(18-20)</span>
+    </div>
+    <table id="tblA"></table>
+    <div class="axis"><span>1位</span><span>10位</span><span>20位</span></div>
+  </div>
+
+  <!-- B -->
+  <div class="panel">
+    <p class="ptitle">B. 帯＋タップで詳細</p>
+    <p class="pnote">一覧はAと同じ。行をタップすると最頻順位と各確率が開く（下は湘南を開いた状態）。</p>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--auto)"></i>自動昇格(1-2)</span>
+      <span><i class="sw" style="background:var(--po)"></i>PO(3-6)</span>
+      <span><i class="sw" style="background:var(--rel)"></i>降格(18-20)</span>
+    </div>
+    <table id="tblB"></table>
+    <div class="axis"><span>1位</span><span>10位</span><span>20位</span></div>
+  </div>
+
+  <!-- C -->
+  <div class="panel">
+    <p class="ptitle">C. 数字で並べる予想順位表</p>
+    <p class="pnote">expectedRank順に1〜20を振り直した表。読みやすいが、確率情報が全部消える。</p>
+    <div class="legend"><span>予想順位／クラブ／予想勝点／現在順位からの増減</span></div>
+    <table class="plain" id="tblC"></table>
+    <div class="caution">序盤でも「藤枝が1位」と断定的に見える。実際に藤枝が優勝する確率は27.9%で、7割は別の結末。</div>
+  </div>
+
+</div>
+
+<div class="foot">帯の左右は「10回に1回はこれより上／下」の範囲（P10〜P90）。中央の8割が収まる幅です。</div>
+
+<script>
+const T = [{"idTeam": "141245", "short": "藤枝", "currentRank": 1, "expectedRank": 3.54, "medianRank": 3, "rankP10": 1, "rankP90": 7, "modeRank": 1, "modeRankProb": 0.279, "champion": 0.279, "autoPromotion": 0.468, "playoff": 0.386, "relegation": 0.0, "expectedPoints": 65.9, "color": "#89357c", "fav": false}, {"idTeam": "137720", "short": "横浜FC", "currentRank": 2, "expectedRank": 4.12, "medianRank": 3, "rankP10": 1, "rankP90": 8, "modeRank": 1, "modeRankProb": 0.206, "champion": 0.206, "autoPromotion": 0.377, "playoff": 0.428, "relegation": 0.0, "expectedPoints": 64.5, "color": "#00a0e9", "fav": false}, {"idTeam": "137715", "short": "湘南", "currentRank": 4, "expectedRank": 5.34, "medianRank": 5, "rankP10": 1, "rankP90": 10, "modeRank": 3, "modeRankProb": 0.127, "champion": 0.111, "autoPromotion": 0.229, "playoff": 0.446, "relegation": 0.002, "expectedPoints": 61.8, "color": "#82c039", "fav": true}, {"idTeam": "150222", "short": "栃木C", "currentRank": 6, "expectedRank": 5.4, "medianRank": 5, "rankP10": 1, "rankP90": 10, "modeRank": 2, "modeRankProb": 0.123, "champion": 0.107, "autoPromotion": 0.229, "playoff": 0.442, "relegation": 0.002, "expectedPoints": 61.4, "color": "#000e32", "fav": false}, {"idTeam": "139893", "short": "大宮", "currentRank": 3, "expectedRank": 5.43, "medianRank": 5, "rankP10": 1, "rankP90": 10, "modeRank": 2, "modeRankProb": 0.124, "champion": 0.101, "autoPromotion": 0.225, "playoff": 0.436, "relegation": 0.001, "expectedPoints": 61.6, "color": "#00164b", "fav": false}, {"idTeam": "141251", "short": "富山", "currentRank": 7, "expectedRank": 6.38, "medianRank": 6, "rankP10": 2, "rankP90": 11, "modeRank": 4, "modeRankProb": 0.104, "champion": 0.068, "autoPromotion": 0.153, "playoff": 0.399, "relegation": 0.004, "expectedPoints": 59.5, "color": "#003894", "fav": false}, {"idTeam": "137712", "short": "鳥栖", "currentRank": 5, "expectedRank": 6.42, "medianRank": 6, "rankP10": 2, "rankP90": 11, "modeRank": 5, "modeRankProb": 0.107, "champion": 0.065, "autoPromotion": 0.148, "playoff": 0.405, "relegation": 0.005, "expectedPoints": 59.5, "color": "#00a0d2", "fav": false}, {"idTeam": "139892", "short": "山形", "currentRank": 9, "expectedRank": 8.37, "medianRank": 8, "rankP10": 3, "rankP90": 14, "modeRank": 8, "modeRankProb": 0.098, "champion": 0.024, "autoPromotion": 0.063, "playoff": 0.283, "relegation": 0.018, "expectedPoints": 56.0, "color": "#1a1a7c", "fav": false}, {"idTeam": "137706", "short": "札幌", "currentRank": 8, "expectedRank": 8.53, "medianRank": 8, "rankP10": 3, "rankP90": 14, "modeRank": 9, "modeRankProb": 0.095, "champion": 0.022, "autoPromotion": 0.057, "playoff": 0.276, "relegation": 0.019, "expectedPoints": 55.7, "color": "#d7000f", "fav": false}, {"idTeam": "139881", "short": "新潟", "currentRank": 10, "expectedRank": 10.25, "medianRank": 10, "rankP10": 5, "rankP90": 16, "modeRank": 9, "modeRankProb": 0.093, "champion": 0.01, "autoPromotion": 0.025, "playoff": 0.174, "relegation": 0.049, "expectedPoints": 52.8, "color": "#ea5504", "fav": false}, {"idTeam": "144685", "short": "いわき", "currentRank": 11, "expectedRank": 11.74, "medianRank": 12, "rankP10": 6, "rankP90": 17, "modeRank": 11, "modeRankProb": 0.089, "champion": 0.003, "autoPromotion": 0.011, "playoff": 0.103, "relegation": 0.094, "expectedPoints": 50.4, "color": "#c01830", "fav": false}, {"idTeam": "141254", "short": "宮崎", "currentRank": 13, "expectedRank": 13.43, "medianRank": 14, "rankP10": 8, "rankP90": 19, "modeRank": 16, "modeRankProb": 0.091, "champion": 0.001, "autoPromotion": 0.003, "playoff": 0.049, "relegation": 0.175, "expectedPoints": 47.4, "color": "#e62e8b", "fav": false}, {"idTeam": "137711", "short": "大分", "currentRank": 14, "expectedRank": 13.74, "medianRank": 14, "rankP10": 8, "rankP90": 19, "modeRank": 15, "modeRankProb": 0.094, "champion": 0.001, "autoPromotion": 0.003, "playoff": 0.043, "relegation": 0.198, "expectedPoints": 46.8, "color": "#0b318f", "fav": false}, {"idTeam": "141249", "short": "今治", "currentRank": 20, "expectedRank": 14.73, "medianRank": 15, "rankP10": 9, "rankP90": 19, "modeRank": 16, "modeRankProb": 0.1, "champion": 0.0, "autoPromotion": 0.001, "playoff": 0.023, "relegation": 0.278, "expectedPoints": 45.1, "color": "#003273", "fav": false}, {"idTeam": "139887", "short": "磐田", "currentRank": 15, "expectedRank": 14.76, "medianRank": 15, "rankP10": 9, "rankP90": 19, "modeRank": 16, "modeRankProb": 0.1, "champion": 0.0, "autoPromotion": 0.002, "playoff": 0.024, "relegation": 0.282, "expectedPoints": 45.1, "color": "#6c9bd2", "fav": false}, {"idTeam": "141255", "short": "八戸", "currentRank": 12, "expectedRank": 14.8, "medianRank": 15, "rankP10": 10, "rankP90": 19, "modeRank": 18, "modeRankProb": 0.1, "champion": 0.001, "autoPromotion": 0.002, "playoff": 0.023, "relegation": 0.283, "expectedPoints": 45.3, "color": "#00a73c", "fav": false}, {"idTeam": "139900", "short": "甲府", "currentRank": 16, "expectedRank": 15.0, "medianRank": 16, "rankP10": 10, "rankP90": 19, "modeRank": 18, "modeRankProb": 0.107, "champion": 0.0, "autoPromotion": 0.001, "playoff": 0.024, "relegation": 0.311, "expectedPoints": 44.7, "color": "#005bac", "fav": false}, {"idTeam": "137718", "short": "仙台", "currentRank": 17, "expectedRank": 15.32, "medianRank": 16, "rankP10": 10, "rankP90": 20, "modeRank": 18, "modeRankProb": 0.117, "champion": 0.0, "autoPromotion": 0.001, "playoff": 0.018, "relegation": 0.343, "expectedPoints": 44.0, "color": "#fcc800", "fav": false}, {"idTeam": "139898", "short": "徳島", "currentRank": 17, "expectedRank": 15.32, "medianRank": 16, "rankP10": 10, "rankP90": 20, "modeRank": 19, "modeRankProb": 0.113, "champion": 0.0, "autoPromotion": 0.001, "playoff": 0.016, "relegation": 0.332, "expectedPoints": 44.0, "color": "#10234f", "fav": false}, {"idTeam": "140509", "short": "秋田", "currentRank": 19, "expectedRank": 17.37, "medianRank": 18, "rankP10": 13, "rankP90": 20, "modeRank": 20, "modeRankProb": 0.298, "champion": 0.0, "autoPromotion": 0.0, "playoff": 0.003, "relegation": 0.603, "expectedPoints": 39.8, "color": "#005bac", "fav": false}];
+const N = 20;
+const pct = r => (r - 1) / N * 100;
+
+function bands(){
+  return '<div class="band" style="left:'+pct(1)+'%;width:'+(2/N*100)+'%;background:var(--auto)"></div>'
+       + '<div class="band" style="left:'+pct(3)+'%;width:'+(4/N*100)+'%;background:var(--po)"></div>'
+       + '<div class="band" style="left:'+pct(18)+'%;width:'+(3/N*100)+'%;background:var(--rel)"></div>';
+}
+
+function rowBar(t){
+  const left = pct(t.rankP10);
+  const w = (t.rankP90 - t.rankP10 + 1) / N * 100;
+  return '<div class="track">' + bands()
+    + '<div class="bar" style="left:'+left+'%;width:'+w+'%;background:'+t.color+';box-shadow:0 0 0 1px rgba(255,255,255,.18) inset"></div>'
+    + '<div class="med" style="left:'+(pct(t.medianRank)+ (1/N*100)/2)+'%"></div>'
+    + '<div class="cur" style="left:'+(pct(t.currentRank)+ (1/N*100)/2)+'%"></div>'
+    + '</div>';
+}
+
+function renderBars(id, withDetail){
+  let h = '';
+  T.forEach((t, i) => {
+    h += '<tr class="'+(t.fav?'fav':'')+'">'
+       + '<td class="rk">'+(i+1)+'</td>'
+       + '<td class="nm">'+t.short+'</td>'
+       + '<td>'+rowBar(t)+'</td>'
+       + '<td class="pt">'+t.expectedPoints.toFixed(0)+'</td>'
+       + '</tr>';
+    if (withDetail && t.fav) {
+      h += '<tr><td colspan="4"><div class="detail">'
+         + '<div class="big">最もあり得る順位 <b>'+t.modeRank+'位</b> <span style="color:var(--mut)">（その確率 '+(t.modeRankProb*100).toFixed(1)+'%）</span></div>'
+         + '<div class="kv">'
+         + '<span>優勝 <b>'+(t.champion*100).toFixed(1)+'%</b></span>'
+         + '<span>自動昇格 <b>'+(t.autoPromotion*100).toFixed(1)+'%</b></span>'
+         + '<span>PO圏 <b>'+(t.playoff*100).toFixed(1)+'%</b></span>'
+         + '<span>降格 <b>'+(t.relegation*100).toFixed(1)+'%</b></span>'
+         + '</div></div></td></tr>';
+    }
+  });
+  document.getElementById(id).innerHTML = h;
+}
+
+function renderPlain(id){
+  let h = '';
+  T.forEach((t, i) => {
+    const proj = i + 1;
+    const d = t.currentRank - proj;
+    const arrow = d > 0 ? '<span style="color:#5fbf82">▲'+d+'</span>'
+               : d < 0 ? '<span style="color:#e07a86">▼'+(-d)+'</span>'
+               : '<span style="color:var(--mut)">—</span>';
+    h += '<tr class="'+(t.fav?'fav':'')+'">'
+       + '<td class="rk big" style="width:26px">'+proj+'</td>'
+       + '<td class="zone" style="background:'+t.color+'"></td>'
+       + '<td class="nm" style="width:auto;padding-left:8px">'+t.short+'</td>'
+       + '<td class="pt">'+t.expectedPoints.toFixed(0)+'</td>'
+       + '<td class="pt" style="width:38px">'+arrow+'</td>'
+       + '</tr>';
+  });
+  document.getElementById(id).innerHTML = h;
+}
+
+renderBars('tblA', false);
+renderBars('tblB', true);
+renderPlain('tblC');
+</script>
+</body>
+</html>

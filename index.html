@@ -35,6 +35,14 @@
   header h1{margin:0 0 10px; font-size:15px; font-weight:600; letter-spacing:.04em; opacity:.9}
   /* デプロイ日時・バージョンのデバッグ表示。目立たせない(色はh1と同じaccent-ink継承、不透明度だけ落とす) */
   .deploy-badge{font-size:9px; opacity:.55; margin:-6px 0 10px; letter-spacing:.02em}
+  /* モード切替(クラブ/全体)。タブバーと同じ2ndカラーのベタ塗りの上に、さらに一段浮かせた見た目にする */
+  .mode-toggle{display:flex; gap:6px; margin-bottom:10px}
+  .mode-toggle button{
+    flex:1; border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.08);
+    color:var(--accent-ink); opacity:.75; font-size:12px; font-weight:700; padding:7px 4px;
+    border-radius:999px; cursor:pointer; font-family:inherit;
+  }
+  .mode-toggle button.active{background:#fff; color:var(--accent); opacity:1; border-color:#fff}
 
   #tabbar{
     display:flex; background:var(--accent-sub); /* 2ndカラーのベタ塗り */
@@ -133,7 +141,7 @@
   td.club,th.club{text-align:left; padding-left:6px}
   td.form,th.form{text-align:left; padding-left:8px}
   tr.me td{background:var(--me-bg,#eaf6ef); font-weight:700}
-  tr.me td.club{box-shadow:inset 3px 0 0 var(--accent)}
+  tr.me td.club{box-shadow:inset 3px 0 0 var(--me-accent,var(--accent))}
   .zone{display:inline-block; width:4px; height:16px; border-radius:2px; vertical-align:-3px; margin-right:5px}
   .diff{font-size:10px; color:#b45309; margin-left:3px; font-weight:600}
   .form-row{display:flex; gap:3px}
@@ -262,6 +270,62 @@
     color:var(--sub); font-weight:700; font-size:13px; padding:10px; border-radius:var(--radius);
     cursor:pointer; font-family:inherit; margin-bottom:8px;
   }
+
+  /* 全体ビュー(第9弾) 共通: リーグセグメント切替はscheduleの.seg-toggleを再利用する */
+  .league-badge{
+    display:inline-block; font-size:9px; font-weight:700; padding:2px 5px; border-radius:4px;
+    color:#fff; letter-spacing:.02em; flex:none;
+  }
+  .league-badge.j1{background:#1a3f8f} .league-badge.j2{background:#0b7a5b} .league-badge.j3{background:#9a5b0b}
+
+  /* 全体モード: 日程タブ(日付軸) */
+  .cal-league-filter{display:flex; gap:6px; margin-bottom:14px}
+  .cal-league-filter button{
+    flex:1; border:1px solid var(--line); background:#f7f8fa; color:var(--sub);
+    font-size:12px; font-weight:700; padding:8px 4px; border-radius:999px; cursor:pointer; font-family:inherit;
+  }
+  .cal-league-filter button.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  .cal-day{margin-top:16px}
+  .cal-day:first-child{margin-top:0}
+  .cal-day-title{font-size:11px; font-weight:700; color:var(--sub); margin:0 0 6px 2px}
+  .cal-row{
+    display:grid; grid-template-columns:26px 38px 1fr auto 1fr 24px; align-items:center; gap:6px;
+    padding:7px 0; border-bottom:1px solid var(--line); font-size:13px;
+  }
+  .cal-row:last-child{border-bottom:none}
+  .cal-row.me{background:var(--me-bg,#eaf6ef); margin:0 -6px; padding-left:6px; padding-right:6px; border-radius:6px; box-shadow:inset 3px 0 0 var(--me-accent)}
+  .cal-time{font-size:11px; color:var(--sub); text-align:right; font-variant-numeric:tabular-nums}
+  .cal-team{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px}
+  .cal-team.away{text-align:right}
+  .cal-score{font-weight:700; font-variant-numeric:tabular-nums; text-align:center; white-space:nowrap; display:inline-flex; align-items:center; gap:4px}
+  .cal-round{font-size:9px; color:var(--sub); text-align:right}
+  .cal-loadmore{
+    display:block; width:100%; margin:14px 0; padding:10px; border-radius:var(--radius);
+    border:1px solid var(--line); background:#fff; color:var(--sub); font-weight:700; font-size:13px;
+    cursor:pointer; font-family:inherit;
+  }
+
+  /* 全体モード: 予想タブ(B案: 帯+タップ詳細) */
+  .predict-legend{display:flex; flex-wrap:wrap; gap:10px; font-size:11px; color:var(--sub); margin-bottom:10px}
+  .predict-row{display:grid; grid-template-columns:20px 44px 1fr 32px; align-items:center; gap:8px; padding:5px 0; cursor:pointer}
+  .predict-row.me{background:var(--me-bg,#eaf6ef); margin:0 -6px; padding-left:6px; padding-right:6px; border-radius:6px}
+  .predict-rk{font-size:11px; color:var(--sub); text-align:right; font-variant-numeric:tabular-nums}
+  .predict-nm{font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .predict-pt{font-size:11px; color:var(--sub); text-align:right; font-variant-numeric:tabular-nums}
+  .predict-track{position:relative; height:20px; background:#f0f1f3; border-radius:5px; overflow:hidden}
+  .predict-band-zone{position:absolute; top:0; bottom:0; opacity:.28}
+  .predict-band{position:absolute; top:3px; bottom:3px; border-radius:4px; opacity:.92; box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
+  .predict-med{position:absolute; top:2px; bottom:2px; width:2px; background:#fff; opacity:.9; border-radius:1px}
+  .predict-cur{
+    position:absolute; top:50%; width:8px; height:8px; margin-top:-4px; margin-left:-4px;
+    border-radius:50%; background:#fff; border:2px solid #444; opacity:.95;
+  }
+  .predict-axis{display:flex; justify-content:space-between; font-size:10px; color:var(--sub); margin:4px 64px 0 64px}
+  .predict-detail{margin:2px 0 8px; padding:10px 12px; background:#f7f8fa; border-left:3px solid var(--accent); border-radius:0 8px 8px 0}
+  .predict-detail-big{font-size:13px; margin-bottom:6px}
+  .predict-detail-big b{font-size:19px}
+  .predict-detail-kv{display:flex; gap:12px; flex-wrap:wrap; font-size:11px; color:var(--sub)}
+  .predict-detail-kv b{color:var(--ink); font-weight:700}
 </style>
 </head>
 <body>
@@ -270,6 +334,10 @@
 <header>
   <h1>Jリーグ ダッシュボード</h1>
   <div id="deployBadge" class="deploy-badge"></div>
+  <div id="modeToggle" class="mode-toggle" role="group" aria-label="表示モード">
+    <button type="button" data-viewmode="club">クラブ</button>
+    <button type="button" data-viewmode="all">全体</button>
+  </div>
   <select id="clubSelect" aria-label="応援クラブを選ぶ"></select>
 </header>
 <nav id="tabbar"></nav>
@@ -290,6 +358,9 @@ const LEAGUES = {
   j3: { name: "J3", master: "data/masters/j3_teams_2026-27.json" },
 };
 const STORE_KEY = "jleague-app.favoriteTeam";
+const VIEW_MODE_KEY = "jleague-app.viewMode";
+const CAL_FILTER_KEY = "jleague-app.calendarLeagueFilter";
+const CAL_WINDOW_STEP_DAYS = 14;
 
 const TABS = [
   { id: "home", label: "ホーム" },
@@ -298,6 +369,13 @@ const TABS = [
   { id: "stats", label: "スタッツ" },
   { id: "players", label: "選手" },
   { id: "news", label: "ニュース" },
+];
+/* 全体モード(J1〜J3横断)のタブ。クラブモードのTABSとはidが被るもの("schedule"/"standings")もあるが、
+   state.activeTab(クラブ)とstate.allTab(全体)を別フィールドで持つことで衝突しない設計にしてある。 */
+const ALL_TABS = [
+  { id: "schedule", label: "日程" },
+  { id: "standings", label: "順位" },
+  { id: "predict", label: "予想" },
 ];
 
 const state = {
@@ -312,6 +390,18 @@ const state = {
   chartLeague: null,  // 確率推移グラフが最後に描画されたリーグ。変わったらchartClubs/chartSeriesをリセットする
   chartClubs: null,   // 確率推移グラフのオーバーレイ対象クラブ(idTeamの配列、最大5)。nullなら初回描画時に[自クラブ]で初期化
   chartSeries: null,  // 確率推移グラフの系列(autoPromotion等)。nullなら初回描画時にリーグの先頭ゾーンで初期化
+
+  // 第9弾: 全体ビュー(J1〜J3横断)
+  viewMode: "club",   // "club"=クラブモード(既存) / "all"=全体モード
+  allTab: "schedule", // 全体モードのアクティブタブ("schedule"/"standings"/"predict")
+  allLeague: null,    // 全体モードの順位/予想タブで選択中のリーグ。nullなら初回描画時に自クラブの所属リーグにする
+  calendar: undefined, // calendar.json。undefined=未取得、null=取得失敗
+  calLeagueFilter: null, // 全体モード日程タブのリーグ表示フィルタ({j1:true,j2:true,j3:true})。nullなら初回にlocalStorageから復元
+  calAnchorDate: null,  // 「今日(無ければ直近の試合日)」として計算した基準日("YYYY-MM-DD")。一度決めたら使い回す
+  calDaysBefore: 14,    // 段階描画: 基準日から何日前まで描画するか("さらに前を見る"で+14される)
+  calDaysAfter: 14,     // 段階描画: 基準日から何日先まで描画するか("さらに先を見る"で+14される)
+  calNeedsScroll: true, // タブを開いた直後だけtrue。「さらに前/先を見る」の再描画では基準日へスクロールし直さない
+  predictOpen: null,    // 全体モード予想タブでアコーディオン展開中のidTeam。nullなら初回に自クラブを開く
 };
 
 /* ---------- クラブカラーのテーマ適用 ---------- */
@@ -344,9 +434,13 @@ function toRgba(hex, alpha) {
   const [r, g, b] = hexToRgb(hex);
   return "rgba(" + r + "," + g + "," + b + "," + alpha + ")";
 }
+// 全体モード(第9弾)の中立配色。特定クラブの色で3リーグ全体を塗ると、どのリーグを見ているか
+// 分からなくなるための代替パレット。applyTheme(null)でこちらが使われる。
+const NEUTRAL_COLOR = "#33404f", NEUTRAL_COLOR_SUB = "#46566a";
+
 function applyTheme(team) {
-  const c = team.color || "#0b6b3a";       // 1stカラー: ヘッダー/ボディ背景にベタ塗り
-  const sub = team.colorSub || c;          // 2ndカラー: タブバーのベタ塗り/カードの枠線
+  const c = (team && team.color) || NEUTRAL_COLOR; // 1stカラー: ヘッダー/ボディ背景にベタ塗り
+  const sub = (team && team.colorSub) || NEUTRAL_COLOR_SUB; // 2ndカラー: タブバーのベタ塗り/カードの枠線
   const root = document.documentElement.style;
   root.setProperty("--accent", c);
   root.setProperty("--accent-sub", sub);
@@ -354,9 +448,22 @@ function applyTheme(team) {
   // (1stとsubは明るさが逆のことが多いので、まとめて1つの判定にしないこと)
   root.setProperty("--accent-ink", luminance(c) > 0.5 ? "#111111" : "#ffffff");
   root.setProperty("--accent-sub-ink", luminance(sub) > 0.5 ? "#111111" : "#ffffff");
-  root.setProperty("--me-bg", mixWhite(c, 0.14)); // 順位表の自クラブ行(カード内なので通常どおり薄く)
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute("content", c);
+}
+// 自クラブの行・試合を強調する色は、全体モード(中立テーマ)でも常に実際のクラブ色を使う
+// (指示: 「中立モードでも自クラブの行・試合だけはクラブ色でハイライトする」)。
+// applyTheme()とは独立に、選択中のクラブが変わるたびに必ず呼ぶ。
+function applyOwnClubAccent(team) {
+  const c = (team && team.color) || NEUTRAL_COLOR;
+  const root = document.documentElement.style;
+  root.setProperty("--me-accent", c);
+  root.setProperty("--me-bg", mixWhite(c, 0.14));
+}
+function applyThemeForMode() {
+  const found = findTeam(state.idTeam);
+  applyTheme(state.viewMode === "all" ? null : (found && found.team));
+  if (found) applyOwnClubAccent(found.team);
 }
 
 /* localStorageが使えない環境でも落ちないようにする */
@@ -415,32 +522,113 @@ function esc(s) {
 
 /* ---------- タブ ---------- */
 
-function buildTabBar() {
+/* タブの一覧はモードで差し替わる(クラブ=TABS / 全体=ALL_TABS)。ボタンの描画(renderTabButtons)と
+   クリックの購読(bindTabBarEvents)を分けてあるのは、#tabbar要素自体は使い回し、モード切替のたびに
+   innerHTMLだけ差し替えるため(addEventListenerを毎回積み増すと多重発火するので1回しか呼ばない)。 */
+function currentTabList() {
+  return state.viewMode === "all" ? ALL_TABS : TABS;
+}
+function currentActiveTabId() {
+  return state.viewMode === "all" ? state.allTab : state.activeTab;
+}
+function renderTabButtons() {
   const bar = document.getElementById("tabbar");
-  bar.innerHTML = TABS.map(t =>
+  bar.innerHTML = currentTabList().map(t =>
     '<button type="button" data-tab="' + t.id + '">' + esc(t.label) + '</button>'
   ).join("");
+}
+function bindTabBarEvents() {
+  const bar = document.getElementById("tabbar");
   bar.addEventListener("click", ev => {
     const btn = ev.target.closest("button[data-tab]");
     if (!btn) return;
-    setActiveTab(btn.dataset.tab);
+    if (state.viewMode === "all") setAllTab(btn.dataset.tab);
+    else setActiveTab(btn.dataset.tab);
   });
 }
 function updateTabBarActive() {
   const bar = document.getElementById("tabbar");
+  const active = currentActiveTabId();
   for (const btn of bar.querySelectorAll("button[data-tab]")) {
-    btn.classList.toggle("active", btn.dataset.tab === state.activeTab);
+    btn.classList.toggle("active", btn.dataset.tab === active);
   }
 }
-function currentTabFromHash() {
-  const h = (location.hash || "").replace("#", "");
-  return TABS.some(t => t.id === h) ? h : "home";
+function updateModeToggleActive() {
+  const wrap = document.getElementById("modeToggle");
+  if (!wrap) return;
+  for (const btn of wrap.querySelectorAll("button[data-viewmode]")) {
+    btn.classList.toggle("active", btn.dataset.viewmode === state.viewMode);
+  }
 }
+
+/* ハッシュは常に "#club/<tab>" または "#all/<tab>" の形(第9弾で導入)。
+   モードごとタブidの名前空間が別(state.activeTab / state.allTab)なので、モードの接頭辞が無いと
+   「日程」「順位」がクラブ/全体のどちらを指すか判別できない。 */
+function currentRouteFromHash() {
+  const h = (location.hash || "").replace("#", "");
+  const slash = h.indexOf("/");
+  if (slash < 0) return null;
+  const mode = h.slice(0, slash);
+  const tab = h.slice(slash + 1);
+  if (mode === "club" && TABS.some(t => t.id === tab)) return { mode, tab };
+  if (mode === "all" && ALL_TABS.some(t => t.id === tab)) return { mode, tab };
+  return null;
+}
+function currentHashPath() {
+  return state.viewMode + "/" + currentActiveTabId();
+}
+function syncHash() {
+  const path = currentHashPath();
+  if (location.hash.replace("#", "") !== path) location.hash = path;
+}
+/* localStorageが使えない環境でも落ちないようにする(既存のloadFav/saveFavと同じ流儀) */
+function loadViewMode() {
+  try { return localStorage.getItem(VIEW_MODE_KEY); } catch (e) { return null; }
+}
+function saveViewMode(mode) {
+  try { localStorage.setItem(VIEW_MODE_KEY, mode); } catch (e) { /* 無視 */ }
+}
+/* 起動時にモード・タブをハッシュ(優先)、無ければlocalStorageの保存モードから復元する。 */
+function applyRouteFromHash() {
+  const route = currentRouteFromHash();
+  if (route) {
+    state.viewMode = route.mode;
+    if (route.mode === "club") state.activeTab = route.tab;
+    else state.allTab = route.tab;
+    return;
+  }
+  const saved = loadViewMode();
+  state.viewMode = (saved === "all") ? "all" : "club";
+}
+
 function setActiveTab(tabId) {
   if (!TABS.some(t => t.id === tabId)) tabId = "home";
   state.activeTab = tabId;
-  if (location.hash.replace("#", "") !== tabId) location.hash = tabId;
+  syncHash();
   updateTabBarActive();
+  window.scrollTo(0, 0);
+  renderActiveTab();
+}
+function setAllTab(tabId) {
+  if (!ALL_TABS.some(t => t.id === tabId)) tabId = "schedule";
+  state.allTab = tabId;
+  if (tabId === "schedule") state.calNeedsScroll = true; // タブを開いた瞬間だけ基準日へスクロールする
+  syncHash();
+  updateTabBarActive();
+  window.scrollTo(0, 0);
+  renderActiveTab();
+}
+function setViewMode(mode) {
+  if (mode !== "club" && mode !== "all") mode = "club";
+  if (mode === state.viewMode) return;
+  state.viewMode = mode;
+  if (mode === "all" && state.allTab === "schedule") state.calNeedsScroll = true;
+  saveViewMode(mode);
+  renderTabButtons();
+  applyThemeForMode();
+  syncHash();
+  updateTabBarActive();
+  updateModeToggleActive();
   window.scrollTo(0, 0);
   renderActiveTab();
 }
@@ -479,6 +667,20 @@ async function ensureImpact(league) {
   const c = leagueCache(league);
   if (c.impact === undefined) c.impact = await getJsonOptional("data/processed/" + league + "_impact.json");
   return c.impact;
+}
+/* calendar.json はリーグ横断の1ファイルなので、leagueCache(league)ではなくstate直下にキャッシュする。 */
+async function ensureCalendar() {
+  if (state.calendar === undefined) state.calendar = await getJsonOptional("data/processed/calendar.json");
+  return state.calendar;
+}
+async function ensureAllTabData(tabId, league) {
+  if (tabId === "schedule") {
+    await ensureCalendar();
+  } else if (tabId === "standings") {
+    await ensureStandings(league);
+  } else if (tabId === "predict") {
+    await ensureSimulation(league);
+  }
 }
 async function ensureClubExtra() {
   if (state.clubExtra === undefined) state.clubExtra = await getJsonOptional("data/processed/club_extra.json");
@@ -533,9 +735,11 @@ async function init() {
     if (badge) badge.textContent = [v ? "v" + v : "", t || ""].filter(Boolean).join(" ・ ");
   });
 
-  state.activeTab = currentTabFromHash();
-  buildTabBar();
+  applyRouteFromHash();
+  renderTabButtons();
+  bindTabBarEvents();
   updateTabBarActive();
+  updateModeToggleActive();
 
   buildSelect();
 
@@ -550,17 +754,65 @@ async function init() {
   });
 
   window.addEventListener("hashchange", () => {
-    const tabId = currentTabFromHash();
-    if (tabId !== state.activeTab) {
-      state.activeTab = tabId;
-      updateTabBarActive();
-      renderActiveTab();
+    const route = currentRouteFromHash();
+    if (!route) return;
+    const modeChanged = route.mode !== state.viewMode;
+    state.viewMode = route.mode;
+    if (route.mode === "club") state.activeTab = route.tab;
+    else state.allTab = route.tab;
+    if (route.mode === "all" && route.tab === "schedule") state.calNeedsScroll = true;
+    if (modeChanged) {
+      saveViewMode(route.mode);
+      renderTabButtons();
+      applyThemeForMode();
+      updateModeToggleActive();
     }
+    updateTabBarActive();
+    renderActiveTab();
   });
 
   // イベント委譲: クラブ名クリックでの切替(data-idteam)とレーダーの頂点タップ(ツールチップ)を1つのリスナーで拾う。
   // 行ごと/要素ごとにリスナーを張らないこと。
   document.addEventListener("click", ev => {
+    const modeToggleBtn = ev.target.closest("[data-viewmode]");
+    if (modeToggleBtn) {
+      setViewMode(modeToggleBtn.dataset.viewmode);
+      return;
+    }
+
+    const allLeagueBtn = ev.target.closest("[data-allleague]");
+    if (allLeagueBtn) {
+      state.allLeague = allLeagueBtn.dataset.allleague;
+      state.predictOpen = null; // リーグを切り替えたら開きっぱなしの詳細をリセットする
+      renderActiveTab();
+      return;
+    }
+
+    const predictRowBtn = ev.target.closest("[data-predictrow]");
+    if (predictRowBtn) {
+      const tid = predictRowBtn.dataset.predictrow;
+      state.predictOpen = (state.predictOpen === tid) ? null : tid;
+      renderActiveTab();
+      return;
+    }
+
+    const calFilterBtn = ev.target.closest("[data-calfilter]");
+    if (calFilterBtn) {
+      const lg = calFilterBtn.dataset.calfilter;
+      const filter = Object.assign({}, state.calLeagueFilter);
+      filter[lg] = !filter[lg];
+      state.calLeagueFilter = filter;
+      saveCalLeagueFilter(filter);
+      renderActiveTab();
+      return;
+    }
+
+    const calMoreBtn = ev.target.closest("[data-calmore]");
+    if (calMoreBtn) {
+      extendCalendarRange(calMoreBtn.dataset.calmore);
+      return;
+    }
+
     const radarHit = ev.target.closest(".radar-hit");
     if (radarHit) {
       const tip = document.getElementById("radarTooltip");
@@ -671,14 +923,20 @@ async function selectTeam(idTeam) {
   if (!found) return;
   state.idTeam = idTeam;
   state.league = found.league;
-  applyTheme(found.team);
+  applyThemeForMode();
   await renderActiveTab();
-  window.scrollTo(0, 0);
+  // 全体モード日程タブは描画内で基準日(今日)へscrollIntoViewしている。ここで(0,0)に戻すと
+  // それを上書きしてしまうので、そのケースだけは末尾のリセットをスキップする。
+  if (!(state.viewMode === "all" && state.allTab === "schedule")) window.scrollTo(0, 0);
 }
 
 /* ---------- 描画(タブごと) ---------- */
 
 async function renderActiveTab() {
+  if (state.viewMode === "all") {
+    await renderAllModeActiveTab();
+    return;
+  }
   const found = findTeam(state.idTeam);
   if (!found) return;
   const { league, team } = found;
@@ -725,6 +983,366 @@ async function renderActiveTab() {
   const gen = genMeta && genMeta.generatedAtJst;
   document.getElementById("footer").textContent =
     "データ取得: " + (gen ? fmtDate(gen, true) : "不明") + " ／ 出典: TheSportsDB";
+}
+
+/* ---------- 全体モード(第9弾: J1〜J3横断) ---------- */
+
+async function renderAllModeActiveTab() {
+  const found = findTeam(state.idTeam);
+  const app = document.getElementById("app");
+  app.innerHTML = '<p class="muted">読み込み中…</p>';
+
+  // 順位/予想タブの既定リーグは自クラブの所属リーグ(未選択のときだけ決める)
+  if (!state.allLeague) state.allLeague = found ? found.league : "j1";
+
+  try {
+    await ensureAllTabData(state.allTab, state.allLeague);
+  } catch (e) {
+    app.innerHTML = '<div class="err">' + esc(e.message) + '</div>';
+    return;
+  }
+
+  let html, genMeta;
+  if (state.allTab === "schedule") {
+    html = renderAllSchedule(state.calendar, found);
+    genMeta = state.calendar && state.calendar.meta;
+  } else if (state.allTab === "standings") {
+    const cache = leagueCache(state.allLeague);
+    html = renderAllStandings(state.allLeague, cache.standings, found);
+    genMeta = cache.standings && cache.standings.meta;
+  } else {
+    const cache = leagueCache(state.allLeague);
+    html = renderAllPredict(state.allLeague, cache.simulation, found);
+    genMeta = cache.simulation && cache.simulation.meta;
+  }
+  app.innerHTML = html;
+
+  if (state.allTab === "schedule" && state.calNeedsScroll) {
+    scrollCalendarToAnchor();
+    state.calNeedsScroll = false;
+  }
+
+  const gen = genMeta && genMeta.generatedAtJst;
+  document.getElementById("footer").textContent =
+    "データ取得: " + (gen ? fmtDate(gen, true) : "不明") + " ／ 出典: TheSportsDB";
+}
+
+/* リーグ切替(J1/J2/J3)。全体モードの順位・予想タブで共用する。既存の.seg-toggleを流用する。 */
+function renderLeagueSegment(activeLeague) {
+  return '<div class="seg-toggle">' + Object.keys(LEAGUES).map(lg =>
+    '<button type="button" class="' + (lg === activeLeague ? "active" : "") + '" data-allleague="' + lg + '">' +
+      esc(LEAGUES[lg].name) + '</button>'
+  ).join("") + '</div>';
+}
+
+function renderAllStandings(league, standings, found) {
+  const master = state.masters[league];
+  const segHtml = renderLeagueSegment(league);
+  const heading = (master.meta && master.meta.leagueNameJa) || LEAGUES[league].name;
+
+  if (!standings) {
+    return '<section><h2>順位（全体）</h2><div class="card">' + segHtml +
+      '<p class="muted" style="margin:10px 0 0">' + esc(heading) + 'の順位データがまだありません。</p></div></section>';
+  }
+
+  const rules = master.promotionRules;
+  const zones = resolveZones(rules);
+  const ownIdTeam = found ? found.team.idTeam : null;
+
+  const rows = standings.table.map(r => {
+    const z = zoneColor(r.rank, rules);
+    const form = (r.recent5 || []).map(x => '<span class="pill ' + x + '">' + x + '</span>').join("");
+    return '<tr class="' + (r.idTeam === ownIdTeam ? "me" : "") + '">' +
+      '<td class="rank">' + r.rank + '</td>' +
+      '<td class="club">' +
+        (z ? '<span class="zone" style="background:' + z.color + '"></span>' : '<span class="zone" style="background:transparent"></span>') +
+        '<span class="team-link" data-idteam="' + esc(r.idTeam) + '">' + esc(r.short || r.ja) + '</span>' +
+      '</td>' +
+      '<td>' + r.played + (r.playedDiff ? '<span class="diff">-' + r.playedDiff + '</span>' : '') + '</td>' +
+      '<td>' + r.win + '</td><td>' + r.draw + '</td><td>' + r.loss + '</td>' +
+      '<td>' + (r.gd > 0 ? "+" : "") + r.gd + '</td>' +
+      '<td><b>' + r.points + '</b></td>' +
+      '<td class="form"><span class="form-row">' + form + '</span></td>' +
+    '</tr>';
+  }).join("");
+
+  const legend = zones.map(z => '<span><i class="sw" style="background:' + z.color + '"></i>' + esc(z.label) + '</span>');
+  legend.push('<span><b style="color:#b45309">-1</b> は消化試合が1つ少ないことを示します</span>');
+
+  return '<section><h2>' + esc(heading) + ' 順位</h2><div class="card">' +
+    segHtml +
+    '<table><thead><tr>' +
+      '<th class="rank">#</th><th class="club">クラブ</th><th>試</th><th>勝</th><th>分</th><th>負</th><th>差</th><th>点</th>' +
+      '<th class="form">直近</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<div class="legend">' + legend.join("") + '</div>' +
+  '</div></section>';
+}
+
+/* 予想タブ(B案: P10〜P90の帯+タップで詳細)。横軸は常に1位〜クラブ数位に固定、左が1位。
+   暗いクラブ色(栃木C #000e32、徳島 #10234f、大宮 #00164b 等)は背景と同化するため、
+   輝度が低い色は自動で持ち上げる(predictBarColor)。加えて帯には常に明るいインセット境界を入れる
+   (CSSの.predict-band)。指示書の「どちらか片方では足りない場合は両方やる」を両方やった。 */
+function predictBarColor(hex) {
+  if (!hex) return NEUTRAL_COLOR;
+  return luminance(hex) < 0.12 ? mixWhite(hex, 0.65) : hex;
+}
+function predictPct(rank, n) { return (rank - 1) / n * 100; }
+function predictZoneBandsHtml(rules, n) {
+  return resolveZones(rules).map(z => {
+    if (!z.ranks || !z.ranks.length) return "";
+    const min = Math.min(...z.ranks), max = Math.max(...z.ranks);
+    const left = predictPct(min, n);
+    const width = (max - min + 1) / n * 100;
+    return '<div class="predict-band-zone" style="left:' + left + '%; width:' + width + '%; background:' + z.color + '"></div>';
+  }).join("");
+}
+function predictRowTrackHtml(t, color, rules, n) {
+  const left = predictPct(t.rankP10, n);
+  const width = (t.rankP90 - t.rankP10 + 1) / n * 100;
+  const barColor = predictBarColor(color);
+  const halfStep = (1 / n * 100) / 2;
+  return '<div class="predict-track">' +
+    predictZoneBandsHtml(rules, n) +
+    '<div class="predict-band" style="left:' + left + '%; width:' + width + '%; background:' + barColor + '"></div>' +
+    '<div class="predict-med" style="left:' + (predictPct(t.medianRank, n) + halfStep) + '%"></div>' +
+    '<div class="predict-cur" style="left:' + (predictPct(t.currentRank, n) + halfStep) + '%"></div>' +
+  '</div>';
+}
+function predictDetailHtml(t, rules) {
+  const zones = resolveZones(rules);
+  const pct = x => ((x || 0) * 100).toFixed(1) + "%";
+  const kv = zones.map(z => '<span>' + esc(z.label) + ' <b>' + pct(t[z.key]) + '</b></span>').join("");
+  return '<div class="predict-detail">' +
+    '<div class="predict-detail-big">最もあり得る順位 <b>' + t.modeRank + '位</b> <span class="muted">（その確率 ' + pct(t.modeRankProb) + '）</span></div>' +
+    '<div class="predict-detail-kv">' + kv + '</div>' +
+  '</div>';
+}
+
+function renderAllPredict(league, simulation, found) {
+  const master = state.masters[league];
+  const segHtml = renderLeagueSegment(league);
+  const heading = (master.meta && master.meta.leagueNameJa) || LEAGUES[league].name;
+
+  if (!simulation) {
+    return '<section><h2>予想（全体）</h2><div class="card">' + segHtml +
+      '<p class="muted" style="margin:10px 0 0">' + esc(heading) + 'の予想データがまだありません。</p></div></section>';
+  }
+
+  const rules = master.promotionRules;
+  const zones = resolveZones(rules);
+  const ownIdTeam = found ? found.team.idTeam : null;
+  const n = master.teams.length || 20;
+  const masterTeamsById = {};
+  for (const t of master.teams) masterTeamsById[t.idTeam] = t;
+
+  if (state.predictOpen == null) state.predictOpen = ownIdTeam;
+
+  const teams = [...simulation.teams].sort((a, b) => a.expectedRank - b.expectedRank);
+
+  const legendHtml = zones.length
+    ? '<div class="predict-legend">' + zones.map(z =>
+        '<span><i class="sw" style="background:' + z.color + '"></i>' + esc(z.label) + '</span>'
+      ).join("") + '</div>'
+    : "";
+
+  const rowsHtml = teams.map((t, i) => {
+    const masterTeam = masterTeamsById[t.idTeam] || {};
+    const isMe = t.idTeam === ownIdTeam;
+    const isOpen = state.predictOpen === t.idTeam;
+    let rowHtml = '<div class="predict-row' + (isMe ? " me" : "") + '" data-predictrow="' + esc(t.idTeam) + '">' +
+      '<div class="predict-rk">' + (i + 1) + '</div>' +
+      '<div class="predict-nm">' + esc(t.short) + '</div>' +
+      predictRowTrackHtml(t, masterTeam.color, rules, n) +
+      '<div class="predict-pt">' + Math.round(t.expectedPoints) + '</div>' +
+    '</div>';
+    if (isOpen) rowHtml += predictDetailHtml(t, rules);
+    return rowHtml;
+  }).join("");
+
+  const axisHtml = '<div class="predict-axis"><span>1位</span><span>' + Math.round(n / 2) + '位</span><span>' + n + '位</span></div>';
+
+  return '<section><h2>' + esc(heading) + ' 予想順位</h2><div class="card">' +
+    segHtml + legendHtml + rowsHtml + axisHtml +
+    '<p class="promo-note">※ 帯は10000回のシミュレーションのうち中央8割が収まる順位の範囲です。</p>' +
+    '<p class="promo-note">※ 開幕直後はモデルがリーグ平均に寄るため、確率の動きは実力変化を意味しません。</p>' +
+  '</div></section>';
+}
+
+/* 日程タブ(全体): 節ではなく日付軸で3リーグ混在。1140試合を一度にDOM化せず、基準日(today)の
+   前後14日ぶんだけ初期描画し、「さらに前/先を見る」で+14日ずつ広げる。 */
+
+function loadCalLeagueFilter() {
+  try {
+    const raw = localStorage.getItem(CAL_FILTER_KEY);
+    if (!raw) return { j1: true, j2: true, j3: true };
+    const parsed = JSON.parse(raw);
+    return { j1: parsed.j1 !== false, j2: parsed.j2 !== false, j3: parsed.j3 !== false };
+  } catch (e) {
+    return { j1: true, j2: true, j3: true };
+  }
+}
+function saveCalLeagueFilter(filter) {
+  try { localStorage.setItem(CAL_FILTER_KEY, JSON.stringify(filter)); } catch (e) { /* 無視 */ }
+}
+
+function dateOnly(kickoffJst) {
+  const m = /^(\d{4}-\d{2}-\d{2})/.exec(kickoffJst || "");
+  return m ? m[1] : null;
+}
+function timeOnly(kickoffJst) {
+  const m = /T(\d{2}):(\d{2})/.exec(kickoffJst || "");
+  return m ? m[1] + ":" + m[2] : "";
+}
+/* "YYYY-MM-DD"文字列に対する日数加算。Date.UTCで組み立て直すだけなので端末TZに影響されない。 */
+function addDaysToDateStr(dateStr, days) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateStr || "");
+  if (!m) return dateStr;
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  d.setUTCDate(d.getUTCDate() + days);
+  const y = d.getUTCFullYear(), mo = String(d.getUTCMonth() + 1).padStart(2, "0"), da = String(d.getUTCDate()).padStart(2, "0");
+  return y + "-" + mo + "-" + da;
+}
+/* 「今日」をJSTの日付文字列で得る。new Date().getDate()等は端末TZに引きずられる既知のバグ元
+   (fmtDateの既存注意書きと同じ理由)なので使わず、Intl.DateTimeFormatにtimeZoneを明示して求める。 */
+function todayDateStrJst() {
+  const fmt = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" });
+  return fmt.format(new Date());
+}
+function fmtDateOnly(dateStr) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateStr || "");
+  if (!m) return dateStr || "";
+  const y = +m[1], mo = +m[2], d = +m[3];
+  const wd = WD[new Date(Date.UTC(y, mo - 1, d)).getUTCDay()];
+  return mo + "/" + d + "(" + wd + ")";
+}
+
+/* 日付でグルーピングする。calendar.matchesは既にkickoffJst昇順(null末尾)でソート済みなので、
+   フロント側では並べ替えず、連続する同日付をまとめるだけでよい。
+   各日付ブロック内では、kickoffTbd(b:true、時刻未定)の試合を末尾にまとめる。 */
+function groupCalendarMatches(matches) {
+  const dated = [];
+  const undated = [];
+  let currentDate = null, currentBucket = null;
+  for (const m of matches) {
+    const d = dateOnly(m.k);
+    if (d == null) { undated.push(m); continue; }
+    if (d !== currentDate) {
+      currentDate = d;
+      currentBucket = { date: d, matches: [] };
+      dated.push(currentBucket);
+    }
+    currentBucket.matches.push(m);
+  }
+  for (const bucket of dated) {
+    bucket.matches.sort((a, b) => (a.b === b.b) ? 0 : (a.b ? 1 : -1));
+  }
+  return { dated, undated };
+}
+
+/* 基準日 = 今日(その日に試合が無ければ、今日以降で最も近い試合日)。
+   今日以降に試合が無い(シーズン終了後)は最終節の日付にする。 */
+function computeCalendarAnchorDate(dated) {
+  if (!dated.length) return null;
+  const today = todayDateStrJst();
+  for (const bucket of dated) {
+    if (bucket.date >= today) return bucket.date;
+  }
+  return dated[dated.length - 1].date;
+}
+
+function visibleCalendarBuckets(dated, anchorDate, daysBefore, daysAfter) {
+  if (!anchorDate || !dated.length) return { buckets: [], hasMoreBefore: false, hasMoreAfter: false };
+  const start = addDaysToDateStr(anchorDate, -daysBefore);
+  const end = addDaysToDateStr(anchorDate, daysAfter);
+  const buckets = dated.filter(b => b.date >= start && b.date <= end);
+  const hasMoreBefore = dated[0].date < start;
+  const hasMoreAfter = dated[dated.length - 1].date > end;
+  return { buckets, hasMoreBefore, hasMoreAfter };
+}
+
+function calMatchRowHtml(m, ownIdTeam) {
+  const involvesMe = m.h[0] === ownIdTeam || m.a[0] === ownIdTeam;
+  const finished = m.h[2] != null && m.a[2] != null;
+  const timeLabel = m.b ? "時刻未定" : timeOnly(m.k);
+  const scoreLabel = finished ? (m.h[2] + " - " + m.a[2]) : "vs";
+
+  let pillHtml = "";
+  if (finished && involvesMe) {
+    const isHome = m.h[0] === ownIdTeam;
+    const meScore = isHome ? m.h[2] : m.a[2];
+    const oppScore = isHome ? m.a[2] : m.h[2];
+    const mark = meScore > oppScore ? "W" : (meScore < oppScore ? "L" : "D");
+    pillHtml = '<span class="pill ' + mark + '">' + mark + '</span>';
+  }
+
+  return '<div class="cal-row' + (involvesMe ? " me" : "") + '">' +
+    '<span class="league-badge ' + esc(m.l) + '">' + esc(m.l.toUpperCase()) + '</span>' +
+    '<span class="cal-time">' + esc(timeLabel) + '</span>' +
+    '<span class="cal-team">' + esc(m.h[1]) + '</span>' +
+    '<span class="cal-score">' + esc(scoreLabel) + pillHtml + '</span>' +
+    '<span class="cal-team away">' + esc(m.a[1]) + '</span>' +
+    '<span class="cal-round">' + (m.r ? "第" + esc(m.r) + "節" : "") + '</span>' +
+  '</div>';
+}
+
+function scrollCalendarToAnchor() {
+  const el = document.getElementById("calAnchor");
+  if (el) el.scrollIntoView({ block: "start" });
+}
+function extendCalendarRange(direction) {
+  if (direction === "before") state.calDaysBefore += CAL_WINDOW_STEP_DAYS;
+  else state.calDaysAfter += CAL_WINDOW_STEP_DAYS;
+  renderActiveTab();
+}
+
+function renderAllSchedule(calendar, found) {
+  if (state.calLeagueFilter == null) state.calLeagueFilter = loadCalLeagueFilter();
+  const filterHtml = '<div class="cal-league-filter">' + Object.keys(LEAGUES).map(lg =>
+    '<button type="button" class="' + (state.calLeagueFilter[lg] ? "active" : "") + '" data-calfilter="' + lg + '">' +
+      esc(LEAGUES[lg].name) + '</button>'
+  ).join("") + '</div>';
+
+  if (!calendar || !calendar.matches || !calendar.matches.length) {
+    return '<section><h2>日程（全体）</h2><div class="card">' + filterHtml +
+      '<p class="muted" style="margin:10px 0 0">日程データがまだありません。</p></div></section>';
+  }
+
+  const ownIdTeam = found ? found.team.idTeam : null;
+  const filtered = calendar.matches.filter(m => state.calLeagueFilter[m.l]);
+  if (!filtered.length) {
+    return '<section><h2>日程（全体）</h2><div class="card">' + filterHtml +
+      '<p class="muted" style="margin:10px 0 0">選択中のリーグに試合がありません。フィルタを見直してください。</p></div></section>';
+  }
+
+  const { dated, undated } = groupCalendarMatches(filtered);
+  if (state.calAnchorDate == null) state.calAnchorDate = computeCalendarAnchorDate(dated);
+  const anchor = state.calAnchorDate;
+
+  const { buckets, hasMoreBefore, hasMoreAfter } = visibleCalendarBuckets(dated, anchor, state.calDaysBefore, state.calDaysAfter);
+
+  const moreBeforeHtml = hasMoreBefore
+    ? '<button type="button" class="cal-loadmore" data-calmore="before">さらに前を見る</button>' : "";
+  const moreAfterHtml = hasMoreAfter
+    ? '<button type="button" class="cal-loadmore" data-calmore="after">さらに先を見る</button>' : "";
+
+  const daysHtml = buckets.map(b => {
+    const rowsHtml = b.matches.map(m => calMatchRowHtml(m, ownIdTeam)).join("");
+    return '<div class="cal-day"' + (b.date === anchor ? ' id="calAnchor"' : '') + '>' +
+      '<h3 class="cal-day-title">' + esc(fmtDateOnly(b.date)) + '</h3>' + rowsHtml +
+    '</div>';
+  }).join("");
+
+  const undatedHtml = undated.length
+    ? '<div class="cal-day"><h3 class="cal-day-title">日程未定</h3>' +
+        undated.map(m => calMatchRowHtml(m, ownIdTeam)).join("") + '</div>'
+    : "";
+
+  return '<section><h2>日程（全体）</h2><div class="card">' +
+    filterHtml + moreBeforeHtml +
+    '<div id="calDays">' + (daysHtml || '<p class="muted" style="margin:0">この期間に試合がありません。</p>') + '</div>' +
+    moreAfterHtml + undatedHtml +
+  '</div></section>';
 }
 
 function renderNext(mine, team, venues) {

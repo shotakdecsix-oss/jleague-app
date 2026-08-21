@@ -116,6 +116,21 @@ def write_deploy_version() -> None:
     print(f"[info] デプロイバージョンを記録: {version}")
 
 
+def check_calendar_generated() -> None:
+    """
+    calendar.json(全体ビューの日程タブ用)はdata/processed/配下なので既存のCOPY_DIRSで
+    そのままコピーされる(追加設定は不要)。ただし生成し忘れたまま配信してしまう事故を防ぐため、
+    このファイルが無ければwarnだけ出す(ビルド自体は止めない)。
+    """
+    path = BASE_DIR / "data" / "processed" / "calendar.json"
+    if not path.exists():
+        print(
+            "[warn] data/processed/calendar.json が無い。先に python scripts/build_calendar.py を実行すること"
+            "(全体ビューの日程タブが空になる)",
+            file=sys.stderr,
+        )
+
+
 def build_ics_calendars() -> None:
     """
     dist/ics/{idTeam}.ics を60クラブぶん生成する。COPY_DIRSでのコピーではなく、
@@ -141,6 +156,7 @@ def report_size() -> None:
 
 
 def main() -> None:
+    check_calendar_generated()
     clean_dist()
     copy_top_level_files()
     copy_dirs()

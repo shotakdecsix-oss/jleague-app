@@ -25,6 +25,9 @@ PY = sys.executable
 # (表示名, コマンド引数リスト)
 STEPS: list[tuple[str, list[str]]] = [
     ("fetch_batch(全リーグ)", [PY, str(SCRIPTS_DIR / "fetch_batch.py"), "--league", "all"]),
+    # calendar.json(全体ビューの日程タブ用、日付軸の軽量集約ファイル)はfetch_batchの直後に作る
+    # (standings/simulateの結果には依存しないため、ここより後ろでも問題ないが早めに作っておく)
+    ("build_calendar(全体ビュー用日程集約)", [PY, str(SCRIPTS_DIR / "build_calendar.py")]),
     ("standings(J1)", [PY, str(SCRIPTS_DIR / "standings.py"), "--league", "j1"]),
     ("standings(J2)", [PY, str(SCRIPTS_DIR / "standings.py"), "--league", "j2"]),
     ("standings(J3)", [PY, str(SCRIPTS_DIR / "standings.py"), "--league", "j3"]),
