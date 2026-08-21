@@ -326,6 +326,24 @@
   .predict-detail-big b{font-size:19px}
   .predict-detail-kv{display:flex; gap:12px; flex-wrap:wrap; font-size:11px; color:var(--sub)}
   .predict-detail-kv b{color:var(--ink); font-weight:700}
+
+  /* オンデマンド更新(第10弾) */
+  .ondemand-bar{margin-bottom:16px}
+  .ondemand-btn{margin-bottom:6px}
+  .ondemand-btn:disabled{opacity:.5; cursor:default}
+  .ondemand-msg{font-size:12px; color:var(--sub); margin:2px 0}
+  .ondemand-last{font-size:11px; color:var(--sub); margin-top:2px}
+  .ondemand-hint{font-size:11px; color:var(--sub); margin-top:6px; line-height:1.5}
+  /* 暫定(オンデマンド由来)であることの視覚区別。赤系(エラーと紛らわしい)は使わず琥珀系にする */
+  .provisional-badge{
+    display:inline-block; font-size:10px; font-weight:700; padding:2px 7px; border-radius:999px;
+    background:#fef3c7; color:#92400e; margin-left:6px; vertical-align:2px; letter-spacing:0; text-transform:none;
+  }
+  .provisional-dot{
+    display:inline-block; width:6px; height:6px; border-radius:50%; background:#d97706;
+    margin-left:4px; vertical-align:2px; flex:none;
+  }
+  .ondemand-basis{margin:10px 0 0; font-size:11px; color:#92400e; background:#fef3c7; padding:8px 10px; border-radius:8px}
 </style>
 </head>
 <body>
@@ -402,6 +420,13 @@ const state = {
   calDaysAfter: 14,     // 段階描画: 基準日から何日先まで描画するか("さらに先を見る"で+14される)
   calNeedsScroll: true, // タブを開いた直後だけtrue。「さらに前/先を見る」の再描画では基準日へスクロールし直さない
   predictOpen: null,    // 全体モード予想タブでアコーディオン展開中のidTeam。nullなら初回に自クラブを開く
+
+  // 第10弾: オンデマンド更新(アプリからTheSportsDBを直接叩く)
+  ondemand: {},           // league -> {fetchedAt, baseGeneratedAt, matches:{idEvent:match}} | null。未ロードはキー無し(undefined)
+  ondemandRunning: false, // 取得処理の実行中フラグ(多重発火防止)
+  ondemandProgress: null, // 実行中の進捗文字列("2/6")
+  ondemandMessage: null,  // 直近の結果メッセージ(「更新対象の試合がありません」等)。nullなら非表示
+  ondemandCooldownUntil: 0, // この時刻(ms epoch)まで再実行不可(連打対策・最短60秒間隔)
 };
 
 /* ---------- クラブカラーのテーマ適用 ---------- */
@@ -676,10 +701,13 @@ async function ensureCalendar() {
 async function ensureAllTabData(tabId, league) {
   if (tabId === "schedule") {
     await ensureCalendar();
+    await ensureOndemandOverlayForCalendar(); // 第10弾: オンデマンドキャッシュがあるリーグだけmatchesを読む
   } else if (tabId === "standings") {
     await ensureStandings(league);
+    await ensureMatches(league); // 第10弾: 暫定順位の判定(オンデマンド有効かどうか)に必要
   } else if (tabId === "predict") {
     await ensureSimulation(league);
+    await ensureMatches(league); // 第10弾: 基準時刻併記の判定(オンデマンド有効かどうか)に必要
   }
 }
 async function ensureClubExtra() {
@@ -699,6 +727,7 @@ async function ensureTabData(league, tabId) {
     await ensureMatches(league); // 全380試合が既に入っているので追加取得は不要
   } else if (tabId === "standings") {
     await ensureStandings(league);
+    await ensureMatches(league); // 第10弾: 暫定順位の判定(オンデマンド有効かどうか)に必要
   } else if (tabId === "stats") {
     await ensureStats(league);
     await ensureMatches(league); // 確率推移グラフの自クラブ試合結果マーカー用
@@ -774,6 +803,12 @@ async function init() {
   // イベント委譲: クラブ名クリックでの切替(data-idteam)とレーダーの頂点タップ(ツールチップ)を1つのリスナーで拾う。
   // 行ごと/要素ごとにリスナーを張らないこと。
   document.addEventListener("click", ev => {
+    const ondemandBtn = ev.target.closest("[data-ondemand-update]");
+    if (ondemandBtn) {
+      runOndemandUpdate();
+      return;
+    }
+
     const modeToggleBtn = ev.target.closest("[data-viewmode]");
     if (modeToggleBtn) {
       setViewMode(modeToggleBtn.dataset.viewmode);
@@ -953,14 +988,20 @@ async function renderActiveTab() {
 
   const cache = leagueCache(league);
   const venues = master.venues || {};
-  const all = (cache.matches && cache.matches.matches) || [];
+  // 第10弾: オンデマンドで取得した最新結果があればここでマージ済みの配列になる(無ければバッチのまま)
+  const all = effectiveMatches(league);
   const mine = all.filter(m => m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam);
 
   let html;
   if (state.activeTab === "schedule") {
-    html = renderScheduleTab(cache.matches, team);
+    const matchesForDisplay = cache.matches ? Object.assign({}, cache.matches, { matches: all }) : cache.matches;
+    html = renderScheduleTab(matchesForDisplay, team, league);
   } else if (state.activeTab === "standings") {
-    html = renderStandings(cache.standings, team, master);
+    const provisional = hasOndemandForLeague(league);
+    const standingsForDisplay = provisional
+      ? { table: computeProvisionalTable(all, master), meta: cache.standings && cache.standings.meta }
+      : cache.standings;
+    html = renderStandings(standingsForDisplay, team, master, provisional);
   } else if (state.activeTab === "stats") {
     html = renderStatsTab(cache.stats, team) + renderProbabilityChart(cache.history, all, team, master, league);
   } else if (state.activeTab === "players") {
@@ -969,8 +1010,9 @@ async function renderActiveTab() {
     const newsHtml = renderNews(state.news, state.clubExtra, team, league);
     html = newsHtml || '<section><h2>ニュース</h2><div class="card"><p class="muted" style="margin:0">関連ニュースが見つかりませんでした。</p></div></section>';
   } else {
-    html = renderNext(mine, team, venues) + renderResults(mine, team) + renderPromotion(cache.simulation, team, all, master.promotionRules) +
-      renderImpactSection(cache.impact, team, master.promotionRules);
+    html = renderOndemandBar() + renderNext(mine, team, venues) + renderResults(mine, team, league) +
+      renderPromotion(cache.simulation, team, all, master.promotionRules, league) +
+      renderImpactSection(cache.impact, team, master.promotionRules, league);
   }
   app.innerHTML = html;
 
@@ -1008,7 +1050,11 @@ async function renderAllModeActiveTab() {
     genMeta = state.calendar && state.calendar.meta;
   } else if (state.allTab === "standings") {
     const cache = leagueCache(state.allLeague);
-    html = renderAllStandings(state.allLeague, cache.standings, found);
+    const provisional = hasOndemandForLeague(state.allLeague);
+    const standingsForDisplay = provisional
+      ? { table: computeProvisionalTable(effectiveMatches(state.allLeague), state.masters[state.allLeague]), meta: cache.standings && cache.standings.meta }
+      : cache.standings;
+    html = renderAllStandings(state.allLeague, standingsForDisplay, found, provisional);
     genMeta = cache.standings && cache.standings.meta;
   } else {
     const cache = leagueCache(state.allLeague);
@@ -1035,7 +1081,7 @@ function renderLeagueSegment(activeLeague) {
   ).join("") + '</div>';
 }
 
-function renderAllStandings(league, standings, found) {
+function renderAllStandings(league, standings, found, provisional) {
   const master = state.masters[league];
   const segHtml = renderLeagueSegment(league);
   const heading = (master.meta && master.meta.leagueNameJa) || LEAGUES[league].name;
@@ -1068,14 +1114,19 @@ function renderAllStandings(league, standings, found) {
 
   const legend = zones.map(z => '<span><i class="sw" style="background:' + z.color + '"></i>' + esc(z.label) + '</span>');
   legend.push('<span><b style="color:#b45309">-1</b> は消化試合が1つ少ないことを示します</span>');
+  const badgeHtml = provisional ? '<span class="provisional-badge">暫定</span>' : "";
+  const provisionalNoteHtml = provisional
+    ? '<p class="ondemand-basis">※ アプリから取得した最新結果を反映した暫定順位です(当該チーム間の比較までは行っていないため、公式の順位とは並びが異なることがあります)。</p>'
+    : "";
 
-  return '<section><h2>' + esc(heading) + ' 順位</h2><div class="card">' +
+  return '<section><h2>' + esc(heading) + ' 順位' + badgeHtml + '</h2><div class="card">' +
     segHtml +
     '<table><thead><tr>' +
       '<th class="rank">#</th><th class="club">クラブ</th><th>試</th><th>勝</th><th>分</th><th>負</th><th>差</th><th>点</th>' +
       '<th class="form">直近</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>' +
     '<div class="legend">' + legend.join("") + '</div>' +
+    provisionalNoteHtml +
   '</div></section>';
 }
 
@@ -1161,11 +1212,13 @@ function renderAllPredict(league, simulation, found) {
   }).join("");
 
   const axisHtml = '<div class="predict-axis"><span>1位</span><span>' + Math.round(n / 2) + '位</span><span>' + n + '位</span></div>';
+  const basisHtml = ondemandBasisNoteHtml(league, simulation.meta && simulation.meta.generatedAtJst);
 
   return '<section><h2>' + esc(heading) + ' 予想順位</h2><div class="card">' +
     segHtml + legendHtml + rowsHtml + axisHtml +
     '<p class="promo-note">※ 帯は10000回のシミュレーションのうち中央8割が収まる順位の範囲です。</p>' +
     '<p class="promo-note">※ 開幕直後はモデルがリーグ平均に寄るため、確率の動きは実力変化を意味しません。</p>' +
+    basisHtml +
   '</div></section>';
 }
 
@@ -1262,16 +1315,23 @@ function visibleCalendarBuckets(dated, anchorDate, daysBefore, daysAfter) {
 }
 
 function calMatchRowHtml(m, ownIdTeam) {
+  // 第10弾: オンデマンドキャッシュがあれば、そのidEvent(m.e)の分だけ日時/スコアを上書きして表示する。
+  const ov = calendarOndemandOverride(m);
+  const eff = ov
+    ? { k: ov.kickoffJst != null ? ov.kickoffJst : m.k, b: ov.kickoffTbd, h: [m.h[0], m.h[1], ov.home.score], a: [m.a[0], m.a[1], ov.away.score] }
+    : m;
+
   const involvesMe = m.h[0] === ownIdTeam || m.a[0] === ownIdTeam;
-  const finished = m.h[2] != null && m.a[2] != null;
-  const timeLabel = m.b ? "時刻未定" : timeOnly(m.k);
-  const scoreLabel = finished ? (m.h[2] + " - " + m.a[2]) : "vs";
+  const finished = eff.h[2] != null && eff.a[2] != null;
+  const timeLabel = eff.b ? "時刻未定" : timeOnly(eff.k);
+  const scoreLabel = finished ? (eff.h[2] + " - " + eff.a[2]) : "vs";
+  const dotHtml = ov ? '<span class="provisional-dot"></span>' : "";
 
   let pillHtml = "";
   if (finished && involvesMe) {
-    const isHome = m.h[0] === ownIdTeam;
-    const meScore = isHome ? m.h[2] : m.a[2];
-    const oppScore = isHome ? m.a[2] : m.h[2];
+    const isHome = eff.h[0] === ownIdTeam;
+    const meScore = isHome ? eff.h[2] : eff.a[2];
+    const oppScore = isHome ? eff.a[2] : eff.h[2];
     const mark = meScore > oppScore ? "W" : (meScore < oppScore ? "L" : "D");
     pillHtml = '<span class="pill ' + mark + '">' + mark + '</span>';
   }
@@ -1280,7 +1340,7 @@ function calMatchRowHtml(m, ownIdTeam) {
     '<span class="league-badge ' + esc(m.l) + '">' + esc(m.l.toUpperCase()) + '</span>' +
     '<span class="cal-time">' + esc(timeLabel) + '</span>' +
     '<span class="cal-team">' + esc(m.h[1]) + '</span>' +
-    '<span class="cal-score">' + esc(scoreLabel) + pillHtml + '</span>' +
+    '<span class="cal-score">' + esc(scoreLabel) + pillHtml + dotHtml + '</span>' +
     '<span class="cal-team away">' + esc(m.a[1]) + '</span>' +
     '<span class="cal-round">' + (m.r ? "第" + esc(m.r) + "節" : "") + '</span>' +
   '</div>';
@@ -1297,6 +1357,7 @@ function extendCalendarRange(direction) {
 }
 
 function renderAllSchedule(calendar, found) {
+  const ondemandHtml = renderOndemandBar();
   if (state.calLeagueFilter == null) state.calLeagueFilter = loadCalLeagueFilter();
   const filterHtml = '<div class="cal-league-filter">' + Object.keys(LEAGUES).map(lg =>
     '<button type="button" class="' + (state.calLeagueFilter[lg] ? "active" : "") + '" data-calfilter="' + lg + '">' +
@@ -1304,14 +1365,14 @@ function renderAllSchedule(calendar, found) {
   ).join("") + '</div>';
 
   if (!calendar || !calendar.matches || !calendar.matches.length) {
-    return '<section><h2>日程（全体）</h2><div class="card">' + filterHtml +
+    return '<section><h2>日程（全体）</h2><div class="card">' + ondemandHtml + filterHtml +
       '<p class="muted" style="margin:10px 0 0">日程データがまだありません。</p></div></section>';
   }
 
   const ownIdTeam = found ? found.team.idTeam : null;
   const filtered = calendar.matches.filter(m => state.calLeagueFilter[m.l]);
   if (!filtered.length) {
-    return '<section><h2>日程（全体）</h2><div class="card">' + filterHtml +
+    return '<section><h2>日程（全体）</h2><div class="card">' + ondemandHtml + filterHtml +
       '<p class="muted" style="margin:10px 0 0">選択中のリーグに試合がありません。フィルタを見直してください。</p></div></section>';
   }
 
@@ -1339,7 +1400,7 @@ function renderAllSchedule(calendar, found) {
     : "";
 
   return '<section><h2>日程（全体）</h2><div class="card">' +
-    filterHtml + moreBeforeHtml +
+    ondemandHtml + filterHtml + moreBeforeHtml +
     '<div id="calDays">' + (daysHtml || '<p class="muted" style="margin:0">この期間に試合がありません。</p>') + '</div>' +
     moreAfterHtml + undatedHtml +
   '</div></section>';
@@ -1373,7 +1434,7 @@ function renderNext(mine, team, venues) {
   return '<section><h2>次の試合</h2><div class="card">' + body + '</div></section>';
 }
 
-function renderResults(mine, team) {
+function renderResults(mine, team, league) {
   const done = mine.filter(m => m.finished)
     .sort((a, b) => (b.kickoffJst || "").localeCompare(a.kickoffJst || ""))
     .slice(0, 5);
@@ -1387,11 +1448,12 @@ function renderResults(mine, team) {
       const me = isHome ? m.home : m.away;
       const opp = isHome ? m.away : m.home;
       const mark = me.score > opp.score ? "W" : (me.score < opp.score ? "L" : "D");
+      const dot = (league && isOndemandMatch(league, m.idEvent)) ? '<span class="provisional-dot"></span>' : "";
       return '<li>' +
         '<span class="r-date">' + esc(fmtDate(m.kickoffJst, false)) + '</span>' +
         '<span class="r-ha">' + (isHome ? "H" : "A") + '</span>' +
         '<span class="r-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + esc(opp.ja) + '</span></span>' +
-        '<span class="r-score">' + me.score + ' - ' + opp.score + '</span>' +
+        '<span class="r-score">' + me.score + ' - ' + opp.score + dot + '</span>' +
         '<span class="pill ' + mark + '">' + mark + '</span>' +
       '</li>';
     }).join("") + '</ul>';
@@ -1418,9 +1480,10 @@ function computeCurrentRound(allMatches) {
   return Math.min(maxRound + 1, 38) || 1;
 }
 
-function scheduleRowHtml(m, team, mode) {
+function scheduleRowHtml(m, team, mode, provisional) {
   const involvesMe = m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam;
   const isHome = m.home.idTeam === team.idTeam;
+  const dotHtml = provisional ? '<span class="provisional-dot"></span>' : "";
 
   let centerHtml, pillHtml = "";
   if (!m.finished) {
@@ -1448,12 +1511,12 @@ function scheduleRowHtml(m, team, mode) {
     return '<div class="sched-row">' +
       '<span class="sched-ha">' + (isHome ? "H" : "A") + '</span>' +
       '<span class="sched-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + esc(opp.ja) + '</span></span>' +
-      '<span class="sched-score">' + centerHtml + pillHtml + '</span>' +
+      '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' +
     '</div>';
   }
   return '<div class="sched-row all' + (involvesMe ? " me" : "") + '">' +
     '<span class="sched-team"><span class="team-link" data-idteam="' + esc(m.home.idTeam) + '">' + esc(m.home.short || m.home.ja) + '</span></span>' +
-    '<span class="sched-score">' + centerHtml + pillHtml + '</span>' +
+    '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' +
     '<span class="sched-team"><span class="team-link" data-idteam="' + esc(m.away.idTeam) + '">' + esc(m.away.short || m.away.ja) + '</span></span>' +
   '</div>';
 }
@@ -1474,7 +1537,7 @@ function renderIcsButton(team) {
   '</div>';
 }
 
-function renderScheduleTab(matchesData, team) {
+function renderScheduleTab(matchesData, team, league) {
   const icsHtml = renderIcsButton(team);
   if (!matchesData) return icsHtml + '<section><h2>日程</h2><div class="card"><p class="muted" style="margin:0">日程データがまだありません。</p></div></section>';
   const all = matchesData.matches || [];
@@ -1500,7 +1563,7 @@ function renderScheduleTab(matchesData, team) {
       rows = rows.filter(m => m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam);
       if (!rows.length) return "";
     }
-    const rowsHtml = rows.map(m => scheduleRowHtml(m, team, mode)).join("");
+    const rowsHtml = rows.map(m => scheduleRowHtml(m, team, mode, league && isOndemandMatch(league, m.idEvent))).join("");
     return '<div class="sched-round" id="round-' + r + '"><h3 class="sched-round-title">第' + r + '節</h3>' + rowsHtml + '</div>';
   }).join("");
 
@@ -1539,7 +1602,7 @@ function zoneColor(rank, rules) {
   return null;
 }
 
-function renderStandings(standings, team, master) {
+function renderStandings(standings, team, master, provisional) {
   const rules = master.promotionRules;
   const zones = resolveZones(rules);
   const rows = standings.table.map(r => {
@@ -1561,13 +1624,18 @@ function renderStandings(standings, team, master) {
 
   const legend = zones.map(z => '<span><i class="sw" style="background:' + z.color + '"></i>' + esc(z.label) + '</span>');
   legend.push('<span><b style="color:#b45309">-1</b> は消化試合が1つ少ないことを示します</span>');
+  const badgeHtml = provisional ? '<span class="provisional-badge">暫定</span>' : "";
+  const provisionalNoteHtml = provisional
+    ? '<p class="ondemand-basis">※ アプリから取得した最新結果を反映した暫定順位です(当該チーム間の比較までは行っていないため、公式の順位とは並びが異なることがあります)。</p>'
+    : "";
 
-  return '<section><h2>' + esc(master.meta.leagueNameJa || "順位表") + '</h2><div class="card">' +
+  return '<section><h2>' + esc(master.meta.leagueNameJa || "順位表") + badgeHtml + '</h2><div class="card">' +
     '<table><thead><tr>' +
       '<th class="rank">#</th><th class="club">クラブ</th><th>試</th><th>勝</th><th>分</th><th>負</th><th>差</th><th>点</th>' +
       '<th class="form">直近</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>' +
     '<div class="legend">' + legend.join("") + '</div>' +
+    provisionalNoteHtml +
   '</div></section>';
 }
 
@@ -1624,7 +1692,7 @@ function simulationExplainHtml() {
     '</details>';
 }
 
-function renderPromotion(simulation, team, allMatches, rules) {
+function renderPromotion(simulation, team, allMatches, rules, league) {
   if (!simulation) return "";
   const t = (simulation.teams || []).find(x => x.idTeam === team.idTeam);
   if (!t) return "";
@@ -1656,8 +1724,9 @@ function renderPromotion(simulation, team, allMatches, rules) {
 
   // 見出しも区分の有無で切り替える。autoPromotionが無いリーグ(最上位リーグ想定)は「昇格」の文字を出さない
   const heading = (rules && !rules.autoPromotion) ? "優勝・残留確率(シミュレーション)" : "昇格確率(シミュレーション)";
+  const basisHtml = ondemandBasisNoteHtml(league, simulation.meta && simulation.meta.generatedAtJst);
 
-  return '<section><h2>' + esc(heading) + '</h2><div class="card">' + tilesHtml + modeRankHtml + noteHtml + simulationExplainHtml() + '</div></section>';
+  return '<section><h2>' + esc(heading) + '</h2><div class="card">' + tilesHtml + modeRankHtml + noteHtml + basisHtml + simulationExplainHtml() + '</div></section>';
 }
 
 /* ---------- 他会場インパクト(第8弾B。ホームタブ、今節の他試合が自クラブの確率をどう動かすか) ----------
@@ -1689,7 +1758,7 @@ function fmtDeltaPt(cond, baseline, trialCount, minTrials) {
 const IMPACT_MIN_TRIALS = 500;
 const IMPACT_SMALL_PT = 1.0; // これ未満(ポイント)は「その他」に畳む(指示書に具体的な閾値の指定は無いための実装判断)
 
-function renderImpactSection(impact, team, rules) {
+function renderImpactSection(impact, team, rules, league) {
   if (!impact || !impact.matches || !impact.matches.length) return "";
   const zones = resolveZones(rules);
   if (!zones.length) return "";
@@ -1698,6 +1767,15 @@ function renderImpactSection(impact, team, rules) {
   const baseline = (impact.baseline && impact.baseline[team.idTeam]) || {};
   const baseVal = baseline[zone.key];
 
+  // 第10弾: オンデマンド取得で対象試合が既に終わっていることが分かれば、その行は確率行ではなく
+  // 「終了」として畳む(古い確率をあたかも今の見通しであるかのように出さないため)。
+  const finishedByEvent = {};
+  if (league) {
+    for (const m of effectiveMatches(league)) {
+      if (m.finished) finishedByEvent[m.idEvent] = m;
+    }
+  }
+
   const ownMatch = impact.matches.find(m => m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam);
   const others = impact.matches.filter(m => m !== ownMatch)
     .map(m => ({ m, mag: impactMagnitudeForTeam(m, team.idTeam, zone.key) }))
@@ -1705,24 +1783,42 @@ function renderImpactSection(impact, team, rules) {
 
   let ownHtml = "";
   if (ownMatch) {
-    const map = outcomeForOwnClub(ownMatch, team.idTeam);
-    const cond = ownMatch.conditional[team.idTeam] || {};
-    const tc = ownMatch.trialCounts || {};
-    const pct = o => {
-      const v = cond[o] && cond[o][zone.key];
-      if (v == null || (tc[o] != null && tc[o] < IMPACT_MIN_TRIALS)) return "－";
-      return (v * 100).toFixed(1) + "%";
-    };
     const opp = ownMatch.home.idTeam === team.idTeam ? ownMatch.away : ownMatch.home;
-    ownHtml =
-      '<div class="impact-own">' +
-        '<div class="impact-row-title">' + esc(fmtDate(ownMatch.kickoffJst, true)) + ' vs ' + esc(opp.short) +
-          '(' + esc(zone.label) + ')</div>' +
-        '<div class="impact-own-vals">勝てば ' + pct(map.win) + ' ／ 引き分けなら ' + pct(map.draw) + ' ／ 負ければ ' + pct(map.lose) + '</div>' +
-      '</div>';
+    const finishedMatch = finishedByEvent[ownMatch.idEvent];
+    if (finishedMatch) {
+      const meScore = finishedMatch.home.idTeam === team.idTeam ? finishedMatch.home.score : finishedMatch.away.score;
+      const oppScore = finishedMatch.home.idTeam === team.idTeam ? finishedMatch.away.score : finishedMatch.home.score;
+      ownHtml =
+        '<div class="impact-own">' +
+          '<div class="impact-row-title">vs ' + esc(opp.short) + '<span class="provisional-dot"></span></div>' +
+          '<div class="impact-own-vals">終了（' + meScore + ' - ' + oppScore + '）</div>' +
+        '</div>';
+    } else {
+      const map = outcomeForOwnClub(ownMatch, team.idTeam);
+      const cond = ownMatch.conditional[team.idTeam] || {};
+      const tc = ownMatch.trialCounts || {};
+      const pct = o => {
+        const v = cond[o] && cond[o][zone.key];
+        if (v == null || (tc[o] != null && tc[o] < IMPACT_MIN_TRIALS)) return "－";
+        return (v * 100).toFixed(1) + "%";
+      };
+      ownHtml =
+        '<div class="impact-own">' +
+          '<div class="impact-row-title">' + esc(fmtDate(ownMatch.kickoffJst, true)) + ' vs ' + esc(opp.short) +
+            '(' + esc(zone.label) + ')</div>' +
+          '<div class="impact-own-vals">勝てば ' + pct(map.win) + ' ／ 引き分けなら ' + pct(map.draw) + ' ／ 負ければ ' + pct(map.lose) + '</div>' +
+        '</div>';
+    }
   }
 
   const rowHtml = (m) => {
+    const finishedMatch = finishedByEvent[m.idEvent];
+    if (finishedMatch) {
+      return '<div class="impact-row">' +
+        '<div class="impact-row-title">' + esc(m.home.short) + ' vs ' + esc(m.away.short) + '<span class="provisional-dot"></span></div>' +
+        '<div class="impact-row-vals">終了（' + finishedMatch.home.score + ' - ' + finishedMatch.away.score + '）</div>' +
+      '</div>';
+    }
     const cond = m.conditional[team.idTeam] || {};
     const tc = m.trialCounts || {};
     const d = o => fmtDeltaPt(cond[o] && cond[o][zone.key], baseVal, tc[o], IMPACT_MIN_TRIALS);
@@ -1741,11 +1837,388 @@ function renderImpactSection(impact, team, rules) {
 
   if (!ownHtml && !bigHtml && !smallHtml) return "";
 
+  const basisHtml = ondemandBasisNoteHtml(league, impact.meta && impact.meta.generatedAtJst);
+
   return '<section><h2>今節の他会場</h2><div class="card">' +
     (ownHtml || '<p class="muted small" style="margin:0 0 10px">この期間に自クラブの試合はありません。</p>') +
     bigHtml + smallHtml +
     '<p class="promo-note">※ シミュレーション上の目安です(誤差±1ポイント程度)</p>' +
+    basisHtml +
   '</div></section>';
+}
+
+/* ---------- オンデマンド更新(第10弾: アプリからTheSportsDBを直接叩いて最新結果を取り込む) ----------
+   バッチの置き換えではなく、バッチとバッチの隙間を埋める補助機能。取得するのは「今まさに行われている
+   節の試合結果」だけで、それ以外(昇格確率・スタッツ・ニュース・選手データ)はバッチの静的JSONのまま。
+   取得層(pickTargetRounds/parseEvents/mergeMatches/computeProvisionalTable)はUI非依存の純粋関数にして
+   あり、将来の速報タブでもそのまま流用できる(指示書8章)。 */
+
+const ONDEMAND_API_KEY = "123"; // TheSportsDBの公開キー。フロントに埋め込んで問題ない(指示書の前提)
+const ONDEMAND_WINDOW_HOURS = 30; // 前後30時間(金曜夜〜日曜夜の両方を1回の操作で拾うため)
+const ONDEMAND_MAX_ROUNDS = 2;    // 1リーグあたりの上限節数
+const ONDEMAND_REQUEST_GAP_MS = 300;
+const ONDEMAND_MIN_INTERVAL_MS = 60 * 1000; // 連打対策(最短60秒間隔)
+const ONDEMAND_CACHE_PREFIX = "ondemand:";
+
+/* 1章: 取得対象の節を決める。roundではなく時間窓(kickoffJstの±30時間)で決める
+   (延期で節と日程がずれるため。第8弾の他会場インパクトと同じ考え方)。 */
+function pickTargetRounds(matches, now) {
+  const windowMs = ONDEMAND_WINDOW_HOURS * 60 * 60 * 1000;
+  const lo = now - windowMs, hi = now + windowMs;
+  const distByRound = new Map(); // round -> 現在時刻との最小距離(3節以上あるときの絞り込み用)
+  for (const m of matches || []) {
+    if (!m.kickoffJst) continue;
+    const t = new Date(m.kickoffJst).getTime();
+    if (isNaN(t) || t < lo || t > hi) continue;
+    const dist = Math.abs(t - now);
+    const cur = distByRound.get(m.round);
+    if (cur === undefined || dist < cur) distByRound.set(m.round, dist);
+  }
+  let rounds = [...distByRound.keys()];
+  if (rounds.length > ONDEMAND_MAX_ROUNDS) {
+    rounds.sort((a, b) => distByRound.get(a) - distByRound.get(b));
+    rounds = rounds.slice(0, ONDEMAND_MAX_ROUNDS);
+  }
+  return rounds.sort((a, b) => a - b);
+}
+
+/* strTimestamp(UTC, "YYYY-MM-DD HH:MM:SS"または"YYYY-MM-DDTHH:MM:SS")からJSTのkickoffJst文字列を作る。
+   scripts/time_utils.py の derive_kickoff_jst と同じ規則(UTCとして解釈し+9時間)。
+   Date()のローカルタイムゾーン解釈に依存しないよう、数値を正規表現で取り出しDate.UTCで組み立て直す
+   (fmtDateの既存の注意書きと同じ理由)。 */
+function deriveKickoffJstFromUtc(strTimestamp) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})/.exec(String(strTimestamp || ""));
+  if (!m) return null;
+  const utcMs = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
+  const jst = new Date(utcMs + 9 * 60 * 60 * 1000);
+  const p2 = v => String(v).padStart(2, "0");
+  return jst.getUTCFullYear() + "-" + p2(jst.getUTCMonth() + 1) + "-" + p2(jst.getUTCDate()) +
+    "T" + p2(jst.getUTCHours()) + ":" + p2(jst.getUTCMinutes()) + ":" + p2(jst.getUTCSeconds()) + "+09:00";
+}
+
+/* 2章: eventsround.phpのレスポンスを内部形式(matches.jsonと同じ形)に変換する。
+   {"events":null}または空配列は「その節に試合が無い」ではなく取得失敗として扱う(バッチのEMPTY分類と
+   同じ思想)。失敗はnullを返す。呼び出し側はnullなら既存データを維持しマージしないこと。
+   チーム名では照合しない(idTeamがマスタに全クラブぶん入っているため直接照合できる)。 */
+function parseEvents(json, master, season) {
+  if (!json || !Array.isArray(json.events) || json.events.length === 0) return null;
+  const byId = {};
+  for (const t of master.teams) byId[t.idTeam] = t;
+
+  const out = [];
+  for (const ev of json.events || []) {
+    if (ev.strSeason !== season || ev.intRound == null || ev.intRound === "0") continue;
+    const homeTeam = byId[String(ev.idHomeTeam)];
+    const awayTeam = byId[String(ev.idAwayTeam)];
+    if (!homeTeam || !awayTeam) continue; // idTeamがマスタに無い試合は無視する
+
+    let kickoffJst = null, kickoffTbd = true;
+    if (ev.strTimestamp) {
+      kickoffJst = deriveKickoffJstFromUtc(ev.strTimestamp);
+      kickoffTbd = kickoffJst == null;
+    }
+
+    const status = ev.strStatus;
+    const homeScoreRaw = ev.intHomeScore, awayScoreRaw = ev.intAwayScore;
+    const finished = status === "FT" && homeScoreRaw != null && awayScoreRaw != null;
+
+    out.push({
+      idEvent: String(ev.idEvent),
+      round: Number(ev.intRound),
+      kickoffJst,
+      // kickoffDate/kickoffTimeもkickoffJstから作っておく(mergeMatchesで既存行に上書きしたとき、
+      // kickoffJstだけ新しくなりkickoffDateが古いまま残る、という内部不整合を防ぐため)。
+      kickoffDate: kickoffJst ? kickoffJst.slice(0, 10) : null,
+      kickoffTime: kickoffJst ? kickoffJst.slice(11, 19) : null,
+      kickoffTbd,
+      status: status || null,
+      finished,
+      home: { idTeam: homeTeam.idTeam, ja: homeTeam.ja, short: homeTeam.short, score: finished ? Number(homeScoreRaw) : null },
+      away: { idTeam: awayTeam.idTeam, ja: awayTeam.ja, short: awayTeam.short, score: finished ? Number(awayScoreRaw) : null },
+      idVenue: ev.idVenue || null,
+    });
+  }
+  return out;
+}
+
+/* 2章マージ: idEventが既存にあれば上書き、無ければ追加。既存にあってincomingに無い試合は消さない
+   (取得漏れと日程削除を区別できないため)。 */
+function mergeMatches(existing, incoming) {
+  const byId = new Map((existing || []).map(m => [m.idEvent, m]));
+  for (const m of incoming || []) {
+    const prev = byId.get(m.idEvent);
+    byId.set(m.idEvent, prev ? Object.assign({}, prev, m) : m);
+  }
+  return [...byId.values()].sort((a, b) => (a.kickoffJst || "9999").localeCompare(b.kickoffJst || "9999"));
+}
+
+/* 3章: 暫定順位表。scripts/standings.pyの「当該チーム間比較(全ペア消化済みのときだけ順序をつける)」は
+   フロントでは実装しない(微妙に違う形で再実装すると、バッチとオンデマンドの順位が食い違う最悪の事態に
+   なるため)。判定順は 勝点 -> 得失点差 -> 総得点 -> ここで打ち止め(以降は同順位としてtiedWithにまとめる)。
+   Python側はこの先に当該チーム間比較があるため、フロントのほうが順位が粗くなるのは意図的な劣化。
+   playedDiffは暫定順位でも必ず出す(既存の不変条件と同じ)。 */
+function computeProvisionalTable(matches, master) {
+  const rec = {};
+  for (const t of master.teams) {
+    rec[t.idTeam] = { idTeam: t.idTeam, ja: t.ja, short: t.short, played: 0, win: 0, draw: 0, loss: 0, gf: 0, ga: 0, gd: 0, points: 0, results: [] };
+  }
+  const finished = (matches || []).filter(m => m.finished)
+    .slice()
+    .sort((a, b) => (a.kickoffJst || "").localeCompare(b.kickoffJst || ""));
+
+  for (const m of finished) {
+    const h = rec[m.home.idTeam], a = rec[m.away.idTeam];
+    if (!h || !a) continue; // マスタに無いidTeamは安全側に倒して無視する
+    h.played++; a.played++;
+    h.gf += m.home.score; h.ga += m.away.score;
+    a.gf += m.away.score; a.ga += m.home.score;
+    if (m.home.score > m.away.score) { h.win++; a.loss++; h.results.push("W"); a.results.push("L"); }
+    else if (m.home.score < m.away.score) { a.win++; h.loss++; h.results.push("L"); a.results.push("W"); }
+    else { h.draw++; a.draw++; h.results.push("D"); a.results.push("D"); }
+  }
+  for (const r of Object.values(rec)) {
+    r.gd = r.gf - r.ga;
+    r.points = r.win * 3 + r.draw;
+    r.recent5 = r.results.slice(-5);
+  }
+
+  const maxPlayed = Math.max(0, ...Object.values(rec).map(r => r.played));
+  const order = Object.values(rec).sort((a, b) => (b.points - a.points) || (b.gd - a.gd) || (b.gf - a.gf));
+
+  const table = [];
+  let i = 0, rank = 1;
+  while (i < order.length) {
+    let j = i + 1;
+    while (j < order.length && order[j].points === order[i].points && order[j].gd === order[i].gd && order[j].gf === order[i].gf) j++;
+    const group = order.slice(i, j);
+    const ids = group.map(r => r.idTeam);
+    for (const r of group) {
+      table.push({
+        rank, idTeam: r.idTeam, ja: r.ja, short: r.short,
+        played: r.played, win: r.win, draw: r.draw, loss: r.loss,
+        gf: r.gf, ga: r.ga, gd: r.gd, points: r.points,
+        playedDiff: maxPlayed - r.played,
+        recent5: r.recent5,
+        tiedWith: ids.filter(id => id !== r.idTeam),
+      });
+    }
+    rank += group.length;
+    i = j;
+  }
+  return table;
+}
+
+/* ---------- 5章: キャッシュと鮮度管理 ---------- */
+
+/* localStorageが使えない環境でも落ちないようにする(既存のloadFav/saveFavと同じ流儀) */
+function loadOndemandCache(league) {
+  try {
+    const raw = localStorage.getItem(ONDEMAND_CACHE_PREFIX + league);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+function saveOndemandCache(league, data) {
+  try { localStorage.setItem(ONDEMAND_CACHE_PREFIX + league, JSON.stringify(data)); } catch (e) { /* 無視 */ }
+}
+function clearOndemandCache(league) {
+  try { localStorage.removeItem(ONDEMAND_CACHE_PREFIX + league); } catch (e) { /* 無視 */ }
+}
+
+/* localStorageから遅延ロードする(state.ondemand[league]がundefinedのときだけ読む)。 */
+function ondemandCacheForLeague(league) {
+  if (state.ondemand[league] === undefined) state.ondemand[league] = loadOndemandCache(league);
+  return state.ondemand[league];
+}
+
+/* 起動時(=このリーグのmatchesを読むたび)に必ず比較する。バッチJSONのgeneratedAtJstがキャッシュの
+   baseGeneratedAtより新しければ、そのキャッシュは役目を終えているので破棄する。これを忘れると、
+   バッチで確定した正しいデータを古い暫定値が上書きし続ける。
+   leagueCache(league).matches が未ロードの場合は判定材料が無いため、安全側に倒してキャッシュ無し扱いにする。 */
+function ondemandActiveCacheForLeague(league) {
+  const cache = ondemandCacheForLeague(league);
+  if (!cache) return null;
+  const matchesData = leagueCache(league).matches;
+  const batchGen = matchesData && matchesData.meta && matchesData.meta.generatedAtJst;
+  if (!batchGen) return null;
+  if (cache.baseGeneratedAt && batchGen > cache.baseGeneratedAt) {
+    clearOndemandCache(league);
+    state.ondemand[league] = null;
+    return null;
+  }
+  return cache;
+}
+function hasOndemandForLeague(league) {
+  return !!ondemandActiveCacheForLeague(league);
+}
+function isOndemandMatch(league, idEvent) {
+  const c = ondemandActiveCacheForLeague(league);
+  return !!(c && c.matches && c.matches[idEvent]);
+}
+/* そのリーグの「今使うべき試合配列」。オンデマンドキャッシュが有効ならバッチにマージして返す。
+   leagueCache(league).matches自体は書き換えない(バッチの生データを保つ。破棄判定の基準にするため)。 */
+function effectiveMatches(league) {
+  const base = (leagueCache(league).matches && leagueCache(league).matches.matches) || [];
+  const c = ondemandActiveCacheForLeague(league);
+  if (!c || !c.matches) return base;
+  return mergeMatches(base, Object.values(c.matches));
+}
+
+/* 全体モード日程タブ(calendar.json)用。オンデマンドキャッシュが実際に存在するリーグだけmatchesを
+   読み込む(陳腐化判定にバッチのmeta.generatedAtJstが要るため)。キャッシュが無い(未使用)リーグは
+   何もしない(通常のユーザーには追加コストを発生させない)。 */
+async function ensureOndemandOverlayForCalendar() {
+  for (const lg of Object.keys(LEAGUES)) {
+    if (ondemandCacheForLeague(lg)) await ensureMatches(lg);
+  }
+}
+/* calendar.jsonの圧縮形式{e,l,r,k,b,s,h,a}に対して、idEvent(e)でオンデマンドの上書きを引く。 */
+function calendarOndemandOverride(m) {
+  const c = ondemandActiveCacheForLeague(m.l);
+  return (c && c.matches && c.matches[m.e]) || null;
+}
+
+/* 確率(昇格確率・他会場インパクト等)を表示する箇所に基準時刻を併記する(4章)。
+   オンデマンドキャッシュが有効なリーグでだけ出す(バッチのみの状態では冗長なため)。 */
+function ondemandBasisNoteHtml(league, generatedAtJst) {
+  if (!hasOndemandForLeague(league) || !generatedAtJst) return "";
+  return '<p class="ondemand-basis">※ この確率は ' + esc(fmtDate(generatedAtJst, true)) +
+    ' 時点のものです。その後アプリで取得した最新結果は反映されていません。</p>';
+}
+
+/* ---------- 6章: UI(更新ボタン・クールダウン・進捗) ---------- */
+
+function nowJstIso() {
+  const fmt = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+  });
+  const parts = {};
+  for (const p of fmt.formatToParts(new Date())) parts[p.type] = p.value;
+  return parts.year + "-" + parts.month + "-" + parts.day + "T" + parts.hour + ":" + parts.minute + ":" + parts.second + "+09:00";
+}
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+function ondemandRemainingSec() {
+  return Math.max(0, Math.ceil((state.ondemandCooldownUntil - Date.now()) / 1000));
+}
+
+let ondemandTickTimer = null;
+/* クールダウンの残り秒数表示だけを1秒おきに更新する。renderActiveTab()を毎秒呼ぶとスクロール位置等を
+   壊すので、ボタン要素をIDで直接書き換える(タブが切り替わっていて要素が無ければ何もしない)。 */
+function ensureOndemandTicker() {
+  if (ondemandTickTimer) return;
+  ondemandTickTimer = setInterval(() => {
+    const remain = ondemandRemainingSec();
+    const btn = document.getElementById("ondemandBtn");
+    if (btn) {
+      btn.disabled = state.ondemandRunning || remain > 0;
+      btn.textContent = state.ondemandRunning
+        ? "更新中…" + (state.ondemandProgress ? "(" + state.ondemandProgress + ")" : "")
+        : (remain > 0 ? "更新(あと" + remain + "秒)" : "更新");
+    }
+    if (remain <= 0 && !state.ondemandRunning) {
+      clearInterval(ondemandTickTimer);
+      ondemandTickTimer = null;
+    }
+  }, 500);
+}
+
+function ondemandLastUpdatedHtml() {
+  let latest = null;
+  for (const lg of Object.keys(LEAGUES)) {
+    const c = ondemandCacheForLeague(lg);
+    if (c && c.fetchedAt && (!latest || c.fetchedAt > latest)) latest = c.fetchedAt;
+  }
+  if (!latest) return "";
+  return '<div class="ondemand-last">最終更新 ' + esc(fmtDate(latest, true)) + '（暫定・アプリから取得）</div>';
+}
+function ondemandBarInnerHtml() {
+  const remain = ondemandRemainingSec();
+  const disabled = state.ondemandRunning || remain > 0;
+  const label = state.ondemandRunning
+    ? "更新中…" + (state.ondemandProgress ? "(" + esc(state.ondemandProgress) + ")" : "")
+    : (remain > 0 ? "更新(あと" + remain + "秒)" : "更新");
+  const msgHtml = state.ondemandMessage ? '<div class="ondemand-msg">' + esc(state.ondemandMessage) + '</div>' : "";
+  return '<button type="button" id="ondemandBtn" class="btn-secondary ondemand-btn"' + (disabled ? " disabled" : "") +
+      ' data-ondemand-update>' + esc(label) + '</button>' +
+    msgHtml + ondemandLastUpdatedHtml() +
+    '<p class="ondemand-hint">※ 試合終了直後は反映されないことがあります。しばらく待って再度お試しください。</p>';
+}
+function renderOndemandBar() {
+  return '<div class="ondemand-bar" id="ondemandBar">' + ondemandBarInnerHtml() + '</div>';
+}
+function updateOndemandBarInPlace() {
+  const bar = document.getElementById("ondemandBar");
+  if (bar) bar.innerHTML = ondemandBarInnerHtml();
+  ensureOndemandTicker();
+}
+
+/* ---------- 7章: 実行本体 ---------- */
+
+/* 3リーグぶんの対象節を決め、逐次(300ms間隔)取得してマージする。
+   失敗(ネットワーク/CORS/パース失敗)しても例外を投げない(getJsonOptionalと同じ流儀の上に構築)。
+   一部だけ成功した場合は成功したぶんだけマージする。 */
+async function runOndemandUpdate() {
+  if (state.ondemandRunning || ondemandRemainingSec() > 0) return;
+  state.ondemandRunning = true;
+  state.ondemandMessage = null;
+  state.ondemandProgress = null;
+  updateOndemandBarInPlace();
+
+  try {
+    for (const lg of Object.keys(LEAGUES)) await ensureMatches(lg);
+
+    const now = Date.now();
+    const plan = [];
+    for (const lg of Object.keys(LEAGUES)) {
+      const all = (leagueCache(lg).matches && leagueCache(lg).matches.matches) || [];
+      for (const round of pickTargetRounds(all, now)) plan.push({ league: lg, round });
+    }
+
+    if (!plan.length) {
+      state.ondemandMessage = "更新対象の試合がありません。";
+      return;
+    }
+
+    const perLeagueIncoming = {};
+    let anySuccess = false;
+    for (let i = 0; i < plan.length; i++) {
+      const { league, round } = plan[i];
+      state.ondemandProgress = (i + 1) + "/" + plan.length;
+      updateOndemandBarInPlace();
+      if (i > 0) await sleep(ONDEMAND_REQUEST_GAP_MS);
+
+      const master = state.masters[league];
+      const url = "https://www.thesportsdb.com/api/v1/json/" + ONDEMAND_API_KEY + "/eventsround.php?id=" +
+        encodeURIComponent(master.meta.idLeague) + "&r=" + round + "&s=" + encodeURIComponent(master.meta.season);
+      const json = await getJsonOptional(url);
+      const parsed = parseEvents(json, master, master.meta.season);
+      if (parsed == null) continue; // 失敗。このぶんは捨てて既存データを維持する
+      anySuccess = true;
+      (perLeagueIncoming[league] = perLeagueIncoming[league] || []).push(...parsed);
+    }
+
+    const fetchedAt = nowJstIso();
+    for (const league of Object.keys(perLeagueIncoming)) {
+      const matchesData = leagueCache(league).matches;
+      const batchGen = matchesData && matchesData.meta && matchesData.meta.generatedAtJst;
+      const prev = ondemandActiveCacheForLeague(league); // 陳腐化していれば既にnull化されている
+      const nextMap = Object.assign({}, (prev && prev.matches) || {});
+      for (const m of perLeagueIncoming[league]) nextMap[m.idEvent] = m;
+      const data = { fetchedAt, baseGeneratedAt: batchGen || null, matches: nextMap };
+      state.ondemand[league] = data;
+      saveOndemandCache(league, data);
+    }
+
+    state.ondemandMessage = anySuccess ? null : "更新できませんでした。しばらくしてからもう一度お試しください。";
+  } catch (e) {
+    state.ondemandMessage = "更新できませんでした。";
+  } finally {
+    state.ondemandCooldownUntil = Date.now() + ONDEMAND_MIN_INTERVAL_MS;
+    state.ondemandRunning = false;
+    state.ondemandProgress = null;
+    ensureOndemandTicker();
+    renderActiveTab();
+  }
 }
 
 /* ---------- スタッツ(stats.py: 自前計算 + 公式サイト由来の指標をまとめたもの) ---------- */
