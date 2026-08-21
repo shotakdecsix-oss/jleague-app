@@ -32,17 +32,25 @@
     padding:20px 16px 18px;
     box-shadow:0 1px 6px rgba(0,0,0,.15);
   }
-  header h1{margin:0 0 10px; font-size:15px; font-weight:600; letter-spacing:.04em; opacity:.9}
-  /* デプロイ日時・バージョンのデバッグ表示。目立たせない(色はh1と同じaccent-ink継承、不透明度だけ落とす) */
-  .deploy-badge{font-size:9px; opacity:.55; margin:-6px 0 10px; letter-spacing:.02em}
+  /* ヘッダを役割で2段に分ける(第10弾改訂2): 上段=アプリ全体・データの状態、下段=表示対象の選択 */
+  .header-row1{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px}
+  header h1{margin:0; font-size:15px; font-weight:600; letter-spacing:.04em; opacity:.9}
+  .header-row1-right{display:flex; align-items:center; gap:6px}
+  /* デプロイ日時・バージョンのデバッグ表示。目立たせない(色はh1と同じaccent-ink継承、不透明度だけ落とす)。
+     狭い画面では優先度が低いので隠す(更新ボタンは常に出す)。 */
+  .deploy-badge{font-size:9px; opacity:.55; letter-spacing:.02em; white-space:nowrap}
+  @media (max-width:360px){ .deploy-badge{display:none} }
+  .header-row2{display:flex; gap:8px; align-items:center}
   /* モード切替(クラブ/全体)。タブバーと同じ2ndカラーのベタ塗りの上に、さらに一段浮かせた見た目にする */
-  .mode-toggle{display:flex; gap:6px; margin-bottom:10px}
+  .mode-toggle{display:flex; gap:6px; flex:none; width:120px}
   .mode-toggle button{
     flex:1; border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.08);
     color:var(--accent-ink); opacity:.75; font-size:12px; font-weight:700; padding:7px 4px;
     border-radius:999px; cursor:pointer; font-family:inherit;
   }
   .mode-toggle button.active{background:#fff; color:var(--accent); opacity:1; border-color:#fff}
+  .header-row2 select{flex:1; min-width:0}
+  @media (max-width:360px){ .mode-toggle{width:96px} .mode-toggle button{font-size:11px; padding:7px 2px} }
 
   #tabbar{
     display:flex; background:var(--accent-sub); /* 2ndカラーのベタ塗り */
@@ -327,13 +335,41 @@
   .predict-detail-kv{display:flex; gap:12px; flex-wrap:wrap; font-size:11px; color:var(--sub)}
   .predict-detail-kv b{color:var(--ink); font-weight:700}
 
-  /* オンデマンド更新(第10弾) */
-  .ondemand-bar{margin-bottom:16px}
-  .ondemand-btn{margin-bottom:6px}
-  .ondemand-btn:disabled{opacity:.5; cursor:default}
-  .ondemand-msg{font-size:12px; color:var(--sub); margin:2px 0}
-  .ondemand-last{font-size:11px; color:var(--sub); margin-top:2px}
-  .ondemand-hint{font-size:11px; color:var(--sub); margin-top:6px; line-height:1.5}
+  /* オンデマンド更新(第10弾改訂2): ヘッダのボタン・トースト・ポップオーバー。
+     ボタンをclubSelectから物理的に離しdeployBadgeの隣(アプリ全体の情報の並び)に置くことで、
+     クラブ単位の操作ではなくJ1〜J3横断の操作であることを位置で伝える。 */
+  .ondemand-header-btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:3px;
+    min-height:44px; min-width:44px; padding:0 10px; box-sizing:border-box;
+    border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.08);
+    color:var(--accent-ink); font-size:12px; font-weight:700; letter-spacing:.02em;
+    border-radius:999px; cursor:pointer; font-family:inherit; white-space:nowrap;
+  }
+  .ondemand-header-btn:disabled{opacity:.55; cursor:default}
+  .ondemand-header-btn .dot{
+    display:inline-block; width:6px; height:6px; border-radius:50%; background:#fbbf24; margin-left:1px;
+  }
+  .ondemand-info-btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; flex:none; border-radius:50%; border:1px solid rgba(255,255,255,.35);
+    background:rgba(255,255,255,.08); color:var(--accent-ink); font-size:11px; font-weight:700;
+    font-style:italic; cursor:pointer; font-family:inherit; opacity:.85;
+  }
+  .ondemand-toast{
+    margin:0 0 10px; padding:8px 12px; border-radius:10px; background:rgba(0,0,0,.28);
+    color:var(--accent-ink); font-size:12px; font-weight:600; text-align:center;
+  }
+  .ondemand-popover{
+    margin:0 0 10px; padding:12px 14px; border-radius:var(--radius); background:#fff; color:var(--ink);
+    box-shadow:0 4px 16px rgba(0,0,0,.18); font-size:12px;
+  }
+  .ondemand-popover h4{margin:0 0 8px; font-size:11px; font-weight:700; color:var(--sub); letter-spacing:.06em}
+  .ondemand-popover-row{display:flex; justify-content:space-between; gap:10px; padding:4px 0}
+  .ondemand-popover-label{color:var(--sub); flex:none}
+  .ondemand-popover-val{text-align:right}
+  .ondemand-popover-hint{margin:8px 0 0; padding-top:8px; border-top:1px solid var(--line); font-size:11px; color:var(--sub); line-height:1.5}
+  /* ホームタブの昇格確率タイルだけは、その場に小さく基準時刻を残す(一番誤解されやすい数字のため) */
+  .ondemand-basis-compact{margin:8px 0 0; font-size:11px; color:var(--sub)}
   /* 暫定(オンデマンド由来)であることの視覚区別。赤系(エラーと紛らわしい)は使わず琥珀系にする */
   .provisional-badge{
     display:inline-block; font-size:10px; font-weight:700; padding:2px 7px; border-radius:999px;
@@ -350,13 +386,25 @@
 
 <div id="headerWrap">
 <header>
-  <h1>Jリーグ ダッシュボード</h1>
-  <div id="deployBadge" class="deploy-badge"></div>
-  <div id="modeToggle" class="mode-toggle" role="group" aria-label="表示モード">
-    <button type="button" data-viewmode="club">クラブ</button>
-    <button type="button" data-viewmode="all">全体</button>
+  <div class="header-row1">
+    <h1>Jリーグ ダッシュボード</h1>
+    <div class="header-row1-right">
+      <button type="button" id="ondemandHeaderBtn" class="ondemand-header-btn" data-ondemand-update
+        aria-label="J1〜J3の最新結果を取得" title="J1〜J3の最新結果を取得">⟳ --:--</button>
+      <button type="button" id="ondemandInfoBtn" class="ondemand-info-btn" data-ondemand-info
+        aria-label="データの基準時刻を見る" title="データの基準時刻を見る">i</button>
+      <div id="deployBadge" class="deploy-badge"></div>
+    </div>
   </div>
-  <select id="clubSelect" aria-label="応援クラブを選ぶ"></select>
+  <div id="ondemandToast" class="ondemand-toast" hidden></div>
+  <div id="ondemandPopover" class="ondemand-popover" hidden></div>
+  <div class="header-row2">
+    <div id="modeToggle" class="mode-toggle" role="group" aria-label="表示モード">
+      <button type="button" data-viewmode="club">クラブ</button>
+      <button type="button" data-viewmode="all">全体</button>
+    </div>
+    <select id="clubSelect" aria-label="応援クラブを選ぶ"></select>
+  </div>
 </header>
 <nav id="tabbar"></nav>
 </div>
@@ -425,7 +473,8 @@ const state = {
   ondemand: {},           // league -> {fetchedAt, baseGeneratedAt, matches:{idEvent:match}} | null。未ロードはキー無し(undefined)
   ondemandRunning: false, // 取得処理の実行中フラグ(多重発火防止)
   ondemandProgress: null, // 実行中の進捗文字列("2/6")
-  ondemandMessage: null,  // 直近の結果メッセージ(「更新対象の試合がありません」等)。nullなら非表示
+  ondemandToastText: null, // ヘッダ直下のトースト文言。3〜4秒で自動的にnullへ戻す(改訂2)
+  ondemandPopoverOpen: false, // ヘッダのiボタンで開閉する「データの基準」ポップオーバー(改訂2)
   ondemandCooldownUntil: 0, // この時刻(ms epoch)まで再実行不可(連打対策・最短60秒間隔)
 };
 
@@ -809,6 +858,12 @@ async function init() {
       return;
     }
 
+    const ondemandInfoBtn = ev.target.closest("[data-ondemand-info]");
+    if (ondemandInfoBtn) {
+      toggleOndemandPopover();
+      return;
+    }
+
     const modeToggleBtn = ev.target.closest("[data-viewmode]");
     if (modeToggleBtn) {
       setViewMode(modeToggleBtn.dataset.viewmode);
@@ -1010,7 +1065,8 @@ async function renderActiveTab() {
     const newsHtml = renderNews(state.news, state.clubExtra, team, league);
     html = newsHtml || '<section><h2>ニュース</h2><div class="card"><p class="muted" style="margin:0">関連ニュースが見つかりませんでした。</p></div></section>';
   } else {
-    html = renderOndemandBar() + renderNext(mine, team, venues) + renderResults(mine, team, league) +
+    // 改訂2: 更新ボタンはホームタブから外し、ヘッダに移した(クラブ単位の操作に見えないようにするため)
+    html = renderNext(mine, team, venues) + renderResults(mine, team, league) +
       renderPromotion(cache.simulation, team, all, master.promotionRules, league) +
       renderImpactSection(cache.impact, team, master.promotionRules, league);
   }
@@ -1025,6 +1081,8 @@ async function renderActiveTab() {
   const gen = genMeta && genMeta.generatedAtJst;
   document.getElementById("footer").textContent =
     "データ取得: " + (gen ? fmtDate(gen, true) : "不明") + " ／ 出典: TheSportsDB";
+  updateOndemandHeaderBtn();
+  updateOndemandPopoverInPlace();
 }
 
 /* ---------- 全体モード(第9弾: J1〜J3横断) ---------- */
@@ -1071,6 +1129,8 @@ async function renderAllModeActiveTab() {
   const gen = genMeta && genMeta.generatedAtJst;
   document.getElementById("footer").textContent =
     "データ取得: " + (gen ? fmtDate(gen, true) : "不明") + " ／ 出典: TheSportsDB";
+  updateOndemandHeaderBtn();
+  updateOndemandPopoverInPlace();
 }
 
 /* リーグ切替(J1/J2/J3)。全体モードの順位・予想タブで共用する。既存の.seg-toggleを流用する。 */
@@ -1212,13 +1272,12 @@ function renderAllPredict(league, simulation, found) {
   }).join("");
 
   const axisHtml = '<div class="predict-axis"><span>1位</span><span>' + Math.round(n / 2) + '位</span><span>' + n + '位</span></div>';
-  const basisHtml = ondemandBasisNoteHtml(league, simulation.meta && simulation.meta.generatedAtJst);
+  // 改訂2: 基準時刻の注記はヘッダのポップオーバーに集約したため、ここには出さない
 
   return '<section><h2>' + esc(heading) + ' 予想順位</h2><div class="card">' +
     segHtml + legendHtml + rowsHtml + axisHtml +
     '<p class="promo-note">※ 帯は10000回のシミュレーションのうち中央8割が収まる順位の範囲です。</p>' +
     '<p class="promo-note">※ 開幕直後はモデルがリーグ平均に寄るため、確率の動きは実力変化を意味しません。</p>' +
-    basisHtml +
   '</div></section>';
 }
 
@@ -1357,7 +1416,7 @@ function extendCalendarRange(direction) {
 }
 
 function renderAllSchedule(calendar, found) {
-  const ondemandHtml = renderOndemandBar();
+  // 改訂2: 更新ボタンはこのタブから外し、ヘッダに移した(見た目でJ1〜J3横断だと伝えるため)
   if (state.calLeagueFilter == null) state.calLeagueFilter = loadCalLeagueFilter();
   const filterHtml = '<div class="cal-league-filter">' + Object.keys(LEAGUES).map(lg =>
     '<button type="button" class="' + (state.calLeagueFilter[lg] ? "active" : "") + '" data-calfilter="' + lg + '">' +
@@ -1365,14 +1424,14 @@ function renderAllSchedule(calendar, found) {
   ).join("") + '</div>';
 
   if (!calendar || !calendar.matches || !calendar.matches.length) {
-    return '<section><h2>日程（全体）</h2><div class="card">' + ondemandHtml + filterHtml +
+    return '<section><h2>日程（全体）</h2><div class="card">' + filterHtml +
       '<p class="muted" style="margin:10px 0 0">日程データがまだありません。</p></div></section>';
   }
 
   const ownIdTeam = found ? found.team.idTeam : null;
   const filtered = calendar.matches.filter(m => state.calLeagueFilter[m.l]);
   if (!filtered.length) {
-    return '<section><h2>日程（全体）</h2><div class="card">' + ondemandHtml + filterHtml +
+    return '<section><h2>日程（全体）</h2><div class="card">' + filterHtml +
       '<p class="muted" style="margin:10px 0 0">選択中のリーグに試合がありません。フィルタを見直してください。</p></div></section>';
   }
 
@@ -1400,7 +1459,7 @@ function renderAllSchedule(calendar, found) {
     : "";
 
   return '<section><h2>日程（全体）</h2><div class="card">' +
-    ondemandHtml + filterHtml + moreBeforeHtml +
+    filterHtml + moreBeforeHtml +
     '<div id="calDays">' + (daysHtml || '<p class="muted" style="margin:0">この期間に試合がありません。</p>') + '</div>' +
     moreAfterHtml + undatedHtml +
   '</div></section>';
@@ -1724,7 +1783,9 @@ function renderPromotion(simulation, team, allMatches, rules, league) {
 
   // 見出しも区分の有無で切り替える。autoPromotionが無いリーグ(最上位リーグ想定)は「昇格」の文字を出さない
   const heading = (rules && !rules.autoPromotion) ? "優勝・残留確率(シミュレーション)" : "昇格確率(シミュレーション)";
-  const basisHtml = ondemandBasisNoteHtml(league, simulation.meta && simulation.meta.generatedAtJst);
+  // 改訂2: 基準時刻の注記は他はヘッダのポップオーバーに集約したが、この昇格確率タイルだけは
+  // 一番誤解されやすい数字なので、その場に小さく残す(ポップオーバーを開かせない)。
+  const basisHtml = ondemandCompactBasisHtml(league, simulation.meta && simulation.meta.generatedAtJst);
 
   return '<section><h2>' + esc(heading) + '</h2><div class="card">' + tilesHtml + modeRankHtml + noteHtml + basisHtml + simulationExplainHtml() + '</div></section>';
 }
@@ -1837,13 +1898,12 @@ function renderImpactSection(impact, team, rules, league) {
 
   if (!ownHtml && !bigHtml && !smallHtml) return "";
 
-  const basisHtml = ondemandBasisNoteHtml(league, impact.meta && impact.meta.generatedAtJst);
+  // 改訂2: 基準時刻の注記はヘッダのポップオーバーに集約したため、ここには出さない
 
   return '<section><h2>今節の他会場</h2><div class="card">' +
     (ownHtml || '<p class="muted small" style="margin:0 0 10px">この期間に自クラブの試合はありません。</p>') +
     bigHtml + smallHtml +
     '<p class="promo-note">※ シミュレーション上の目安です(誤差±1ポイント程度)</p>' +
-    basisHtml +
   '</div></section>';
 }
 
@@ -2077,15 +2137,15 @@ function calendarOndemandOverride(m) {
   return (c && c.matches && c.matches[m.e]) || null;
 }
 
-/* 確率(昇格確率・他会場インパクト等)を表示する箇所に基準時刻を併記する(4章)。
-   オンデマンドキャッシュが有効なリーグでだけ出す(バッチのみの状態では冗長なため)。 */
-function ondemandBasisNoteHtml(league, generatedAtJst) {
+/* 確率(昇格確率タイル)にだけ、その場に小さく基準時刻を残す(改訂2の4章)。
+   他の箇所(全体モード予想タブ・他会場インパクト)はヘッダのポップオーバーに集約したので、
+   このコンパクト表示はホームタブの昇格確率タイルからしか呼ばない。 */
+function ondemandCompactBasisHtml(league, generatedAtJst) {
   if (!hasOndemandForLeague(league) || !generatedAtJst) return "";
-  return '<p class="ondemand-basis">※ この確率は ' + esc(fmtDate(generatedAtJst, true)) +
-    ' 時点のものです。その後アプリで取得した最新結果は反映されていません。</p>';
+  return '<p class="ondemand-basis-compact">' + esc(fmtDate(generatedAtJst, true)) + '時点</p>';
 }
 
-/* ---------- 6章: UI(更新ボタン・クールダウン・進捗) ---------- */
+/* ---------- 改訂2・6章: ヘッダのUI(更新ボタン・トースト・ポップオーバー) ---------- */
 
 function nowJstIso() {
   const fmt = new Intl.DateTimeFormat("sv-SE", {
@@ -2100,59 +2160,157 @@ function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 function ondemandRemainingSec() {
   return Math.max(0, Math.ceil((state.ondemandCooldownUntil - Date.now()) / 1000));
 }
+/* ISO日時("...THH:MM...")からHH:MMだけを取り出す。fmtDateの正規表現方式を踏襲(端末TZに依存させない)。 */
+function fmtHm(iso) {
+  const m = /T(\d{2}):(\d{2})/.exec(iso || "");
+  return m ? m[1] + ":" + m[2] : "--:--";
+}
+
+/* ヘッダに出す「表示中データの基準時刻」。読み込み済みの各リーグについて、バッチのgeneratedAtJstと
+   オンデマンドのfetchedAtのうち新しい方を集め、その最大値を返す(改訂2の4章)。
+   まだ何もリーグを読み込んでいない起動直後はnullになる。選択中クラブに紐づく値ではないため、
+   クラブを切り替えても(既に読み込み済みのリーグの範囲では)値は変わらない。 */
+function ondemandHeaderTimeInfo() {
+  let best = null;
+  for (const lg of Object.keys(LEAGUES)) {
+    const matchesData = leagueCache(lg).matches;
+    const batchGen = matchesData && matchesData.meta && matchesData.meta.generatedAtJst;
+    if (batchGen && (!best || batchGen > best.time)) best = { time: batchGen, isOndemand: false };
+    const c = ondemandActiveCacheForLeague(lg);
+    if (c && c.fetchedAt && (!best || c.fetchedAt > best.time)) best = { time: c.fetchedAt, isOndemand: true };
+  }
+  return best;
+}
+
+function ondemandHeaderBtnHtml() {
+  if (state.ondemandRunning) {
+    return "⟳ 取得中" + (state.ondemandProgress ? "…" + esc(state.ondemandProgress) : "…");
+  }
+  const remain = ondemandRemainingSec();
+  const info = ondemandHeaderTimeInfo();
+  const timeLabel = info ? fmtHm(info.time) : "--:--";
+  const dotHtml = info && info.isOndemand ? '<span class="dot"></span>' : "";
+  const cooldownLabel = remain > 0 ? "（あと" + remain + "秒）" : "";
+  return "⟳ " + esc(timeLabel) + dotHtml + esc(cooldownLabel);
+}
+function updateOndemandHeaderBtn() {
+  const btn = document.getElementById("ondemandHeaderBtn");
+  if (!btn) return;
+  btn.disabled = state.ondemandRunning || ondemandRemainingSec() > 0;
+  btn.innerHTML = ondemandHeaderBtnHtml();
+}
 
 let ondemandTickTimer = null;
 /* クールダウンの残り秒数表示だけを1秒おきに更新する。renderActiveTab()を毎秒呼ぶとスクロール位置等を
-   壊すので、ボタン要素をIDで直接書き換える(タブが切り替わっていて要素が無ければ何もしない)。 */
+   壊すので、ヘッダのボタン要素をIDで直接書き換える(要素は常にヘッダに存在するので消える心配は無い)。 */
 function ensureOndemandTicker() {
   if (ondemandTickTimer) return;
   ondemandTickTimer = setInterval(() => {
-    const remain = ondemandRemainingSec();
-    const btn = document.getElementById("ondemandBtn");
-    if (btn) {
-      btn.disabled = state.ondemandRunning || remain > 0;
-      btn.textContent = state.ondemandRunning
-        ? "更新中…" + (state.ondemandProgress ? "(" + state.ondemandProgress + ")" : "")
-        : (remain > 0 ? "更新(あと" + remain + "秒)" : "更新");
-    }
-    if (remain <= 0 && !state.ondemandRunning) {
+    updateOndemandHeaderBtn();
+    if (ondemandRemainingSec() <= 0 && !state.ondemandRunning) {
       clearInterval(ondemandTickTimer);
       ondemandTickTimer = null;
     }
   }, 500);
 }
 
-function ondemandLastUpdatedHtml() {
-  let latest = null;
-  for (const lg of Object.keys(LEAGUES)) {
-    const c = ondemandCacheForLeague(lg);
-    if (c && c.fetchedAt && (!latest || c.fetchedAt > latest)) latest = c.fetchedAt;
+/* ---------- トースト(完了メッセージ。3〜4秒で自動的に消える) ---------- */
+
+let ondemandToastTimer = null;
+function updateOndemandToastInPlace() {
+  const el = document.getElementById("ondemandToast");
+  if (!el) return;
+  if (state.ondemandToastText) {
+    el.textContent = state.ondemandToastText;
+    el.hidden = false;
+  } else {
+    el.hidden = true;
   }
-  if (!latest) return "";
-  return '<div class="ondemand-last">最終更新 ' + esc(fmtDate(latest, true)) + '（暫定・アプリから取得）</div>';
 }
-function ondemandBarInnerHtml() {
-  const remain = ondemandRemainingSec();
-  const disabled = state.ondemandRunning || remain > 0;
-  const label = state.ondemandRunning
-    ? "更新中…" + (state.ondemandProgress ? "(" + esc(state.ondemandProgress) + ")" : "")
-    : (remain > 0 ? "更新(あと" + remain + "秒)" : "更新");
-  const msgHtml = state.ondemandMessage ? '<div class="ondemand-msg">' + esc(state.ondemandMessage) + '</div>' : "";
-  return '<button type="button" id="ondemandBtn" class="btn-secondary ondemand-btn"' + (disabled ? " disabled" : "") +
-      ' data-ondemand-update>' + esc(label) + '</button>' +
-    msgHtml + ondemandLastUpdatedHtml() +
-    '<p class="ondemand-hint">※ 試合終了直後は反映されないことがあります。しばらく待って再度お試しください。</p>';
-}
-function renderOndemandBar() {
-  return '<div class="ondemand-bar" id="ondemandBar">' + ondemandBarInnerHtml() + '</div>';
-}
-function updateOndemandBarInPlace() {
-  const bar = document.getElementById("ondemandBar");
-  if (bar) bar.innerHTML = ondemandBarInnerHtml();
-  ensureOndemandTicker();
+/* autoDismiss=falseは取得中の進捗表示用(完了するまで消さない)。それ以外は3.5秒で自動的に消す。 */
+function showOndemandToast(text, autoDismiss) {
+  state.ondemandToastText = text;
+  updateOndemandToastInPlace();
+  if (ondemandToastTimer) { clearTimeout(ondemandToastTimer); ondemandToastTimer = null; }
+  if (autoDismiss !== false) {
+    ondemandToastTimer = setTimeout(() => {
+      state.ondemandToastText = null;
+      updateOndemandToastInPlace();
+    }, 3500);
+  }
 }
 
-/* ---------- 7章: 実行本体 ---------- */
+/* ---------- 「データの基準」ポップオーバー ---------- */
+
+function ondemandPopoverRowHtml(label, valueHtml) {
+  return '<div class="ondemand-popover-row"><span class="ondemand-popover-label">' + esc(label) + '</span>' +
+    '<span class="ondemand-popover-val">' + valueHtml + '</span></div>';
+}
+function ondemandPopoverInnerHtml() {
+  const found = findTeam(state.idTeam);
+  const league = found ? found.league : state.league;
+  const rows = [];
+
+  if (league) {
+    const matchesData = leagueCache(league).matches;
+    const batchGen = matchesData && matchesData.meta && matchesData.meta.generatedAtJst;
+    const ond = ondemandActiveCacheForLeague(league);
+    const resultsTime = ond ? ond.fetchedAt : batchGen;
+    rows.push(ondemandPopoverRowHtml("試合結果",
+      resultsTime ? esc(fmtDate(resultsTime, true)) + (ond ? "（アプリから取得・暫定）" : "") : "－"));
+
+    const standingsData = leagueCache(league).standings;
+    const standingsTime = ond ? ond.fetchedAt : (standingsData && standingsData.meta && standingsData.meta.generatedAtJst);
+    rows.push(ondemandPopoverRowHtml("順位",
+      standingsTime ? esc(fmtDate(standingsTime, true)) + (ond ? "（暫定・当該チーム間比較なし）" : "") : "－"));
+
+    const simData = leagueCache(league).simulation;
+    const simTime = simData && simData.meta && simData.meta.generatedAtJst;
+    rows.push(ondemandPopoverRowHtml("昇格確率",
+      simTime ? esc(fmtDate(simTime, true)) + "（次回のバッチで更新）" : "－"));
+  }
+
+  const newsTime = state.news && state.news.meta && state.news.meta.generatedAtJst;
+  rows.push(ondemandPopoverRowHtml("ニュース", newsTime ? esc(fmtDate(newsTime, true)) : "－"));
+
+  return '<h4>データの基準</h4>' + rows.join("") +
+    '<p class="ondemand-popover-hint">※ 試合終了直後は反映されないことがあります。しばらく待って再度お試しください。</p>';
+}
+function updateOndemandPopoverInPlace() {
+  const el = document.getElementById("ondemandPopover");
+  if (!el) return;
+  if (state.ondemandPopoverOpen) {
+    el.innerHTML = ondemandPopoverInnerHtml();
+    el.hidden = false;
+  } else {
+    el.hidden = true;
+  }
+}
+/* ポップオーバーはニュースの生成時刻も出すため、開いたタイミングでニュースを遅延ロードしておく
+   (ニュースタブを一度も開いていない場合、state.newsはundefinedのまま=「－」表示になるため)。 */
+async function toggleOndemandPopover() {
+  state.ondemandPopoverOpen = !state.ondemandPopoverOpen;
+  if (state.ondemandPopoverOpen && state.news === undefined) {
+    await ensureNews();
+  }
+  updateOndemandPopoverInPlace();
+}
+
+/* ---------- 改訂2・7章: 実行本体 ---------- */
+
+/* 6パターンの完了メッセージ(改訂2の3章の表)。「J1〜J3」という文字列を必ず含めることで、
+   このボタンが選択中クラブだけでなく全リーグ対象であることを1回見れば分かるようにする。
+   一部失敗のときだけ、実際に成功したリーグ名を具体的に列挙する。 */
+function ondemandOutcomeMessage(attemptedLeagues, succeededLeagues, changedCount) {
+  if (succeededLeagues.size === 0) return "更新できませんでした";
+  if (succeededLeagues.size < attemptedLeagues.size) {
+    const order = ["j1", "j2", "j3"];
+    const labels = order.filter(lg => succeededLeagues.has(lg)).map(lg => LEAGUES[lg].name);
+    return "一部のリーグを取得できませんでした（" + labels.join("・") + " のみ更新）";
+  }
+  if (changedCount > 0) return "J1〜J3 の最新結果を取得しました（" + changedCount + "試合更新）";
+  return "最新でした（更新なし）";
+}
 
 /* 3リーグぶんの対象節を決め、逐次(300ms間隔)取得してマージする。
    失敗(ネットワーク/CORS/パース失敗)しても例外を投げない(getJsonOptionalと同じ流儀の上に構築)。
@@ -2160,9 +2318,8 @@ function updateOndemandBarInPlace() {
 async function runOndemandUpdate() {
   if (state.ondemandRunning || ondemandRemainingSec() > 0) return;
   state.ondemandRunning = true;
-  state.ondemandMessage = null;
   state.ondemandProgress = null;
-  updateOndemandBarInPlace();
+  updateOndemandHeaderBtn();
 
   try {
     for (const lg of Object.keys(LEAGUES)) await ensureMatches(lg);
@@ -2175,16 +2332,18 @@ async function runOndemandUpdate() {
     }
 
     if (!plan.length) {
-      state.ondemandMessage = "更新対象の試合がありません。";
+      showOndemandToast("いま更新対象の試合がありません");
       return;
     }
 
+    const attemptedLeagues = new Set(plan.map(p => p.league));
+    const succeededLeagues = new Set();
     const perLeagueIncoming = {};
-    let anySuccess = false;
     for (let i = 0; i < plan.length; i++) {
       const { league, round } = plan[i];
       state.ondemandProgress = (i + 1) + "/" + plan.length;
-      updateOndemandBarInPlace();
+      updateOndemandHeaderBtn();
+      showOndemandToast("J1〜J3 を取得中… " + state.ondemandProgress, false);
       if (i > 0) await sleep(ONDEMAND_REQUEST_GAP_MS);
 
       const master = state.masters[league];
@@ -2193,30 +2352,44 @@ async function runOndemandUpdate() {
       const json = await getJsonOptional(url);
       const parsed = parseEvents(json, master, master.meta.season);
       if (parsed == null) continue; // 失敗。このぶんは捨てて既存データを維持する
-      anySuccess = true;
+      succeededLeagues.add(league);
       (perLeagueIncoming[league] = perLeagueIncoming[league] || []).push(...parsed);
     }
 
+    // 実際に中身が変わった試合数を数える(「更新あり」/「更新なし」の判定用)。
+    // 比較対象は、この回の取得直前に有効だった値(オンデマンドの前回値、無ければバッチの値)。
+    let changedCount = 0;
     const fetchedAt = nowJstIso();
     for (const league of Object.keys(perLeagueIncoming)) {
       const matchesData = leagueCache(league).matches;
       const batchGen = matchesData && matchesData.meta && matchesData.meta.generatedAtJst;
+      const batchById = {};
+      for (const bm of (matchesData && matchesData.matches) || []) batchById[bm.idEvent] = bm;
       const prev = ondemandActiveCacheForLeague(league); // 陳腐化していれば既にnull化されている
-      const nextMap = Object.assign({}, (prev && prev.matches) || {});
-      for (const m of perLeagueIncoming[league]) nextMap[m.idEvent] = m;
+      const prevMap = (prev && prev.matches) || {};
+      const nextMap = Object.assign({}, prevMap);
+      for (const m of perLeagueIncoming[league]) {
+        const before = prevMap[m.idEvent] || batchById[m.idEvent];
+        const isDifferent = !before || before.finished !== m.finished || before.status !== m.status ||
+          (before.home && before.home.score) !== m.home.score || (before.away && before.away.score) !== m.away.score;
+        if (isDifferent) changedCount++;
+        nextMap[m.idEvent] = m;
+      }
       const data = { fetchedAt, baseGeneratedAt: batchGen || null, matches: nextMap };
       state.ondemand[league] = data;
       saveOndemandCache(league, data);
     }
 
-    state.ondemandMessage = anySuccess ? null : "更新できませんでした。しばらくしてからもう一度お試しください。";
+    showOndemandToast(ondemandOutcomeMessage(attemptedLeagues, succeededLeagues, changedCount));
   } catch (e) {
-    state.ondemandMessage = "更新できませんでした。";
+    showOndemandToast("更新できませんでした");
   } finally {
     state.ondemandCooldownUntil = Date.now() + ONDEMAND_MIN_INTERVAL_MS;
     state.ondemandRunning = false;
     state.ondemandProgress = null;
     ensureOndemandTicker();
+    updateOndemandHeaderBtn();
+    updateOndemandPopoverInPlace();
     renderActiveTab();
   }
 }
