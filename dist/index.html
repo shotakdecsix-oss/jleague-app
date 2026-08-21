@@ -29,18 +29,27 @@
   #headerWrap{position:sticky; top:0; z-index:10}
   header{
     background:var(--accent); color:var(--accent-ink); /* 1stカラーのベタ塗り */
-    padding:20px 16px 18px;
+    padding:12px 14px;
     box-shadow:0 1px 6px rgba(0,0,0,.15);
+    position:relative; /* トースト/ポップオーバーをこの下端にオーバーレイ表示するための基準 */
   }
   /* ヘッダを役割で2段に分ける(第10弾改訂2): 上段=アプリ全体・データの状態、下段=表示対象の選択 */
-  .header-row1{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px}
-  header h1{margin:0; font-size:15px; font-weight:600; letter-spacing:.04em; opacity:.9}
-  .header-row1-right{display:flex; align-items:center; gap:6px}
+  .header-row1{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px}
+  /* h1はflexアイテムとして縮む対象になる。右側のボタン群(⟳/i/deployBadge)で幅が圧迫されると、
+     white-spaceの指定が無いと日本語は任意の位置で改行できるため1文字ずつ縦に積まれてしまう。
+     flex:1 1 auto + min-width:0 + white-space:nowrap + overflow:hidden の4点セットで
+     「入らなければ末尾を…で省略」という単一行の挙動にする(改訂: fix-header-layout)。 */
+  header h1{
+    margin:0; font-size:15px; font-weight:600; letter-spacing:.04em; opacity:.9;
+    flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .header-row1-right{display:flex; align-items:center; gap:6px; flex:none}
   /* デプロイ日時・バージョンのデバッグ表示。目立たせない(色はh1と同じaccent-ink継承、不透明度だけ落とす)。
      狭い画面では優先度が低いので隠す(更新ボタンは常に出す)。 */
   .deploy-badge{font-size:9px; opacity:.55; letter-spacing:.02em; white-space:nowrap}
-  @media (max-width:360px){ .deploy-badge{display:none} }
+  @media (max-width:360px){ .deploy-badge{display:none} header h1{font-size:13px} }
   .header-row2{display:flex; gap:8px; align-items:center}
+  .header-row2 select{flex:1; min-width:0; padding:8px 12px} /* 本文中の汎用select{padding:10px 12px}をヘッダ内だけ上書き */
   /* モード切替(クラブ/全体)。タブバーと同じ2ndカラーのベタ塗りの上に、さらに一段浮かせた見た目にする */
   .mode-toggle{display:flex; gap:6px; flex:none; width:120px}
   .mode-toggle button{
@@ -49,7 +58,6 @@
     border-radius:999px; cursor:pointer; font-family:inherit;
   }
   .mode-toggle button.active{background:#fff; color:var(--accent); opacity:1; border-color:#fff}
-  .header-row2 select{flex:1; min-width:0}
   @media (max-width:360px){ .mode-toggle{width:96px} .mode-toggle button{font-size:11px; padding:7px 2px} }
 
   #tabbar{
@@ -355,12 +363,17 @@
     background:rgba(255,255,255,.08); color:var(--accent-ink); font-size:11px; font-weight:700;
     font-style:italic; cursor:pointer; font-family:inherit; opacity:.85;
   }
+  /* headerの通常フローに置くと、表示/非表示のたびにヘッダの高さが変わり下のコンテンツが飛ぶ
+     (stickyヘッダなので特に目立つ)。header{position:relative}を基準にオーバーレイ表示する
+     (改訂: fix-header-layout)。#headerWrapのposition/z-indexはタブバー固定に関わるため触らない。 */
   .ondemand-toast{
-    margin:0 0 10px; padding:8px 12px; border-radius:10px; background:rgba(0,0,0,.28);
+    position:absolute; top:100%; left:12px; right:12px; z-index:20;
+    margin:6px 0 0; padding:8px 12px; border-radius:10px; background:rgba(0,0,0,.28);
     color:var(--accent-ink); font-size:12px; font-weight:600; text-align:center;
   }
   .ondemand-popover{
-    margin:0 0 10px; padding:12px 14px; border-radius:var(--radius); background:#fff; color:var(--ink);
+    position:absolute; top:100%; left:12px; right:12px; z-index:20;
+    margin:6px 0 0; padding:12px 14px; border-radius:var(--radius); background:#fff; color:var(--ink);
     box-shadow:0 4px 16px rgba(0,0,0,.18); font-size:12px;
   }
   .ondemand-popover h4{margin:0 0 8px; font-size:11px; font-weight:700; color:var(--sub); letter-spacing:.06em}
