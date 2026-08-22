@@ -1,161 +1,161 @@
 """
-scripts/fetch_batch.py のオフラインテスト(第11弾: 増分取得ロジック)。
-ネットワーク不要。python scripts/test_fetch_batch.py で実行する。
+scripts/fetch_batch.py のオフラインテスト(マージ処理と激減ガード)。
+python scripts/test_fetch_batch.py で実行する(pytest不使用、標準ライブラリのみ)。
+
+2026-08-21、増分取得が「取得した節だけ」でmatches.jsonを丸ごと上書きし、
+380件→40件に激減させる事故が起きた。ここはそのリグレッションテスト。
 """
 
 from __future__ import annotations
 
-import json
 import sys
-import tempfile
-from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import fetch_batch as fetch_batch_module  # noqa: E402
-from fetch_batch import determine_incremental_rounds, load_existing_matches  # noqa: E402
 
-JST = timezone(timedelta(hours=9))
-NOW = datetime(2026, 8, 21, 12, 0, 0, tzinfo=JST)
+import fetch_batch  # noqa: E402
 
 
-def M(round_no, kickoff, finished):
-    return {"round": round_no, "kickoffJst": kickoff, "finished": finished}
+def _m(id_event: str, round_no: int, kickoff: str = "2026-08-22T14:00:00+09:00", score=None) -> dict:
+    return {
+        "idEvent": id_event,
+        "round": round_no,
+        "kickoffJst": kickoff,
+        "finished": score is not None,
+        "home": {"idTeam": "100", "short": "湘南", "score": score},
+        "away": {"idTeam": "200", "short": "千葉", "score": None},
+    }
 
 
-def test_no_existing_data_falls_back_to_full_fetch() -> None:
-    """既存データが無ければ(初回実行)、全節取得(None)にフォールバックすること。"""
-    assert determine_incremental_rounds(None, NOW) is None
-    assert determine_incremental_rounds([], NOW) is None
-    print("OK: 既存データが無ければNone(全節取得)にフォールバックする")
+def _season(rounds: int = 38, per_round: int = 10) -> list[dict]:
+    """38節x10試合=380件の擬似シーズン。"""
+    out = []
+    for r in range(1, rounds + 1):
+        for i in range(per_round):
+            out.append(_m(f"{r:02d}{i:02d}", r, f"2026-08-{(r % 28) + 1:02d}T14:00:00+09:00"))
+    return out
 
 
-def test_unfinished_within_window_is_included() -> None:
-    """未消化試合のうち、kickoffJstが+14日以内の節が対象に入ること。"""
-    matches = [M(5, "2026-08-25T14:00:00+09:00", False)]  # 4日後
-    assert determine_incremental_rounds(matches, NOW) == [5]
-    print("OK: 14日以内の未消化試合の節が対象に入る")
+# ---------- merge_matches ----------
+
+def test_merge_keeps_untouched_rounds():
+    """本命のリグレッション: 2〜5節だけ取得しても全380件が維持されること。"""
+    existing = _season()
+    assert len(existing) == 380
+    fetched = [m for m in existing if 2 <= m["round"] <= 5]
+    merged = fetch_batch.merge_matches(existing, fetched, [2, 3, 4, 5])
+    assert len(merged) == 380, f"380件でなく{len(merged)}件になった"
+    assert {m["round"] for m in merged} == set(range(1, 39))
 
 
-def test_unfinished_beyond_window_is_excluded() -> None:
-    """kickoffJstが+14日を超える未消化試合の節は対象外であること。"""
-    matches = [
-        M(5, "2026-08-25T14:00:00+09:00", False),   # 4日後 -> 対象
-        M(6, "2026-09-20T14:00:00+09:00", False),   # 30日後 -> 対象外
+def test_merge_updates_scores_in_fetched_rounds():
+    existing = _season()
+    target = next(m for m in existing if m["round"] == 3)
+    fetched = [dict(m) for m in existing if m["round"] == 3]
+    for m in fetched:
+        m["home"] = {"idTeam": "100", "short": "湘南", "score": 2}
+        m["finished"] = True
+    merged = fetch_batch.merge_matches(existing, fetched, [3])
+    updated = next(m for m in merged if m["idEvent"] == target["idEvent"])
+    assert updated["finished"] is True
+    assert updated["home"]["score"] == 2
+    assert len(merged) == 380
+
+
+def test_merge_deletes_match_removed_within_fetched_round():
+    """取得できた節の中で消えた試合は、本物の日程削除として消える。"""
+    existing = _season()
+    fetched = [m for m in existing if m["round"] == 3][:-1]
+    merged = fetch_batch.merge_matches(existing, fetched, [3])
+    assert len(merged) == 379
+    assert len([m for m in merged if m["round"] == 3]) == 9
+
+
+def test_merge_does_not_delete_matches_outside_fetched_rounds():
+    """取得していない節の試合は、fetchedに無くても消えない。"""
+    existing = _season()
+    merged = fetch_batch.merge_matches(existing, [], [])
+    assert len(merged) == 380, "1節も取得できなかったときに既存を消してはいけない"
+
+
+def test_merge_without_existing_returns_fetched():
+    fetched = [_m("0101", 1)]
+    assert fetch_batch.merge_matches(None, fetched, [1]) == fetched
+    assert fetch_batch.merge_matches([], fetched, [1]) == fetched
+
+
+def test_merge_handles_round_change_without_duplicating():
+    """節が振り替えられた試合が、idEventキーで1件に収束すること。"""
+    existing = [_m("0101", 3, "2026-08-22T14:00:00+09:00")]
+    fetched = [_m("0101", 4, "2026-09-05T14:00:00+09:00")]
+    merged = fetch_batch.merge_matches(existing, fetched, [4])
+    assert len(merged) == 1
+    assert merged[0]["round"] == 4
+
+
+def test_merge_sorts_by_kickoff_with_tbd_last():
+    fetched = [
+        _m("b", 1, "2026-08-23T14:00:00+09:00"),
+        dict(_m("c", 1), kickoffJst=None),
+        _m("a", 1, "2026-08-22T14:00:00+09:00"),
     ]
-    assert determine_incremental_rounds(matches, NOW) == [5]
-    print("OK: 14日を超える未消化試合の節は対象外")
+    merged = fetch_batch.merge_matches([_m("z", 9)], fetched, [1])
+    ids = [m["idEvent"] for m in merged]
+    assert ids[-1] == "c", ids
+    assert ids.index("a") < ids.index("b")
 
 
-def test_most_recently_finished_round_is_included() -> None:
-    """直近で消化された試合の節が(スコア訂正回収用に)対象に入ること。"""
-    matches = [
-        M(3, "2026-08-08T14:00:00+09:00", True),
-        M(4, "2026-08-15T14:00:00+09:00", True),  # こちらが直近(より新しい)
-    ]
-    assert determine_incremental_rounds(matches, NOW) == [4]
-    print("OK: 直近で消化された試合の節が対象に入る")
+# ---------- 激減ガード ----------
+
+def test_shrink_guard_blocks_large_drop():
+    existing = _season()
+    merged = [m for m in existing if m["round"] <= 4]
+    assert fetch_batch.check_not_shrunk("j1", existing, merged, allow_shrink=False) is False
 
 
-def test_union_of_pending_window_and_latest_finished() -> None:
-    """未消化(窓内)の節と直近消化節の和集合になること。"""
-    matches = [
-        M(3, "2026-08-08T14:00:00+09:00", True),
-        M(4, "2026-08-15T14:00:00+09:00", True),   # 直近消化
-        M(5, "2026-08-25T14:00:00+09:00", False),  # 窓内の未消化
-        M(6, "2026-09-30T14:00:00+09:00", False),  # 窓外
-    ]
-    assert determine_incremental_rounds(matches, NOW) == [4, 5]
-    print("OK: 直近消化節と窓内未消化節の和集合になる(重複無く昇順)")
+def test_shrink_guard_allows_small_drop():
+    existing = _season()
+    merged = existing[:-1]
+    assert fetch_batch.check_not_shrunk("j1", existing, merged, allow_shrink=False) is True
 
 
-def test_empty_union_falls_back_to_earliest_pending_round() -> None:
-    """
-    和集合が空(未消化が全部窓外、消化済み試合が無い=開幕前)なら、
-    最小1節(未消化の中でキックオフが最も早い節)を取ること。
-    """
-    matches = [
-        M(2, "2026-10-01T14:00:00+09:00", False),
-        M(1, "2026-09-25T14:00:00+09:00", False),  # こちらが最も早い
-    ]
-    assert determine_incremental_rounds(matches, NOW) == [1]
-    print("OK: 和集合が空なら、未消化の中で最も早い節にフォールバックする")
+def test_shrink_guard_can_be_overridden():
+    existing = _season()
+    merged = existing[:40]
+    assert fetch_batch.check_not_shrunk("j1", existing, merged, allow_shrink=True) is True
 
 
-def test_all_finished_and_far_outside_window_uses_latest_finished() -> None:
-    """全試合消化済み(シーズン終了)なら、直近消化節(最終節)が対象になること。"""
-    matches = [
-        M(37, "2027-05-30T14:00:00+09:00", True),
-        M(38, "2027-06-06T14:00:00+09:00", True),
-    ]
-    assert determine_incremental_rounds(matches, NOW) == [38]
-    print("OK: 全消化済みなら直近消化節(最終節)が対象になる")
+def test_shrink_guard_skipped_on_first_run():
+    merged = _season()
+    assert fetch_batch.check_not_shrunk("j1", None, merged, allow_shrink=False) is True
 
 
-def test_no_kickoff_and_no_finished_does_not_crash() -> None:
-    """kickoffJstが無く消化試合も無い場合でも例外にならないこと(未消化の先頭節にフォールバックする)。"""
-    matches = [M(1, None, False), M(2, None, False)]
-    result = determine_incremental_rounds(matches, NOW)
-    assert result == [1], result
-    print("OK: kickoffJst無し・消化試合無しでも例外にならない")
+# ---------- 期待試合数 ----------
 
-
-def test_no_pending_and_no_finished_falls_back_to_max_round() -> None:
-    """
-    未消化試合が1件も無く(pendingが空)、消化済み試合も無い(finishedが空)という
-    保険的な最終フォールバックのケースでも例外にならず、存在する節の最大値を返すこと。
-    実データでは起こらない想定(finished=trueならkickoffJstは必ず入る)だが、防御的にテストしておく。
-    """
-    matches = [{"round": 1, "kickoffJst": None, "finished": True}, {"round": 3, "kickoffJst": None, "finished": True}]
-    result = determine_incremental_rounds(matches, NOW)
-    assert result == [3], result
-    print("OK: pending/finishedとも空という保険的ケースでも最大の節にフォールバックする")
-
-
-def test_load_existing_matches_missing_file_returns_none() -> None:
-    with tempfile.TemporaryDirectory() as td:
-        orig = fetch_batch_module.PROCESSED_DIR
-        fetch_batch_module.PROCESSED_DIR = Path(td)
-        try:
-            assert load_existing_matches("j2") is None
-        finally:
-            fetch_batch_module.PROCESSED_DIR = orig
-    print("OK: {league}_matches.jsonが無ければload_existing_matchesはNoneを返す")
-
-
-def test_load_existing_matches_reads_matches_array() -> None:
-    with tempfile.TemporaryDirectory() as td:
-        tmp = Path(td)
-        (tmp / "j2_matches.json").write_text(
-            json.dumps({"meta": {}, "matches": [{"round": 1}]}), encoding="utf-8"
-        )
-        orig = fetch_batch_module.PROCESSED_DIR
-        fetch_batch_module.PROCESSED_DIR = tmp
-        try:
-            result = load_existing_matches("j2")
-            assert result == [{"round": 1}], result
-        finally:
-            fetch_batch_module.PROCESSED_DIR = orig
-    print("OK: load_existing_matchesは既存ファイルのmatches配列を読む")
+def test_expected_match_count_matches_real_master():
+    for league in ("j1", "j2", "j3"):
+        assert fetch_batch.expected_match_count(league) == 380, league
 
 
 def main() -> None:
-    tests = [
-        test_no_existing_data_falls_back_to_full_fetch,
-        test_unfinished_within_window_is_included,
-        test_unfinished_beyond_window_is_excluded,
-        test_most_recently_finished_round_is_included,
-        test_union_of_pending_window_and_latest_finished,
-        test_empty_union_falls_back_to_earliest_pending_round,
-        test_all_finished_and_far_outside_window_uses_latest_finished,
-        test_no_kickoff_and_no_finished_does_not_crash,
-        test_no_pending_and_no_finished_falls_back_to_max_round,
-        test_load_existing_matches_missing_file_returns_none,
-        test_load_existing_matches_reads_matches_array,
-    ]
-    for t in tests:
-        t()
-    print(f"\n全{len(tests)}件OK")
+    tests = [(name, fn) for name, fn in sorted(globals().items()) if name.startswith("test_") and callable(fn)]
+    failed = []
+    for name, fn in tests:
+        try:
+            fn()
+            print(f"OK   {name}")
+        except AssertionError as e:
+            failed.append(name)
+            print(f"FAIL {name}: {e}")
+        except Exception as e:  # noqa: BLE001
+            failed.append(name)
+            print(f"ERROR {name}: {type(e).__name__}: {e}")
+
+    print()
+    if failed:
+        print(f"{len(failed)}/{len(tests)}件失敗: {failed}")
+        sys.exit(1)
+    print(f"全{len(tests)}件OK")
 
 
 if __name__ == "__main__":

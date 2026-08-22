@@ -267,6 +267,57 @@ def test_build_all_disappeared_match_becomes_cancelled_and_persists():
             _restore(orig)
 
 
+def test_build_all_aborts_on_mass_cancellation_without_touching_state():
+    """大量キャンセルガード: 上限超えならics_state.jsonを書き換えず中断する(2026-08-21の事故対策)。"""
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        many = [_match(id_event=str(2000 + i)) for i in range(build_ics.MAX_NEW_CANCELLED + 1)]
+        orig = _setup_fixture(tmp, many)
+        try:
+            build_ics.build_all(dist_dir=tmp / "dist")
+            before = build_ics.ICS_STATE_PATH.read_text(encoding="utf-8")
+
+            _write_json(build_ics.PROCESSED_DIR / "j2_matches.json", {"matches": []})
+            raised = False
+            try:
+                build_ics.build_all(dist_dir=tmp / "dist")
+            except build_ics.MassCancellationError:
+                raised = True
+            assert raised, "MassCancellationErrorが送出されるべき"
+
+            after = build_ics.ICS_STATE_PATH.read_text(encoding="utf-8")
+            assert before == after, "中断時はics_state.jsonを書き換えてはいけない"
+            state = json.loads(after)
+            assert all(e["status"] == "CONFIRMED" for e in state.values())
+            assert all(e["seq"] == 0 for e in state.values())
+        finally:
+            _restore(orig)
+
+
+def test_build_all_restores_cancelled_event_to_confirmed_with_seq_bump():
+    """復旧経路: CANCELLEDにした試合がmatchesに戻ったらCONFIRMEDに戻り、seqが+1される。"""
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        orig = _setup_fixture(tmp, [_match()])
+        try:
+            build_ics.build_all(dist_dir=tmp / "dist")
+            _write_json(build_ics.PROCESSED_DIR / "j2_matches.json", {"matches": []})
+            build_ics.build_all(dist_dir=tmp / "dist")
+            state = json.loads(build_ics.ICS_STATE_PATH.read_text(encoding="utf-8"))
+            assert state["1001"]["status"] == "CANCELLED" and state["1001"]["seq"] == 1
+
+            _write_json(build_ics.PROCESSED_DIR / "j2_matches.json", {"matches": [_match()]})
+            build_ics.build_all(dist_dir=tmp / "dist")
+            state = json.loads(build_ics.ICS_STATE_PATH.read_text(encoding="utf-8"))
+            assert state["1001"]["status"] == "CONFIRMED", state["1001"]
+            assert state["1001"]["seq"] == 2, state["1001"]
+            ics_text = (tmp / "dist" / "ics" / "100.ics").read_text(encoding="utf-8")
+            assert "SEQUENCE:2" in ics_text
+            assert "STATUS:CONFIRMED" in ics_text
+        finally:
+            _restore(orig)
+
+
 def test_build_all_zero_matches_gives_empty_calendars_no_crash():
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)

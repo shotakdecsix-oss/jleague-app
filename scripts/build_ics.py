@@ -285,6 +285,16 @@ def write_club_ics(dist_ics_dir: Path, team: dict, season: str, state: dict, now
     (dist_ics_dir / f"{tid}.ics").write_text(text, encoding="utf-8", newline="")
 
 
+# 1回の生成で新たにCANCELLEDにしてよいイベント数の上限(2026-08-21の事故対策)。
+# 日程変更でこの規模がまとめて消えることはない。超えたらmatches側の異常なので、
+# ics_state.jsonを書き換えず(=SEQUENCEを上げず)に止める。
+MAX_NEW_CANCELLED = 20
+
+
+class MassCancellationError(RuntimeError):
+    """一度に大量のイベントをCANCELLEDにしようとしたとき送出する。"""
+
+
 def build_all(dist_dir: Path = DIST_DIR) -> tuple[int, int]:
     """
     全リーグを処理し、ics_state.jsonを更新して dist_dir/ics/ に全クラブぶんのicsを書く。
@@ -309,14 +319,25 @@ def build_all(dist_dir: Path = DIST_DIR) -> tuple[int, int]:
             resolved = resolve_event(lg, m, home_team, master)
             update_state_entry(state, id_event, resolved)
 
-    cancelled_count = 0
-    for id_event, entry in state.items():
-        if id_event in current_event_ids:
-            continue
-        if entry.get("status") != "CANCELLED":
-            entry["status"] = "CANCELLED"
-            entry["seq"] = entry.get("seq", 0) + 1
-            cancelled_count += 1
+    # 先に「今回CANCELLEDにする対象」を数え、上限を超えていたらstateを保存せずに中断する。
+    # (present側のupsertでstateは既に書き換わっているが、保存しないので実害は無い)
+    to_cancel = [
+        id_event
+        for id_event, entry in state.items()
+        if id_event not in current_event_ids and entry.get("status") != "CANCELLED"
+    ]
+    if len(to_cancel) > MAX_NEW_CANCELLED:
+        raise MassCancellationError(
+            f"今回CANCELLEDにしようとしたイベントが{len(to_cancel)}件で、"
+            f"上限{MAX_NEW_CANCELLED}件を超えました。matches側が壊れている可能性が高いため、"
+            f"ics_state.jsonを更新せずに中断します。"
+        )
+
+    for id_event in to_cancel:
+        entry = state[id_event]
+        entry["status"] = "CANCELLED"
+        entry["seq"] = entry.get("seq", 0) + 1
+    cancelled_count = len(to_cancel)
 
     save_ics_state(state)
 
@@ -336,7 +357,11 @@ def build_all(dist_dir: Path = DIST_DIR) -> tuple[int, int]:
 
 
 def main() -> None:
-    club_count, cancelled_count = build_all()
+    try:
+        club_count, cancelled_count = build_all()
+    except MassCancellationError as e:
+        print(f"[error] {e}", file=sys.stderr)
+        sys.exit(1)
     print(
         f"[info] {DIST_DIR / 'ics'} に{club_count}クラブぶんのicsを生成 "
         f"(今回新たにCANCELLEDにしたイベント: {cancelled_count})"

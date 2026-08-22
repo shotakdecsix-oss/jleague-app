@@ -127,6 +127,71 @@ def determine_incremental_rounds(matches: list[dict] | None, now: datetime) -> l
     return sorted(rounds) if rounds else None
 
 
+# 増分取得の結果を書き出す前の安全弁(2026-08-21の事故対策)。
+# 既存より件数が大きく減ったら、マージ漏れかデータ異常なので書き出さずに止める。
+SHRINK_GUARD_RATIO = 0.9
+
+
+def merge_matches(
+    existing: list[dict] | None, fetched: list[dict], ok_rounds: list[int] | None
+) -> list[dict]:
+    """
+    取得結果を既存データにマージする(第11弾の増分取得で必須)。
+
+    - ok_rounds(今回きちんと取得できた節)に属する試合は、取得結果で完全に置き換える。
+      その節は正常に取れているので、レスポンスに無い試合は本物の日程削除とみなして消す。
+    - ok_rounds に含まれない節の試合は、そのまま残す。
+      取得していない/取得に失敗した節なので、消える理由が無い。
+    - 既存が無い(初回)場合は取得結果をそのまま採用する。
+
+    ここを実装せず「取得した節だけ」で丸ごと上書きしていたため、2026-08-21に
+    j1_matches.jsonが380件→40件になり、順位・昇格確率・icsまで壊れる事故が起きた。
+    全節取得のときも ok_rounds を使うのが安全で、一部の節が取得失敗しても既存を失わない。
+    """
+    if not existing:
+        return fetched
+    covered = set(ok_rounds or [])
+    if not covered:
+        # 1節も取得できていない。既存を壊さないために既存をそのまま返す。
+        return list(existing)
+    merged: dict[str, dict] = {
+        m["idEvent"]: m for m in existing if m.get("round") not in covered
+    }
+    for m in fetched:
+        merged[m["idEvent"]] = m  # 節が変わった試合も idEvent キーで上書きされる
+    return sorted(merged.values(), key=lambda m: m["kickoffJst"] or "9999")
+
+
+def check_not_shrunk(
+    league: str, existing: list[dict] | None, merged: list[dict], allow_shrink: bool
+) -> bool:
+    """件数が既存の SHRINK_GUARD_RATIO 倍を下回っていないか検査する。Falseなら書き出してはいけない。"""
+    if not existing:
+        return True
+    if len(merged) >= len(existing) * SHRINK_GUARD_RATIO:
+        return True
+    msg = (
+        f"league={league}: 試合数が {len(existing)}件 -> {len(merged)}件 に激減しました。"
+        f"マージ漏れかデータ異常の可能性が高いため書き出しません。"
+    )
+    if allow_shrink:
+        print(f"[warn] {msg} (--allow-shrink 指定のため続行します)", file=sys.stderr)
+        return True
+    print(f"[error] {msg} 意図的な場合は --allow-shrink を付けてください。", file=sys.stderr)
+    return False
+
+
+def expected_match_count(league: str) -> int | None:
+    """マスタから期待される総試合数(38節 x クラブ数/2)。検算用。"""
+    try:
+        teams = load_master_raw_teams(league)
+    except (OSError, KeyError, json.JSONDecodeError):
+        return None
+    if not teams:
+        return None
+    return TOTAL_ROUNDS * (len(teams) // 2)
+
+
 def load_master_raw_teams(league: str) -> list[dict]:
     raw = json.loads(LEAGUES[league]["master"].read_text(encoding="utf-8"))
     return raw["teams"]
@@ -318,6 +383,11 @@ def main() -> None:
         help="既存データから取得すべき節をリーグごとに自動判定する(第11弾。--roundsとは併用不可)",
     )
     parser.add_argument("--sleep-between", type=float, default=DEFAULT_SLEEP_BETWEEN)
+    parser.add_argument(
+        "--allow-shrink",
+        action="store_true",
+        help="試合数が激減しても書き出す(通常は使わない。激減ガードの明示的な解除)",
+    )
     args = parser.parse_args()
 
     if args.incremental and args.rounds:
@@ -334,8 +404,9 @@ def main() -> None:
     had_failure = False
 
     for league in target_leagues:
+        existing = load_existing_matches(league)
         if args.incremental:
-            rounds = determine_incremental_rounds(load_existing_matches(league), datetime.now(JST))
+            rounds = determine_incremental_rounds(existing, datetime.now(JST))
         else:
             rounds = fixed_rounds
         print(f"\n=== {league} 取得開始 (rounds={rounds or f'1-{TOTAL_ROUNDS}'}) ===")
@@ -361,6 +432,21 @@ def main() -> None:
                 file=sys.stderr,
             )
             continue
+
+        # 取得できた節ぶんだけを既存にマージする(丸ごと上書きしない)
+        proc["matches"] = merge_matches(existing, proc["matches"], fr.ok_rounds)
+
+        if not check_not_shrunk(league, existing, proc["matches"], args.allow_shrink):
+            had_failure = True
+            continue
+
+        expected = expected_match_count(league)
+        if expected is not None and len(proc["matches"]) != expected:
+            print(
+                f"[warn] league={league}: 試合数 {len(proc['matches'])}件 "
+                f"(期待値 {expected}件と不一致)。日程差し替え中でなければ調査すること。",
+                file=sys.stderr,
+            )
 
         write_league_output(league, proc)
 

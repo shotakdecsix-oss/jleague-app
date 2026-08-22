@@ -137,7 +137,13 @@ def build_ics_calendars() -> None:
     build_ics.pyにdist直下へ直接書かせる(ソースツリーに60ファイルをコミットしたくないため)。
     SEQUENCE永続化用のdata/history/ics_state.jsonは、副作用としてこの呼び出し中にリポジトリ側で更新される。
     """
-    club_count, cancelled_count = build_ics.build_all(dist_dir=DIST_DIR)
+    try:
+        club_count, cancelled_count = build_ics.build_all(dist_dir=DIST_DIR)
+    except build_ics.MassCancellationError as e:
+        # 大量キャンセルガード発動。ics_state.jsonは書き換わっていない。
+        # ここで止めないと壊れたicsをdistに出してしまう。
+        print(f"[error] {e}", file=sys.stderr)
+        sys.exit(1)
     print(f"[info] カレンダー(.ics)を生成: {club_count}クラブ (今回新たにCANCELLEDにしたイベント: {cancelled_count})")
 
 
