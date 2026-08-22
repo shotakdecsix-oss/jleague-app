@@ -413,6 +413,7 @@
   .live-updated{margin-top:8px; text-align:center; font-size:11px; color:var(--sub)}
   .cal-row.live{background:#fff7ed}
   .cal-row.live .cal-time{color:#c2410c; font-weight:800}
+  .sched-row.live{background:#fff7ed}
 
   /* 第13弾: 試合詳細(得点/カード/交代)ドリルダウン。has-eventsが付いた行だけタップできる。 */
   .sched-row.has-events, .cal-row.has-events{cursor:pointer}
@@ -1495,6 +1496,13 @@ function calMatchRowHtml(m, ownIdTeam) {
   const involvesMe = m.h[0] === ownIdTeam || m.a[0] === ownIdTeam;
   const finished = eff.h[2] != null && eff.a[2] != null;
 
+  // 第13弾: 得点/カード/交代が1件以上ある試合だけ、行をタップしてドリルダウンできるようにする。
+  const evDetail = findMatchEvents(m.l, m.e);
+  const hasEvents = !!(evDetail && ((evDetail.goals || []).length + (evDetail.cards || []).length + (evDetail.subs || []).length > 0));
+  // TheSportsDB側がキックオフ後もまだ未消化のまま(liveでもfinishedでもない)なら、
+  // jleague.jpの得点イベントから暫定スコアを作る(derivedScoreFromEvents参照)。
+  const derived = (!live && !finished) ? derivedScoreFromEvents(evDetail, m.h[0], m.a[0]) : null;
+
   let timeLabel, scoreLabel, dotHtml;
   if (live) {
     timeLabel = liveStatusLabel(live.status, live.progress);
@@ -1502,8 +1510,16 @@ function calMatchRowHtml(m, ownIdTeam) {
     dotHtml = '<span class="live-dot"></span>';
   } else {
     timeLabel = eff.b ? "時刻未定" : timeOnly(eff.k);
-    scoreLabel = finished ? (eff.h[2] + " - " + eff.a[2]) : "vs";
-    dotHtml = ov ? '<span class="provisional-dot"></span>' : "";
+    if (finished) {
+      scoreLabel = eff.h[2] + " - " + eff.a[2];
+      dotHtml = ov ? '<span class="provisional-dot"></span>' : "";
+    } else if (derived) {
+      scoreLabel = derived.home + " - " + derived.away;
+      dotHtml = '<span class="live-dot" title="試合速報の得点数から推定(公式データはまだ未反映)"></span>';
+    } else {
+      scoreLabel = "vs";
+      dotHtml = ov ? '<span class="provisional-dot"></span>' : "";
+    }
   }
 
   // 進行中はまだ結果が確定していないので勝敗ピルは出さない(順位表に混ぜないのと同じ理由)。
@@ -1516,9 +1532,6 @@ function calMatchRowHtml(m, ownIdTeam) {
     pillHtml = '<span class="pill ' + mark + '">' + mark + '</span>';
   }
 
-  // 第13弾: 得点/カード/交代が1件以上ある試合だけ、行をタップしてドリルダウンできるようにする。
-  const evDetail = findMatchEvents(m.l, m.e);
-  const hasEvents = !!(evDetail && ((evDetail.goals || []).length + (evDetail.cards || []).length + (evDetail.subs || []).length > 0));
   const eventsKey = m.l + ":" + m.e;
   const isEventsOpen = hasEvents && state.eventsOpen === eventsKey;
   const expandHtml = hasEvents ? '<span class="events-toggle' + (isEventsOpen ? " open" : "") + '">▸</span>' : "";
@@ -1528,7 +1541,7 @@ function calMatchRowHtml(m, ownIdTeam) {
     : "";
 
   return '<div class="cal-row-wrap">' +
-    '<div class="cal-row' + (involvesMe ? " me" : "") + (live ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
+    '<div class="cal-row' + (involvesMe ? " me" : "") + (live || derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
       '<span class="league-badge ' + esc(m.l) + '">' + esc(m.l.toUpperCase()) + '</span>' +
       '<span class="cal-time">' + esc(timeLabel) + '</span>' +
       '<span class="cal-team">' + esc(m.h[1]) + '</span>' +
@@ -1684,6 +1697,20 @@ function teamNameForEvent(idTeam, homeId, homeName, awayId, awayName) {
   if (idTeam === awayId) return awayName;
   return "";
 }
+/* 第13弾: TheSportsDB側のstatus/スコアがキックオフ後もしばらく"NS"のまま
+   (=未消化)のことがあり、その間はfinishedもliveScoresも付かず「vs」「日時」表示のままになってしまう。
+   一方fetch_match_events.pyはキックオフ済みの試合だけを対象に取りに行く(pick_candidates参照)ので、
+   evが存在すること自体が「公式の速報ページで試合が始まっていることを確認済み」のサインになる。
+   得点が無く0-0のままでもそれは正しい状態なので、evがある限り(得点0件でも)暫定スコアとして表示する。 */
+function derivedScoreFromEvents(ev, homeId, awayId) {
+  if (!ev) return null;
+  let home = 0, away = 0;
+  for (const g of ev.goals || []) {
+    if (g.idTeam === homeId) home++;
+    else if (g.idTeam === awayId) away++;
+  }
+  return { home, away };
+}
 /* ev = {code,url,fetchedAtJst,goals[],cards[],subs[]}(data/processed/{league}_match_events.json)。
    goals/cards/subsを分でまとめてソートし、自クラブの出来事だけ.meで強調する。 */
 function renderMatchEventsPanel(ev, homeId, homeName, awayId, awayName, ownIdTeam) {
@@ -1728,10 +1755,28 @@ function renderMatchEventsPanel(ev, homeId, homeName, awayId, awayName, ownIdTea
 function scheduleRowHtml(m, team, mode, provisional, league) {
   const involvesMe = m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam;
   const isHome = m.home.idTeam === team.idTeam;
-  const dotHtml = provisional ? '<span class="provisional-dot"></span>' : "";
+
+  // 第13弾: 得点/カード/交代が1件以上ある試合だけ、行をタップしてドリルダウンできるようにする
+  // (試合前で何も無い試合はタップしても意味が無いので出さない)。
+  const ev = league ? findMatchEvents(league, m.idEvent) : null;
+  const hasEvents = !!(ev && ((ev.goals || []).length + (ev.cards || []).length + (ev.subs || []).length > 0));
+  // TheSportsDB側がキックオフ後もまだ未消化のままだと、finishedが立たずずっと「日時」表示のままに
+  // なってしまう。jleague.jpの得点イベントから暫定スコアを作れる場合はそちらを使う(derivedScoreFromEvents参照)。
+  const derived = !m.finished ? derivedScoreFromEvents(ev, m.home.idTeam, m.away.idTeam) : null;
+  let dotHtml = provisional ? '<span class="provisional-dot"></span>' : "";
 
   let centerHtml, pillHtml = "";
-  if (!m.finished) {
+  if (derived) {
+    const meScore = isHome ? derived.home : derived.away;
+    const oppScore = isHome ? derived.away : derived.home;
+    dotHtml += '<span class="live-dot" title="試合速報の得点数から推定(公式データはまだ未反映)"></span>';
+    if (mode === "mine") {
+      centerHtml = "<b>" + meScore + "</b> - " + oppScore;
+    } else {
+      centerHtml = (isHome ? "<b>" + derived.home + "</b>" : derived.home) +
+        " - " + (isHome ? derived.away : "<b>" + derived.away + "</b>");
+    }
+  } else if (!m.finished) {
     centerHtml = esc(m.kickoffTbd ? "日時未定" : fmtDate(m.kickoffJst, true));
   } else if (involvesMe) {
     // 自クラブ視点でW/D/Lを判定する(ホーム/アウェイで反転させる)
@@ -1751,10 +1796,6 @@ function scheduleRowHtml(m, team, mode, provisional, league) {
     centerHtml = m.home.score + " - " + m.away.score;
   }
 
-  // 第13弾: 得点/カード/交代が1件以上ある試合だけ、行をタップしてドリルダウンできるようにする
-  // (試合前で何も無い試合はタップしても意味が無いので出さない)。
-  const ev = league ? findMatchEvents(league, m.idEvent) : null;
-  const hasEvents = !!(ev && ((ev.goals || []).length + (ev.cards || []).length + (ev.subs || []).length > 0));
   const eventsKey = league + ":" + m.idEvent;
   const isOpen = hasEvents && state.eventsOpen === eventsKey;
   const expandHtml = hasEvents ? '<span class="events-toggle' + (isOpen ? " open" : "") + '">▸</span>' : "";
@@ -1766,7 +1807,7 @@ function scheduleRowHtml(m, team, mode, provisional, league) {
   if (mode === "mine") {
     const opp = isHome ? m.away : m.home;
     return '<div class="sched-row-wrap">' +
-      '<div class="sched-row' + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
+      '<div class="sched-row' + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
         '<span class="sched-ha">' + (isHome ? "H" : "A") + '</span>' +
         '<span class="sched-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + esc(opp.ja) + '</span></span>' +
         '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' + expandHtml +
@@ -1774,7 +1815,7 @@ function scheduleRowHtml(m, team, mode, provisional, league) {
     '</div>';
   }
   return '<div class="sched-row-wrap">' +
-    '<div class="sched-row all' + (involvesMe ? " me" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
+    '<div class="sched-row all' + (involvesMe ? " me" : "") + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
       '<span class="sched-team"><span class="team-link" data-idteam="' + esc(m.home.idTeam) + '">' + esc(m.home.short || m.home.ja) + '</span></span>' +
       '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' +
       '<span class="sched-team away"><span class="team-link" data-idteam="' + esc(m.away.idTeam) + '">' + esc(m.away.short || m.away.ja) + '</span></span>' + expandHtml +
