@@ -866,6 +866,7 @@ async function ensureTabData(league, tabId) {
     await ensureMatches(league);
     await ensureSimulation(league);
     await ensureImpact(league);
+    await ensureMatchEvents(league); // 第13弾: 自クラブの進行中判定(derivedScoreFromEvents)に必要
   } else if (tabId === "schedule") {
     await ensureMatches(league); // 全380試合が既に入っているので追加取得は不要
     await ensureMatchEvents(league); // 第13弾: 得点/カード/交代(進行中・直近の試合のみ)
@@ -1186,7 +1187,10 @@ async function renderActiveTab() {
     // 改訂2: 更新ボタンはホームタブから外し、ヘッダに移した(クラブ単位の操作に見えないようにするため)
     // 第12弾: 自クラブが試合中のときは「次の試合」カードの代わりに「試合中」カードを出す(同じ試合を二重表示しない)
     const liveMatch = findLiveMatchForTeam(team.idTeam);
-    const nextOrLiveHtml = liveMatch ? renderLiveCard(liveMatch, team) : renderNext(mine, team, venues);
+    const derivedLive = liveMatch ? null : findDerivedLiveMatchForTeam(mine, league);
+    const nextOrLiveHtml = liveMatch
+      ? renderLiveCard(liveMatch, team)
+      : (derivedLive ? renderDerivedLiveCard(derivedLive.match, derivedLive.derived, team) : renderNext(mine, team, venues));
     html = nextOrLiveHtml + renderResults(mine, team, league) +
       renderPromotion(cache.simulation, team, all, master.promotionRules, league) +
       renderImpactSection(cache.impact, team, master.promotionRules, league);
@@ -2861,6 +2865,37 @@ function findLiveMatchForTeam(idTeam) {
     if (m.home.idTeam === idTeam || m.away.idTeam === idTeam) return m;
   }
   return null;
+}
+/* 第13弾: TheSportsDB側のlivescore.phpにまだ載っていない(=findLiveMatchForTeamが空を返す)間の
+   フォールバック。キックオフ済み(kickoffJst<=now)かつ未消化(finished=false)の自クラブの試合で、
+   match_events.jsonにエントリがあれば(=jleague.jp側では試合開始を確認済み)、得点イベントから
+   暫定スコアを組み立てて「試合中」カードの代わりに使う(calMatchRowHtml/scheduleRowHtmlの
+   derivedScoreFromEventsと同じ考え方)。 */
+function findDerivedLiveMatchForTeam(mine, league) {
+  if (!league) return null;
+  const now = Date.now();
+  for (const m of mine) {
+    if (m.finished || m.kickoffTbd || !m.kickoffJst) continue;
+    if (new Date(m.kickoffJst).getTime() > now) continue; // まだキックオフ前
+    const ev = findMatchEvents(league, m.idEvent);
+    if (!ev) continue;
+    const derived = derivedScoreFromEvents(ev, m.home.idTeam, m.away.idTeam);
+    if (!derived) continue;
+    return { match: m, derived };
+  }
+  return null;
+}
+/* renderLiveCardの推定版。TheSportsDB由来の status/progress/更新時刻が無いので、
+   その代わりに「試合速報の得点数から推定」であることを明示するラベルにする。 */
+function renderDerivedLiveCard(m, derived, team) {
+  return '<section><h2><span class="live-dot"></span> 試合中(推定)</h2><div class="card live-card">' +
+    '<div class="live-score-row">' +
+      '<span class="live-team' + (m.home.idTeam === team.idTeam ? " me" : "") + '">' + esc(m.home.short || m.home.ja) + '</span>' +
+      '<span>' + derived.home + ' - ' + derived.away + '</span>' +
+      '<span class="live-team' + (m.away.idTeam === team.idTeam ? " me" : "") + '">' + esc(m.away.short || m.away.ja) + '</span>' +
+    '</div>' +
+    '<div class="live-updated">試合速報の得点数から推定(公式データはまだ未反映)</div>' +
+  '</div></section>';
 }
 /* ホームタブ最上部の「試合中」カード。自クラブが試合中のときだけ呼ばれ、「次の試合」カードの代わりに出す
    (同じ試合が2箇所に出るのを避けるため、呼び出し側でrenderNextと排他にする)。 */
