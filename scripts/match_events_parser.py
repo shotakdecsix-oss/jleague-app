@@ -8,6 +8,8 @@ scripts/fetch_match_events.py から使う。data/tmp/sample_match_*.html を使
   - sample_match_review.html  : 得点5/5が既知の正解と一致。カード0/交代0(review/ページには構造的に交代ウィジェットが無い。正しい)
   - sample_match_schedule.html: J2のその節10試合すべてのコード/対戦カードを正しい対応で抽出
     (082217 = テゲバジャーロ宮崎 vs 湘南ベルマーレ、など)
+  - 出場メンバー(find_formations): livetxt/review両ページとも home/away各11人・背番号・
+    フォーメーション("4-4-2"等)を正しく抽出(2026-08-22追加検証)
 
 抽出手法の注記:
   - 得点/カード/交代は、Next.jsのRSCストリーミングチャンク(extract_next_chunksでチャンクID->
@@ -23,6 +25,7 @@ scripts/fetch_match_events.py から使う。data/tmp/sample_match_*.html を使
 
 from __future__ import annotations
 
+import json
 import re
 
 GOAL_RE = re.compile(
@@ -47,6 +50,66 @@ SUB_ITEM_RE = re.compile(
     r'\["\$","p",null,\{"className":"[^"]*item-details--name"[^}]*"children":"(?P<name>[^"]+)"',
     re.S,
 )
+
+def _extract_balanced(s: str, start: int) -> int:
+    """
+    s[start]が'['または'{'である前提で、対応する閉じ括弧のインデックスを返す(文字列リテラル内は無視する)。
+    見つからなければ-1。find_formations()で"formations":の値部分(配列)を安全に切り出すのに使う。
+    """
+    open_ch = s[start]
+    close_ch = "]" if open_ch == "[" else "}"
+    depth = 0
+    i = start
+    in_str = False
+    esc = False
+    while i < len(s):
+        c = s[i]
+        if in_str:
+            if esc:
+                esc = False
+            elif c == "\\":
+                esc = True
+            elif c == '"':
+                in_str = False
+        else:
+            if c == '"':
+                in_str = True
+            elif c == open_ch:
+                depth += 1
+            elif c == close_ch:
+                depth -= 1
+                if depth == 0:
+                    return i
+        i += 1
+    return -1
+
+
+def find_formations(chunks: dict[str, str]) -> list[dict] | None:
+    """
+    出場メンバー(スタメン)。"formations":[...] の値はチャンク内にそのまま整形済みJSONとして
+    埋め込まれているので、正規表現による抜き出しではなく開始位置から括弧の対応を辿って
+    切り出し、json.loadsでそのままパースする(得点/カード/交代のような文字列パターン抽出より
+    はるかに壊れにくい)。matchTimeごとに1件(基本は"前半0分"の1件のみ)、
+    homeTeam/awayTeamそれぞれに{teamName,formation,players:[{id,name,playerNumber,positionX,positionY}]}。
+    positionXは守備的(小さい)ほどゴールに近く、攻撃的(大きい)ほど前線に近い
+    (昇順ソートでGK→DF→MF→FWの並びになる)。livetxt/review両方のページで確認済み。
+    見つからなければNone。
+    """
+    marker = '"formations":['
+    for v in chunks.values():
+        idx = v.find(marker)
+        if idx == -1:
+            continue
+        start = idx + len('"formations":')
+        end = _extract_balanced(v, start)
+        if end == -1:
+            continue
+        try:
+            return json.loads(v[start:end + 1])
+        except json.JSONDecodeError:
+            continue
+    return None
+
 
 # 日程一覧ページ(/match/{league}/): 「新しいコードのhref」直後に来る2つのチーム名(data-media=pc)を
 # home/awayとして拾う。同じコードのhrefが1試合につき複数回(mobile版リンク等で)出現するので、

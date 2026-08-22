@@ -14,8 +14,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from fetch_match_events import EVENTS_WINDOW_HOURS, parse_and_merge, pick_candidates  # noqa: E402
-from match_events_parser import extract_schedule_index, find_cards, find_goals, find_subs  # noqa: E402
+from fetch_match_events import EVENTS_WINDOW_HOURS, build_lineups, parse_and_merge, pick_candidates  # noqa: E402
+from match_events_parser import (  # noqa: E402
+    extract_schedule_index,
+    find_cards,
+    find_formations,
+    find_goals,
+    find_subs,
+)
 from team_matching import load_master_teams  # noqa: E402
 from time_utils import JST  # noqa: E402
 
@@ -83,6 +89,35 @@ def test_parse_and_merge_regression_guard(monkeypatch=None):
         fme.fetch_html = original_fetch_html
 
 
+# ---------- lineups: 抽出できなかった回は前回分を維持する ----------
+
+def test_lineups_carry_forward_when_missing():
+    fake_master = {
+        "teams": [
+            {"idTeam": "T_A", "en": "a", "aliases": [], "aliasesJa": [], "ja": "ホーム"},
+            {"idTeam": "T_B", "en": "b", "aliases": [], "aliasesJa": [], "ja": "アウェイ"},
+        ]
+    }
+    all_teams = load_master_teams("j2", fake_master)
+    old_lineups = {"home": {"idTeam": "T_A", "formation": "4-4-2", "players": [{"id": 1, "name": "選手A", "number": "9"}]},
+                   "away": {"idTeam": "T_B", "formation": "4-3-3", "players": []}}
+    existing = {"E1": {"goals": [], "cards": [], "subs": [], "lineups": old_lineups}}
+
+    import fetch_match_events as fme
+
+    original_fetch_html = fme.fetch_html
+    # ゴール等の目印もformationsも無い、マークアップが変わったページを模擬する
+    fme.fetch_html = lambda url: "<html>何も拾えないページ</html>"
+    try:
+        failed = []
+        result = parse_and_merge("E1", {"code": "000000", "url": "dummy"}, all_teams, existing, failed)
+        assert result is not None, "得点等が0件でも既存データありのケースはregression guardに掛からないはず(lineups確認用の別データなので)"
+        assert result["lineups"] == old_lineups, "formationsが取れなかった回は前回のlineupsを維持するはず"
+        print("OK: 出場メンバーが今回取れなくても前回分を維持することを確認")
+    finally:
+        fme.fetch_html = original_fetch_html
+
+
 def test_parsers_against_samples():
     livetxt = SAMPLE_DIR / "sample_match_livetxt.html"
     review = SAMPLE_DIR / "sample_match_review.html"
@@ -106,6 +141,14 @@ def test_parsers_against_samples():
     assert len(goals_r) == 5, f"review: 得点5件のはずが{len(goals_r)}件"
     print("OK: sample_match_review.html の得点件数を確認")
 
+    for label, chunks_x in [("livetxt", chunks), ("review", chunks_r)]:
+        formations = find_formations(chunks_x)
+        assert formations and len(formations) == 1, f"{label}: formationsが1件取れるはず"
+        home, away = formations[0]["homeTeam"], formations[0]["awayTeam"]
+        assert len(home["players"]) == 11 and len(away["players"]) == 11, f"{label}: 出場メンバーは11人ずつのはず"
+        assert home.get("formation") and away.get("formation"), f"{label}: フォーメーション文字列が空"
+    print("OK: 出場メンバー(スタメン11人・フォーメーション)をlivetxt/review両方で確認")
+
     chunks_s = extract_next_chunks(schedule.read_text(encoding="utf-8"))
     entries = extract_schedule_index(chunks_s)
     assert len(entries) == 10, f"schedule: 10試合のはずが{len(entries)}件"
@@ -117,5 +160,6 @@ def test_parsers_against_samples():
 if __name__ == "__main__":
     test_pick_candidates_window()
     test_parse_and_merge_regression_guard()
+    test_lineups_carry_forward_when_missing()
     test_parsers_against_samples()
     print("\n全テスト完了")

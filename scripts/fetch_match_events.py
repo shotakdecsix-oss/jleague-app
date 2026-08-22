@@ -38,7 +38,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from fetch_batch import LEAGUES  # noqa: E402  (idLeague/masterパスの定義を再利用)
 from fetch_official import HEADERS, TIMEOUT, extract_next_chunks  # noqa: E402
-from match_events_parser import extract_schedule_index, find_cards, find_goals, find_subs  # noqa: E402
+from match_events_parser import (  # noqa: E402
+    extract_schedule_index,
+    find_cards,
+    find_formations,
+    find_goals,
+    find_subs,
+)
 from team_matching import load_master_teams, match_team_ja  # noqa: E402
 from time_utils import JST  # noqa: E402
 
@@ -151,6 +157,33 @@ def resolve_codes(
     return resolved, unresolved
 
 
+def build_lineup_side(side: dict, all_teams: list[dict]) -> dict:
+    team = match_team_ja(side.get("teamName") or "", all_teams)
+    players = sorted(side.get("players", []) or [], key=lambda p: p.get("positionX", 0))
+    return {
+        "idTeam": team["idTeam"] if team else None,
+        "formation": side.get("formation"),
+        "players": [
+            {"id": p.get("id"), "name": p.get("name"), "number": p.get("playerNumber")}
+            for p in players
+        ],
+    }
+
+
+def build_lineups(formations: list[dict] | None, all_teams: list[dict]) -> dict | None:
+    """formationsは基本"前半0分"時点の1件のみ(それ以降のスタメン変更は無い前提)。"""
+    if not formations:
+        return None
+    f = formations[0]
+    home_raw, away_raw = f.get("homeTeam"), f.get("awayTeam")
+    if not home_raw or not away_raw:
+        return None
+    return {
+        "home": build_lineup_side(home_raw, all_teams),
+        "away": build_lineup_side(away_raw, all_teams),
+    }
+
+
 def parse_and_merge(
     id_event: str, resolved: dict, all_teams: list[dict], existing_events: dict, failed: list[dict]
 ) -> dict | None:
@@ -163,6 +196,7 @@ def parse_and_merge(
     goals = find_goals(chunks)
     cards = find_cards(chunks)
     subs = find_subs(chunks)
+    lineups = build_lineups(find_formations(chunks), all_teams)
 
     def resolve_club(name: str | None) -> str | None:
         if not name:
@@ -177,8 +211,9 @@ def parse_and_merge(
     for s in subs:
         s["idTeam"] = resolve_club(s.get("club"))
 
-    total = len(goals) + len(cards) + len(subs)
     old = existing_events.get(id_event)
+
+    total = len(goals) + len(cards) + len(subs)
     old_total = (
         len(old.get("goals", [])) + len(old.get("cards", [])) + len(old.get("subs", []))
         if old
@@ -188,6 +223,11 @@ def parse_and_merge(
         failed.append({"idEvent": id_event, "reason": "regression_zero_events", "url": resolved["url"]})
         return None
 
+    # スタメンは試合中に変わらない前提なので、今回抜けなくても前回分があればそのまま維持する
+    # (マークアップの一時的な揺れで消してしまわないための安全弁。得点/カード/交代の退行防止と同じ考え方)。
+    if lineups is None and old:
+        lineups = old.get("lineups")
+
     return {
         "code": resolved["code"],
         "url": resolved["url"],
@@ -195,6 +235,7 @@ def parse_and_merge(
         "goals": goals,
         "cards": cards,
         "subs": subs,
+        "lineups": lineups,
     }
 
 
