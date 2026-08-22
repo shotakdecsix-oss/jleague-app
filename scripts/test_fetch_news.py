@@ -21,6 +21,7 @@ from fetch_news import (  # noqa: E402
     merge_with_existing,
     normalize_url,
     parse_pubdate_to_jst,
+    parse_soccerdigest_entries,
 )
 from team_matching import match_teams_in_text  # noqa: E402
 
@@ -200,6 +201,125 @@ def test_feed_item_can_match_multiple_teams() -> None:
     print("OK: 複数クラブがタイトルに含まれる記事は両方に振り分けられる")
 
 
+# 第14弾: サッカーダイジェストWeb(soccerdigestweb.com)の記事一覧ページ(クラブ別タグページ)。
+# 2026-08-22にブラウザで実際の湘南ベルマーレのページ(tag_id=142)を開いて確認した
+# 実物のマークアップを基にした最小サンプル(2記事ぶん + タイトルにHTMLエンティティが
+# 含まれるケース + 画像/日付が欠けているケースを1件足してある)。
+_SOCCERDIGEST_SAMPLE_HTML = """
+<div class="news_list">
+<h2 class="title">
+    湘南 新着記事</h2>
+
+<div class="entry">
+\t<div class="pic">
+\t\t<a href="https://www.soccerdigestweb.com/news/detail/id=196005"><img src="https://soccerdigestweb.thedigestweb.com/v=1787201947/files/topics/196005_ext_03_0.jpg" width="105" height="105" alt=""></a>
+\t</div>
+\t<div class="text">
+\t\t\t<p class="entry_date">
+\t\t\t\t\t<span class="author">金子 徹（サッカーダイジェスト編集部）</span>
+\t\t\t\t\t\t\t<span class="date">2026年08月20日</span></p>
+\t\t\t<p class="title"><a href="https://www.soccerdigestweb.com/news/detail/id=196005">新布陣導入の湘南でDF松村晟怜が存在感。４－４－２の左SBに手応え「やることも、やれることも増えて、幅が広がっている」</a></p>
+\t\t\t<p class="read">
+\t\t\t\t　４－４－２の新布陣で開幕２連勝を飾った湘南ベルマーレにおいて、存在感を高めているDFがいる。
+\t\t\t\t<span><a href="https://www.soccerdigestweb.com/news/detail/id=196005">続きを読む</a></span></p>
+\t</div>
+</div>
+<div class="entry">
+\t<div class="pic">
+\t\t<a href="https://www.soccerdigestweb.com/news/detail/id=195964"><img src="https://soccerdigestweb.thedigestweb.com/v=x/files/topics/195964.jpg" width="105" height="105" alt=""></a>
+\t</div>
+\t<div class="text">
+\t\t\t<p class="entry_date">
+\t\t\t\t\t<span class="author">金子 徹</span>
+\t\t\t\t\t\t\t<span class="date">2026年08月19日</span></p>
+\t\t\t<p class="title"><a href="https://www.soccerdigestweb.com/news/detail/id=195964">&quot;新スタイル&quot;で開幕２連勝の湘南。長澤徹監督が語った４バックの狙い</a></p>
+\t\t\t<p class="read">summary</p>
+\t</div>
+</div>
+<div class="entry">
+\t<div class="text">
+\t\t\t<p class="title"><a href="https://www.soccerdigestweb.com/news/detail/id=999999">日付・画像が無い記事</a></p>
+\t</div>
+</div>
+"""
+
+
+def test_parse_soccerdigest_entries_extracts_title_link_date_image() -> None:
+    """実物のマークアップから title/link/publishedJst/imageUrl を正しく抜き出せること。"""
+    items = parse_soccerdigest_entries(_SOCCERDIGEST_SAMPLE_HTML)
+    assert len(items) == 3, items
+
+    first = items[0]
+    assert first["link"] == "https://www.soccerdigestweb.com/news/detail/id=196005"
+    assert first["title"].startswith("新布陣導入の湘南でDF松村晟怜が存在感")
+    assert first["publishedJst"] == "2026-08-20T00:00:00+09:00"
+    assert first["source"] == "サッカーダイジェストWeb"
+    assert first["sourceType"] == "soccerdigest"
+    assert first["imageUrl"].endswith("196005_ext_03_0.jpg")
+
+    second = items[1]
+    assert second["title"] == '"新スタイル"で開幕２連勝の湘南。長澤徹監督が語った４バックの狙い', second["title"]
+    print("OK: サッカーダイジェストWebの記事一覧からtitle/link/日付/画像URLを抽出できる(HTMLエンティティも復元)")
+
+
+def test_parse_soccerdigest_entries_tolerates_missing_date_and_image() -> None:
+    """日付・画像が無い記事でも、タイトルとリンクさえあれば例外を投げず拾うこと。"""
+    items = parse_soccerdigest_entries(_SOCCERDIGEST_SAMPLE_HTML)
+    third = items[2]
+    assert third["title"] == "日付・画像が無い記事"
+    assert third["publishedJst"] is None
+    assert "imageUrl" not in third
+    print("OK: 日付・画像が欠けた記事も例外を投げずpublishedJst=None/imageUrlキー無しで拾う")
+
+
+def test_parse_soccerdigest_entries_returns_empty_on_unrecognized_markup() -> None:
+    """マークアップが想定と全く違う(.entryが無い)場合は、例外を投げず空リストを返すこと。"""
+    assert parse_soccerdigest_entries("<html><body>no entries here</body></html>") == []
+    print("OK: 想定外のマークアップでは例外を投げず空リストを返す")
+
+
+def test_build_news_includes_soccerdigest_source() -> None:
+    """soccerdigest_tagsに書かれたクラブは、fetch_soccerdigest_fnで取得しsourceType='soccerdigest'で入ること。"""
+    calls: list[str] = []
+
+    def fake_soccerdigest(tag_id: str) -> list[dict]:
+        calls.append(tag_id)
+        return [{"title": "湘南の記事", "link": "https://soccerdigestweb.example.com/1",
+                  "publishedJst": "2026-08-20T00:00:00+09:00", "source": "サッカーダイジェストWeb",
+                  "sourceType": "soccerdigest"}]
+
+    watchlist = {"teams": [], "obPlayers": []}
+    out = build_news(
+        watchlist, ALL_TEAMS, soccerdigest_tags={"137715": "142"},
+        fetch_query_fn=fake_fetch_empty, fetch_feed_fn=fake_fetch_empty,
+        fetch_soccerdigest_fn=fake_soccerdigest, sleep_fn=lambda s: None, log=lambda *a, **k: None,
+    )
+    assert calls == ["142"], calls
+    items = out["teams"]["137715"]
+    assert any(it["sourceType"] == "soccerdigest" for it in items), items
+    print("OK: soccerdigest_tagsに書かれたクラブはfetch_soccerdigest_fnで取得されsourceType='soccerdigest'で入る")
+
+
+def test_build_news_soccerdigest_failure_does_not_break_other_sources() -> None:
+    """サッカーダイジェストWebの取得が失敗しても、他ソース(Google News等)の結果は無事なこと。"""
+    def failing_soccerdigest(_tag_id: str) -> list[dict]:
+        raise RuntimeError("simulated failure")
+
+    watchlist = {"teams": ["137715"], "obPlayers": []}
+    logs: list[str] = []
+    out = build_news(
+        watchlist, ALL_TEAMS, soccerdigest_tags={"137715": "142"},
+        fetch_query_fn=fake_fetch_ok, fetch_feed_fn=fake_fetch_empty,
+        fetch_soccerdigest_fn=failing_soccerdigest, sleep_fn=lambda s: None,
+        log=lambda *a, **k: logs.append(" ".join(str(x) for x in a)),
+    )
+    assert "137715" in out["teams"], "Google News側の結果は残るはず"
+    assert all(it["sourceType"] != "soccerdigest" for it in out["teams"]["137715"])
+    assert any("soccerdigest:137715" in f for f in out["meta"]["failed"]), out["meta"]["failed"]
+    assert any("サッカーダイジェストWeb" in line for line in logs), "失敗ログが出るはず"
+    print("OK: サッカーダイジェストWebの取得失敗は他ソースを巻き込まず、失敗理由もログに残る")
+
+
 def test_match_teams_in_text_ignores_terms_not_in_ja_or_aliasesja() -> None:
     """ja/aliasesJaのどちらにも登録していない短縮名では一致しないこと。"""
     matched = match_teams_in_text("札幌で開催されたイベント", ALL_TEAMS)
@@ -367,6 +487,11 @@ def main() -> None:
         test_fetch_failure_skips_only_that_query,
         test_feed_items_classified_by_team_name,
         test_feed_item_can_match_multiple_teams,
+        test_parse_soccerdigest_entries_extracts_title_link_date_image,
+        test_parse_soccerdigest_entries_tolerates_missing_date_and_image,
+        test_parse_soccerdigest_entries_returns_empty_on_unrecognized_markup,
+        test_build_news_includes_soccerdigest_source,
+        test_build_news_soccerdigest_failure_does_not_break_other_sources,
         test_match_teams_in_text_ignores_terms_not_in_ja_or_aliasesja,
         test_match_teams_in_text_kashima_short_form,
         test_match_teams_in_text_multiple_short_forms,

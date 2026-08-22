@@ -3388,17 +3388,18 @@ function rssNewsItemHtml(item) {
   '</li>';
 }
 
-const NEWS_SOURCE_LABEL = { official: "Jリーグ公式" };
+const NEWS_SOURCE_LABEL = { official: "Jリーグ公式", soccerdigest: "サッカーダイジェストWeb" };
 
-/* 画像は公式サイト由来のURLをそのまま参照(ホットリンク)するだけで、ダウンロード・保存はしない。
+/* 画像は元サイト由来のURLをそのまま参照(ホットリンク)するだけで、ダウンロード・保存はしない。
    imageUrlが無いニュースはサムネイル枠自体を出さない(グレーのプレースホルダは置かない)。
-   公式側のURLが変わって読み込みに失敗した場合は onerror で要素ごと消し、リンク切れアイコンを出さない。 */
+   元サイトのURLが変わって読み込みに失敗した場合は onerror で要素ごと消し、リンク切れアイコンを出さない。
+   第14弾: サッカーダイジェストWeb(soccerdigest)もimageUrlを持つので、公式と同様にサムネイルを出す。 */
 function newsItemHtml(item, league) {
   const isOfficial = item.sourceType === "official";
   const url = isOfficial
     ? "https://www.jleague.jp/news/article/" + encodeURIComponent(item.id) + "/?navicode=" + esc(league)
     : item.link;
-  const thumb = isOfficial && item.imageUrl
+  const thumb = (isOfficial || item.sourceType === "soccerdigest") && item.imageUrl
     ? '<img class="news-thumb" src="' + esc(item.imageUrl) + '" alt="" loading="lazy" onerror="this.remove()">'
     : "";
   const sourceLabel = NEWS_SOURCE_LABEL[item.sourceType] || item.source || "";

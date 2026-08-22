@@ -1,12 +1,21 @@
 """
 クラブ・OB選手のニュースを、複数の情報源から集めて news.json に書き出す。
 
-情報源は3種類:
+情報源は4種類:
   1. Google News RSS  -- クラブ名(ja + aliasesJa)とOB選手名で個別に検索する(sourceType: "google")
   2. リーグ全体のRSSフィード(ゲキサカ・サッカーキング) -- 1回取得して、記事のタイトル+概要に
      クラブ名(ja/aliasesJaのみ。英語aliasesとshortは使わない)が含まれるかで、該当クラブに振り分ける
      (sourceType: "feed")
-  3. クラブ公式サイトのニュース(club_extra.json) -- こちらはこのスクリプトでは扱わない。
+  3. サッカーダイジェストWeb(soccerdigestweb.com) -- 第14弾で追加。RSS配信が無いため、クラブ別の
+     記事一覧ページ(https://www.soccerdigestweb.com/tag_list/tag_search=1&tag_id=<tag_id>)を
+     直接HTML取得して.entryブロックを正規表現で抜き出す(sourceType: "soccerdigest")。
+     tag_idはクラブごとに個別に調べる必要があり(サイト側に全60クラブの一覧ページが見当たらな
+     かったため)、data/config/soccerdigest_tags.json に分かっている分だけ手で記載する
+     (2026-08-22時点は湘南ベルマーレのみ。他クラブは同様のURLを開いて確認できたら追加)。
+     robots.txt確認済み(2026-08時点): User-agent:* に対する/tag_list/や/news/detail/への
+     Disallowは無い(SEO系ボット個別のDisallow: /、msnbot/bingbotのCrawl-delayのみ)。
+     ページ1(最新15件程度)だけを見る。ページネーションまでは追わない(定期実行で十分追いつける)。
+  4. クラブ公式サイトのニュース(club_extra.json) -- こちらはこのスクリプトでは扱わない。
      非公開前提のファイルであり、フロント側で別途表示している。
 
 data/config/watchlist.json (手で編集するファイル) の teams は、Google Newsを個別クエリする
@@ -33,6 +42,7 @@ CLI:
 
 from __future__ import annotations
 
+import html as html_lib
 import json
 import re
 import sys
@@ -50,6 +60,7 @@ from team_matching import load_master_teams, match_teams_in_text  # noqa: E402
 BASE_DIR = Path(__file__).resolve().parent.parent
 MASTERS_DIR = BASE_DIR / "data" / "masters"
 CONFIG_PATH = BASE_DIR / "data" / "config" / "watchlist.json"
+SOCCERDIGEST_CONFIG_PATH = BASE_DIR / "data" / "config" / "soccerdigest_tags.json"
 PROCESSED_DIR = BASE_DIR / "data" / "processed"
 
 MASTER_FILES = {
@@ -77,7 +88,15 @@ FEED_SOURCES = [
 ]
 FEED_CRAWL_DELAY = {"サッカーキング": 10.0}  # robots.txtのCrawl-delayに合わせる(既定はSLEEP_BETWEEN_QUERIES)
 
-SOURCE_TYPE_PRIORITY = {"official": 0, "feed": 1, "google": 2}
+# 第14弾: サッカーダイジェストWeb(クラブ別ページ、RSSが無いのでHTMLを直接見にいく)
+SOCCERDIGEST_NAME = "サッカーダイジェストWeb"
+SOCCERDIGEST_TAG_URL_TMPL = "https://www.soccerdigestweb.com/tag_list/tag_search=1&tag_id={tag_id}"
+_SD_ENTRY_SPLIT_RE = re.compile(r'<div class="entry">')
+_SD_TITLE_LINK_RE = re.compile(r'<p class="title"><a href="([^"]+)">([^<]*)</a></p>')
+_SD_DATE_RE = re.compile(r'<span class="date">(\d{4})年(\d{1,2})月(\d{1,2})日</span>')
+_SD_IMAGE_RE = re.compile(r'<div class="pic">.*?<img src="([^"]+)"', re.DOTALL)
+
+SOURCE_TYPE_PRIORITY = {"official": 0, "soccerdigest": 1, "feed": 2, "google": 3}
 FEED_NAME_PRIORITY = {"ゲキサカ": 0, "サッカーキング": 1}
 
 _TRACKING_PARAMS = {"utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "fbclid", "gclid", "yclid"}
@@ -257,6 +276,74 @@ def fetch_feed(url: str) -> list[dict]:
     return _parse_rss_items(resp.content)
 
 
+def parse_soccerdigest_entries(page_html: str) -> list[dict]:
+    """
+    サッカーダイジェストWebのクラブ別記事一覧ページ(1ページ目)から、記事ブロック
+    (<div class="entry">...</div>)を正規表現で抜き出して共通形式にする。
+    サイト側はRSSを配信していないため、HTMLのマークアップに直接依存する(match_events_parser.py
+    と同じ考え方)。マークアップが変わって0件になっても例外は投げない(呼び出し側で件数を見て
+    判断できるよう、単に空リストを返す)。
+    日付は「YYYY年MM月DD日」の日付のみで時刻は無いため、00:00:00 JSTとして扱う。
+    """
+    chunks = _SD_ENTRY_SPLIT_RE.split(page_html)[1:]  # 先頭要素は最初の.entryより前の部分なので捨てる
+    items: list[dict] = []
+    for chunk in chunks:
+        m_title = _SD_TITLE_LINK_RE.search(chunk)
+        if not m_title:
+            continue
+        link, raw_title = m_title.group(1), m_title.group(2)
+        title = html_lib.unescape(raw_title).strip()
+        if not title:
+            continue
+
+        published = None
+        m_date = _SD_DATE_RE.search(chunk)
+        if m_date:
+            year, month, day = (int(g) for g in m_date.groups())
+            try:
+                published = datetime(year, month, day, tzinfo=JST).isoformat()
+            except ValueError:
+                published = None
+
+        item = {
+            "title": title,
+            "link": link,
+            "publishedJst": published,
+            "source": SOCCERDIGEST_NAME,
+            "sourceType": "soccerdigest",
+        }
+        m_image = _SD_IMAGE_RE.search(chunk)
+        if m_image:
+            item["imageUrl"] = html_lib.unescape(m_image.group(1))
+        items.append(item)
+    return items
+
+
+def fetch_soccerdigest_tag(tag_id: str) -> list[dict]:
+    """
+    サッカーダイジェストWebの、指定tag_id(=クラブ)の記事一覧ページ1ページ目を取得してパースする。
+    失敗したら例外を投げる(呼び出し元でキャッチしてそのクラブだけスキップする設計、他ソースと同じ)。
+    """
+    import requests
+
+    url = SOCCERDIGEST_TAG_URL_TMPL.format(tag_id=tag_id)
+    resp = requests.get(url, timeout=TIMEOUT, headers=HEADERS)
+    resp.raise_for_status()
+    return parse_soccerdigest_entries(resp.text)
+
+
+def load_soccerdigest_tags(log=print) -> dict[str, str]:
+    """data/config/soccerdigest_tags.json (idTeam -> tag_id) を読む。無ければ空dict。"""
+    if not SOCCERDIGEST_CONFIG_PATH.exists():
+        return {}
+    try:
+        data = json.loads(SOCCERDIGEST_CONFIG_PATH.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        log(f"[warn] {SOCCERDIGEST_CONFIG_PATH}の読み込みに失敗、空として扱う: {e}", file=sys.stderr)
+        return {}
+    return data.get("tags", {})
+
+
 def classify_feed_items(items: list[dict], all_teams: list[dict], source_name: str) -> dict[str, list[dict]]:
     """
     リーグ全体フィードの記事を、タイトル+概要にクラブ名(ja/aliases)が含まれるかでクラブへ振り分ける。
@@ -279,16 +366,20 @@ def classify_feed_items(items: list[dict], all_teams: list[dict], source_name: s
 def build_news(
     watchlist: dict,
     all_teams: list[dict],
+    soccerdigest_tags: dict[str, str] | None = None,
     fetch_query_fn=fetch_rss,
     fetch_feed_fn=fetch_feed,
+    fetch_soccerdigest_fn=fetch_soccerdigest_tag,
     sleep_fn=time.sleep,
     log=print,
 ) -> dict:
     """
-    3つの経路(ゲキサカ/サッカーキングの振り分け、watchlist記載クラブのGoogle News、OB選手)から
-    ニュースを集める。ファイルI/Oはしない(テスト用に分離)。
-    fetch_query_fn/fetch_feed_fnを差し替えれば実際のHTTPアクセス無しでテストできる。
+    4つの経路(ゲキサカ/サッカーキングの振り分け、サッカーダイジェストWeb、watchlist記載クラブの
+    Google News、OB選手)からニュースを集める。ファイルI/Oはしない(テスト用に分離)。
+    fetch_query_fn/fetch_feed_fn/fetch_soccerdigest_fnを差し替えれば実際のHTTPアクセス無しで
+    テストできる。
     """
+    soccerdigest_tags = soccerdigest_tags or {}
     team_lookup_by_id = {t["idTeam"]: t for t in all_teams}
     per_team: dict[str, list[dict]] = {t["idTeam"]: [] for t in all_teams}
     failed: list[str] = []
@@ -308,7 +399,20 @@ def build_news(
             failed.append(f"feed:{feed['name']}")
         sleep_fn(FEED_CRAWL_DELAY.get(feed["name"], SLEEP_BETWEEN_QUERIES))
 
-    # 2. Google Newsで個別クエリするクラブ。teamsが空なら全クラブを対象にする
+    # 2. サッカーダイジェストWeb(tag_idが分かっているクラブだけ。全60クラブ分は無い)
+    for id_team, tag_id in soccerdigest_tags.items():
+        team = team_lookup_by_id.get(id_team)
+        team_label = team["ja"] if team else id_team
+        try:
+            items = fetch_soccerdigest_fn(tag_id)
+            per_team.setdefault(id_team, []).extend(items)
+            log(f"[info] {SOCCERDIGEST_NAME}「{team_label}」(tag_id={tag_id}): {len(items)}件")
+        except Exception as e:  # noqa: BLE001
+            log(f"[warn] {SOCCERDIGEST_NAME}「{team_label}」(tag_id={tag_id})の取得に失敗: {e}", file=sys.stderr)
+            failed.append(f"soccerdigest:{id_team}({team_label})")
+        sleep_fn(SLEEP_BETWEEN_QUERIES)
+
+    # 3. Google Newsで個別クエリするクラブ。teamsが空なら全クラブを対象にする
     #    (記載したクラブに絞りたい場合だけwatchlist.jsonにidTeamを書く)
     target_team_ids = watchlist.get("teams") or [t["idTeam"] for t in all_teams]
     for id_team in target_team_ids:
@@ -339,7 +443,7 @@ def build_news(
         tid: merge_and_dedupe(arts) for tid, arts in per_team.items() if arts
     }
 
-    # 3. OB選手(従来どおりGoogle Newsのみ)
+    # 4. OB選手(従来どおりGoogle Newsのみ)
     ob_players_out: dict[str, list[dict]] = {}
     for player in watchlist.get("obPlayers", []):
         if not player.get("enabled", True):
@@ -432,11 +536,12 @@ def main() -> None:
 
     watchlist = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
     all_teams = load_all_teams()
+    soccerdigest_tags = load_soccerdigest_tags()
 
     out_path = PROCESSED_DIR / "news.json"
     existing = load_existing_news(out_path)
 
-    fresh = build_news(watchlist, all_teams)
+    fresh = build_news(watchlist, all_teams, soccerdigest_tags=soccerdigest_tags)
 
     cutoff_iso = (datetime.now(JST) - timedelta(days=NEWS_MAX_AGE_DAYS)).isoformat()
     out = merge_with_existing(existing, fresh, cutoff_iso)
