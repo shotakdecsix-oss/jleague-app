@@ -47,7 +47,8 @@ jobs:
 
       - name: fetch_match_events
         run: python scripts/fetch_match_events.py --league all
-
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       - name: Check for meaningful changes
         id: changes
         run: |
