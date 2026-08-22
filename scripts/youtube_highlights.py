@@ -64,6 +64,16 @@ def search_dazn_highlight(home_ja: str, away_ja: str, api_key: str | None = None
     実データで確認済み。念のためタイトルに両チーム名が含まれる動画だけを採用する
     (検索結果の1件目が別カードの可能性もゼロではないため)。
     APIキーが無い/リクエスト失敗/該当なしの場合はNoneを返す(例外は投げない)。
+
+    order=dateではなくrelevance(デフォルト、orderパラメータ省略)を使う。実際に動画が
+    YouTube上に存在する(かつタイトルも想定形式と一致)のに、order=dateだと全く関係の無い
+    別カード(2021/2022シーズンや別スポーツ)ばかりが返ってきて該当試合が10件に入って
+    こないケースを確認したため(2026-08-22)。相関の強いrelevance順の方が、対象試合の
+    動画が新しいうちは上位に来やすいはず。ただしYouTube Data
+    API(検索)自体のインデックス反映が本サイトの検索より遅れることがある
+    (アップロード直後は数十分〜数時間、公式ドキュメントでも言及あり)ため、
+    それでも見つからない場合は呼び出し側(fetch_match_events.py)のクールダウン・
+    リトライで時間を置いて再検索する前提。
     """
     key = api_key or load_api_key()
     if not key:
@@ -78,7 +88,6 @@ def search_dazn_highlight(home_ja: str, away_ja: str, api_key: str | None = None
         "channelId": DAZN_JAPAN_CHANNEL_ID,
         "q": f"{home_ja} {away_ja} ハイライト",
         "type": "video",
-        "order": "date",
         "maxResults": 10,
         "part": "snippet",
     }
