@@ -106,12 +106,14 @@
 
   /* 直近結果 */
   ul.results{list-style:none; margin:0; padding:0}
-  ul.results li{
-    display:grid; grid-template-columns:auto 26px 1fr auto auto;
+  ul.results li{ }
+  /* 第14弾: 試合ドリルダウン対応のため、grid行(.r-row)と詳細パネルをliの中で縦に並べる */
+  .r-row{
+    display:grid; grid-template-columns:auto 26px 1fr auto auto 14px;
     align-items:center; gap:10px;
     padding:11px 0; border-bottom:1px solid var(--line);
   }
-  ul.results li:last-child{border-bottom:none}
+  ul.results li:last-child .r-row{border-bottom:none}
   .r-date{font-size:12px; color:var(--sub); font-variant-numeric:tabular-nums; white-space:nowrap}
   .r-ha{font-size:11px; font-weight:700; color:var(--sub); text-align:center}
   .r-opp{font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
@@ -452,6 +454,11 @@
   .lineups-sub-title{font-size:10px; font-weight:700; color:var(--sub); margin:8px 0 3px}
   .lineups-bench{color:var(--sub)}
   .lineups-pos{display:inline-block; min-width:26px; font-size:10px; color:var(--sub)}
+  /* 第14弾: ハイライト動画(YouTube埋め込み、16:9のレスポンシブ) */
+  .highlight-video{margin-bottom:10px}
+  .highlight-video-source{font-size:11px; font-weight:normal; color:#888}
+  .highlight-video-frame{position:relative; padding-top:56.25%; border-radius:8px; overflow:hidden; background:#000}
+  .highlight-video-frame iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
 </style>
 </head>
 <body>
@@ -1523,7 +1530,7 @@ function calMatchRowHtml(m, ownIdTeam) {
 
   // 第13弾: 得点/カード/交代が1件以上ある試合だけ、行をタップしてドリルダウンできるようにする。
   const evDetail = findMatchEvents(m.l, m.e);
-  const hasEvents = !!(evDetail && (evDetail.lineups || (evDetail.goals || []).length + (evDetail.cards || []).length + (evDetail.subs || []).length > 0));
+  const hasEvents = !!(evDetail && (evDetail.lineups || evDetail.highlightVideoId || evDetail.daznVideoId || (evDetail.goals || []).length + (evDetail.cards || []).length + (evDetail.subs || []).length > 0));
   // TheSportsDB側がキックオフ後もまだ未消化のまま(liveでもfinishedでもない)なら、
   // jleague.jpの得点イベントから暫定スコアを作る(derivedScoreFromEvents参照)。
   const derived = (!live && !finished) ? derivedScoreFromEvents(evDetail, m.h[0], m.a[0]) : null;
@@ -1680,12 +1687,26 @@ function renderResults(mine, team, league) {
       const opp = isHome ? m.away : m.home;
       const mark = me.score > opp.score ? "W" : (me.score < opp.score ? "L" : "D");
       const dot = (league && isOndemandMatch(league, m.idEvent)) ? '<span class="provisional-dot"></span>' : "";
+
+      // 第14弾: 日程/カレンダータブと同じく、直近の結果もタップしてドリルダウンできるようにする
+      const ev = league ? findMatchEvents(league, m.idEvent) : null;
+      const hasEvents = !!(ev && (ev.lineups || ev.highlightVideoId || ev.daznVideoId || (ev.goals || []).length + (ev.cards || []).length + (ev.subs || []).length > 0));
+      const eventsKey = league + ":" + m.idEvent;
+      const isOpen = hasEvents && state.eventsOpen === eventsKey;
+      const expandHtml = hasEvents ? '<span class="events-toggle' + (isOpen ? " open" : "") + '">▸</span>' : "";
+      const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' : "";
+      const panelHtml = isOpen
+        ? renderMatchEventsPanel(ev, m.home.idTeam, m.home.short || m.home.ja, m.away.idTeam, m.away.short || m.away.ja, team.idTeam)
+        : "";
+
       return '<li>' +
-        '<span class="r-date">' + esc(fmtDate(m.kickoffJst, false)) + '</span>' +
-        '<span class="r-ha">' + (isHome ? "H" : "A") + '</span>' +
-        '<span class="r-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></span>' +
-        '<span class="r-score">' + me.score + ' - ' + opp.score + dot + '</span>' +
-        '<span class="pill ' + mark + '">' + mark + '</span>' +
+        '<div class="r-row' + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
+          '<span class="r-date">' + esc(fmtDate(m.kickoffJst, false)) + '</span>' +
+          '<span class="r-ha">' + (isHome ? "H" : "A") + '</span>' +
+          '<span class="r-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></span>' +
+          '<span class="r-score">' + me.score + ' - ' + opp.score + dot + '</span>' +
+          '<span class="pill ' + mark + '">' + mark + '</span>' + expandHtml +
+        '</div>' + panelHtml +
       '</li>';
     }).join("") + '</ul>';
   }
@@ -1776,8 +1797,24 @@ function renderLineupsHtml(lineups, homeName, awayName, ownIdTeam) {
   '</div></div>';
 }
 
+/* 第14弾: ハイライト動画。DAZN Japan(YouTube)の動画があればそちらを優先する
+   (Jリーグ公式の埋め込み動画より尺が長く内容も充実しているとユーザーからのフィードバックで確認済み)。
+   無ければJリーグ公式の動画にフォールバックする。
+   privacy-enhanced modeのyoutube-nocookie.comを使い、再生されるまで余計なクッキーを送らない。 */
+function renderHighlightVideoHtml(videoId, sourceLabel) {
+  if (!videoId) return "";
+  const src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(videoId);
+  const label = sourceLabel ? ' <span class="highlight-video-source">(' + esc(sourceLabel) + ')</span>' : "";
+  return '<div class="highlight-video"><h4 class="lineups-title">ハイライト動画' + label + '</h4>' +
+    '<div class="highlight-video-frame"><iframe src="' + esc(src) + '" title="ハイライト動画" ' +
+      'loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
+      'allowfullscreen></iframe></div></div>';
+}
 function renderMatchEventsPanel(ev, homeId, homeName, awayId, awayName, ownIdTeam) {
   if (!ev) return "";
+  const highlightVideoId = ev.daznVideoId || ev.highlightVideoId;
+  const highlightSource = ev.daznVideoId ? "DAZN" : (ev.highlightVideoId ? "Jリーグ公式" : "");
+  const videoHtml = renderHighlightVideoHtml(highlightVideoId, highlightSource);
   const lineupsHtml = renderLineupsHtml(ev.lineups, homeName, awayName, ownIdTeam);
   const items = [];
   for (const g of ev.goals || []) {
@@ -1802,7 +1839,7 @@ function renderMatchEventsPanel(ev, homeId, homeName, awayId, awayName, ownIdTea
   }
   items.sort((a, b) => minuteSortKey(a.minute) - minuteSortKey(b.minute));
 
-  if (!items.length && !lineupsHtml) {
+  if (!items.length && !lineupsHtml && !videoHtml) {
     return '<div class="events-panel"><p class="muted" style="margin:0">詳細データはまだありません。</p></div>';
   }
   const listHtml = items.length
@@ -1815,7 +1852,7 @@ function renderMatchEventsPanel(ev, homeId, homeName, awayId, awayName, ownIdTea
         '</li>';
       }).join("") + '</ul>'
     : '<p class="muted" style="margin:8px 0 0">得点/カード/交代はまだありません。</p>';
-  return '<div class="events-panel">' + lineupsHtml + listHtml + '</div>';
+  return '<div class="events-panel">' + videoHtml + lineupsHtml + listHtml + '</div>';
 }
 
 function scheduleRowHtml(m, team, mode, provisional, league) {
@@ -1825,7 +1862,7 @@ function scheduleRowHtml(m, team, mode, provisional, league) {
   // 第13弾: 得点/カード/交代が1件以上ある試合だけ、行をタップしてドリルダウンできるようにする
   // (試合前で何も無い試合はタップしても意味が無いので出さない)。
   const ev = league ? findMatchEvents(league, m.idEvent) : null;
-  const hasEvents = !!(ev && (ev.lineups || (ev.goals || []).length + (ev.cards || []).length + (ev.subs || []).length > 0));
+  const hasEvents = !!(ev && (ev.lineups || ev.highlightVideoId || ev.daznVideoId || (ev.goals || []).length + (ev.cards || []).length + (ev.subs || []).length > 0));
   // TheSportsDB側がキックオフ後もまだ未消化のままだと、finishedが立たずずっと「日時」表示のままに
   // なってしまう。jleague.jpの得点イベントから暫定スコアを作れる場合はそちらを使う(derivedScoreFromEvents参照)。
   const derived = !m.finished ? derivedScoreFromEvents(ev, m.home.idTeam, m.away.idTeam) : null;
