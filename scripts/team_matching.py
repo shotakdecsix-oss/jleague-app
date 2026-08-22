@@ -155,6 +155,38 @@ def match_teams_in_text(text: str, all_teams: list[dict]) -> list[dict]:
     return matched
 
 
+def build_lookup_ja(all_teams: list[dict]) -> dict[str, dict]:
+    """
+    ja/aliasesJaの完全一致版ルックアップ(第13弾: jleague.jp公式サイトのクラブ名照合用)。
+    公式サイト自身が出す表記なので、ニュース本文(match_teams_in_text向け)と違って
+    表記ゆれ・部分文字列衝突のリスクが低く、完全一致で足りることがほとんど。
+    """
+    lookup: dict[str, dict] = {}
+    for team in all_teams:
+        candidates = [team.get("ja")] + list(team.get("aliasesJa", []))
+        for candidate in candidates:
+            if not candidate:
+                continue
+            key = normalize_name(candidate)
+            lookup.setdefault(key, team)
+    return lookup
+
+
+def match_team_ja(name: str, all_teams: list[dict]) -> dict | None:
+    """
+    jleague.jp公式サイトのクラブ名文字列を1件だけ照合する(第13弾)。
+    まずja/aliasesJaの完全一致(build_lookup_ja)を試し、駄目ならmatch_teams_in_textの
+    部分一致にフォールバックする。部分一致で複数クラブにヒットした場合は危険なので
+    不一致(None)として扱う(呼び出し側でfailedに記録して処理は続行する)。
+    """
+    lookup = build_lookup_ja(all_teams)
+    hit = lookup.get(normalize_name(name))
+    if hit is not None:
+        return hit
+    found = match_teams_in_text(name, all_teams)
+    return found[0] if len(found) == 1 else None
+
+
 def check_key_collisions(all_teams: list[dict]) -> dict[str, list[str]]:
     """
     正規化キーが複数クラブにまたがって存在しないかチェックする。

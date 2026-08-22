@@ -135,12 +135,13 @@
   .sched-round:first-child{margin-top:0}
   .sched-round-title{font-size:11px; font-weight:700; color:var(--sub); margin:0 0 6px 2px}
   .sched-row{
-    display:grid; grid-template-columns:26px 1fr auto; align-items:center; gap:8px;
+    display:grid; grid-template-columns:26px 1fr auto 14px; align-items:center; gap:8px;
     padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;
   }
-  .sched-row.all{grid-template-columns:1fr auto 1fr}
-  .sched-row.all .sched-team:last-child{text-align:right}
-  .sched-row:last-child{border-bottom:none}
+  .sched-row.all{grid-template-columns:1fr auto 1fr 14px}
+  .sched-row.all .sched-team.away{text-align:right}
+  /* 第13弾でsched-rowを.sched-row-wrapに包んだため、:last-childは1つ外側で判定する */
+  .sched-row-wrap:last-child .sched-row{border-bottom:none}
   /* 自クラブが絡む行(「リーグ全体」トグル時)は順位表の自クラブ行と同じ考え方で淡く強調する */
   .sched-row.me{background:var(--me-bg,#eaf6ef); margin:0 -6px; padding-left:6px; padding-right:6px; border-radius:6px}
   .sched-ha{font-size:11px; font-weight:700; color:var(--sub); text-align:center}
@@ -305,10 +306,11 @@
   .cal-day:first-child{margin-top:0}
   .cal-day-title{font-size:11px; font-weight:700; color:var(--sub); margin:0 0 6px 2px}
   .cal-row{
-    display:grid; grid-template-columns:26px 38px 1fr auto 1fr 24px; align-items:center; gap:6px;
+    display:grid; grid-template-columns:26px 38px 1fr auto 1fr 24px 14px; align-items:center; gap:6px;
     padding:7px 0; border-bottom:1px solid var(--line); font-size:13px;
   }
-  .cal-row:last-child{border-bottom:none}
+  /* 第13弾でcal-rowを.cal-row-wrapに包んだため、:last-childは1つ外側で判定する */
+  .cal-row-wrap:last-child .cal-row{border-bottom:none}
   .cal-row.me{background:var(--me-bg,#eaf6ef); margin:0 -6px; padding-left:6px; padding-right:6px; border-radius:6px; box-shadow:inset 3px 0 0 var(--me-accent)}
   .cal-time{font-size:11px; color:var(--sub); text-align:right; font-variant-numeric:tabular-nums}
   .cal-team{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px}
@@ -411,6 +413,28 @@
   .live-updated{margin-top:8px; text-align:center; font-size:11px; color:var(--sub)}
   .cal-row.live{background:#fff7ed}
   .cal-row.live .cal-time{color:#c2410c; font-weight:800}
+
+  /* 第13弾: 試合詳細(得点/カード/交代)ドリルダウン。has-eventsが付いた行だけタップできる。 */
+  .sched-row.has-events, .cal-row.has-events{cursor:pointer}
+  .events-toggle{
+    font-size:10px; color:var(--sub); text-align:center; transition:transform .15s ease; flex:none;
+  }
+  .events-toggle.open{transform:rotate(90deg); color:var(--accent)}
+  .events-panel{padding:2px 0 10px; animation:events-fade-in .15s ease}
+  @keyframes events-fade-in{from{opacity:0} to{opacity:1}}
+  .events-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
+  .events-row{
+    display:grid; grid-template-columns:30px 90px 1fr; align-items:center; gap:8px;
+    font-size:12px; padding:4px 8px; border-radius:6px; background:var(--card-alt,#f7f7f8);
+  }
+  .events-row.me{background:var(--me-bg,#eaf6ef)}
+  .events-minute{color:var(--sub); font-variant-numeric:tabular-nums; text-align:right}
+  .events-club{color:var(--sub); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .events-desc{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .events-sub{color:var(--sub); font-size:11px}
+  .card-dot{display:inline-block; width:8px; height:11px; border-radius:2px; vertical-align:-1px}
+  .card-dot.yellow{background:#eab308}
+  .card-dot.red{background:#dc2626}
 </style>
 </head>
 <body>
@@ -517,6 +541,10 @@ const state = {
   liveTotalFetches: 0,    // 通算取得回数(200で自動停止・暴走対策)
   liveStopped: false,     // 通算上限到達などで恒久停止したフラグ
   liveAutoFetchDone: false, // 「進行中の試合が全部終わった」ときのオンデマンド自動取得を1回だけ行うためのフラグ
+
+  // 第13弾: 試合詳細(得点/カード/交代)ドリルダウン。"league:idEvent"形式のキーで1件だけ開く
+  // (全体モード予想タブのpredictOpenと同じアコーディオン方式)。
+  eventsOpen: null,
 };
 
 /* ---------- クラブカラーのテーマ適用 ---------- */
@@ -719,6 +747,7 @@ function applyRouteFromHash() {
 function setActiveTab(tabId) {
   if (!TABS.some(t => t.id === tabId)) tabId = "home";
   state.activeTab = tabId;
+  state.eventsOpen = null; // タブを切り替えたら開きっぱなしの試合詳細をリセットする(第13弾)
   syncHash();
   updateTabBarActive();
   window.scrollTo(0, 0);
@@ -727,6 +756,7 @@ function setActiveTab(tabId) {
 function setAllTab(tabId) {
   if (!ALL_TABS.some(t => t.id === tabId)) tabId = "schedule";
   state.allTab = tabId;
+  state.eventsOpen = null; // タブを切り替えたら開きっぱなしの試合詳細をリセットする(第13弾)
   if (tabId === "schedule") state.calNeedsScroll = true; // タブを開いた瞬間だけ基準日へスクロールする
   syncHash();
   updateTabBarActive();
@@ -788,10 +818,22 @@ async function ensureCalendar() {
   if (state.calendar === undefined) state.calendar = await getJsonOptional("data/processed/calendar.json");
   return state.calendar;
 }
+/* 第13弾: {league}_match_events.json(得点/カード/交代)。ワークフローが動く前は404でも構わない
+   (getJsonOptionalなのでnullになるだけでアプリは落ちない。その間ドリルダウンは単に出ない)。 */
+async function ensureMatchEvents(league) {
+  const c = leagueCache(league);
+  if (c.matchEvents === undefined) c.matchEvents = await getJsonOptional("data/processed/" + league + "_match_events.json");
+  return c.matchEvents;
+}
+function findMatchEvents(league, idEvent) {
+  const c = state.cache[league];
+  return (c && c.matchEvents && c.matchEvents.events) ? (c.matchEvents.events[String(idEvent)] || null) : null;
+}
 async function ensureAllTabData(tabId, league) {
   if (tabId === "schedule") {
     await ensureCalendar();
     await ensureOndemandOverlayForCalendar(); // 第10弾: オンデマンドキャッシュがあるリーグだけmatchesを読む
+    await Promise.all(Object.keys(LEAGUES).map(lg => ensureMatchEvents(lg))); // 第13弾: 3リーグぶん先読み
   } else if (tabId === "standings") {
     await ensureStandings(league);
     await ensureMatches(league); // 第10弾: 暫定順位の判定(オンデマンド有効かどうか)に必要
@@ -815,6 +857,7 @@ async function ensureTabData(league, tabId) {
     await ensureImpact(league);
   } else if (tabId === "schedule") {
     await ensureMatches(league); // 全380試合が既に入っているので追加取得は不要
+    await ensureMatchEvents(league); // 第13弾: 得点/カード/交代(進行中・直近の試合のみ)
   } else if (tabId === "standings") {
     await ensureStandings(league);
     await ensureMatches(league); // 第10弾: 暫定順位の判定(オンデマンド有効かどうか)に必要
@@ -923,6 +966,15 @@ async function init() {
     if (predictRowBtn) {
       const tid = predictRowBtn.dataset.predictrow;
       state.predictOpen = (state.predictOpen === tid) ? null : tid;
+      renderActiveTab();
+      return;
+    }
+
+    // 第13弾: 試合行タップで得点/カード/交代のドリルダウンを開閉する("league:idEvent"キーで1件だけ開く)
+    const eventsRowBtn = ev.target.closest("[data-eventsrow]");
+    if (eventsRowBtn) {
+      const key = eventsRowBtn.dataset.eventsrow;
+      state.eventsOpen = (state.eventsOpen === key) ? null : key;
       renderActiveTab();
       return;
     }
@@ -1464,13 +1516,26 @@ function calMatchRowHtml(m, ownIdTeam) {
     pillHtml = '<span class="pill ' + mark + '">' + mark + '</span>';
   }
 
-  return '<div class="cal-row' + (involvesMe ? " me" : "") + (live ? " live" : "") + '">' +
-    '<span class="league-badge ' + esc(m.l) + '">' + esc(m.l.toUpperCase()) + '</span>' +
-    '<span class="cal-time">' + esc(timeLabel) + '</span>' +
-    '<span class="cal-team">' + esc(m.h[1]) + '</span>' +
-    '<span class="cal-score">' + esc(scoreLabel) + pillHtml + dotHtml + '</span>' +
-    '<span class="cal-team away">' + esc(m.a[1]) + '</span>' +
-    '<span class="cal-round">' + (m.r ? "第" + esc(m.r) + "節" : "") + '</span>' +
+  // 第13弾: 得点/カード/交代が1件以上ある試合だけ、行をタップしてドリルダウンできるようにする。
+  const evDetail = findMatchEvents(m.l, m.e);
+  const hasEvents = !!(evDetail && ((evDetail.goals || []).length + (evDetail.cards || []).length + (evDetail.subs || []).length > 0));
+  const eventsKey = m.l + ":" + m.e;
+  const isEventsOpen = hasEvents && state.eventsOpen === eventsKey;
+  const expandHtml = hasEvents ? '<span class="events-toggle' + (isEventsOpen ? " open" : "") + '">▸</span>' : "";
+  const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' : "";
+  const panelHtml = isEventsOpen
+    ? renderMatchEventsPanel(evDetail, m.h[0], m.h[1], m.a[0], m.a[1], ownIdTeam)
+    : "";
+
+  return '<div class="cal-row-wrap">' +
+    '<div class="cal-row' + (involvesMe ? " me" : "") + (live ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
+      '<span class="league-badge ' + esc(m.l) + '">' + esc(m.l.toUpperCase()) + '</span>' +
+      '<span class="cal-time">' + esc(timeLabel) + '</span>' +
+      '<span class="cal-team">' + esc(m.h[1]) + '</span>' +
+      '<span class="cal-score">' + esc(scoreLabel) + pillHtml + dotHtml + '</span>' +
+      '<span class="cal-team away">' + esc(m.a[1]) + '</span>' +
+      '<span class="cal-round">' + (m.r ? "第" + esc(m.r) + "節" : "") + '</span>' + expandHtml +
+    '</div>' + panelHtml +
   '</div>';
 }
 
@@ -1608,7 +1673,59 @@ function computeCurrentRound(allMatches) {
   return Math.min(maxRound + 1, 38) || 1;
 }
 
-function scheduleRowHtml(m, team, mode, provisional) {
+/* 第13弾: 得点/カード/交代の分表記("45+2"等)を昇順ソートするためのキーに変換する。 */
+function minuteSortKey(minute) {
+  const m = /^(\d+)(?:\+(\d+))?$/.exec(String(minute == null ? "" : minute));
+  if (!m) return 9999;
+  return (+m[1]) + (m[2] ? (+m[2]) / 100 : 0);
+}
+function teamNameForEvent(idTeam, homeId, homeName, awayId, awayName) {
+  if (idTeam === homeId) return homeName;
+  if (idTeam === awayId) return awayName;
+  return "";
+}
+/* ev = {code,url,fetchedAtJst,goals[],cards[],subs[]}(data/processed/{league}_match_events.json)。
+   goals/cards/subsを分でまとめてソートし、自クラブの出来事だけ.meで強調する。 */
+function renderMatchEventsPanel(ev, homeId, homeName, awayId, awayName, ownIdTeam) {
+  if (!ev) return "";
+  const items = [];
+  for (const g of ev.goals || []) {
+    items.push({
+      minute: g.minute, idTeam: g.idTeam,
+      html: "⚽ " + esc(g.player) + (g.scoreAfter ? ' <span class="events-sub">(' + esc(g.scoreAfter) + ')</span>' : ""),
+    });
+  }
+  for (const c of ev.cards || []) {
+    items.push({
+      minute: c.minute, idTeam: c.idTeam,
+      html: '<span class="card-dot ' + esc(c.type) + '"></span> ' + esc(c.player),
+    });
+  }
+  for (const s of ev.subs || []) {
+    const inP = (s.items || []).find(it => it.variant === "in");
+    const outP = (s.items || []).find(it => it.variant === "out");
+    items.push({
+      minute: s.minute, idTeam: s.idTeam,
+      html: "IN " + esc(inP ? inP.name : "?") + ' <span class="events-sub">/ OUT ' + esc(outP ? outP.name : "?") + "</span>",
+    });
+  }
+  items.sort((a, b) => minuteSortKey(a.minute) - minuteSortKey(b.minute));
+
+  if (!items.length) {
+    return '<div class="events-panel"><p class="muted" style="margin:0">詳細データはまだありません。</p></div>';
+  }
+  const rowsHtml = items.map(it => {
+    const name = teamNameForEvent(it.idTeam, homeId, homeName, awayId, awayName);
+    return '<li class="events-row' + (ownIdTeam && it.idTeam === ownIdTeam ? " me" : "") + '">' +
+      '<span class="events-minute">' + esc(it.minute == null ? "" : it.minute) + "'</span>" +
+      '<span class="events-club">' + esc(name) + '</span>' +
+      '<span class="events-desc">' + it.html + '</span>' +
+    '</li>';
+  }).join("");
+  return '<div class="events-panel"><ul class="events-list">' + rowsHtml + '</ul></div>';
+}
+
+function scheduleRowHtml(m, team, mode, provisional, league) {
   const involvesMe = m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam;
   const isHome = m.home.idTeam === team.idTeam;
   const dotHtml = provisional ? '<span class="provisional-dot"></span>' : "";
@@ -1634,18 +1751,34 @@ function scheduleRowHtml(m, team, mode, provisional) {
     centerHtml = m.home.score + " - " + m.away.score;
   }
 
+  // 第13弾: 得点/カード/交代が1件以上ある試合だけ、行をタップしてドリルダウンできるようにする
+  // (試合前で何も無い試合はタップしても意味が無いので出さない)。
+  const ev = league ? findMatchEvents(league, m.idEvent) : null;
+  const hasEvents = !!(ev && ((ev.goals || []).length + (ev.cards || []).length + (ev.subs || []).length > 0));
+  const eventsKey = league + ":" + m.idEvent;
+  const isOpen = hasEvents && state.eventsOpen === eventsKey;
+  const expandHtml = hasEvents ? '<span class="events-toggle' + (isOpen ? " open" : "") + '">▸</span>' : "";
+  const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' : "";
+  const panelHtml = isOpen
+    ? renderMatchEventsPanel(ev, m.home.idTeam, m.home.short || m.home.ja, m.away.idTeam, m.away.short || m.away.ja, team.idTeam)
+    : "";
+
   if (mode === "mine") {
     const opp = isHome ? m.away : m.home;
-    return '<div class="sched-row">' +
-      '<span class="sched-ha">' + (isHome ? "H" : "A") + '</span>' +
-      '<span class="sched-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + esc(opp.ja) + '</span></span>' +
-      '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' +
+    return '<div class="sched-row-wrap">' +
+      '<div class="sched-row' + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
+        '<span class="sched-ha">' + (isHome ? "H" : "A") + '</span>' +
+        '<span class="sched-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + esc(opp.ja) + '</span></span>' +
+        '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' + expandHtml +
+      '</div>' + panelHtml +
     '</div>';
   }
-  return '<div class="sched-row all' + (involvesMe ? " me" : "") + '">' +
-    '<span class="sched-team"><span class="team-link" data-idteam="' + esc(m.home.idTeam) + '">' + esc(m.home.short || m.home.ja) + '</span></span>' +
-    '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' +
-    '<span class="sched-team"><span class="team-link" data-idteam="' + esc(m.away.idTeam) + '">' + esc(m.away.short || m.away.ja) + '</span></span>' +
+  return '<div class="sched-row-wrap">' +
+    '<div class="sched-row all' + (involvesMe ? " me" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
+      '<span class="sched-team"><span class="team-link" data-idteam="' + esc(m.home.idTeam) + '">' + esc(m.home.short || m.home.ja) + '</span></span>' +
+      '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' +
+      '<span class="sched-team away"><span class="team-link" data-idteam="' + esc(m.away.idTeam) + '">' + esc(m.away.short || m.away.ja) + '</span></span>' + expandHtml +
+    '</div>' + panelHtml +
   '</div>';
 }
 
@@ -1691,7 +1824,7 @@ function renderScheduleTab(matchesData, team, league) {
       rows = rows.filter(m => m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam);
       if (!rows.length) return "";
     }
-    const rowsHtml = rows.map(m => scheduleRowHtml(m, team, mode, league && isOndemandMatch(league, m.idEvent))).join("");
+    const rowsHtml = rows.map(m => scheduleRowHtml(m, team, mode, league && isOndemandMatch(league, m.idEvent), league)).join("");
     return '<div class="sched-round" id="round-' + r + '"><h3 class="sched-round-title">第' + r + '節</h3>' + rowsHtml + '</div>';
   }).join("");
 
@@ -2165,17 +2298,15 @@ function pickLiveCandidates(matchesByLeague, now) {
   return out;
 }
 
-/* 3章: livescore.phpを叩き、生のイベント配列を返す。通信/HTTP/パース失敗はnull。
-   実測(2026-08-22 16:37 JST、開発者ツールのNetworkタブで確認)によると、トップレベルのキーは
-   "events" ではなく "livescore" だった(指示書作成時の記録違い。実機の応答を優先する)。
-   {"livescore":null}(=世界のどこにも進行中の試合が無い)はエラーではないので空配列を返す(5章の解釈)。 */
+/* 3章: livescore.phpを叩き、生のevents配列を返す。通信/HTTP/パース失敗はnull。
+   {"events":null}(=世界のどこにも進行中の試合が無い)はエラーではないので空配列を返す(5章の解釈)。 */
 async function fetchLiveScores() {
   try {
     const res = await fetch("https://www.thesportsdb.com/api/v1/json/" + ONDEMAND_API_KEY + "/livescore.php?s=Soccer", { cache: "no-store" });
     if (!res.ok) return null;
     const json = await res.json();
     if (!json) return null;
-    return Array.isArray(json.livescore) ? json.livescore : [];
+    return Array.isArray(json.events) ? json.events : [];
   } catch (e) {
     return null;
   }

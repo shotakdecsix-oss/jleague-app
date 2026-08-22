@@ -6,15 +6,15 @@
     python scripts/save_sample_html.py
 
 data/tmp/ に以下を保存する:
-    sample_club_top.html    (クラブ概要ページ: スタッツ/ニュース/シーズン別成績)
-    sample_club_player.html (選手一覧ページ)
-    sample_match_detail.html (個別試合ページ: 第6弾Bの調査用。埋め込みJSONに経過時間・イベントが
-                               入っているか確認する。できれば2026-08-21 19:00キックオフ後に取り直すこと。
-                               キックオフ前に取ると試合開始前の状態しか見えない)
-    sample_match_list.html   (今週の日程一覧ページ: 個別試合ページのURL[6桁コード]がhrefとして
-                               採取できるか確認する用)
-    sample_sp_game.html      (スマホ版「今日の試合速報」ページ: club/matchページと同じNext.js系統か
-                               確認する用。試合が無い日は空表示になるので、試合がある日に取り直すこと)
+    sample_club_top.html      (クラブ概要ページ: スタッツ/ニュース/シーズン別成績)
+    sample_club_player.html   (選手一覧ページ)
+    sample_match_schedule.html (その日のJ2試合一覧ページ: 個別試合ページのURL[6桁コード]が
+                                 対戦カード名と一緒に採取できるか確認する用)
+    sample_match_review.html  (終了済み試合の「試合結果・データ」ページ: 得点者・時間が
+                                埋め込みJSONに入っているか確認する用。2026-02-14の宮崎vs湘南、消化済み)
+    sample_match_livetxt.html (進行中/直近の試合の「テキスト速報」ページ: 得点・カード・交代が
+                                リアルタイムで採取できるか確認する用。2026-08-22 15:00キックオフの
+                                札幌vs大宮、既に複数得点が入っている状態で取得する)
 """
 
 from __future__ import annotations
@@ -32,9 +32,9 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) jleague-app 
 TARGETS = {
     "sample_club_top.html": "https://www.jleague.jp/club/shonan/",
     "sample_club_player.html": "https://www.jleague.jp/club/shonan/player/",
-    "sample_match_detail.html": "https://www.jleague.jp/match/j1/2026/082102/",
-    "sample_match_list.html": "https://www.jleague.jp/j1/match/",
-    "sample_sp_game.html": "https://www.jleague.jp/sp/game/",
+    "sample_match_schedule.html": "https://www.jleague.jp/match/j2/",
+    "sample_match_review.html": "https://www.jleague.jp/match/j2j3/2026/021409/review/",
+    "sample_match_livetxt.html": "https://www.jleague.jp/match/j2/2026/082208/livetxt/",
 }
 
 
@@ -53,7 +53,7 @@ def main() -> None:
         print(f"[info] 保存: {out_path} ({len(resp.text)} 文字)")
         time.sleep(2)
 
-    print("\n完了。data/tmp/ の2ファイルをそのまま次のメッセージで教えてください。")
+    print("\n完了。data/tmp/ に保存しました(コミット不要、.gitignoreで除外されています)。")
 
 
 if __name__ == "__main__":
