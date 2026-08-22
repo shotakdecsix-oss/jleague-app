@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-08-22T20:46:11+09:00",
+    "generatedAtJst": "2026-08-22T21:00:12+09:00",
     "windowHours": 36,
     "candidateCount": 9,
     "fetchedCount": 9,
@@ -12,7 +12,7 @@
     "2492803": {
       "code": "082102",
       "url": "https://www.jleague.jp/match/j1/2026/082102/livetxt/",
-      "fetchedAtJst": "2026-08-22T20:46:13+09:00",
+      "fetchedAtJst": "2026-08-22T21:00:21+09:00",
       "goals": [
         {
           "minute": "83",
@@ -373,7 +373,7 @@
     "2492802": {
       "code": "082101",
       "url": "https://www.jleague.jp/match/j1/2026/082101/livetxt/",
-      "fetchedAtJst": "2026-08-22T20:46:17+09:00",
+      "fetchedAtJst": "2026-08-22T21:00:24+09:00",
       "goals": [
         {
           "minute": "85",
@@ -702,7 +702,7 @@
     "2492805": {
       "code": "082201",
       "url": "https://www.jleague.jp/match/j1/2026/082201/livetxt/",
-      "fetchedAtJst": "2026-08-22T20:46:20+09:00",
+      "fetchedAtJst": "2026-08-22T21:00:36+09:00",
       "goals": [
         {
           "minute": "76",
@@ -1047,7 +1047,7 @@
     "2492807": {
       "code": "082202",
       "url": "https://www.jleague.jp/match/j1/2026/082202/livetxt/",
-      "fetchedAtJst": "2026-08-22T20:46:23+09:00",
+      "fetchedAtJst": "2026-08-22T21:00:41+09:00",
       "goals": [],
       "cards": [
         {
@@ -1375,7 +1375,7 @@
     "2491868": {
       "code": "082204",
       "url": "https://www.jleague.jp/match/j1/2026/082204/livetxt/",
-      "fetchedAtJst": "2026-08-22T20:46:26+09:00",
+      "fetchedAtJst": "2026-08-22T21:00:46+09:00",
       "goals": [
         {
           "minute": "82",
@@ -1412,6 +1412,57 @@
       ],
       "cards": [],
       "subs": [
+        {
+          "minute": "85",
+          "club": "京都サンガF.C.",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 99",
+              "name": "本田 風智"
+            },
+            {
+              "variant": "out",
+              "position": "MF 6",
+              "name": "ジョアン ペドロ"
+            }
+          ],
+          "idTeam": "139888"
+        },
+        {
+          "minute": "85",
+          "club": "水戸ホーリーホック",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 4",
+              "name": "河面 旺成"
+            },
+            {
+              "variant": "out",
+              "position": "FW 22",
+              "name": "谷口 海斗"
+            }
+          ],
+          "idTeam": "139891"
+        },
+        {
+          "minute": "85",
+          "club": "水戸ホーリーホック",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 53",
+              "name": "山下 翔大"
+            },
+            {
+              "variant": "out",
+              "position": "MF 20",
+              "name": "舩橋 佑"
+            }
+          ],
+          "idTeam": "139891"
+        },
         {
           "minute": "77",
           "club": "水戸ホーリーホック",
@@ -1660,7 +1711,7 @@
     "2492804": {
       "code": "082205",
       "url": "https://www.jleague.jp/match/j1/2026/082205/livetxt/",
-      "fetchedAtJst": "2026-08-22T20:46:28+09:00",
+      "fetchedAtJst": "2026-08-22T21:00:49+09:00",
       "goals": [
         {
           "minute": "62",
@@ -1706,6 +1757,40 @@
         }
       ],
       "subs": [
+        {
+          "minute": "90",
+          "club": "セレッソ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 19",
+              "name": "パブロ サバック"
+            },
+            {
+              "variant": "out",
+              "position": "FW 41",
+              "name": "小見 洋太"
+            }
+          ],
+          "idTeam": "137703"
+        },
+        {
+          "minute": "90",
+          "club": "セレッソ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 6",
+              "name": "登里 享平"
+            },
+            {
+              "variant": "out",
+              "position": "DF 66",
+              "name": "大畑 歩夢"
+            }
+          ],
+          "idTeam": "137703"
+        },
         {
           "minute": "77",
           "club": "セレッソ大阪",
@@ -1971,14 +2056,22 @@
     "2492806": {
       "code": "082203",
       "url": "https://www.jleague.jp/match/j1/2026/082203/livetxt/",
-      "fetchedAtJst": "2026-08-22T20:46:32+09:00",
+      "fetchedAtJst": "2026-08-22T21:00:52+09:00",
       "goals": [
+        {
+          "minute": "97",
+          "club": "名古屋グランパス",
+          "player": "小野 雅史",
+          "position": "MF 41",
+          "scoreAfter": "3-1",
+          "idTeam": "137710"
+        },
         {
           "minute": "83",
           "club": "名古屋グランパス",
           "player": "浅野 雄也",
           "position": "MF 9",
-          "scoreAfter": "2-1",
+          "scoreAfter": null,
           "idTeam": "137710"
         },
         {
@@ -2000,6 +2093,22 @@
       ],
       "cards": [
         {
+          "minute": "87",
+          "type": "yellow",
+          "player": "マテウス カストロ",
+          "position": "FW 10",
+          "club": "名古屋グランパス",
+          "idTeam": "137710"
+        },
+        {
+          "minute": "86",
+          "type": "red",
+          "player": "安部 柊斗",
+          "position": "MF 13",
+          "club": "ガンバ大阪",
+          "idTeam": "137705"
+        },
+        {
           "minute": "43",
           "type": "yellow",
           "player": "デニス ヒュメット",
@@ -2017,6 +2126,23 @@
         }
       ],
       "subs": [
+        {
+          "minute": "86",
+          "club": "ガンバ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 7",
+              "name": "宇佐美 貴史"
+            },
+            {
+              "variant": "out",
+              "position": "MF 27",
+              "name": "美藤 倫"
+            }
+          ],
+          "idTeam": "137705"
+        },
         {
           "minute": "79",
           "club": "ガンバ大阪",
@@ -2282,7 +2408,7 @@
     "2492808": {
       "code": "082206",
       "url": "https://www.jleague.jp/match/j1/2026/082206/livetxt/",
-      "fetchedAtJst": "2026-08-22T20:46:34+09:00",
+      "fetchedAtJst": "2026-08-22T21:00:55+09:00",
       "goals": [
         {
           "minute": "58",
@@ -2303,6 +2429,14 @@
       ],
       "cards": [
         {
+          "minute": "72",
+          "type": "yellow",
+          "player": "ラザル ロマニッチ",
+          "position": "FW 9",
+          "club": "川崎フロンターレ",
+          "idTeam": "137709"
+        },
+        {
           "minute": null,
           "type": "yellow",
           "player": "加藤 陸次樹",
@@ -2321,19 +2455,24 @@
       ],
       "subs": [
         {
-          "minute": "60",
+          "minute": "59",
           "club": "川崎フロンターレ",
           "items": [
             {
               "variant": "in",
               "position": "MF 34",
               "name": "長 璃喜"
+            },
+            {
+              "variant": "out",
+              "position": "FW 23",
+              "name": "マルシーニョ"
             }
           ],
           "idTeam": "137709"
         },
         {
-          "minute": "60",
+          "minute": "59",
           "club": "川崎フロンターレ",
           "items": [
             {
@@ -2350,7 +2489,7 @@
           "idTeam": "137709"
         },
         {
-          "minute": "60",
+          "minute": "59",
           "club": "川崎フロンターレ",
           "items": [
             {
@@ -2546,7 +2685,7 @@
     "2492809": {
       "code": "082207",
       "url": "https://www.jleague.jp/match/j1/2026/082207/livetxt/",
-      "fetchedAtJst": "2026-08-22T20:46:40+09:00",
+      "fetchedAtJst": "2026-08-22T21:00:58+09:00",
       "goals": [
         {
           "minute": "9",
@@ -2558,6 +2697,14 @@
         }
       ],
       "cards": [
+        {
+          "minute": "66",
+          "type": "yellow",
+          "player": "井手口 陽介",
+          "position": "MF 7",
+          "club": "ヴィッセル神戸",
+          "idTeam": "137717"
+        },
         {
           "minute": "48",
           "type": "yellow",
@@ -2584,6 +2731,52 @@
         }
       ],
       "subs": [
+        {
+          "minute": "68",
+          "club": "ヴィッセル神戸",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 20",
+              "name": "渡辺 皓太"
+            }
+          ],
+          "idTeam": "137717"
+        },
+        {
+          "minute": "63",
+          "club": "ヴィッセル神戸",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 18",
+              "name": "井出 遥也"
+            },
+            {
+              "variant": "out",
+              "position": "DF 41",
+              "name": "永戸 勝也"
+            }
+          ],
+          "idTeam": "137717"
+        },
+        {
+          "minute": "63",
+          "club": "ヴィッセル神戸",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 28",
+              "name": "濱﨑 健斗"
+            },
+            {
+              "variant": "out",
+              "position": "MF 44",
+              "name": "日髙 光揮"
+            }
+          ],
+          "idTeam": "137717"
+        },
         {
           "minute": "45",
           "club": "ヴィッセル神戸",
