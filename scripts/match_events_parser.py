@@ -10,6 +10,9 @@ scripts/fetch_match_events.py から使う。data/tmp/sample_match_*.html を使
     (082217 = テゲバジャーロ宮崎 vs 湘南ベルマーレ、など)
   - 出場メンバー(find_formations): livetxt/review両ページとも home/away各11人・背番号・
     フォーメーション("4-4-2"等)を正しく抽出(2026-08-22追加検証)
+  - 控えメンバー(find_lineup_members): 個別試合ページのトップ(sample_match_base.html)から
+    home/away各20名前後(スタメン11+控え9前後)を正しく抽出(2026-08-22追加検証)。
+    formationsのスタメンidと突き合わせて差分を控えメンバーとして扱う。
 
 抽出手法の注記:
   - 得点/カード/交代は、Next.jsのRSCストリーミングチャンク(extract_next_chunksでチャンクID->
@@ -109,6 +112,45 @@ def find_formations(chunks: dict[str, str]) -> list[dict] | None:
         except json.JSONDecodeError:
             continue
     return None
+
+
+LINEUP_MEMBER_RE = re.compile(
+    r'"legacyPlayerPhotoLookup":\{"seasonYear":\d+,"teamNameKey":"(?P<teamSlug>[a-z0-9]+)","playerId":"(?P<pid>\d+)"[^}]*\}\}\],'
+    r'\["\$","div",null,\{"className":"m-lineup-list-item__content","children":\['
+    r'\["\$","p",null,\{"className":"[^"]*m-lineup-list-item__position","ref":"\$undefined","children":"(?P<posnum>[^"]+)"\}\],'
+    r'\["\$","div",null,\{"className":"m-lineup-list-item__main-content","children":\['
+    r'\["\$","p",null,\{"className":"[^"]*m-lineup-list-item__name","ref":"\$undefined","children":"(?P<name>[^"]+)"'
+)
+
+
+def find_lineup_members(chunks: dict[str, str]) -> dict[str, list[dict]]:
+    """
+    第14弾: 控えメンバー(ベンチ)用。個別試合ページのトップ
+    (https://www.jleague.jp/match/{league}/{year}/{code}/、livetxt/やreview/ではない)には、
+    スタメン+控えメンバー(合計40名前後、チームごとに20名前後)が同じ"m-lineup-list-item"
+    コンポーネントで一括描画されている。formations(スタメンのピッチ座標)とは別の埋め込み
+    (同じ選手が重複して載っている)。teamNameKeyはクラブのjleagueSlug(masters側の
+    jleagueSlugフィールド)と一致するので、chunks単体では所属チームまでしか分からないが、
+    呼び出し側でjleagueSlugと突き合わせてidTeamに解決する。
+    戻り値: {teamSlug: [{"id","number","position","name"}, ...チーム内の出現順], ...}。
+    出現順は「スタメン11人 -> 控えメンバー」の順(サッカーのルール上スタメンは必ず11人という
+    前提で、呼び出し側はformationsのスタメンidと突き合わせて控え分だけを取り出す)。
+    見つからなければ空dict。
+    """
+    text = "".join(chunks.values())
+    by_team: dict[str, list[dict]] = {}
+    for m in LINEUP_MEMBER_RE.finditer(text):
+        posnum = m.group("posnum")
+        parts = posnum.split(" ", 1)
+        position = parts[0] if parts else None
+        number = parts[1] if len(parts) > 1 else None
+        by_team.setdefault(m.group("teamSlug"), []).append({
+            "id": m.group("pid"),
+            "number": number,
+            "position": position,
+            "name": m.group("name"),
+        })
+    return by_team
 
 
 # 日程一覧ページ(/match/{league}/): 「新しいコードのhref」直後に来る2つのチーム名(data-media=pc)を

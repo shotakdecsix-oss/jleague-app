@@ -14,12 +14,19 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from fetch_match_events import EVENTS_WINDOW_HOURS, build_lineups, parse_and_merge, pick_candidates  # noqa: E402
+from fetch_match_events import (  # noqa: E402
+    EVENTS_WINDOW_HOURS,
+    build_lineups,
+    load_all_teams,
+    parse_and_merge,
+    pick_candidates,
+)
 from match_events_parser import (  # noqa: E402
     extract_schedule_index,
     find_cards,
     find_formations,
     find_goals,
+    find_lineup_members,
     find_subs,
 )
 from team_matching import load_master_teams  # noqa: E402
@@ -155,6 +162,38 @@ def test_parsers_against_samples():
     codes = {e["code"]: (e["home"], e["away"]) for e in entries}
     assert codes.get("082217") == ("テゲバジャーロ宮崎", "湘南ベルマーレ"), codes.get("082217")
     print("OK: sample_match_schedule.html の対戦カード<->コード対応を確認")
+
+    # 第14弾: 控えメンバー(基点ページ側のみに埋め込まれている)
+    base = SAMPLE_DIR / "sample_match_base.html"
+    if not base.exists():
+        print("SKIP: data/tmp/sample_match_base.html が無いため控えメンバーのテストをスキップ"
+              "(python scripts/save_sample_html.py で生成できます)")
+        return
+    chunks_b = extract_next_chunks(base.read_text(encoding="utf-8"))
+    members = find_lineup_members(chunks_b)
+    assert set(members.keys()) == {"sapporo", "omiya"}, f"teamNameKeyが想定外: {members.keys()}"
+    for slug in ("sapporo", "omiya"):
+        players = members[slug]
+        assert len(players) == 20, f"{slug}: スタメン11+控え9=20人のはずが{len(players)}人"
+        assert all(p["id"] and p["name"] and p["position"] and p["number"] for p in players), \
+            f"{slug}: id/name/position/numberが揃っていない選手がいる"
+    print("OK: sample_match_base.html からスタメン+控えメンバー(各20人)を確認")
+
+    # build_lineups()でformations(スタメン)とbench_by_slug(控え)を統合できることを確認する
+    # (実マスタが必要なので、data/masters/が揃っている実環境でだけ意味のあるテスト)
+    formations = find_formations(chunks)
+    all_teams = load_all_teams()
+    lineups = build_lineups(formations, members, all_teams)
+    assert lineups is not None, "build_lineups()がNoneを返した"
+    for side in ("home", "away"):
+        s = lineups[side]
+        assert s["idTeam"], f"{side}: idTeamが解決できていない(masters側のjaと一致しない?)"
+        assert len(s["players"]) == 11, f"{side}: スタメン11人のはずが{len(s['players'])}人"
+        assert len(s["bench"]) == 9, f"{side}: 控え9人のはずが{len(s['bench'])}人"
+        starter_ids = {p["id"] for p in s["players"]}
+        bench_ids = {p["id"] for p in s["bench"]}
+        assert not (starter_ids & bench_ids), f"{side}: スタメンと控えでidが重複している"
+    print("OK: build_lineups()でスタメン+控えメンバーを統合できることを確認")
 
 
 if __name__ == "__main__":

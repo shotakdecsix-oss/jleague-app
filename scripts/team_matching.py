@@ -93,6 +93,7 @@ def load_master_teams(league: str, raw: dict) -> list[dict]:
                     "aliases": t.get("aliases", []),
                     "aliasesJa": t.get("aliasesJa", []),
                     "ja": t.get("ja"),
+                    "jleagueSlug": t.get("jleagueSlug"),  # 第14弾: 控えメンバー抽出でteamNameKeyと突き合わせるため
                 }
             )
     elif isinstance(teams_raw, dict):
@@ -106,6 +107,7 @@ def load_master_teams(league: str, raw: dict) -> list[dict]:
                     "aliases": t.get("aliases", []),
                     "aliasesJa": t.get("aliasesJa", []),
                     "ja": t.get("ja"),
+                    "jleagueSlug": t.get("jleagueSlug"),
                 }
             )
     else:

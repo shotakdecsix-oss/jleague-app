@@ -21,6 +21,12 @@ scripts/team_matching.match_team_ja() でmatches.json側のidTeamに変換し、
 home/away両方のidTeamが一致するものを採用する(コードそのものから日付は分かるが、
 それだけでは対戦カードを特定できないため)。
 
+第14弾: 控えメンバー(ベンチ)はlivetxt/ページには埋め込まれておらず、個別試合ページの
+基点URL(baseUrl。#lineup等のアンカーがある方)にのみ載っている。そのため1試合につき
+livetxt/とbaseUrlの2回リクエストする(SLEEP_BETWEEN_REQUESTS秒あける)。基点ページの
+取得/抽出に失敗しても、livetxt/側で取れた得点/カード/交代は無駄にしない(bench_by_slugが
+空のまま処理を続け、控えメンバーだけ前回分を維持するか空になる)。
+
 CLI:
     python scripts/fetch_match_events.py --league j2
     python scripts/fetch_match_events.py --league all
@@ -43,6 +49,7 @@ from match_events_parser import (  # noqa: E402
     find_cards,
     find_formations,
     find_goals,
+    find_lineup_members,
     find_subs,
 )
 from team_matching import load_master_teams, match_team_ja  # noqa: E402
@@ -53,6 +60,7 @@ PROCESSED_DIR = BASE_DIR / "data" / "processed"
 
 EVENTS_WINDOW_HOURS = 36
 SLEEP_BETWEEN_MATCHES = 2.0
+SLEEP_BETWEEN_REQUESTS = 1.0  # 第14弾: 同一試合内でlivetxt/基点ページの2回叩く間隔
 
 
 def fetch_html(url: str) -> str | None:
@@ -153,13 +161,24 @@ def resolve_codes(
             "year": hit["year"],
             "code": hit["code"],
             "url": f"https://www.jleague.jp/match/{hit['league']}/{hit['year']}/{hit['code']}/livetxt/",
+            # 第14弾: 控えメンバーはlivetxt/ではなく基点ページ(#lineup)側にしか埋め込まれていない
+            "baseUrl": f"https://www.jleague.jp/match/{hit['league']}/{hit['year']}/{hit['code']}/",
         }
     return resolved, unresolved
 
 
-def build_lineup_side(side: dict, all_teams: list[dict]) -> dict:
+def build_lineup_side(side: dict, bench_by_slug: dict[str, list[dict]], all_teams: list[dict]) -> dict:
     team = match_team_ja(side.get("teamName") or "", all_teams)
     players = sorted(side.get("players", []) or [], key=lambda p: p.get("positionX", 0))
+    starter_ids = {str(p.get("id")) for p in players}
+
+    # 第14弾: 控えメンバー。bench_by_slugにはスタメン+控えの全員(チームごとの出現順)が
+    # 入っているので、formations側で既にスタメンと分かっているidを除いた残りを控えとみなす
+    # (「先頭11人が控え」という順序を信用するより、スタメンidとの差集合の方が壊れにくい)。
+    slug = (team or {}).get("jleagueSlug")
+    bench_raw = bench_by_slug.get(slug, []) if slug else []
+    bench = [p for p in bench_raw if p.get("id") not in starter_ids]
+
     return {
         "idTeam": team["idTeam"] if team else None,
         "formation": side.get("formation"),
@@ -167,10 +186,16 @@ def build_lineup_side(side: dict, all_teams: list[dict]) -> dict:
             {"id": p.get("id"), "name": p.get("name"), "number": p.get("playerNumber")}
             for p in players
         ],
+        "bench": [
+            {"id": p.get("id"), "name": p.get("name"), "number": p.get("number"), "position": p.get("position")}
+            for p in bench
+        ],
     }
 
 
-def build_lineups(formations: list[dict] | None, all_teams: list[dict]) -> dict | None:
+def build_lineups(
+    formations: list[dict] | None, bench_by_slug: dict[str, list[dict]], all_teams: list[dict]
+) -> dict | None:
     """formationsは基本"前半0分"時点の1件のみ(それ以降のスタメン変更は無い前提)。"""
     if not formations:
         return None
@@ -179,8 +204,8 @@ def build_lineups(formations: list[dict] | None, all_teams: list[dict]) -> dict 
     if not home_raw or not away_raw:
         return None
     return {
-        "home": build_lineup_side(home_raw, all_teams),
-        "away": build_lineup_side(away_raw, all_teams),
+        "home": build_lineup_side(home_raw, bench_by_slug, all_teams),
+        "away": build_lineup_side(away_raw, bench_by_slug, all_teams),
     }
 
 
@@ -196,7 +221,18 @@ def parse_and_merge(
     goals = find_goals(chunks)
     cards = find_cards(chunks)
     subs = find_subs(chunks)
-    lineups = build_lineups(find_formations(chunks), all_teams)
+
+    # 第14弾: 控えメンバーはlivetxt/側には無く、基点ページ(baseUrl)側にしか埋め込まれていない。
+    # この2回目の取得が失敗しても、得点/カード/交代(既に取得済み)は無駄にしない。
+    bench_by_slug: dict[str, list[dict]] = {}
+    base_url = resolved.get("baseUrl")
+    if base_url:
+        time.sleep(SLEEP_BETWEEN_REQUESTS)
+        base_html = fetch_html(base_url)
+        if base_html is not None:
+            bench_by_slug = find_lineup_members(extract_next_chunks(base_html))
+
+    lineups = build_lineups(find_formations(chunks), bench_by_slug, all_teams)
 
     def resolve_club(name: str | None) -> str | None:
         if not name:
@@ -227,6 +263,13 @@ def parse_and_merge(
     # (マークアップの一時的な揺れで消してしまわないための安全弁。得点/カード/交代の退行防止と同じ考え方)。
     if lineups is None and old:
         lineups = old.get("lineups")
+    # 控えメンバーだけが今回取れなかった場合(基点ページの取得/抽出失敗)も、前回分があれば
+    # 片側ずつ維持する(スタメンは取れているのに控えだけ消えるのを防ぐ)。
+    elif lineups and old and old.get("lineups"):
+        old_lineups = old["lineups"]
+        for side in ("home", "away"):
+            if lineups.get(side) and not lineups[side].get("bench") and old_lineups.get(side, {}).get("bench"):
+                lineups[side]["bench"] = old_lineups[side]["bench"]
 
     return {
         "code": resolved["code"],

@@ -448,6 +448,10 @@
   .lineups-formation{font-size:11px; font-weight:400; color:var(--sub)}
   .lineups-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px; font-size:12px}
   .lineups-num{display:inline-block; min-width:20px; color:var(--sub); font-variant-numeric:tabular-nums}
+  /* 第14弾: 控えメンバー(スタメンより一段落ち着いた見た目にする) */
+  .lineups-sub-title{font-size:10px; font-weight:700; color:var(--sub); margin:8px 0 3px}
+  .lineups-bench{color:var(--sub)}
+  .lineups-pos{display:inline-block; min-width:26px; font-size:10px; color:var(--sub)}
 </style>
 </head>
 <body>
@@ -1741,22 +1745,32 @@ function derivedScoreFromEvents(ev, homeId, awayId) {
 }
 /* ev = {code,url,fetchedAtJst,goals[],cards[],subs[]}(data/processed/{league}_match_events.json)。
    goals/cards/subsを分でまとめてソートし、自クラブの出来事だけ.meで強調する。 */
-/* 第13弾: 出場メンバー(スタメン)。findビ_formationsで取れたpositionX昇順(GK→FW)のまま並べる。 */
+/* 第13弾: 出場メンバー(スタメン)。findビ_formationsで取れたpositionX昇順(GK→FW)のまま並べる。
+   第14弾: 控えメンバー(bench)があれば、スタメンの下に一段落ち着いた見た目で追加表示する。 */
 function renderLineupSide(side, teamName, ownIdTeam) {
   if (!side) return "";
   const playersHtml = (side.players || []).map(p =>
     '<li><span class="lineups-num">' + esc(p.number == null ? "" : p.number) + '</span>' + esc(p.name) + '</li>'
   ).join("");
+  const benchHtml = (side.bench && side.bench.length)
+    ? '<div class="lineups-sub-title">控えメンバー</div>' +
+      '<ol class="lineups-list lineups-bench">' + side.bench.map(p =>
+        '<li><span class="lineups-num">' + esc(p.number == null ? "" : p.number) + '</span>' +
+          (p.position ? '<span class="lineups-pos">' + esc(p.position) + '</span>' : "") +
+          esc(p.name) + '</li>'
+      ).join("") + '</ol>'
+    : "";
   return '<div class="lineups-col' + (ownIdTeam && side.idTeam === ownIdTeam ? " me" : "") + '">' +
     '<div class="lineups-team">' + esc(teamName) +
       (side.formation ? ' <span class="lineups-formation">(' + esc(side.formation) + ')</span>' : "") +
     '</div>' +
     '<ol class="lineups-list">' + playersHtml + '</ol>' +
+    benchHtml +
   '</div>';
 }
 function renderLineupsHtml(lineups, homeName, awayName, ownIdTeam) {
   if (!lineups || !lineups.home || !lineups.away) return "";
-  return '<div class="lineups"><h4 class="lineups-title">スタメン</h4><div class="lineups-grid">' +
+  return '<div class="lineups"><h4 class="lineups-title">メンバー</h4><div class="lineups-grid">' +
     renderLineupSide(lineups.home, homeName, ownIdTeam) +
     renderLineupSide(lineups.away, awayName, ownIdTeam) +
   '</div></div>';
