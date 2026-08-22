@@ -2165,15 +2165,17 @@ function pickLiveCandidates(matchesByLeague, now) {
   return out;
 }
 
-/* 3章: livescore.phpを叩き、生のevents配列を返す。通信/HTTP/パース失敗はnull。
-   {"events":null}(=世界のどこにも進行中の試合が無い)はエラーではないので空配列を返す(5章の解釈)。 */
+/* 3章: livescore.phpを叩き、生のイベント配列を返す。通信/HTTP/パース失敗はnull。
+   実測(2026-08-22 16:37 JST、開発者ツールのNetworkタブで確認)によると、トップレベルのキーは
+   "events" ではなく "livescore" だった(指示書作成時の記録違い。実機の応答を優先する)。
+   {"livescore":null}(=世界のどこにも進行中の試合が無い)はエラーではないので空配列を返す(5章の解釈)。 */
 async function fetchLiveScores() {
   try {
     const res = await fetch("https://www.thesportsdb.com/api/v1/json/" + ONDEMAND_API_KEY + "/livescore.php?s=Soccer", { cache: "no-store" });
     if (!res.ok) return null;
     const json = await res.json();
     if (!json) return null;
-    return Array.isArray(json.events) ? json.events : [];
+    return Array.isArray(json.livescore) ? json.livescore : [];
   } catch (e) {
     return null;
   }
