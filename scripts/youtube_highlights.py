@@ -69,6 +69,8 @@ def search_dazn_highlight(home_ja: str, away_ja: str, api_key: str | None = None
     if not key:
         return None
 
+    import sys
+
     import requests
 
     params = {
@@ -84,7 +86,12 @@ def search_dazn_highlight(home_ja: str, away_ja: str, api_key: str | None = None
         resp = requests.get(SEARCH_URL, params=params, timeout=TIMEOUT)
         resp.raise_for_status()
         data = resp.json()
-    except (requests.RequestException, ValueError):
+    except (requests.RequestException, ValueError) as exc:
+        # APIキーが無効/未有効化/クォータ超過などの実際の理由がここに落ちてくる。
+        # GitHub Actionsのログで原因が追えるよう、標準エラー出力にだけ残す
+        # (呼び出し側の処理は止めない。動画が見つからなかった場合と同じくNoneを返すだけ)。
+        body = getattr(getattr(exc, "response", None), "text", "")
+        print(f"[youtube_highlights] search_dazn_highlight failed: {exc} {body}".strip(), file=sys.stderr)
         return None
 
     for item in data.get("items", []):
@@ -93,4 +100,14 @@ def search_dazn_highlight(home_ja: str, away_ja: str, api_key: str | None = None
             video_id = (item.get("id") or {}).get("videoId")
             if video_id:
                 return video_id
+
+    if data.get("items"):
+        titles = [
+            (item.get("snippet") or {}).get("title", "") for item in data.get("items", [])
+        ]
+        print(
+            f"[youtube_highlights] {home_ja}×{away_ja}: 検索結果はあったがタイトルに両チーム名が"
+            f"揃う動画が無かった(候補: {titles})",
+            file=sys.stderr,
+        )
     return None

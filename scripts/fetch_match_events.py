@@ -62,6 +62,7 @@ from match_events_parser import (  # noqa: E402
 )
 from team_matching import load_master_teams, match_team_ja  # noqa: E402
 from time_utils import JST  # noqa: E402
+from youtube_highlights import load_api_key as load_youtube_api_key  # noqa: E402
 from youtube_highlights import search_dazn_highlight  # noqa: E402
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -315,11 +316,22 @@ def parse_and_merge(
     # ・試合が終わっていない(finishedでない)うちは検索しない(まだ動画が無いのが確実なため)
     # ・試行回数がDAZN_SEARCH_MAX_ATTEMPTSに達したら諦める(いつまでも上がらない試合もあるため)
     # ・前回の検索から DAZN_SEARCH_COOLDOWN_HOURS 時間経つまでは再検索しない
+    # ・APIキーが未設定の間は、試行回数もクールダウンも消費しない(キー設定前に無駄撃ちした
+    #   「なし」判定のせいで、キー設定後もクールダウン待ちになってしまうのを防ぐため)
     dazn_video_id = old.get("daznVideoId") if old else None
     dazn_attempts = (old.get("daznSearchAttempts") if old else None) or 0
     dazn_last_searched = old.get("daznLastSearchedAtJst") if old else None
 
-    if resolved.get("finished") and dazn_video_id is None and dazn_attempts < DAZN_SEARCH_MAX_ATTEMPTS:
+    dazn_key_present = load_youtube_api_key() is not None
+    if resolved.get("finished") and dazn_video_id is None and dazn_attempts < DAZN_SEARCH_MAX_ATTEMPTS and not dazn_key_present:
+        print(f"[fetch_match_events] {id_event}: YOUTUBE_API_KEY未設定のためDAZN検索をスキップ", file=sys.stderr)
+
+    if (
+        resolved.get("finished")
+        and dazn_video_id is None
+        and dazn_attempts < DAZN_SEARCH_MAX_ATTEMPTS
+        and dazn_key_present
+    ):
         cooldown_elapsed = True
         if dazn_last_searched:
             try:

@@ -199,8 +199,11 @@ def test_dazn_search_cooldown_and_attempts():
 
     original_fetch_html = fme.fetch_html
     original_search = fme.search_dazn_highlight
+    original_load_key = fme.load_youtube_api_key
     # 得点等の目印が無いページを模擬する(このテストではDAZN検索まわりの挙動だけを見たいため)
     fme.fetch_html = lambda url: "<html>マークアップが変わって何も拾えないページ</html>"
+    # このテストはAPIキーが設定済みの前提で検索ロジックを検証する(未設定時の挙動は別テストで確認)
+    fme.load_youtube_api_key = lambda: "dummy-key"
     resolved_finished = {"code": "000000", "url": "dummy", "finished": True, "homeJa": "ホーム", "awayJa": "アウェイ"}
     resolved_unfinished = {"code": "000000", "url": "dummy", "finished": False, "homeJa": "ホーム", "awayJa": "アウェイ"}
     try:
@@ -262,9 +265,21 @@ def test_dazn_search_cooldown_and_attempts():
         assert result6["daznSearchAttempts"] == 1
         assert result6["daznLastSearchedAtJst"] is not None
         print("OK: 検索して見つからなかった場合は試行回数だけ増えて次回また試せることを確認")
+
+        # ケース7: APIキー未設定 -> 検索しない・試行回数もクールダウンも消費しない
+        # (キー設定前に無駄撃ちした「なし」判定のせいで、キー設定後もクールダウン待ちに
+        #  なってしまう問題を防ぐための挙動)
+        fme.load_youtube_api_key = lambda: None
+        fme.search_dazn_highlight = fail_if_called
+        result7 = parse_and_merge("D7", resolved_finished, all_teams, {}, [])
+        assert result7["daznVideoId"] is None
+        assert result7["daznSearchAttempts"] == 0, "APIキー未設定時は試行回数を消費しないはず"
+        assert result7["daznLastSearchedAtJst"] is None
+        print("OK: APIキー未設定の間は試行回数・クールダウンを消費しないことを確認")
     finally:
         fme.fetch_html = original_fetch_html
         fme.search_dazn_highlight = original_search
+        fme.load_youtube_api_key = original_load_key
 
 
 def test_parsers_against_samples():
