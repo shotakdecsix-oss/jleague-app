@@ -11,11 +11,8 @@ name: update
 # 日曜JST 01:30(=UTC土曜16:30)の回だけ、日程変更・延期の取りこぼしを回収するために全38節を取る。
 
 on:
-  # === 2026-08-21: 増分取得のマージ漏れでデータが壊れたため一時停止中 ===
-  # 復旧と再発防止(fetch_batchのマージ・激減ガード、build_icsの大量キャンセルガード)を
-  # 実運用で検証できたらコメントを外して再開する。手動実行(workflow_dispatch)は使える。
-  # schedule:
-  #   - cron: "30 */4 * * *"
+  schedule:
+    - cron: "30 */4 * * *"
   workflow_dispatch:
     inputs:
       full_sync:
