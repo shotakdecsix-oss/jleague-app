@@ -393,6 +393,24 @@
     margin-left:4px; vertical-align:2px; flex:none;
   }
   .ondemand-basis{margin:10px 0 0; font-size:11px; color:#92400e; background:#fef3c7; padding:8px 10px; border-radius:8px}
+
+  /* 第12弾: ライブスコア。動きのある要素(点滅ドット)で「更新され続けている」ことを示す。
+     確定表示(通常のスコア)とは色を変え、進行中であることを一目で区別できるようにする。 */
+  .live-dot{
+    display:inline-block; width:7px; height:7px; border-radius:50%; background:#dc2626;
+    margin-left:4px; vertical-align:2px; flex:none; animation:live-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes live-pulse{0%,100%{opacity:1} 50%{opacity:.25}}
+  .live-card{border:1px solid #fca5a5; background:#fff7f7}
+  .live-score-row{
+    display:flex; align-items:center; justify-content:center; gap:14px;
+    font-size:22px; font-weight:800; font-variant-numeric:tabular-nums;
+  }
+  .live-team{font-size:13px; font-weight:700; max-width:36%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--sub)}
+  .live-team.me{color:var(--ink)}
+  .live-updated{margin-top:8px; text-align:center; font-size:11px; color:var(--sub)}
+  .cal-row.live{background:#fff7ed}
+  .cal-row.live .cal-time{color:#c2410c; font-weight:800}
 </style>
 </head>
 <body>
@@ -489,6 +507,16 @@ const state = {
   ondemandToastText: null, // ヘッダ直下のトースト文言。3〜4秒で自動的にnullへ戻す(改訂2)
   ondemandPopoverOpen: false, // ヘッダのiボタンで開閉する「データの基準」ポップオーバー(改訂2)
   ondemandCooldownUntil: 0, // この時刻(ms epoch)まで再実行不可(連打対策・最短60秒間隔)
+
+  // 第12弾: ライブスコア(livescore.phpをフロントから直接ポーリング)。localStorageには一切保存しない
+  // (揮発してよいメモリ上の状態。翌日開き直したときに前日の進行中スコアが復活してはいけないため)。
+  liveScores: {},        // idEvent -> {idEvent,league,round,home:{...,score},away:{...,score},status,progress}
+  liveMissingStreak: {}, // idEvent -> 候補なのにレスポンスに現れなかった連続回数(2で終了とみなす)
+  liveUpdatedAt: null,    // 直近取得できた時刻(端末のJST、nowJstIso()と同形式)。「◯◯:◯◯ 更新」表示用
+  liveConsecFails: 0,     // 連続取得失敗回数(3で自動停止)
+  liveTotalFetches: 0,    // 通算取得回数(200で自動停止・暴走対策)
+  liveStopped: false,     // 通算上限到達などで恒久停止したフラグ
+  liveAutoFetchDone: false, // 「進行中の試合が全部終わった」ときのオンデマンド自動取得を1回だけ行うためのフラグ
 };
 
 /* ---------- クラブカラーのテーマ適用 ---------- */
@@ -988,6 +1016,20 @@ async function init() {
       renderActiveTab();
     }
   });
+
+  // 第12弾: バックグラウンドの間はポーリングを止め、可視に戻ったら即1回取得してから再開する(3-3章)。
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      stopLivePolling();
+    } else {
+      evaluateLiveSchedule();
+    }
+  });
+  // 起動直後(試合中にアプリを開いた場合)の判定。
+  evaluateLiveSchedule();
+  // キックオフ前にアプリを開いたまま何もトリガが無い状態が続いても、時間経過でキックオフを検知できるように
+  // する保険(5分おき。稼働中は何もしない=livescore.phpへは候補が生まれたときしか投げない)。
+  setInterval(() => { if (!livePollTimer) evaluateLiveSchedule(); }, 5 * 60 * 1000);
 }
 
 function findTeam(idTeam) {
@@ -1079,7 +1121,10 @@ async function renderActiveTab() {
     html = newsHtml || '<section><h2>ニュース</h2><div class="card"><p class="muted" style="margin:0">関連ニュースが見つかりませんでした。</p></div></section>';
   } else {
     // 改訂2: 更新ボタンはホームタブから外し、ヘッダに移した(クラブ単位の操作に見えないようにするため)
-    html = renderNext(mine, team, venues) + renderResults(mine, team, league) +
+    // 第12弾: 自クラブが試合中のときは「次の試合」カードの代わりに「試合中」カードを出す(同じ試合を二重表示しない)
+    const liveMatch = findLiveMatchForTeam(team.idTeam);
+    const nextOrLiveHtml = liveMatch ? renderLiveCard(liveMatch, team) : renderNext(mine, team, venues);
+    html = nextOrLiveHtml + renderResults(mine, team, league) +
       renderPromotion(cache.simulation, team, all, master.promotionRules, league) +
       renderImpactSection(cache.impact, team, master.promotionRules, league);
   }
@@ -1387,6 +1432,8 @@ function visibleCalendarBuckets(dated, anchorDate, daysBefore, daysAfter) {
 }
 
 function calMatchRowHtml(m, ownIdTeam) {
+  // 第12弾: ライブスコアがあれば最優先で使う(進行中は日程/オンデマンドの値より新しい)。
+  const live = state.liveScores[String(m.e)] || null;
   // 第10弾: オンデマンドキャッシュがあれば、そのidEvent(m.e)の分だけ日時/スコアを上書きして表示する。
   const ov = calendarOndemandOverride(m);
   const eff = ov
@@ -1395,12 +1442,21 @@ function calMatchRowHtml(m, ownIdTeam) {
 
   const involvesMe = m.h[0] === ownIdTeam || m.a[0] === ownIdTeam;
   const finished = eff.h[2] != null && eff.a[2] != null;
-  const timeLabel = eff.b ? "時刻未定" : timeOnly(eff.k);
-  const scoreLabel = finished ? (eff.h[2] + " - " + eff.a[2]) : "vs";
-  const dotHtml = ov ? '<span class="provisional-dot"></span>' : "";
 
+  let timeLabel, scoreLabel, dotHtml;
+  if (live) {
+    timeLabel = liveStatusLabel(live.status, live.progress);
+    scoreLabel = (live.home.score != null ? live.home.score : "-") + " - " + (live.away.score != null ? live.away.score : "-");
+    dotHtml = '<span class="live-dot"></span>';
+  } else {
+    timeLabel = eff.b ? "時刻未定" : timeOnly(eff.k);
+    scoreLabel = finished ? (eff.h[2] + " - " + eff.a[2]) : "vs";
+    dotHtml = ov ? '<span class="provisional-dot"></span>' : "";
+  }
+
+  // 進行中はまだ結果が確定していないので勝敗ピルは出さない(順位表に混ぜないのと同じ理由)。
   let pillHtml = "";
-  if (finished && involvesMe) {
+  if (finished && involvesMe && !live) {
     const isHome = eff.h[0] === ownIdTeam;
     const meScore = isHome ? eff.h[2] : eff.a[2];
     const oppScore = isHome ? eff.a[2] : eff.h[2];
@@ -1408,7 +1464,7 @@ function calMatchRowHtml(m, ownIdTeam) {
     pillHtml = '<span class="pill ' + mark + '">' + mark + '</span>';
   }
 
-  return '<div class="cal-row' + (involvesMe ? " me" : "") + '">' +
+  return '<div class="cal-row' + (involvesMe ? " me" : "") + (live ? " live" : "") + '">' +
     '<span class="league-badge ' + esc(m.l) + '">' + esc(m.l.toUpperCase()) + '</span>' +
     '<span class="cal-time">' + esc(timeLabel) + '</span>' +
     '<span class="cal-team">' + esc(m.h[1]) + '</span>' +
@@ -2081,6 +2137,68 @@ function computeProvisionalTable(matches, master) {
   return table;
 }
 
+/* ---------- 第12弾: ライブスコアの取得層(pickLiveCandidates/fetchLiveScores/filterLiveEvents)。
+   第10弾のpickTargetRounds等と同じくUI非依存の純粋関数にしてあり、コンソールから単体で検証できる。 ---------- */
+
+const LIVE_LEAGUE_IDS = { "4633": "j1", "4824": "j2", "4967": "j3" }; // TheSportsDBのidLeague(実測で確認済み)
+const LIVE_WINDOW_MINUTES = 150; // ハーフタイム・追加時間を含めた余裕。延長のあるカップ戦は対象外(リーグ戦のみ)
+const LIVE_POLL_INTERVAL_MS = 60 * 1000;
+const LIVE_MAX_CONSEC_FAILS = 3;
+const LIVE_MAX_TOTAL_FETCHES = 200; // 1セッションあたりの通算取得回数の上限(暴走時の保険)
+const LIVE_MISSING_STREAK_LIMIT = 2; // 候補なのに2回連続でレスポンスに現れなくなったら終了とみなす
+
+/* 3-1章: 自分のデータ上「試合中でありうる」候補を集める(kickoffJst<=now<kickoffJst+150分 かつ未消化)。
+   matchesByLeague = {j1:[...matches], j2:[...], j3:[...]}(matches.json/effectiveMatchesと同じ形の配列)。
+   戻り値: idEvent(string) -> {league, idEvent, round, kickoffJst, home, away} のMap。nowはms epoch(呼び出し側が渡す)。 */
+function pickLiveCandidates(matchesByLeague, now) {
+  const windowMs = LIVE_WINDOW_MINUTES * 60 * 1000;
+  const out = new Map();
+  for (const league of Object.keys(matchesByLeague || {})) {
+    for (const m of matchesByLeague[league] || []) {
+      if (m.finished) continue;
+      if (!m.kickoffJst) continue;
+      const t = new Date(m.kickoffJst).getTime();
+      if (isNaN(t) || t > now || now >= t + windowMs) continue;
+      out.set(String(m.idEvent), { league, idEvent: String(m.idEvent), round: m.round, kickoffJst: m.kickoffJst, home: m.home, away: m.away });
+    }
+  }
+  return out;
+}
+
+/* 3章: livescore.phpを叩き、生のevents配列を返す。通信/HTTP/パース失敗はnull。
+   {"events":null}(=世界のどこにも進行中の試合が無い)はエラーではないので空配列を返す(5章の解釈)。 */
+async function fetchLiveScores() {
+  try {
+    const res = await fetch("https://www.thesportsdb.com/api/v1/json/" + ONDEMAND_API_KEY + "/livescore.php?s=Soccer", { cache: "no-store" });
+    if (!res.ok) return null;
+    const json = await res.json();
+    if (!json) return null;
+    return Array.isArray(json.events) ? json.events : [];
+  } catch (e) {
+    return null;
+  }
+}
+
+/* 3-2章: 世界中のイベントから自分に関係するものだけへ2段で絞り込み、内部形式に変換する。純粋関数。
+   1) idLeagueがJ1/J2/J3のいずれか 2) idEventが候補集合(candidates)に含まれる。
+   候補に無いidEventは無視する(カップ戦や誤登録が混ざる余地を消すため、レスポンス側だけの情報からは補わない)。 */
+function filterLiveEvents(events, candidates, leagueIds) {
+  const out = [];
+  for (const ev of events || []) {
+    if (!leagueIds[String(ev.idLeague)]) continue;
+    const own = candidates.get(String(ev.idEvent));
+    if (!own) continue;
+    out.push({
+      idEvent: own.idEvent, league: own.league, round: own.round,
+      home: Object.assign({}, own.home, { score: ev.intHomeScore != null ? Number(ev.intHomeScore) : null }),
+      away: Object.assign({}, own.away, { score: ev.intAwayScore != null ? Number(ev.intAwayScore) : null }),
+      status: ev.strStatus || null,
+      progress: ev.strProgress != null ? String(ev.strProgress) : null,
+    });
+  }
+  return out;
+}
+
 /* ---------- 5章: キャッシュと鮮度管理 ---------- */
 
 /* localStorageが使えない環境でも落ちないようにする(既存のloadFav/saveFavと同じ流儀) */
@@ -2327,9 +2445,12 @@ function ondemandOutcomeMessage(attemptedLeagues, succeededLeagues, changedCount
 
 /* 3リーグぶんの対象節を決め、逐次(300ms間隔)取得してマージする。
    失敗(ネットワーク/CORS/パース失敗)しても例外を投げない(getJsonOptionalと同じ流儀の上に構築)。
-   一部だけ成功した場合は成功したぶんだけマージする。 */
-async function runOndemandUpdate() {
-  if (state.ondemandRunning || ondemandRemainingSec() > 0) return;
+   一部だけ成功した場合は成功したぶんだけマージする。
+   opts.ignoreCooldown: 第12弾のライブスコア終了検知からの自動実行専用。ボタン連打対策の60秒クールダウンは
+   無視するが、state.ondemandRunningによる多重実行防止はそのまま効く(下の1行目のガード)。 */
+async function runOndemandUpdate(opts) {
+  const ignoreCooldown = !!(opts && opts.ignoreCooldown);
+  if (state.ondemandRunning || (!ignoreCooldown && ondemandRemainingSec() > 0)) return;
   state.ondemandRunning = true;
   state.ondemandProgress = null;
   updateOndemandHeaderBtn();
@@ -2404,7 +2525,150 @@ async function runOndemandUpdate() {
     updateOndemandHeaderBtn();
     updateOndemandPopoverInPlace();
     renderActiveTab();
+    // 第12弾: 取得結果でmatchesが更新されたので、ライブ候補(kickoff/finished)を再評価する。
+    // 稼働中でなければ再開判定、稼働中ならここでは何もしない(次のtickで自然に反映される)。
+    evaluateLiveSchedule();
   }
+}
+
+/* ---------- 第12弾: ライブスコアのポーリング制御・表示(専用タブは作らず、ホームタブと
+   全体モード日程タブにインライン表示する。取得層は上のpickLiveCandidates/fetchLiveScores/
+   filterLiveEventsを参照)。 ---------- */
+
+let livePollTimer = null;
+
+/* 3リーグぶんのmatchesを確保してから候補Mapを作る(既に読み込み済みならensureMatchesは追加取得しない)。 */
+async function buildLiveCandidateMap(now) {
+  for (const lg of Object.keys(LEAGUES)) await ensureMatches(lg);
+  const matchesByLeague = {};
+  for (const lg of Object.keys(LEAGUES)) matchesByLeague[lg] = effectiveMatches(lg);
+  return pickLiveCandidates(matchesByLeague, now);
+}
+
+/* 試合終了検知(3-4章): 進行中の試合が全部終わったら第10弾のオンデマンド取得を1回だけ自動実行する。
+   state.ondemandRunningを見て多重実行を防ぐ(クールダウンだけ無視する)。 */
+async function triggerOndemandForFinishedLive() {
+  if (state.ondemandRunning) return;
+  await runOndemandUpdate({ ignoreCooldown: true });
+}
+
+/* 1周回ぶんの取得と反映。戻り値はポーリングを続けるべきか(true=継続/リトライ、false=停止)。
+   候補が0件のときはlivescore.phpに一切リクエストを投げない(3-1章の最重要事項)。 */
+async function liveTick() {
+  if (state.liveStopped) return false;
+
+  const candidates = await buildLiveCandidateMap(Date.now());
+  if (candidates.size === 0) {
+    if (Object.keys(state.liveScores).length || Object.keys(state.liveMissingStreak).length) {
+      state.liveScores = {};
+      state.liveMissingStreak = {};
+      renderActiveTab();
+    }
+    state.liveAutoFetchDone = false; // 次の試合が候補に入ってきたときのためにリセットしておく
+    return false;
+  }
+
+  if (state.liveTotalFetches >= LIVE_MAX_TOTAL_FETCHES) {
+    state.liveStopped = true;
+    return false;
+  }
+  state.liveTotalFetches++;
+
+  const events = await fetchLiveScores();
+  if (events == null) {
+    state.liveConsecFails++;
+    if (state.liveConsecFails >= LIVE_MAX_CONSEC_FAILS) {
+      showOndemandToast("ライブスコアを取得できませんでした");
+      return false; // 次に可視化されたときに再開してよい(evaluateLiveScheduleが再評価する)
+    }
+    return true; // まだリトライする(直前に取得できた値は残したまま)
+  }
+  state.liveConsecFails = 0;
+
+  const filtered = filterLiveEvents(events, candidates, LIVE_LEAGUE_IDS);
+  const byId = new Map(filtered.map(e => [e.idEvent, e]));
+  const nextScores = {}, nextMissing = {};
+  let stillOngoing = false;
+
+  for (const [idEvent] of candidates) {
+    const hit = byId.get(idEvent);
+    if (hit) {
+      nextScores[idEvent] = hit;
+      nextMissing[idEvent] = 0;
+      if (hit.status !== "FT") stillOngoing = true;
+    } else {
+      const streak = (state.liveMissingStreak[idEvent] || 0) + 1;
+      nextMissing[idEvent] = streak;
+      if (streak < LIVE_MISSING_STREAK_LIMIT) {
+        stillOngoing = true; // まだ終了と確定していない(単発の欠落かもしれない)。直前の値を維持する
+        if (state.liveScores[idEvent]) nextScores[idEvent] = state.liveScores[idEvent];
+      }
+      // streak が上限に達したら終了とみなし、nextScoresには入れない(=表示から消える)
+    }
+  }
+
+  state.liveScores = nextScores;
+  state.liveMissingStreak = nextMissing;
+  state.liveUpdatedAt = nowJstIso(); // 端末時刻。livescore.phpのupdatedフィールドは使わない(1章の落とし穴)
+  renderActiveTab();
+
+  if (!stillOngoing && !state.liveAutoFetchDone) {
+    state.liveAutoFetchDone = true;
+    triggerOndemandForFinishedLive(); // awaitしない。取得完了を待たずポーリング自体は続けてよい
+  }
+  return true;
+}
+
+function startLivePolling() {
+  if (livePollTimer) return;
+  livePollTimer = setInterval(async () => {
+    const keepGoing = await liveTick();
+    if (!keepGoing) stopLivePolling();
+  }, LIVE_POLL_INTERVAL_MS);
+}
+function stopLivePolling() {
+  if (livePollTimer) { clearInterval(livePollTimer); livePollTimer = null; }
+}
+/* 「今、ポーリングすべきか」を再評価する入口。アプリ起動時・可視化復帰時・オンデマンド取得後に呼ぶ。
+   既に稼働中(livePollTimer有り)なら何もしない(setInterval自身が毎回候補を再評価して自然に止まる)。 */
+async function evaluateLiveSchedule() {
+  if (state.liveStopped || livePollTimer) return;
+  const keepGoing = await liveTick(); // 可視化復帰時は「即1回取得してから再開する」を兼ねる
+  if (keepGoing) startLivePolling();
+}
+
+/* ---------- 表示 ---------- */
+
+/* strProgressは"45+4"のような文字列。分数に変換しようとせずそのまま出す(4-2章)。
+   未知のstrStatus(ET/PEN/AET/POSTPなど)が来ても例外を投げず、そのまま表示する。 */
+function liveStatusLabel(status, progress) {
+  if (status === "1H" || status === "2H") return (progress != null ? progress : "") + "′";
+  if (status === "HT") return "ハーフタイム";
+  if (status === "FT") return "終了";
+  return status || "";
+}
+function findLiveMatchForTeam(idTeam) {
+  for (const idEvent of Object.keys(state.liveScores)) {
+    const m = state.liveScores[idEvent];
+    if (m.home.idTeam === idTeam || m.away.idTeam === idTeam) return m;
+  }
+  return null;
+}
+/* ホームタブ最上部の「試合中」カード。自クラブが試合中のときだけ呼ばれ、「次の試合」カードの代わりに出す
+   (同じ試合が2箇所に出るのを避けるため、呼び出し側でrenderNextと排他にする)。 */
+function renderLiveCard(m, team) {
+  const label = liveStatusLabel(m.status, m.progress);
+  const updated = state.liveUpdatedAt ? fmtHm(state.liveUpdatedAt) : "--:--";
+  const homeScore = m.home.score != null ? m.home.score : "-";
+  const awayScore = m.away.score != null ? m.away.score : "-";
+  return '<section><h2><span class="live-dot"></span> 試合中　' + esc(label) + '</h2><div class="card live-card">' +
+    '<div class="live-score-row">' +
+      '<span class="live-team' + (m.home.idTeam === team.idTeam ? " me" : "") + '">' + esc(m.home.short) + '</span>' +
+      '<span>' + homeScore + ' - ' + awayScore + '</span>' +
+      '<span class="live-team' + (m.away.idTeam === team.idTeam ? " me" : "") + '">' + esc(m.away.short) + '</span>' +
+    '</div>' +
+    '<div class="live-updated">' + esc(updated) + ' 更新</div>' +
+  '</div></section>';
 }
 
 /* ---------- スタッツ(stats.py: 自前計算 + 公式サイト由来の指標をまとめたもの) ---------- */
