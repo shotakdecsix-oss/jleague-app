@@ -15,6 +15,10 @@ data/tmp/ に以下を保存する:
     sample_match_livetxt.html (進行中/直近の試合の「テキスト速報」ページ: 得点・カード・交代が
                                 リアルタイムで採取できるか確認する用。2026-08-22 15:00キックオフの
                                 札幌vs大宮、既に複数得点が入っている状態で取得する)
+    sample_match_base.html    (個別試合ページのトップ(#lineup等のアンカーがある基点URL)。
+                                第14弾: ベンチメンバー(控え選手)のデータがlivetxt/review側の
+                                formationsには含まれていない(スタメン11人×2のみ)ため、
+                                こちらに埋め込まれているか確認する用)
 """
 
 from __future__ import annotations
@@ -35,6 +39,7 @@ TARGETS = {
     "sample_match_schedule.html": "https://www.jleague.jp/match/j2/",
     "sample_match_review.html": "https://www.jleague.jp/match/j2j3/2026/021409/review/",
     "sample_match_livetxt.html": "https://www.jleague.jp/match/j2/2026/082208/livetxt/",
+    "sample_match_base.html": "https://www.jleague.jp/match/j2/2026/082208/",
 }
 
 

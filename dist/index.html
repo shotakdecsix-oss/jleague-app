@@ -1294,7 +1294,7 @@ function renderAllStandings(league, standings, found, provisional) {
       '<td class="rank">' + r.rank + '</td>' +
       '<td class="club">' +
         (z ? '<span class="zone" style="background:' + z.color + '"></span>' : '<span class="zone" style="background:transparent"></span>') +
-        '<span class="team-link" data-idteam="' + esc(r.idTeam) + '">' + esc(r.short || r.ja) + '</span>' +
+        '<span class="team-link" data-idteam="' + esc(r.idTeam) + '">' + teamSwatchHtml(r.idTeam) + esc(r.short || r.ja) + '</span>' +
       '</td>' +
       '<td>' + r.played + (r.playedDiff ? '<span class="diff">-' + r.playedDiff + '</span>' : '') + '</td>' +
       '<td>' + r.win + '</td><td>' + r.draw + '</td><td>' + r.loss + '</td>' +
@@ -1966,7 +1966,7 @@ function renderStandings(standings, team, master, provisional) {
       '<td class="rank">' + r.rank + '</td>' +
       '<td class="club">' +
         (z ? '<span class="zone" style="background:' + z.color + '"></span>' : '<span class="zone" style="background:transparent"></span>') +
-        '<span class="team-link" data-idteam="' + esc(r.idTeam) + '">' + esc(r.short || r.ja) + '</span>' +
+        '<span class="team-link" data-idteam="' + esc(r.idTeam) + '">' + teamSwatchHtml(r.idTeam) + esc(r.short || r.ja) + '</span>' +
       '</td>' +
       '<td>' + r.played + (r.playedDiff ? '<span class="diff">-' + r.playedDiff + '</span>' : '') + '</td>' +
       '<td>' + r.win + '</td><td>' + r.draw + '</td><td>' + r.loss + '</td>' +
