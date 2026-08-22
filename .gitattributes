@@ -1,0 +1,13 @@
+# 改行コード(CRLF/LF)をリポジトリ内で常にLFに統一する。
+#
+# 背景: Pythonのwrite_text()/open(...,"w")はWindows上ではデフォルトで
+# \n を \r\n に変換して書き込む(universal newlines)。一方GitHub Actions(Linux)や
+# このプロジェクトのクラウド側ツールはLFのまま書き込む。そのため、Windowsで
+# scripts/*.py を実行するたびに index.html・data/processed/*.json・dist/ 以下などの
+# ほぼ全ファイルが「改行コードだけ」CRLF化し、実質的な差分が無いのに
+# git status/diff で大量の変更ありに見えてしまっていた(2026-08-22に発覚)。
+#
+# このファイルを追加すると、git add / git commit の際にgitが自動的にLFへ
+# 正規化して保存するようになるため、Windows側の実際のファイルはCRLFのままでも
+# リポジトリに記録される内容は常にLFで揃う(以後この問題は発生しない想定)。
+* text=auto eol=lf
