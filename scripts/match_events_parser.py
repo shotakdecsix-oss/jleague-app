@@ -13,6 +13,9 @@ scripts/fetch_match_events.py から使う。data/tmp/sample_match_*.html を使
   - 控えメンバー(find_lineup_members): 個別試合ページのトップ(sample_match_base.html)から
     home/away各20名前後(スタメン11+控え9前後)を正しく抽出(2026-08-22追加検証)。
     formationsのスタメンidと突き合わせて差分を控えメンバーとして扱う。
+  - ハイライト動画(find_highlight_video_id): 試合結果ページ(review/)にのみ、YouTube動画IDが
+    "videoSrc"として埋め込まれている(sample_match_review.htmlで確認済み、2026-08-22)。
+    livetxt/やbaseUrl(#lineup)側には無い。
 
 抽出手法の注記:
   - 得点/カード/交代は、Next.jsのRSCストリーミングチャンク(extract_next_chunksでチャンクID->
@@ -151,6 +154,23 @@ def find_lineup_members(chunks: dict[str, str]) -> dict[str, list[dict]]:
             "name": m.group("name"),
         })
     return by_team
+
+
+HIGHLIGHT_VIDEO_RE = re.compile(r'"videoSrc":"(?P<url>https://www\.youtube\.com/watch\?v=(?P<vid>[A-Za-z0-9_-]+))"')
+
+
+def find_highlight_video_id(chunks: dict[str, str]) -> str | None:
+    """
+    第14弾: ハイライト動画(YouTube)のvideoId。試合結果ページ(review/、livetxt/やbaseUrlでは
+    なく試合終了後の"試合結果・データ"ページ)にのみ埋め込まれている
+    ("videoSrc":"https://www.youtube.com/watch?v=<ID>")。Jリーグ公式が動画を用意した
+    タイミングでのみ埋め込まれるため、試合終了直後はまだ無くて当然(次回以降のバッチ実行で
+    拾えればよいという前提。#formations等と同じ「無ければNone、既存値があれば呼び出し側で
+    維持する」安全弁の対象)。見つからなければNone。
+    """
+    text = "".join(chunks.values())
+    m = HIGHLIGHT_VIDEO_RE.search(text)
+    return m.group("vid") if m else None
 
 
 # 日程一覧ページ(/match/{league}/): 「新しいコードのhref」直後に来る2つのチーム名(data-media=pc)を

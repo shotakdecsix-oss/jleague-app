@@ -27,6 +27,13 @@ livetxt/とbaseUrlの2回リクエストする(SLEEP_BETWEEN_REQUESTS秒あけ�
 取得/抽出に失敗しても、livetxt/側で取れた得点/カード/交代は無駄にしない(bench_by_slugが
 空のまま処理を続け、控えメンバーだけ前回分を維持するか空になる)。
 
+第14弾: ハイライト動画はjleague.jp側(review/ページの「【公式】」動画、highlightVideoId)に
+加えて、DAZN Japanの YouTube チャンネル(尺が長く内容も充実している、とのフィードバックを
+反映)もscripts/youtube_highlights.py経由で検索し、daznVideoIdとして保存する。
+YouTube Data API v3の無料枠(1日100検索まで)を使い切らないよう、試合ごとに
+DAZN_SEARCH_COOLDOWN_HOURS間隔・DAZN_SEARCH_MAX_ATTEMPTS回までしか検索しない
+(動画が見つかった後は検索しない。APIキー未設定の場合はこの機能全体を静かにスキップする)。
+
 CLI:
     python scripts/fetch_match_events.py --league j2
     python scripts/fetch_match_events.py --league all
@@ -49,11 +56,13 @@ from match_events_parser import (  # noqa: E402
     find_cards,
     find_formations,
     find_goals,
+    find_highlight_video_id,
     find_lineup_members,
     find_subs,
 )
 from team_matching import load_master_teams, match_team_ja  # noqa: E402
 from time_utils import JST  # noqa: E402
+from youtube_highlights import search_dazn_highlight  # noqa: E402
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROCESSED_DIR = BASE_DIR / "data" / "processed"
@@ -61,6 +70,12 @@ PROCESSED_DIR = BASE_DIR / "data" / "processed"
 EVENTS_WINDOW_HOURS = 36
 SLEEP_BETWEEN_MATCHES = 2.0
 SLEEP_BETWEEN_REQUESTS = 1.0  # 第14弾: 同一試合内でlivetxt/基点ページの2回叩く間隔
+
+# 第14弾: DAZN Japanのハイライト動画検索(YouTube Data API v3)のレート制御。
+# 無料枠は1日100検索まで(search.list=100ユニット/回、枠は1日10,000ユニット)。
+# 試合ごとに間隔をあけ、かつ試行回数の上限を設けることで枠を使い切らないようにする。
+DAZN_SEARCH_COOLDOWN_HOURS = 6
+DAZN_SEARCH_MAX_ATTEMPTS = 3
 
 
 def fetch_html(url: str) -> str | None:
@@ -163,6 +178,13 @@ def resolve_codes(
             "url": f"https://www.jleague.jp/match/{hit['league']}/{hit['year']}/{hit['code']}/livetxt/",
             # 第14弾: 控えメンバーはlivetxt/ではなく基点ページ(#lineup)側にしか埋め込まれていない
             "baseUrl": f"https://www.jleague.jp/match/{hit['league']}/{hit['year']}/{hit['code']}/",
+            # 第14弾: ハイライト動画(YouTube)はreview/側にのみ埋め込まれている。試合終了前は
+            # 存在しない/意味の無いページなので、finished(matches.json由来)で取得要否を判断する。
+            "reviewUrl": f"https://www.jleague.jp/match/{hit['league']}/{hit['year']}/{hit['code']}/review/",
+            "finished": bool(m.get("finished")),
+            # 第14弾: DAZN Japanチャンネルの検索クエリ用(matches.json側のja表記)
+            "homeJa": (m.get("home") or {}).get("ja"),
+            "awayJa": (m.get("away") or {}).get("ja"),
         }
     return resolved, unresolved
 
@@ -234,6 +256,18 @@ def parse_and_merge(
 
     lineups = build_lineups(find_formations(chunks), bench_by_slug, all_teams)
 
+    # 第14弾: ハイライト動画(YouTube)はreview/側にのみ埋め込まれている。試合終了前は
+    # 存在しないページなので、finished(matches.json由来)が立っている試合だけ取得しにいく
+    # (無駄なリクエストを避けるため)。動画がまだ用意されていない場合はNoneのままでよい
+    # (次回以降のバッチで拾えればよい安全弁対象)。
+    highlight_video_id = None
+    review_url = resolved.get("reviewUrl")
+    if resolved.get("finished") and review_url:
+        time.sleep(SLEEP_BETWEEN_REQUESTS)
+        review_html = fetch_html(review_url)
+        if review_html is not None:
+            highlight_video_id = find_highlight_video_id(extract_next_chunks(review_html))
+
     def resolve_club(name: str | None) -> str | None:
         if not name:
             return None
@@ -271,6 +305,37 @@ def parse_and_merge(
             if lineups.get(side) and not lineups[side].get("bench") and old_lineups.get(side, {}).get("bench"):
                 lineups[side]["bench"] = old_lineups[side]["bench"]
 
+    # ハイライト動画も同様に、今回取れなかった(まだ公開されていない/取得失敗)場合は前回分を維持する
+    if highlight_video_id is None and old:
+        highlight_video_id = old.get("highlightVideoId")
+
+    # 第14弾: DAZN Japanのハイライト動画をYouTube Data API v3で検索する。
+    # 無料枠(1日100回)を使い切らないよう、試合ごとにクールダウンと試行回数の上限を設ける。
+    # ・既に見つかっている(dazn_video_idがある)なら検索しない
+    # ・試合が終わっていない(finishedでない)うちは検索しない(まだ動画が無いのが確実なため)
+    # ・試行回数がDAZN_SEARCH_MAX_ATTEMPTSに達したら諦める(いつまでも上がらない試合もあるため)
+    # ・前回の検索から DAZN_SEARCH_COOLDOWN_HOURS 時間経つまでは再検索しない
+    dazn_video_id = old.get("daznVideoId") if old else None
+    dazn_attempts = (old.get("daznSearchAttempts") if old else None) or 0
+    dazn_last_searched = old.get("daznLastSearchedAtJst") if old else None
+
+    if resolved.get("finished") and dazn_video_id is None and dazn_attempts < DAZN_SEARCH_MAX_ATTEMPTS:
+        cooldown_elapsed = True
+        if dazn_last_searched:
+            try:
+                last_dt = datetime.fromisoformat(dazn_last_searched)
+                cooldown_elapsed = (
+                    datetime.now(JST) - last_dt
+                ).total_seconds() >= DAZN_SEARCH_COOLDOWN_HOURS * 3600
+            except ValueError:
+                cooldown_elapsed = True
+        if cooldown_elapsed:
+            found = search_dazn_highlight(resolved.get("homeJa"), resolved.get("awayJa"))
+            dazn_attempts += 1
+            dazn_last_searched = datetime.now(JST).isoformat(timespec="seconds")
+            if found:
+                dazn_video_id = found
+
     return {
         "code": resolved["code"],
         "url": resolved["url"],
@@ -278,6 +343,10 @@ def parse_and_merge(
         "goals": goals,
         "cards": cards,
         "subs": subs,
+        "highlightVideoId": highlight_video_id,
+        "daznVideoId": dazn_video_id,
+        "daznSearchAttempts": dazn_attempts,
+        "daznLastSearchedAtJst": dazn_last_searched,
         "lineups": lineups,
     }
 
