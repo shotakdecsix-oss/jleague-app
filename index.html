@@ -166,6 +166,8 @@
   .legend{display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; font-size:11px; color:var(--sub)}
   .legend span{display:flex; align-items:center; gap:5px}
   .sw{width:10px; height:10px; border-radius:3px; display:inline-block}
+  /* 第14弾: 試合行・カード内のチーム名の前に置く、チームカラーの小さな四角(フラッグ代わり) */
+  .team-sw{width:9px; height:9px; border-radius:3px; display:inline-block; margin-right:5px; vertical-align:middle; flex:none}
 
   a.btn{
     display:block; text-align:center; text-decoration:none;
@@ -512,6 +514,7 @@ const ALL_TABS = [
 
 const state = {
   masters: {}, cache: {}, idTeam: null, league: null,
+  teamsById: {}, // 第14弾: 全リーグ横断のidTeam->チーム情報(color等)。init()でmasters読み込み後に構築する
   news: undefined, clubExtra: undefined, // undefined=未取得, null=取得試行済みでデータ無し
   activeTab: "home",
   statsGroup: "model", // スタッツタブのレーダー切替(既定は「モデル」)
@@ -892,6 +895,10 @@ async function init() {
   try {
     for (const key of Object.keys(LEAGUES)) {
       state.masters[key] = await getJson(LEAGUES[key].master);
+    }
+    // 第14弾: チームカラー装飾用に、全リーグ横断のidTeam->チーム情報を1つにまとめておく
+    for (const key of Object.keys(LEAGUES)) {
+      for (const t of state.masters[key].teams) state.teamsById[t.idTeam] = t;
     }
   } catch (e) {
     app.innerHTML = '<div class="err"><b>データを読み込めませんでした。</b><br>' + esc(e.message) +
@@ -1558,9 +1565,9 @@ function calMatchRowHtml(m, ownIdTeam) {
     '<div class="cal-row' + (involvesMe ? " me" : "") + (live || derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
       '<span class="league-badge ' + esc(m.l) + '">' + esc(m.l.toUpperCase()) + '</span>' +
       '<span class="cal-time">' + esc(timeLabel) + '</span>' +
-      '<span class="cal-team">' + esc(m.h[1]) + '</span>' +
+      '<span class="cal-team">' + teamSwatchHtml(m.h[0]) + esc(m.h[1]) + '</span>' +
       '<span class="cal-score">' + esc(scoreLabel) + pillHtml + dotHtml + '</span>' +
-      '<span class="cal-team away">' + esc(m.a[1]) + '</span>' +
+      '<span class="cal-team away">' + teamSwatchHtml(m.a[0]) + esc(m.a[1]) + '</span>' +
       '<span class="cal-round">' + (m.r ? "第" + esc(m.r) + "節" : "") + '</span>' + expandHtml +
     '</div>' + panelHtml +
   '</div>';
@@ -1647,7 +1654,7 @@ function renderNext(mine, team, venues) {
         '<span>第' + m.round + '節</span>' +
       '</div>' +
       '<div class="next-date">' + (m.kickoffTbd ? "日時未定" : esc(fmtDate(m.kickoffJst, true))) + '</div>' +
-      '<div class="next-opp">vs <span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + esc(opp.ja) + '</span></div>' +
+      '<div class="next-opp">vs <span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></div>' +
       (venue ? '<div class="next-venue">' + esc(venue.ja) + '</div>' : "") +
       (m.kickoffTbd ? '<div class="next-venue">※ 延期などで日程が確定していません</div>' : "");
   }
@@ -1672,7 +1679,7 @@ function renderResults(mine, team, league) {
       return '<li>' +
         '<span class="r-date">' + esc(fmtDate(m.kickoffJst, false)) + '</span>' +
         '<span class="r-ha">' + (isHome ? "H" : "A") + '</span>' +
-        '<span class="r-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + esc(opp.ja) + '</span></span>' +
+        '<span class="r-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></span>' +
         '<span class="r-score">' + me.score + ' - ' + opp.score + dot + '</span>' +
         '<span class="pill ' + mark + '">' + mark + '</span>' +
       '</li>';
@@ -1716,6 +1723,13 @@ function teamNameForEvent(idTeam, homeId, homeName, awayId, awayName) {
    一方fetch_match_events.pyはキックオフ済みの試合だけを対象に取りに行く(pick_candidates参照)ので、
    evが存在すること自体が「公式の速報ページで試合が始まっていることを確認済み」のサインになる。
    得点が無く0-0のままでもそれは正しい状態なので、evがある限り(得点0件でも)暫定スコアとして表示する。 */
+/* 第14弾: チーム名の前に置くチームカラーの小さな四角(フラッグ代わり)。
+   マスタにcolorが無いチーム(未確認・欠損)では何も出さない(空文字)。 */
+function teamSwatchHtml(idTeam) {
+  const t = state.teamsById && state.teamsById[idTeam];
+  const c = t && t.color;
+  return c ? '<i class="team-sw" style="background:' + esc(c) + '"></i>' : "";
+}
 function derivedScoreFromEvents(ev, homeId, awayId) {
   if (!ev) return null;
   let home = 0, away = 0;
@@ -1847,16 +1861,16 @@ function scheduleRowHtml(m, team, mode, provisional, league) {
     return '<div class="sched-row-wrap">' +
       '<div class="sched-row' + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
         '<span class="sched-ha">' + (isHome ? "H" : "A") + '</span>' +
-        '<span class="sched-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + esc(opp.ja) + '</span></span>' +
+        '<span class="sched-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></span>' +
         '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' + expandHtml +
       '</div>' + panelHtml +
     '</div>';
   }
   return '<div class="sched-row-wrap">' +
     '<div class="sched-row all' + (involvesMe ? " me" : "") + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
-      '<span class="sched-team"><span class="team-link" data-idteam="' + esc(m.home.idTeam) + '">' + esc(m.home.short || m.home.ja) + '</span></span>' +
+      '<span class="sched-team"><span class="team-link" data-idteam="' + esc(m.home.idTeam) + '">' + teamSwatchHtml(m.home.idTeam) + esc(m.home.short || m.home.ja) + '</span></span>' +
       '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' +
-      '<span class="sched-team away"><span class="team-link" data-idteam="' + esc(m.away.idTeam) + '">' + esc(m.away.short || m.away.ja) + '</span></span>' + expandHtml +
+      '<span class="sched-team away"><span class="team-link" data-idteam="' + esc(m.away.idTeam) + '">' + teamSwatchHtml(m.away.idTeam) + esc(m.away.short || m.away.ja) + '</span></span>' + expandHtml +
     '</div>' + panelHtml +
   '</div>';
 }
@@ -2890,9 +2904,9 @@ function findDerivedLiveMatchForTeam(mine, league) {
 function renderDerivedLiveCard(m, derived, team) {
   return '<section><h2><span class="live-dot"></span> 試合中(推定)</h2><div class="card live-card">' +
     '<div class="live-score-row">' +
-      '<span class="live-team' + (m.home.idTeam === team.idTeam ? " me" : "") + '">' + esc(m.home.short || m.home.ja) + '</span>' +
+      '<span class="live-team' + (m.home.idTeam === team.idTeam ? " me" : "") + '">' + teamSwatchHtml(m.home.idTeam) + esc(m.home.short || m.home.ja) + '</span>' +
       '<span>' + derived.home + ' - ' + derived.away + '</span>' +
-      '<span class="live-team' + (m.away.idTeam === team.idTeam ? " me" : "") + '">' + esc(m.away.short || m.away.ja) + '</span>' +
+      '<span class="live-team' + (m.away.idTeam === team.idTeam ? " me" : "") + '">' + teamSwatchHtml(m.away.idTeam) + esc(m.away.short || m.away.ja) + '</span>' +
     '</div>' +
     '<div class="live-updated">試合速報の得点数から推定(公式データはまだ未反映)</div>' +
   '</div></section>';
@@ -2906,9 +2920,9 @@ function renderLiveCard(m, team) {
   const awayScore = m.away.score != null ? m.away.score : "-";
   return '<section><h2><span class="live-dot"></span> 試合中　' + esc(label) + '</h2><div class="card live-card">' +
     '<div class="live-score-row">' +
-      '<span class="live-team' + (m.home.idTeam === team.idTeam ? " me" : "") + '">' + esc(m.home.short) + '</span>' +
+      '<span class="live-team' + (m.home.idTeam === team.idTeam ? " me" : "") + '">' + teamSwatchHtml(m.home.idTeam) + esc(m.home.short) + '</span>' +
       '<span>' + homeScore + ' - ' + awayScore + '</span>' +
-      '<span class="live-team' + (m.away.idTeam === team.idTeam ? " me" : "") + '">' + esc(m.away.short) + '</span>' +
+      '<span class="live-team' + (m.away.idTeam === team.idTeam ? " me" : "") + '">' + teamSwatchHtml(m.away.idTeam) + esc(m.away.short) + '</span>' +
     '</div>' +
     '<div class="live-updated">' + esc(updated) + ' 更新</div>' +
   '</div></section>';
