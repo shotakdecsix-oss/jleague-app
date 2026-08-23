@@ -2736,8 +2736,28 @@ function ondemandOutcomeMessage(attemptedLeagues, succeededLeagues, changedCount
    一部だけ成功した場合は成功したぶんだけマージする。
    opts.ignoreCooldown: 第12弾のライブスコア終了検知からの自動実行専用。ボタン連打対策の60秒クールダウンは
    無視するが、state.ondemandRunningによる多重実行防止はそのまま効く(下の1行目のガード)。 */
+/* 第15弾: calendar.json/{league}_matches.json/{league}_match_events.jsonは、アプリ起動時に
+   1回だけ読み込んでキャッシュする作りだったため、⟳ボタンを押してもバッチが更新した最新の
+   スコア・得点速報・ハイライト動画が画面に反映されない問題があった(アプリを完全に閉じて
+   開き直すまで反映されなかった)。TheSportsDBのオンデマンド取得(このすぐ下のrunOndemandUpdate
+   本体。クールダウン対象)とは別に、こちらは自前の静的JSONで回数制限の心配が無いので、
+   ⟳ボタンを押すたび(クールダウン中でも)無条件で再取得しなおす。 */
+async function refreshStaticMatchData() {
+  state.calendar = undefined;
+  for (const lg of Object.keys(LEAGUES)) {
+    leagueCache(lg).matchEvents = undefined;
+    leagueCache(lg).matches = undefined;
+  }
+  await Promise.all([
+    ensureCalendar(),
+    ...Object.keys(LEAGUES).map(lg => ensureMatchEvents(lg)),
+    ...Object.keys(LEAGUES).map(lg => ensureMatches(lg)),
+  ]);
+  renderActiveTab();
+}
 async function runOndemandUpdate(opts) {
   const ignoreCooldown = !!(opts && opts.ignoreCooldown);
+  await refreshStaticMatchData();
   if (state.ondemandRunning || (!ignoreCooldown && ondemandRemainingSec() > 0)) return;
   state.ondemandRunning = true;
   state.ondemandProgress = null;
