@@ -425,6 +425,8 @@
     font-size:10px; color:var(--sub); text-align:center; transition:transform .15s ease; flex:none;
   }
   .events-toggle.open{transform:rotate(90deg); color:var(--accent)}
+  /* 第15弾: ハイライト動画が既に埋め込み済みの試合行に付ける目印 */
+  .video-mark{font-size:12px; flex:none; line-height:1}
   .events-panel{padding:2px 0 10px; animation:events-fade-in .15s ease}
   @keyframes events-fade-in{from{opacity:0} to{opacity:1}}
   .events-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
@@ -1567,6 +1569,9 @@ function calMatchRowHtml(m, ownIdTeam) {
   const eventsKey = m.l + ":" + m.e;
   const isEventsOpen = hasEvents && state.eventsOpen === eventsKey;
   const expandHtml = hasEvents ? '<span class="events-toggle' + (isEventsOpen ? " open" : "") + '">▸</span>' : "";
+  // 第15弾: DAZN/公式のハイライト動画が既に埋め込み済みの試合には🎥マークを付ける
+  const hasVideo = !!(evDetail && (evDetail.daznVideoId || evDetail.highlightVideoId));
+  const videoMarkHtml = hasVideo ? '<span class="video-mark" title="ハイライト動画あり">🎥</span>' : "";
   const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' : "";
   const panelHtml = isEventsOpen
     ? renderMatchEventsPanel(evDetail, m.h[0], m.h[1], m.a[0], m.a[1], ownIdTeam)
@@ -1579,7 +1584,7 @@ function calMatchRowHtml(m, ownIdTeam) {
       '<span class="cal-team">' + teamSwatchHtml(m.h[0]) + esc(m.h[1]) + '</span>' +
       '<span class="cal-score">' + esc(scoreLabel) + pillHtml + dotHtml + '</span>' +
       '<span class="cal-team away">' + teamSwatchHtml(m.a[0]) + esc(m.a[1]) + '</span>' +
-      '<span class="cal-round">' + (m.r ? "第" + esc(m.r) + "節" : "") + '</span>' + expandHtml +
+      '<span class="cal-round">' + (m.r ? "第" + esc(m.r) + "節" : "") + '</span>' + videoMarkHtml + expandHtml +
     '</div>' + panelHtml +
   '</div>';
 }
@@ -1694,6 +1699,9 @@ function renderResults(mine, team, league) {
       const eventsKey = league + ":" + m.idEvent;
       const isOpen = hasEvents && state.eventsOpen === eventsKey;
       const expandHtml = hasEvents ? '<span class="events-toggle' + (isOpen ? " open" : "") + '">▸</span>' : "";
+      // 第15弾: DAZN/公式のハイライト動画が既に埋め込み済みの試合には🎥マークを付ける
+      const hasVideo = !!(ev && (ev.daznVideoId || ev.highlightVideoId));
+      const videoMarkHtml = hasVideo ? '<span class="video-mark" title="ハイライト動画あり">🎥</span>' : "";
       const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' : "";
       const panelHtml = isOpen
         ? renderMatchEventsPanel(ev, m.home.idTeam, m.home.short || m.home.ja, m.away.idTeam, m.away.short || m.away.ja, team.idTeam)
@@ -1705,7 +1713,7 @@ function renderResults(mine, team, league) {
           '<span class="r-ha">' + (isHome ? "H" : "A") + '</span>' +
           '<span class="r-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></span>' +
           '<span class="r-score">' + me.score + ' - ' + opp.score + dot + '</span>' +
-          '<span class="pill ' + mark + '">' + mark + '</span>' + expandHtml +
+          '<span class="pill ' + mark + '">' + mark + '</span>' + videoMarkHtml + expandHtml +
         '</div>' + panelHtml +
       '</li>';
     }).join("") + '</ul>';
@@ -1902,6 +1910,9 @@ function scheduleRowHtml(m, team, mode, provisional, league) {
   const eventsKey = league + ":" + m.idEvent;
   const isOpen = hasEvents && state.eventsOpen === eventsKey;
   const expandHtml = hasEvents ? '<span class="events-toggle' + (isOpen ? " open" : "") + '">▸</span>' : "";
+  // 第15弾: DAZN/公式のハイライト動画が既に埋め込み済みの試合には🎥マークを付ける
+  const hasVideo = !!(ev && (ev.daznVideoId || ev.highlightVideoId));
+  const videoMarkHtml = hasVideo ? '<span class="video-mark" title="ハイライト動画あり">🎥</span>' : "";
   const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' : "";
   const panelHtml = isOpen
     ? renderMatchEventsPanel(ev, m.home.idTeam, m.home.short || m.home.ja, m.away.idTeam, m.away.short || m.away.ja, team.idTeam)
@@ -1913,7 +1924,7 @@ function scheduleRowHtml(m, team, mode, provisional, league) {
       '<div class="sched-row' + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
         '<span class="sched-ha">' + (isHome ? "H" : "A") + '</span>' +
         '<span class="sched-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></span>' +
-        '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' + expandHtml +
+        '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' + videoMarkHtml + expandHtml +
       '</div>' + panelHtml +
     '</div>';
   }
@@ -1921,7 +1932,7 @@ function scheduleRowHtml(m, team, mode, provisional, league) {
     '<div class="sched-row all' + (involvesMe ? " me" : "") + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
       '<span class="sched-team"><span class="team-link" data-idteam="' + esc(m.home.idTeam) + '">' + teamSwatchHtml(m.home.idTeam) + esc(m.home.short || m.home.ja) + '</span></span>' +
       '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' +
-      '<span class="sched-team away"><span class="team-link" data-idteam="' + esc(m.away.idTeam) + '">' + teamSwatchHtml(m.away.idTeam) + esc(m.away.short || m.away.ja) + '</span></span>' + expandHtml +
+      '<span class="sched-team away"><span class="team-link" data-idteam="' + esc(m.away.idTeam) + '">' + teamSwatchHtml(m.away.idTeam) + esc(m.away.short || m.away.ja) + '</span></span>' + videoMarkHtml + expandHtml +
     '</div>' + panelHtml +
   '</div>';
 }
