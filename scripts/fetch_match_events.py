@@ -190,9 +190,11 @@ def resolve_codes(
             # 存在しない/意味の無いページなので、finished(matches.json由来)で取得要否を判断する。
             "reviewUrl": f"https://www.jleague.jp/match/{hit['league']}/{hit['year']}/{hit['code']}/review/",
             "finished": bool(m.get("finished")),
-            # 第14弾: DAZN Japanチャンネルの検索クエリ用(matches.json側のja表記)
+            # 第14弾: DAZN検索クエリ用(matches.json側のja表記)
             "homeJa": (m.get("home") or {}).get("ja"),
             "awayJa": (m.get("away") or {}).get("ja"),
+            # 第21弾: DAZN検索のpublishedAfterフィルタ用(下記search_dazn_highlight呼び出し箇所参照)
+            "kickoffJst": m.get("kickoffJst"),
         }
     return resolved, unresolved
 
@@ -349,7 +351,11 @@ def parse_and_merge(
             except ValueError:
                 cooldown_elapsed = True
         if cooldown_elapsed:
-            found = search_dazn_highlight(resolved.get("homeJa"), resolved.get("awayJa"))
+            found = search_dazn_highlight(
+                resolved.get("homeJa"),
+                resolved.get("awayJa"),
+                published_after_jst=resolved.get("kickoffJst"),
+            )
             dazn_attempts += 1
             dazn_last_searched = datetime.now(JST).isoformat(timespec="seconds")
             if found:

@@ -34,6 +34,7 @@ APIキーが無い(未設定)場合は、この機能全体を静かにスキッ
 from __future__ import annotations
 
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,7 +59,12 @@ def load_api_key() -> str | None:
     return None
 
 
-def search_dazn_highlight(home_ja: str, away_ja: str, api_key: str | None = None) -> str | None:
+def search_dazn_highlight(
+    home_ja: str,
+    away_ja: str,
+    api_key: str | None = None,
+    published_after_jst: str | None = None,
+) -> str | None:
     """
     home_ja × away_ja のハイライト動画をYouTube全体から検索し、videoIdを返す。
     DAZN Japanチャンネルのタイトルは「【<ホーム>×<アウェイ>｜ハイライト】<大会名>第<節>節｜
@@ -67,22 +73,26 @@ def search_dazn_highlight(home_ja: str, away_ja: str, api_key: str | None = None
     両チーム名が含まれる動画だけを採用する(検索結果の1件目が別カードの可能性もゼロではないため)。
     APIキーが無い/リクエスト失敗/該当なしの場合はNoneを返す(例外は投げない)。
 
-    第21弾: channelId=DAZN_JAPAN_CHANNEL_ID指定を外し、YouTube全体を検索するようにした。
+    第21弾・その1: channelId=DAZN_JAPAN_CHANNEL_ID指定を外し、YouTube全体を検索するようにした。
     J3(SC相模原 vs ツエーゲン金沢など)で調査したところ、下位カテゴリの試合はDAZN Japan
     チャンネルではなく各クラブの公式チャンネルに「【クラブ名】DAZNハイライト(日付vs対戦相手)」
     という別形式で投稿されており、DAZN Japanチャンネルには存在しないため、channelId指定の
-    ままだと何回検索しても永久に見つからないことが判明した(2026-08-24)。チャンネル指定を
-    外しても、両チーム名がタイトルに揃う動画だけを採用するガードは維持しているので、
-    無関係な動画(他カード・他スポーツ等)が誤って採用されるリスクは抑えられている。
-    ただしクラブ公式チャンネル側のタイトルは対戦相手を略称で書くことがあり
-    (例:「vs福島」)、away_jaがフルネームだとその場合はまだ一致しないことがある
-    (別途確認・対応が必要になったら追う)。
+    ままだと何回検索しても永久に見つからないことが判明した(2026-08-24)。
 
-    order=dateではなくrelevance(デフォルト、orderパラメータ省略)を使う。実際に動画が
-    YouTube上に存在する(かつタイトルも想定形式と一致)のに、order=dateだと全く関係の無い
-    別カード(2021/2022シーズンや別スポーツ)ばかりが返ってきて該当試合が10件に入って
-    こないケースを確認したため(2026-08-22)。相関の強いrelevance順の方が、対象試合の
-    動画が新しいうちは上位に来やすいはず。ただしYouTube Data
+    第21弾・その2(本命の修正): 実際のActionsログ(2026-08-23 23:03 JST台の実行)を確認したところ、
+    channelId制限をかけていた時点でも、検索結果の大半が2021〜2023シーズンの別カードや、
+    Jリーグと無関係な他競技(WEリーグ・UEFA・MMA・バスケ等)の動画で埋まっており、対象試合の
+    動画が10件のうちどこにも入ってこないことが判明した。DAZN Japanチャンネルには何年ぶんもの
+    過去ハイライトが大量にあるため、relevance順(デフォルト)で「{home_ja} {away_ja} ハイライト」
+    程度の短いクエリを投げても、直近アップロードの1本を安定して上位に出すのは無理があった
+    (タイトルの両チーム名一致チェックは、そもそも候補に挙がらなければ意味を持たない)。
+    そこで publishedAfter パラメータでキックオフ時刻以降に絞り込むようにした。ハイライト動画は
+    定義上キックオフより後にしか存在しないので、これだけで過去シーズンの誤検出はほぼ根絶できる。
+    kickoff_jst(呼び出し側=fetch_match_events.pyのresolved["kickoffJst"])が渡された場合のみ
+    適用し、渡されなかった場合(テスト等)は付けない。
+
+    order=dateではなくrelevance(デフォルト、orderパラメータ省略)を使う。publishedAfterで
+    母集団自体を絞り込んだ後なので、relevance順でも問題は起きにくい。ただしYouTube Data
     API(検索)自体のインデックス反映が本サイトの検索より遅れることがある
     (アップロード直後は数十分〜数時間、公式ドキュメントでも言及あり)ため、
     それでも見つからない場合は呼び出し側(fetch_match_events.py)のクールダウン・
@@ -103,6 +113,13 @@ def search_dazn_highlight(home_ja: str, away_ja: str, api_key: str | None = None
         "maxResults": 10,
         "part": "snippet",
     }
+    if published_after_jst:
+        try:
+            kickoff_dt = datetime.fromisoformat(published_after_jst)
+            published_after_utc = kickoff_dt.astimezone(timezone.utc)
+            params["publishedAfter"] = published_after_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+        except ValueError:
+            pass  # 形式不正なら付けずに検索は続行する(過去との互換・テスト用の安全弁)
     try:
         resp = requests.get(SEARCH_URL, params=params, timeout=TIMEOUT)
         resp.raise_for_status()

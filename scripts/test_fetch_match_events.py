@@ -168,6 +168,60 @@ def test_search_dazn_highlight_title_filter():
         requests.get = original_get
 
 
+def test_search_dazn_highlight_published_after_filter():
+    """
+    第21弾: 実際のActionsログで、channelId制限をかけていてもrelevance検索の結果が
+    2021〜2023シーズンの別カードや他競技の動画で埋まり、対象試合が10件に入ってこない
+    ケースを大量に確認した(2026-08-23 23:03 JST台の実行)。publishedAfterでキックオフ
+    時刻以降に絞り込むのが本命の対策のため、JST文字列がUTCの'...Z'形式に正しく
+    変換されてリクエストに渡ることを確認する。
+    """
+    import requests
+
+    class FakeResponse:
+        def __init__(self, payload):
+            self._payload = payload
+
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return self._payload
+
+    captured = {}
+
+    def fake_get(url, params=None, timeout=None):
+        captured["params"] = params
+        return FakeResponse({"items": []})
+
+    original_get = requests.get
+    requests.get = fake_get
+    try:
+        # JST 2026-08-23T19:00:00+09:00 -> UTC 2026-08-23T10:00:00Z
+        youtube_highlights.search_dazn_highlight(
+            "ホーム", "アウェイ", api_key="dummy-key",
+            published_after_jst="2026-08-23T19:00:00+09:00",
+        )
+        assert captured["params"]["publishedAfter"] == "2026-08-23T10:00:00Z", captured["params"]
+        print("OK: search_dazn_highlight()がキックオフ時刻(JST)をpublishedAfter(UTC)に正しく変換して渡すことを確認")
+
+        # published_after_jstを渡さない場合はpublishedAfterを付けない(テスト等の後方互換)
+        captured.clear()
+        youtube_highlights.search_dazn_highlight("ホーム", "アウェイ", api_key="dummy-key")
+        assert "publishedAfter" not in captured["params"]
+        print("OK: published_after_jst未指定時はpublishedAfterを付けずに検索することを確認")
+
+        # 形式不正な値が来ても例外を投げず、publishedAfterを付けずに検索を続行する
+        captured.clear()
+        youtube_highlights.search_dazn_highlight(
+            "ホーム", "アウェイ", api_key="dummy-key", published_after_jst="不正な値",
+        )
+        assert "publishedAfter" not in captured["params"]
+        print("OK: published_after_jstが不正な形式でも例外を投げず検索を続行することを確認")
+    finally:
+        requests.get = original_get
+
+
 def test_search_dazn_highlight_no_api_key_skips_silently():
     import requests
 
@@ -206,14 +260,18 @@ def test_dazn_search_cooldown_and_attempts():
     fme.fetch_html = lambda url: "<html>マークアップが変わって何も拾えないページ</html>"
     # このテストはAPIキーが設定済みの前提で検索ロジックを検証する(未設定時の挙動は別テストで確認)
     fme.load_youtube_api_key = lambda: "dummy-key"
-    resolved_finished = {"code": "000000", "url": "dummy", "finished": True, "homeJa": "ホーム", "awayJa": "アウェイ"}
+    resolved_finished = {
+        "code": "000000", "url": "dummy", "finished": True, "homeJa": "ホーム", "awayJa": "アウェイ",
+        "kickoffJst": "2026-08-23T19:00:00+09:00",
+    }
     resolved_unfinished = {"code": "000000", "url": "dummy", "finished": False, "homeJa": "ホーム", "awayJa": "アウェイ"}
     try:
         # ケース1: 試合終了済み・未検索 -> 検索が呼ばれ、見つかった動画IDが保存される
+        # 第21弾: kickoffJst(resolved側)がpublished_after_jstとしてそのまま渡ることも確認する
         calls = []
 
-        def fake_search_found(home_ja, away_ja):
-            calls.append((home_ja, away_ja))
+        def fake_search_found(home_ja, away_ja, **kwargs):
+            calls.append((home_ja, away_ja, kwargs.get("published_after_jst")))
             return "VIDEO123"
 
         fme.search_dazn_highlight = fake_search_found
@@ -221,11 +279,11 @@ def test_dazn_search_cooldown_and_attempts():
         assert result is not None
         assert result["daznVideoId"] == "VIDEO123", result
         assert result["daznSearchAttempts"] == 1
-        assert calls == [("ホーム", "アウェイ")]
-        print("OK: 試合終了済み・未検索の試合ではDAZN検索が呼ばれ、見つかった動画IDが保存されることを確認")
+        assert calls == [("ホーム", "アウェイ", "2026-08-23T19:00:00+09:00")], calls
+        print("OK: 試合終了済み・未検索の試合ではDAZN検索が呼ばれ、見つかった動画ID・キックオフ時刻が渡されることを確認")
 
         # ケース2: 既にdaznVideoIdがある -> 再検索しない
-        def fail_if_called(home_ja, away_ja):
+        def fail_if_called(home_ja, away_ja, **kwargs):
             raise AssertionError("既にdaznVideoIdがあるのに再検索してしまっている")
 
         fme.search_dazn_highlight = fail_if_called
@@ -262,7 +320,7 @@ def test_dazn_search_cooldown_and_attempts():
         print("OK: 試合終了前はDAZN検索をしないことを確認")
 
         # ケース6: 検索したが見つからなかった -> 試行回数だけ増える
-        fme.search_dazn_highlight = lambda home_ja, away_ja: None
+        fme.search_dazn_highlight = lambda home_ja, away_ja, **kwargs: None
         result6 = parse_and_merge("D6", resolved_finished, all_teams, {}, [])
         assert result6["daznVideoId"] is None
         assert result6["daznSearchAttempts"] == 1
@@ -366,6 +424,7 @@ if __name__ == "__main__":
     test_parse_and_merge_regression_guard()
     test_lineups_carry_forward_when_missing()
     test_search_dazn_highlight_title_filter()
+    test_search_dazn_highlight_published_after_filter()
     test_search_dazn_highlight_no_api_key_skips_silently()
     test_dazn_search_cooldown_and_attempts()
     test_parsers_against_samples()
