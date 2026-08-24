@@ -76,6 +76,11 @@ jobs:
           python scripts/standings.py --league j2
           python scripts/standings.py --league j3
 
+      # 第16弾: 順位表の近くに出す「第1節からの順位推移」グラフ用データ。standings.pyの
+      # 順位決定ロジックをそのまま再利用して節ごとの順位を再計算するだけ(ネットワークアクセスなし)。
+      - name: rank_history
+        run: python scripts/rank_history.py --league all
+
       - name: simulate
         run: |
           python scripts/simulate.py --league j1 --quiet
