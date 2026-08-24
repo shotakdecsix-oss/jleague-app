@@ -39,6 +39,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 LOCAL_KEY_FILE = BASE_DIR / "youtube_api_key.txt"
 
+# 第21弾: 検索自体はYouTube全体を対象にしており(下記search_dazn_highlight参照)、この定数は
+# もう検索クエリの絞り込みには使っていない。DAZN Japan本チャンネルの参考情報として残している。
 DAZN_JAPAN_CHANNEL_ID = "UCoFLB_Gw_AoxUuuzKjXrc_Q"
 SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
 TIMEOUT = 15
@@ -58,12 +60,23 @@ def load_api_key() -> str | None:
 
 def search_dazn_highlight(home_ja: str, away_ja: str, api_key: str | None = None) -> str | None:
     """
-    DAZN Japanチャンネルから home_ja × away_ja のハイライト動画を検索し、videoIdを返す。
-    DAZNのタイトルは「【<ホーム>×<アウェイ>｜ハイライト】<大会名>第<節>節｜<シーズン>シーズン｜Jリーグ」
-    という形式で、home/awayの順番はjleague.jp側(=matches.jsonのhome/away)と一致することを
-    実データで確認済み。念のためタイトルに両チーム名が含まれる動画だけを採用する
-    (検索結果の1件目が別カードの可能性もゼロではないため)。
+    home_ja × away_ja のハイライト動画をYouTube全体から検索し、videoIdを返す。
+    DAZN Japanチャンネルのタイトルは「【<ホーム>×<アウェイ>｜ハイライト】<大会名>第<節>節｜
+    <シーズン>シーズン｜Jリーグ」という形式で、home/awayの順番はjleague.jp側
+    (=matches.jsonのhome/away)と一致することを実データで確認済み。念のためタイトルに
+    両チーム名が含まれる動画だけを採用する(検索結果の1件目が別カードの可能性もゼロではないため)。
     APIキーが無い/リクエスト失敗/該当なしの場合はNoneを返す(例外は投げない)。
+
+    第21弾: channelId=DAZN_JAPAN_CHANNEL_ID指定を外し、YouTube全体を検索するようにした。
+    J3(SC相模原 vs ツエーゲン金沢など)で調査したところ、下位カテゴリの試合はDAZN Japan
+    チャンネルではなく各クラブの公式チャンネルに「【クラブ名】DAZNハイライト(日付vs対戦相手)」
+    という別形式で投稿されており、DAZN Japanチャンネルには存在しないため、channelId指定の
+    ままだと何回検索しても永久に見つからないことが判明した(2026-08-24)。チャンネル指定を
+    外しても、両チーム名がタイトルに揃う動画だけを採用するガードは維持しているので、
+    無関係な動画(他カード・他スポーツ等)が誤って採用されるリスクは抑えられている。
+    ただしクラブ公式チャンネル側のタイトルは対戦相手を略称で書くことがあり
+    (例:「vs福島」)、away_jaがフルネームだとその場合はまだ一致しないことがある
+    (別途確認・対応が必要になったら追う)。
 
     order=dateではなくrelevance(デフォルト、orderパラメータ省略)を使う。実際に動画が
     YouTube上に存在する(かつタイトルも想定形式と一致)のに、order=dateだと全く関係の無い
@@ -85,7 +98,6 @@ def search_dazn_highlight(home_ja: str, away_ja: str, api_key: str | None = None
 
     params = {
         "key": key,
-        "channelId": DAZN_JAPAN_CHANNEL_ID,
         "q": f"{home_ja} {away_ja} ハイライト",
         "type": "video",
         "maxResults": 10,

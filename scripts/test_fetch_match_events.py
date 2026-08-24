@@ -160,8 +160,10 @@ def test_search_dazn_highlight_title_filter():
     try:
         video_id = youtube_highlights.search_dazn_highlight("湘南ベルマーレ", "FC東京", api_key="dummy-key")
         assert video_id == "RIGHT123", video_id
-        assert captured["params"]["channelId"] == youtube_highlights.DAZN_JAPAN_CHANNEL_ID
-        print("OK: search_dazn_highlight()がタイトルに両チーム名を含む動画だけを採用することを確認")
+        # 第21弾: channelId指定は外した(J3等はDAZN Japanチャンネル以外に投稿されるため)。
+        # YouTube全体を検索していることの確認として、paramsにchannelIdが無いことを見る。
+        assert "channelId" not in captured["params"]
+        print("OK: search_dazn_highlight()がチャンネル指定なしで全YouTube検索し、タイトルに両チーム名を含む動画だけを採用することを確認")
     finally:
         requests.get = original_get
 
