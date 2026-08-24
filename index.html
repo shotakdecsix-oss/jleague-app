@@ -3313,7 +3313,10 @@ function buildRankHistoryChartSvg(rankHistory, masterTeams, highlightIdTeam, rul
 
   const padL = 22, padR = 78, padT = 18, padB = 20;
   const W = 360;
-  const H = 220;
+  // 第19弾: クラブ名(18px)どうしが隣接順位で重なっていたため、クラブ数に応じて縦に伸ばし、
+  // 1順位ぶんの高さ(rowH)を常に一定以上確保する(固定H=220だとクラブ数が多いリーグで詰まっていた)。
+  const rowH = 22;
+  const H = padT + padB + Math.max(1, numTeams - 1) * rowH;
   const plotW = W - padL - padR;
   const plotH = H - padT - padB;
   const xAt = i => padL + (n === 1 ? plotW / 2 : (plotW * i) / (n - 1));
@@ -3399,7 +3402,7 @@ function buildRankHistoryChartSvg(rankHistory, masterTeams, highlightIdTeam, rul
     if (!byFinalRank.has(r)) byFinalRank.set(r, []);
     byFinalRank.get(r).push(t);
   }
-  const labelLineHeight = 19;
+  const labelLineHeight = rowH;
   const labelX = W - padR + 6;
   let teamLabelsHtml = "";
   byFinalRank.forEach((teams, r) => {
