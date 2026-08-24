@@ -236,10 +236,11 @@ def test_dazn_search_cooldown_and_attempts():
 
         # ケース3: 試行回数が上限に達している -> 再検索しない
         existing3 = {"D3": {"goals": [], "cards": [], "subs": [], "daznVideoId": None,
-                             "daznSearchAttempts": 3, "daznLastSearchedAtJst": "2020-01-01T00:00:00+09:00"}}
+                             "daznSearchAttempts": fme.DAZN_SEARCH_MAX_ATTEMPTS,
+                             "daznLastSearchedAtJst": "2020-01-01T00:00:00+09:00"}}
         result3 = parse_and_merge("D3", resolved_finished, all_teams, existing3, [])
         assert result3["daznVideoId"] is None
-        assert result3["daznSearchAttempts"] == 3
+        assert result3["daznSearchAttempts"] == fme.DAZN_SEARCH_MAX_ATTEMPTS
         print("OK: 試行回数が上限(DAZN_SEARCH_MAX_ATTEMPTS)に達した試合では再検索しないことを確認")
 
         # ケース4: クールダウン中(直近に検索済み) -> 再検索しない

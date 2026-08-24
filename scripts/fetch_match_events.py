@@ -75,8 +75,15 @@ SLEEP_BETWEEN_REQUESTS = 1.0  # 第14弾: 同一試合内でlivetxt/基点ペー
 # 第14弾: DAZN Japanのハイライト動画検索(YouTube Data API v3)のレート制御。
 # 無料枠は1日100検索まで(search.list=100ユニット/回、枠は1日10,000ユニット)。
 # 試合ごとに間隔をあけ、かつ試行回数の上限を設けることで枠を使い切らないようにする。
+#
+# 第20弾: 上限を3->6に引き上げた。2026-08-23のFC町田×浦和戦で、6時間間隔の3回(試合終了後
+# 〜約19時間後)いずれの検索時点でもDAZN側にまだ動画が無く、3回で諦めた直後(19〜24時間後の
+# どこか)に実際には投稿されていたことが判明したため(ユーザー提供のYouTube URLで確認済み)。
+# 6回・6時間間隔なら初回検索からEVENTS_WINDOW_HOURS(36時間)相当までカバーできる。
+# 1試合あたりの検索回数が倍になっても、同時に窓内(36時間以内)に入る候補試合数を考えれば
+# 無料枠(1日100回)には遠く及ばない。
 DAZN_SEARCH_COOLDOWN_HOURS = 6
-DAZN_SEARCH_MAX_ATTEMPTS = 3
+DAZN_SEARCH_MAX_ATTEMPTS = 6
 
 
 def fetch_html(url: str) -> str | None:
