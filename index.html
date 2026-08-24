@@ -275,7 +275,9 @@
   .chart-axis-label{font-size:9px; fill:var(--sub)}
   .chart-result-mark{font-size:11px; font-weight:700; fill:var(--ink)}
   .rank-team-label{cursor:pointer}
-  .rank-team-label text{font-size:9px}
+  .rank-team-label text{font-size:18px}
+  .rank-value-label{font-size:9px; font-weight:700}
+  .rank-chart-wrap svg{display:block; width:100%; height:auto}
 
   /* 他会場インパクト(第8弾B) */
   .impact-own{padding-bottom:12px; margin-bottom:12px; border-bottom:1px solid var(--line)}
@@ -3297,15 +3299,20 @@ function buildProbabilityChartSvg(history, seriesKey, selectedClubIds, masterTea
    節ごとの順位を事前計算しているので、ここでは描画するだけ(ロジックの二重実装を避ける)。
    既定では自クラブを濃い色+マーカーで強調し、他クラブは薄いグレーの線にする。
    第17弾: 右端に全クラブ名を出し、タップでそのクラブの推移をハイライトに切り替えられるようにした
-   (同着(最終節の順位が並ぶ)クラブが複数いる場合は、ラベルを縦に少しずらして重なりを避ける)。 */
+   (同着(最終節の順位が並ぶ)クラブが複数いる場合は、ラベルを縦に少しずらして重なりを避ける)。
+   第18弾: 節数に比例して横幅を伸ばす(→横スクロール前提)のをやめ、常に画面幅ぴったりに収まる
+   固定サイズのviewBoxにした(CSS側でwidth:100%にしてスケールさせる。rank-chart-wrap参照)。
+   右端のクラブ名も画面内に収まるようにし、フォントサイズも2倍にした。ハイライト中の線には
+   節ごとの順位を数字で添える(全節分入れると詰まりすぎるので、x軸の節ラベルと同じ間引き間隔+
+   最終節は必ず表示、にしている)。 */
 function buildRankHistoryChartSvg(rankHistory, masterTeams, highlightIdTeam, rules) {
   const rounds = (rankHistory && rankHistory.rounds) || [];
   const n = rounds.length;
   const numTeams = masterTeams.length;
   if (!n || numTeams < 2) return "";
 
-  const padL = 22, padR = 44, padT = 10, padB = 20;
-  const W = Math.max(320, n * 18) + padR;
+  const padL = 22, padR = 78, padT = 18, padB = 20;
+  const W = 360;
   const H = 220;
   const plotW = W - padL - padR;
   const plotH = H - padT - padB;
@@ -3368,7 +3375,19 @@ function buildRankHistoryChartSvg(rankHistory, masterTeams, highlightIdTeam, rul
       const markers = arr.map((v, i) => v == null ? "" :
         '<circle cx="' + xAt(i).toFixed(1) + '" cy="' + yAt(v).toFixed(1) + '" r="2.5" fill="' + color + '"/>'
       ).join("");
-      highlightLineHtml = '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="2.5"/>' + markers;
+      // 節ごとの順位数値。全節ぶん出すと詰まって読めないので、x軸ラベルと同じ間引き間隔(labelStep)
+      // に合わせつつ、最終節(現在の順位)は間引かれても必ず出す。マーカーの少し上に置き、
+      // 1位付近で上にはみ出す時だけ下側に回す。stroke(カード背景色)で縁取りして下の線と重ならないようにする。
+      const valueLabels = arr.map((v, i) => {
+        if (v == null) return "";
+        if (i % labelStep !== 0 && i !== n - 1) return "";
+        const cy = yAt(v);
+        const above = cy - halfStep < padT + 8;
+        const ly = above ? cy + 12 : cy - 7;
+        return '<text class="rank-value-label" x="' + xAt(i).toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="middle" ' +
+          'fill="' + color + '" stroke="var(--card)" stroke-width="3" paint-order="stroke" stroke-linejoin="round">' + v + '</text>';
+      }).join("");
+      highlightLineHtml = '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="2.5"/>' + markers + valueLabels;
     }
   }
 
@@ -3380,8 +3399,8 @@ function buildRankHistoryChartSvg(rankHistory, masterTeams, highlightIdTeam, rul
     if (!byFinalRank.has(r)) byFinalRank.set(r, []);
     byFinalRank.get(r).push(t);
   }
-  const labelLineHeight = 10;
-  const labelX = W - padR + 5;
+  const labelLineHeight = 19;
+  const labelX = W - padR + 6;
   let teamLabelsHtml = "";
   byFinalRank.forEach((teams, r) => {
     const baseY = yAt(r);
@@ -3393,13 +3412,13 @@ function buildRankHistoryChartSvg(rankHistory, masterTeams, highlightIdTeam, rul
       const weight = isHi ? "700" : "400";
       teamLabelsHtml +=
         '<g class="rank-team-label" data-rankteam="' + esc(t.idTeam) + '">' +
-          '<rect x="' + (labelX - 3) + '" y="' + (y - 6).toFixed(1) + '" width="' + (padR - 2) + '" height="11" fill="transparent"/>' +
-          '<text x="' + labelX + '" y="' + (y + 3).toFixed(1) + '" fill="' + fill + '" font-weight="' + weight + '">' + esc(t.short || t.ja) + '</text>' +
+          '<rect x="' + (labelX - 3) + '" y="' + (y - 12).toFixed(1) + '" width="' + (padR - 4) + '" height="22" fill="transparent"/>' +
+          '<text x="' + labelX + '" y="' + (y + 6).toFixed(1) + '" fill="' + fill + '" font-weight="' + weight + '">' + esc(t.short || t.ja) + '</text>' +
         '</g>';
     });
   });
 
-  return '<div class="chart-scroll"><svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg">' +
+  return '<div class="rank-chart-wrap"><svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">' +
     zoneBandsHtml + gridHtml + xLabelsHtml + otherLinesHtml + highlightLineHtml + teamLabelsHtml +
   '</svg></div>';
 }
