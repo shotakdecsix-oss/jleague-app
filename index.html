@@ -274,6 +274,8 @@
   .chart-scroll svg{display:block}
   .chart-axis-label{font-size:9px; fill:var(--sub)}
   .chart-result-mark{font-size:11px; font-weight:700; fill:var(--ink)}
+  .rank-team-label{cursor:pointer}
+  .rank-team-label text{font-size:9px}
 
   /* 他会場インパクト(第8弾B) */
   .impact-own{padding-bottom:12px; margin-bottom:12px; border-bottom:1px solid var(--line)}
@@ -538,6 +540,8 @@ const state = {
   chartLeague: null,  // 確率推移グラフが最後に描画されたリーグ。変わったらchartClubs/chartSeriesをリセットする
   chartClubs: null,   // 確率推移グラフのオーバーレイ対象クラブ(idTeamの配列、最大5)。nullなら初回描画時に[自クラブ]で初期化
   chartSeries: null,  // 確率推移グラフの系列(autoPromotion等)。nullなら初回描画時にリーグの先頭ゾーンで初期化
+  rankHistoryLeague: null,  // 順位推移グラフが最後に描画されたリーグ。変わったらrankHighlightTeamをリセット
+  rankHighlightTeam: null,  // 順位推移グラフでタップ選択中のクラブ(idTeam)。nullなら自クラブがハイライト対象
 
   // 第9弾: 全体ビュー(J1〜J3横断)
   viewMode: "club",   // "club"=クラブモード(既存) / "all"=全体モード
@@ -1092,6 +1096,15 @@ async function init() {
       return;
     }
 
+    // 第17弾: 順位推移グラフの右端に出すクラブ名タップでハイライト切替(同じクラブを再タップで自クラブに戻す)
+    const rankTeamBtn = ev.target.closest("[data-rankteam]");
+    if (rankTeamBtn) {
+      const tid = rankTeamBtn.dataset.rankteam;
+      state.rankHighlightTeam = (state.rankHighlightTeam === tid) ? null : tid;
+      renderActiveTab();
+      return;
+    }
+
     const copyBtn = ev.target.closest("[data-icscopy]");
     if (copyBtn) {
       const url = copyBtn.dataset.icscopy;
@@ -1210,7 +1223,7 @@ async function renderActiveTab() {
     const standingsForDisplay = provisional
       ? { table: computeProvisionalTable(all, master), meta: cache.standings && cache.standings.meta }
       : cache.standings;
-    html = renderStandings(standingsForDisplay, team, master, provisional, cache.rankHistory);
+    html = renderStandings(standingsForDisplay, team, master, provisional, cache.rankHistory, league);
   } else if (state.activeTab === "stats") {
     html = renderStatsTab(cache.stats, team) + renderProbabilityChart(cache.history, all, team, master, league);
   } else if (state.activeTab === "players") {
@@ -1347,7 +1360,7 @@ function renderAllStandings(league, standings, found, provisional, rankHistory) 
     '</tr></thead><tbody>' + rows + '</tbody></table>' +
     '<div class="legend">' + legend.join("") + '</div>' +
     provisionalNoteHtml +
-  '</div></section>' + renderRankHistoryChart(rankHistory, master, ownIdTeam);
+  '</div></section>' + renderRankHistoryChart(rankHistory, master, ownIdTeam, league);
 }
 
 /* 予想タブ(B案: P10〜P90の帯+タップで詳細)。横軸は常に1位〜クラブ数位に固定、左が1位。
@@ -2033,7 +2046,7 @@ function zoneColor(rank, rules) {
   return null;
 }
 
-function renderStandings(standings, team, master, provisional, rankHistory) {
+function renderStandings(standings, team, master, provisional, rankHistory, league) {
   const rules = master.promotionRules;
   const zones = resolveZones(rules);
   const rows = standings.table.map(r => {
@@ -2067,7 +2080,7 @@ function renderStandings(standings, team, master, provisional, rankHistory) {
     '</tr></thead><tbody>' + rows + '</tbody></table>' +
     '<div class="legend">' + legend.join("") + '</div>' +
     provisionalNoteHtml +
-  '</div></section>' + renderRankHistoryChart(rankHistory, master, team.idTeam);
+  '</div></section>' + renderRankHistoryChart(rankHistory, master, team.idTeam, league);
 }
 
 /* リーグ全体の消化試合数(simulation.meta.basedOnMatches)は、クラブごとの消化試合数とは違う数字なので
@@ -3282,17 +3295,18 @@ function buildProbabilityChartSvg(history, seriesKey, selectedClubIds, masterTea
 
 /* 第16弾: 順位表の近くに出す「第1節からの順位推移」折れ線グラフ。scripts/rank_history.pyが
    節ごとの順位を事前計算しているので、ここでは描画するだけ(ロジックの二重実装を避ける)。
-   全クラブぶん薄いグレーの線を引き、自クラブだけ濃い色+マーカー付きで強調する
-   (renderProbabilityChartのように選択式のチップは出さない。順位表と同じ「まず自クラブ」の見せ方)。 */
-function buildRankHistoryChartSvg(rankHistory, masterTeams, ownIdTeam, rules) {
+   既定では自クラブを濃い色+マーカーで強調し、他クラブは薄いグレーの線にする。
+   第17弾: 右端に全クラブ名を出し、タップでそのクラブの推移をハイライトに切り替えられるようにした
+   (同着(最終節の順位が並ぶ)クラブが複数いる場合は、ラベルを縦に少しずらして重なりを避ける)。 */
+function buildRankHistoryChartSvg(rankHistory, masterTeams, highlightIdTeam, rules) {
   const rounds = (rankHistory && rankHistory.rounds) || [];
   const n = rounds.length;
   const numTeams = masterTeams.length;
   if (!n || numTeams < 2) return "";
 
-  const W = Math.max(320, n * 18);
+  const padL = 22, padR = 44, padT = 10, padB = 20;
+  const W = Math.max(320, n * 18) + padR;
   const H = 220;
-  const padL = 22, padR = 10, padT = 10, padB = 20;
   const plotW = W - padL - padR;
   const plotH = H - padT - padB;
   const xAt = i => padL + (n === 1 ? plotW / 2 : (plotW * i) / (n - 1));
@@ -3330,39 +3344,80 @@ function buildRankHistoryChartSvg(rankHistory, masterTeams, ownIdTeam, rules) {
     if (!pts.length) return null;
     return pts.map(([i, v], idx) => (idx === 0 ? "M" : "L") + xAt(i).toFixed(1) + "," + yAt(v).toFixed(1)).join(" ");
   };
+  const finalRankFor = tid => {
+    const arr = ranksByTeam[tid] || [];
+    for (let i = arr.length - 1; i >= 0; i--) {
+      if (arr[i] != null) return arr[i];
+    }
+    return null;
+  };
 
-  const otherLinesHtml = masterTeams.filter(t => t.idTeam !== ownIdTeam).map(t => {
+  const otherLinesHtml = masterTeams.filter(t => t.idTeam !== highlightIdTeam).map(t => {
     const d = pathFor(t.idTeam);
     if (!d) return "";
     return '<path d="' + d + '" fill="none" stroke="var(--sub)" stroke-width="1" opacity="0.35"/>';
   }).join("");
 
-  let ownLineHtml = "";
-  const ownTeam = masterTeams.find(t => t.idTeam === ownIdTeam);
-  if (ownTeam) {
-    const d = pathFor(ownIdTeam);
+  let highlightLineHtml = "";
+  const highlightTeam = masterTeams.find(t => t.idTeam === highlightIdTeam);
+  if (highlightTeam) {
+    const d = pathFor(highlightIdTeam);
     if (d) {
-      const color = ownTeam.color || "var(--accent)";
-      const arr = ranksByTeam[ownIdTeam] || [];
+      const color = highlightTeam.color || "var(--accent)";
+      const arr = ranksByTeam[highlightIdTeam] || [];
       const markers = arr.map((v, i) => v == null ? "" :
         '<circle cx="' + xAt(i).toFixed(1) + '" cy="' + yAt(v).toFixed(1) + '" r="2.5" fill="' + color + '"/>'
       ).join("");
-      ownLineHtml = '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="2.5"/>' + markers;
+      highlightLineHtml = '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="2.5"/>' + markers;
     }
   }
 
+  // 右端のクラブ名ラベル。最終節の順位でグループ化し、同着クラブは縦に少しずらして重なりを避ける。
+  const byFinalRank = new Map();
+  for (const t of masterTeams) {
+    const r = finalRankFor(t.idTeam);
+    if (r == null) continue;
+    if (!byFinalRank.has(r)) byFinalRank.set(r, []);
+    byFinalRank.get(r).push(t);
+  }
+  const labelLineHeight = 10;
+  const labelX = W - padR + 5;
+  let teamLabelsHtml = "";
+  byFinalRank.forEach((teams, r) => {
+    const baseY = yAt(r);
+    teams.forEach((t, idx) => {
+      const offset = (idx - (teams.length - 1) / 2) * labelLineHeight;
+      const y = baseY + offset;
+      const isHi = t.idTeam === highlightIdTeam;
+      const fill = isHi ? (t.color || "var(--accent)") : "var(--sub)";
+      const weight = isHi ? "700" : "400";
+      teamLabelsHtml +=
+        '<g class="rank-team-label" data-rankteam="' + esc(t.idTeam) + '">' +
+          '<rect x="' + (labelX - 3) + '" y="' + (y - 6).toFixed(1) + '" width="' + (padR - 2) + '" height="11" fill="transparent"/>' +
+          '<text x="' + labelX + '" y="' + (y + 3).toFixed(1) + '" fill="' + fill + '" font-weight="' + weight + '">' + esc(t.short || t.ja) + '</text>' +
+        '</g>';
+    });
+  });
+
   return '<div class="chart-scroll"><svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg">' +
-    zoneBandsHtml + gridHtml + xLabelsHtml + otherLinesHtml + ownLineHtml +
+    zoneBandsHtml + gridHtml + xLabelsHtml + otherLinesHtml + highlightLineHtml + teamLabelsHtml +
   '</svg></div>';
 }
-function renderRankHistoryChart(rankHistory, master, ownIdTeam) {
+function renderRankHistoryChart(rankHistory, master, ownIdTeam, league) {
   if (!rankHistory || !rankHistory.rounds || !rankHistory.rounds.length) return "";
+  if (state.rankHistoryLeague !== league) {
+    state.rankHistoryLeague = league;
+    state.rankHighlightTeam = null;
+  }
   const rules = master.promotionRules;
-  const svgHtml = buildRankHistoryChartSvg(rankHistory, master.teams, ownIdTeam, rules);
+  const highlightIdTeam = (state.rankHighlightTeam && master.teams.some(t => t.idTeam === state.rankHighlightTeam))
+    ? state.rankHighlightTeam
+    : ownIdTeam;
+  const svgHtml = buildRankHistoryChartSvg(rankHistory, master.teams, highlightIdTeam, rules);
   if (!svgHtml) return "";
-  const ownTeam = master.teams.find(t => t.idTeam === ownIdTeam);
-  const legendHtml = ownTeam
-    ? '<div class="legend"><span><i class="sw" style="background:' + esc(ownTeam.color || "#999") + '"></i>' + esc(ownTeam.short || ownTeam.ja) + '</span><span>他クラブは薄いグレーの線</span></div>'
+  const highlightTeam = master.teams.find(t => t.idTeam === highlightIdTeam);
+  const legendHtml = highlightTeam
+    ? '<div class="legend"><span><i class="sw" style="background:' + esc(highlightTeam.color || "#999") + '"></i>' + esc(highlightTeam.short || highlightTeam.ja) + '</span><span>クラブ名タップで表示を切替(他クラブは薄いグレーの線)</span></div>'
     : "";
   return '<section><h2>順位推移(第1節〜第' + rankHistory.meta.maxRound + '節)</h2><div class="card">' +
     svgHtml + legendHtml +
