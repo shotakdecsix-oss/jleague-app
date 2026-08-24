@@ -2,7 +2,7 @@
   "meta": {
     "league": "j2",
     "season": "2026-2027",
-    "generatedAtJst": "2026-08-24T18:18:04+09:00",
+    "generatedAtJst": "2026-08-24T22:35:03+09:00",
     "basedOnMatches": 30,
     "clubCount": 20,
     "note": "順位は同値同順位、次は飛ぶ方式(1,2,2,4)。シュート数はデータソースに存在しないため対象外。公式スタッツ(source:official)はJリーグ公式サイトの値・順位をそのまま使用(非公開データ。club_extra.jsonが無い場合はこのグループ自体を省略)"
@@ -234,12 +234,12 @@
         "xPoints": 3.69,
         "pointsOverX": 3.31,
         "remainingDifficulty": 1.06,
-        "scorePg": 1,
-        "passCountPg": 427.5,
-        "ballRate": 47.4,
-        "airBattleWinCountPg": 20.5,
-        "interceptCount": 1,
-        "cleanSheet": 2
+        "scorePg": 0.7,
+        "passCountPg": 414,
+        "ballRate": 45.7,
+        "airBattleWinCountPg": 18.3,
+        "interceptCount": 2,
+        "cleanSheet": 3
       },
       "ranks": {
         "points": 2,
@@ -261,33 +261,33 @@
         "xPoints": 14,
         "pointsOverX": 2,
         "remainingDifficulty": 2,
-        "scorePg": 9,
-        "passCountPg": 11,
-        "ballRate": 13,
-        "airBattleWinCountPg": 6,
-        "interceptCount": 16,
+        "scorePg": 15,
+        "passCountPg": 12,
+        "ballRate": 17,
+        "airBattleWinCountPg": 8,
+        "interceptCount": 15,
         "cleanSheet": 1
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": 9,
-          "rankComputed": 9
+          "rankOfficial": null,
+          "rankComputed": 15
         },
         "passCountPg": {
           "rankOfficial": null,
-          "rankComputed": 11
+          "rankComputed": 12
         },
         "ballRate": {
           "rankOfficial": null,
-          "rankComputed": 13
+          "rankComputed": 17
         },
         "airBattleWinCountPg": {
-          "rankOfficial": 6,
-          "rankComputed": 6
+          "rankOfficial": 8,
+          "rankComputed": 8
         },
         "interceptCount": {
           "rankOfficial": null,
-          "rankComputed": 16
+          "rankComputed": 15
         },
         "cleanSheet": {
           "rankOfficial": 1,
@@ -319,11 +319,11 @@
         "xPoints": 4.36,
         "pointsOverX": -1.36,
         "remainingDifficulty": 1.1,
-        "scorePg": 1.5,
-        "passCountPg": 506.5,
-        "ballRate": 52.8,
-        "airBattleWinCountPg": 12,
-        "interceptCount": 3,
+        "scorePg": 1.3,
+        "passCountPg": 479.7,
+        "ballRate": 52.5,
+        "airBattleWinCountPg": 15,
+        "interceptCount": 4,
         "cleanSheet": 1
       },
       "ranks": {
@@ -346,21 +346,21 @@
         "xPoints": 12,
         "pointsOverX": 16,
         "remainingDifficulty": 16,
-        "scorePg": 6,
-        "passCountPg": 3,
+        "scorePg": 5,
+        "passCountPg": 4,
         "ballRate": 7,
-        "airBattleWinCountPg": 18,
-        "interceptCount": 7,
-        "cleanSheet": 3
+        "airBattleWinCountPg": 16,
+        "interceptCount": 10,
+        "cleanSheet": 6
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": 6,
-          "rankComputed": 6
+          "rankOfficial": 5,
+          "rankComputed": 5
         },
         "passCountPg": {
-          "rankOfficial": 3,
-          "rankComputed": 3
+          "rankOfficial": 4,
+          "rankComputed": 4
         },
         "ballRate": {
           "rankOfficial": 7,
@@ -368,15 +368,15 @@
         },
         "airBattleWinCountPg": {
           "rankOfficial": null,
-          "rankComputed": 18
+          "rankComputed": 16
         },
         "interceptCount": {
-          "rankOfficial": 7,
-          "rankComputed": 7
+          "rankOfficial": 10,
+          "rankComputed": 10
         },
         "cleanSheet": {
-          "rankOfficial": 3,
-          "rankComputed": 2
+          "rankOfficial": 6,
+          "rankComputed": 3
         }
       }
     },
@@ -404,11 +404,11 @@
         "xPoints": 5.27,
         "pointsOverX": -1.27,
         "remainingDifficulty": 1.09,
-        "scorePg": 0,
-        "passCountPg": 507.5,
-        "ballRate": 55,
-        "airBattleWinCountPg": 20,
-        "interceptCount": 4,
+        "scorePg": 1.3,
+        "passCountPg": 475.7,
+        "ballRate": 52.7,
+        "airBattleWinCountPg": 19,
+        "interceptCount": 6,
         "cleanSheet": 1
       },
       "ranks": {
@@ -431,37 +431,37 @@
         "xPoints": 3,
         "pointsOverX": 15,
         "remainingDifficulty": 14,
-        "scorePg": 18,
-        "passCountPg": 2,
-        "ballRate": 4,
-        "airBattleWinCountPg": 8,
+        "scorePg": 5,
+        "passCountPg": 6,
+        "ballRate": 6,
+        "airBattleWinCountPg": 6,
         "interceptCount": 5,
-        "cleanSheet": 3
+        "cleanSheet": 6
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": null,
-          "rankComputed": 18
+          "rankOfficial": 5,
+          "rankComputed": 5
         },
         "passCountPg": {
-          "rankOfficial": 2,
-          "rankComputed": 2
+          "rankOfficial": 6,
+          "rankComputed": 6
         },
         "ballRate": {
-          "rankOfficial": 4,
-          "rankComputed": 4
+          "rankOfficial": 6,
+          "rankComputed": 6
         },
         "airBattleWinCountPg": {
-          "rankOfficial": 8,
-          "rankComputed": 8
+          "rankOfficial": 6,
+          "rankComputed": 6
         },
         "interceptCount": {
           "rankOfficial": 5,
           "rankComputed": 5
         },
         "cleanSheet": {
-          "rankOfficial": 3,
-          "rankComputed": 2
+          "rankOfficial": 6,
+          "rankComputed": 3
         }
       }
     },
@@ -490,10 +490,10 @@
         "pointsOverX": -1.08,
         "remainingDifficulty": 1.1,
         "scorePg": 1,
-        "passCountPg": 451.5,
-        "ballRate": 50.9,
-        "airBattleWinCountPg": 13,
-        "interceptCount": 0,
+        "passCountPg": 495,
+        "ballRate": 53.7,
+        "airBattleWinCountPg": 16.3,
+        "interceptCount": 1,
         "cleanSheet": 2
       },
       "ranks": {
@@ -516,37 +516,37 @@
         "xPoints": 4,
         "pointsOverX": 14,
         "remainingDifficulty": 19,
-        "scorePg": 9,
-        "passCountPg": 9,
-        "ballRate": 8,
-        "airBattleWinCountPg": 17,
+        "scorePg": 12,
+        "passCountPg": 3,
+        "ballRate": 5,
+        "airBattleWinCountPg": 14,
         "interceptCount": 19,
-        "cleanSheet": 1
+        "cleanSheet": 2
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": 9,
-          "rankComputed": 9
+          "rankOfficial": null,
+          "rankComputed": 12
         },
         "passCountPg": {
-          "rankOfficial": 9,
-          "rankComputed": 9
+          "rankOfficial": 3,
+          "rankComputed": 3
         },
         "ballRate": {
-          "rankOfficial": 8,
-          "rankComputed": 8
+          "rankOfficial": 5,
+          "rankComputed": 5
         },
         "airBattleWinCountPg": {
           "rankOfficial": null,
-          "rankComputed": 17
+          "rankComputed": 14
         },
         "interceptCount": {
           "rankOfficial": null,
           "rankComputed": 19
         },
         "cleanSheet": {
-          "rankOfficial": 1,
-          "rankComputed": 1
+          "rankOfficial": 2,
+          "rankComputed": 2
         }
       }
     },
@@ -574,12 +574,12 @@
         "xPoints": 3.45,
         "pointsOverX": 0.55,
         "remainingDifficulty": 1.07,
-        "scorePg": 0,
-        "passCountPg": 503,
-        "ballRate": 52.9,
-        "airBattleWinCountPg": 25,
-        "interceptCount": 2,
-        "cleanSheet": 1
+        "scorePg": 0.7,
+        "passCountPg": 450.7,
+        "ballRate": 49,
+        "airBattleWinCountPg": 23.7,
+        "interceptCount": 5,
+        "cleanSheet": 2
       },
       "ranks": {
         "points": 9,
@@ -601,36 +601,36 @@
         "xPoints": 15,
         "pointsOverX": 8,
         "remainingDifficulty": 6,
-        "scorePg": 18,
-        "passCountPg": 4,
-        "ballRate": 6,
+        "scorePg": 15,
+        "passCountPg": 8,
+        "ballRate": 12,
         "airBattleWinCountPg": 2,
-        "interceptCount": 10,
-        "cleanSheet": 3
+        "interceptCount": 8,
+        "cleanSheet": 2
       },
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": null,
-          "rankComputed": 18
+          "rankComputed": 15
         },
         "passCountPg": {
-          "rankOfficial": 4,
-          "rankComputed": 4
+          "rankOfficial": 8,
+          "rankComputed": 8
         },
         "ballRate": {
-          "rankOfficial": 6,
-          "rankComputed": 6
+          "rankOfficial": null,
+          "rankComputed": 12
         },
         "airBattleWinCountPg": {
           "rankOfficial": 2,
           "rankComputed": 2
         },
         "interceptCount": {
-          "rankOfficial": 10,
-          "rankComputed": 10
+          "rankOfficial": 8,
+          "rankComputed": 8
         },
         "cleanSheet": {
-          "rankOfficial": 3,
+          "rankOfficial": 2,
           "rankComputed": 2
         }
       }
@@ -659,10 +659,10 @@
         "xPoints": 3.74,
         "pointsOverX": 2.26,
         "remainingDifficulty": 1.07,
-        "scorePg": 2,
-        "passCountPg": 356,
-        "ballRate": 46.6,
-        "airBattleWinCountPg": 12,
+        "scorePg": 1.3,
+        "passCountPg": 426,
+        "ballRate": 51.8,
+        "airBattleWinCountPg": 11.7,
         "interceptCount": 7,
         "cleanSheet": 1
       },
@@ -686,37 +686,37 @@
         "xPoints": 13,
         "pointsOverX": 3,
         "remainingDifficulty": 3,
-        "scorePg": 3,
-        "passCountPg": 15,
-        "ballRate": 16,
-        "airBattleWinCountPg": 18,
-        "interceptCount": 1,
-        "cleanSheet": 3
+        "scorePg": 5,
+        "passCountPg": 11,
+        "ballRate": 8,
+        "airBattleWinCountPg": 19,
+        "interceptCount": 4,
+        "cleanSheet": 6
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": 3,
-          "rankComputed": 3
+          "rankOfficial": 5,
+          "rankComputed": 5
         },
         "passCountPg": {
           "rankOfficial": null,
-          "rankComputed": 15
+          "rankComputed": 11
         },
         "ballRate": {
-          "rankOfficial": null,
-          "rankComputed": 16
+          "rankOfficial": 8,
+          "rankComputed": 8
         },
         "airBattleWinCountPg": {
           "rankOfficial": null,
-          "rankComputed": 18
+          "rankComputed": 19
         },
         "interceptCount": {
-          "rankOfficial": 1,
-          "rankComputed": 1
+          "rankOfficial": 4,
+          "rankComputed": 4
         },
         "cleanSheet": {
-          "rankOfficial": 3,
-          "rankComputed": 2
+          "rankOfficial": 6,
+          "rankComputed": 3
         }
       }
     },
@@ -745,11 +745,11 @@
         "pointsOverX": 1.34,
         "remainingDifficulty": 1.08,
         "scorePg": 1,
-        "passCountPg": 412.5,
-        "ballRate": 47.4,
-        "airBattleWinCountPg": 15.5,
-        "interceptCount": 2,
-        "cleanSheet": 0
+        "passCountPg": 409,
+        "ballRate": 47.9,
+        "airBattleWinCountPg": 17,
+        "interceptCount": 6,
+        "cleanSheet": 1
       },
       "ranks": {
         "points": 3,
@@ -771,36 +771,36 @@
         "xPoints": 8,
         "pointsOverX": 5,
         "remainingDifficulty": 10,
-        "scorePg": 9,
-        "passCountPg": 12,
+        "scorePg": 12,
+        "passCountPg": 14,
         "ballRate": 13,
-        "airBattleWinCountPg": 15,
-        "interceptCount": 10,
-        "cleanSheet": 4
+        "airBattleWinCountPg": 9,
+        "interceptCount": 5,
+        "cleanSheet": 6
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": 9,
-          "rankComputed": 9
+          "rankOfficial": null,
+          "rankComputed": 12
         },
         "passCountPg": {
           "rankOfficial": null,
-          "rankComputed": 12
+          "rankComputed": 14
         },
         "ballRate": {
           "rankOfficial": null,
           "rankComputed": 13
         },
         "airBattleWinCountPg": {
-          "rankOfficial": null,
-          "rankComputed": 15
+          "rankOfficial": 9,
+          "rankComputed": 9
         },
         "interceptCount": {
-          "rankOfficial": 10,
-          "rankComputed": 10
+          "rankOfficial": 5,
+          "rankComputed": 5
         },
         "cleanSheet": {
-          "rankOfficial": 4,
+          "rankOfficial": 6,
           "rankComputed": 3
         }
       }
@@ -829,10 +829,10 @@
         "xPoints": 4.93,
         "pointsOverX": -0.93,
         "remainingDifficulty": 1.1,
-        "scorePg": 1,
-        "passCountPg": 452.5,
-        "ballRate": 55.3,
-        "airBattleWinCountPg": 21.5,
+        "scorePg": 1.3,
+        "passCountPg": 470,
+        "ballRate": 54.3,
+        "airBattleWinCountPg": 21,
         "interceptCount": 1,
         "cleanSheet": 0
       },
@@ -856,37 +856,37 @@
         "xPoints": 6,
         "pointsOverX": 13,
         "remainingDifficulty": 18,
-        "scorePg": 9,
-        "passCountPg": 8,
-        "ballRate": 3,
-        "airBattleWinCountPg": 4,
-        "interceptCount": 16,
-        "cleanSheet": 4
+        "scorePg": 5,
+        "passCountPg": 7,
+        "ballRate": 4,
+        "airBattleWinCountPg": 5,
+        "interceptCount": 19,
+        "cleanSheet": 7
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": 9,
-          "rankComputed": 9
+          "rankOfficial": 5,
+          "rankComputed": 5
         },
         "passCountPg": {
-          "rankOfficial": 8,
-          "rankComputed": 8
+          "rankOfficial": 7,
+          "rankComputed": 7
         },
         "ballRate": {
-          "rankOfficial": 3,
-          "rankComputed": 3
-        },
-        "airBattleWinCountPg": {
           "rankOfficial": 4,
           "rankComputed": 4
         },
+        "airBattleWinCountPg": {
+          "rankOfficial": 5,
+          "rankComputed": 5
+        },
         "interceptCount": {
           "rankOfficial": null,
-          "rankComputed": 16
+          "rankComputed": 19
         },
         "cleanSheet": {
-          "rankOfficial": 4,
-          "rankComputed": 3
+          "rankOfficial": 7,
+          "rankComputed": 4
         }
       }
     },
@@ -914,12 +914,12 @@
         "xPoints": 5.01,
         "pointsOverX": 0.99,
         "remainingDifficulty": 1.08,
-        "scorePg": 1,
-        "passCountPg": 450,
-        "ballRate": 50,
-        "airBattleWinCountPg": 14.5,
-        "interceptCount": 5,
-        "cleanSheet": 1
+        "scorePg": 1.3,
+        "passCountPg": 413,
+        "ballRate": 46.2,
+        "airBattleWinCountPg": 13.3,
+        "interceptCount": 6,
+        "cleanSheet": 2
       },
       "ranks": {
         "points": 3,
@@ -941,36 +941,36 @@
         "xPoints": 5,
         "pointsOverX": 6,
         "remainingDifficulty": 8,
-        "scorePg": 9,
-        "passCountPg": 10,
-        "ballRate": 11,
-        "airBattleWinCountPg": 16,
-        "interceptCount": 4,
-        "cleanSheet": 3
+        "scorePg": 5,
+        "passCountPg": 13,
+        "ballRate": 15,
+        "airBattleWinCountPg": 18,
+        "interceptCount": 5,
+        "cleanSheet": 2
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": 9,
-          "rankComputed": 9
+          "rankOfficial": 5,
+          "rankComputed": 5
         },
         "passCountPg": {
-          "rankOfficial": 10,
-          "rankComputed": 10
+          "rankOfficial": null,
+          "rankComputed": 13
         },
         "ballRate": {
           "rankOfficial": null,
-          "rankComputed": 11
+          "rankComputed": 15
         },
         "airBattleWinCountPg": {
           "rankOfficial": null,
-          "rankComputed": 16
+          "rankComputed": 18
         },
         "interceptCount": {
-          "rankOfficial": 4,
-          "rankComputed": 4
+          "rankOfficial": 5,
+          "rankComputed": 5
         },
         "cleanSheet": {
-          "rankOfficial": 3,
+          "rankOfficial": 2,
           "rankComputed": 2
         }
       }
@@ -999,11 +999,11 @@
         "xPoints": 4.84,
         "pointsOverX": 4.16,
         "remainingDifficulty": 1.07,
-        "scorePg": 2,
-        "passCountPg": 361.5,
-        "ballRate": 43.4,
-        "airBattleWinCountPg": 17.5,
-        "interceptCount": 0,
+        "scorePg": 2.7,
+        "passCountPg": 374.3,
+        "ballRate": 45,
+        "airBattleWinCountPg": 14.7,
+        "interceptCount": 2,
         "cleanSheet": 1
       },
       "ranks": {
@@ -1026,37 +1026,37 @@
         "xPoints": 7,
         "pointsOverX": 1,
         "remainingDifficulty": 5,
-        "scorePg": 3,
-        "passCountPg": 14,
-        "ballRate": 17,
-        "airBattleWinCountPg": 10,
-        "interceptCount": 19,
-        "cleanSheet": 3
+        "scorePg": 1,
+        "passCountPg": 17,
+        "ballRate": 18,
+        "airBattleWinCountPg": 17,
+        "interceptCount": 15,
+        "cleanSheet": 6
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": 3,
-          "rankComputed": 3
+          "rankOfficial": 1,
+          "rankComputed": 1
         },
         "passCountPg": {
           "rankOfficial": null,
-          "rankComputed": 14
+          "rankComputed": 17
         },
         "ballRate": {
           "rankOfficial": null,
-          "rankComputed": 17
+          "rankComputed": 18
         },
         "airBattleWinCountPg": {
-          "rankOfficial": 10,
-          "rankComputed": 10
+          "rankOfficial": null,
+          "rankComputed": 17
         },
         "interceptCount": {
           "rankOfficial": null,
-          "rankComputed": 19
+          "rankComputed": 15
         },
         "cleanSheet": {
-          "rankOfficial": 3,
-          "rankComputed": 2
+          "rankOfficial": 6,
+          "rankComputed": 3
         }
       }
     },
@@ -1084,11 +1084,11 @@
         "xPoints": 2.95,
         "pointsOverX": -1.95,
         "remainingDifficulty": 1.09,
-        "scorePg": 0,
-        "passCountPg": 470,
-        "ballRate": 50.6,
-        "airBattleWinCountPg": 9,
-        "interceptCount": 6,
+        "scorePg": 0.3,
+        "passCountPg": 434.3,
+        "ballRate": 49.6,
+        "airBattleWinCountPg": 9.3,
+        "interceptCount": 8,
         "cleanSheet": 1
       },
       "ranks": {
@@ -1112,11 +1112,11 @@
         "pointsOverX": 18,
         "remainingDifficulty": 11,
         "scorePg": 18,
-        "passCountPg": 5,
-        "ballRate": 10,
+        "passCountPg": 10,
+        "ballRate": 11,
         "airBattleWinCountPg": 20,
         "interceptCount": 2,
-        "cleanSheet": 3
+        "cleanSheet": 6
       },
       "officialRankCheck": {
         "scorePg": {
@@ -1124,12 +1124,12 @@
           "rankComputed": 18
         },
         "passCountPg": {
-          "rankOfficial": 5,
-          "rankComputed": 5
-        },
-        "ballRate": {
           "rankOfficial": 10,
           "rankComputed": 10
+        },
+        "ballRate": {
+          "rankOfficial": null,
+          "rankComputed": 11
         },
         "airBattleWinCountPg": {
           "rankOfficial": null,
@@ -1140,8 +1140,8 @@
           "rankComputed": 2
         },
         "cleanSheet": {
-          "rankOfficial": 3,
-          "rankComputed": 2
+          "rankOfficial": 6,
+          "rankComputed": 3
         }
       }
     },
@@ -1169,11 +1169,11 @@
         "xPoints": 2.61,
         "pointsOverX": -1.61,
         "remainingDifficulty": 1.09,
-        "scorePg": 0.5,
-        "passCountPg": 389.5,
-        "ballRate": 46.7,
-        "airBattleWinCountPg": 17,
-        "interceptCount": 6,
+        "scorePg": 0.3,
+        "passCountPg": 439.7,
+        "ballRate": 50.7,
+        "airBattleWinCountPg": 19,
+        "interceptCount": 8,
         "cleanSheet": 0
       },
       "ranks": {
@@ -1196,37 +1196,37 @@
         "xPoints": 19,
         "pointsOverX": 17,
         "remainingDifficulty": 12,
-        "scorePg": 15,
-        "passCountPg": 13,
-        "ballRate": 15,
-        "airBattleWinCountPg": 12,
+        "scorePg": 18,
+        "passCountPg": 9,
+        "ballRate": 10,
+        "airBattleWinCountPg": 6,
         "interceptCount": 2,
-        "cleanSheet": 4
+        "cleanSheet": 7
       },
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": null,
-          "rankComputed": 15
+          "rankComputed": 18
         },
         "passCountPg": {
-          "rankOfficial": null,
-          "rankComputed": 13
+          "rankOfficial": 9,
+          "rankComputed": 9
         },
         "ballRate": {
-          "rankOfficial": null,
-          "rankComputed": 15
+          "rankOfficial": 10,
+          "rankComputed": 10
         },
         "airBattleWinCountPg": {
-          "rankOfficial": null,
-          "rankComputed": 12
+          "rankOfficial": 6,
+          "rankComputed": 6
         },
         "interceptCount": {
           "rankOfficial": 2,
           "rankComputed": 2
         },
         "cleanSheet": {
-          "rankOfficial": 4,
-          "rankComputed": 3
+          "rankOfficial": 7,
+          "rankComputed": 4
         }
       }
     },
@@ -1254,12 +1254,12 @@
         "xPoints": 4.65,
         "pointsOverX": -0.65,
         "remainingDifficulty": 1.1,
-        "scorePg": 0.5,
-        "passCountPg": 256.5,
-        "ballRate": 39,
-        "airBattleWinCountPg": 28,
+        "scorePg": 1.3,
+        "passCountPg": 265,
+        "ballRate": 39.7,
+        "airBattleWinCountPg": 31.3,
         "interceptCount": 2,
-        "cleanSheet": 0
+        "cleanSheet": 1
       },
       "ranks": {
         "points": 9,
@@ -1281,17 +1281,17 @@
         "xPoints": 9,
         "pointsOverX": 12,
         "remainingDifficulty": 17,
-        "scorePg": 15,
+        "scorePg": 5,
         "passCountPg": 20,
         "ballRate": 20,
         "airBattleWinCountPg": 1,
-        "interceptCount": 10,
-        "cleanSheet": 4
+        "interceptCount": 15,
+        "cleanSheet": 6
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": null,
-          "rankComputed": 15
+          "rankOfficial": 5,
+          "rankComputed": 5
         },
         "passCountPg": {
           "rankOfficial": null,
@@ -1306,11 +1306,11 @@
           "rankComputed": 1
         },
         "interceptCount": {
-          "rankOfficial": 10,
-          "rankComputed": 10
+          "rankOfficial": null,
+          "rankComputed": 15
         },
         "cleanSheet": {
-          "rankOfficial": 4,
+          "rankOfficial": 6,
           "rankComputed": 3
         }
       }
@@ -1339,11 +1339,11 @@
         "xPoints": 5.61,
         "pointsOverX": 0.39,
         "remainingDifficulty": 1.09,
-        "scorePg": 2.5,
-        "passCountPg": 278.5,
-        "ballRate": 40.3,
-        "airBattleWinCountPg": 16,
-        "interceptCount": 1,
+        "scorePg": 1.7,
+        "passCountPg": 324.7,
+        "ballRate": 44.1,
+        "airBattleWinCountPg": 21.3,
+        "interceptCount": 3,
         "cleanSheet": 1
       },
       "ranks": {
@@ -1366,17 +1366,17 @@
         "xPoints": 1,
         "pointsOverX": 9,
         "remainingDifficulty": 13,
-        "scorePg": 1,
+        "scorePg": 4,
         "passCountPg": 19,
         "ballRate": 19,
-        "airBattleWinCountPg": 14,
-        "interceptCount": 16,
-        "cleanSheet": 3
+        "airBattleWinCountPg": 4,
+        "interceptCount": 14,
+        "cleanSheet": 6
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": 1,
-          "rankComputed": 1
+          "rankOfficial": 4,
+          "rankComputed": 4
         },
         "passCountPg": {
           "rankOfficial": null,
@@ -1387,16 +1387,16 @@
           "rankComputed": 19
         },
         "airBattleWinCountPg": {
-          "rankOfficial": null,
-          "rankComputed": 14
+          "rankOfficial": 4,
+          "rankComputed": 4
         },
         "interceptCount": {
           "rankOfficial": null,
-          "rankComputed": 16
+          "rankComputed": 14
         },
         "cleanSheet": {
-          "rankOfficial": 3,
-          "rankComputed": 2
+          "rankOfficial": 6,
+          "rankComputed": 3
         }
       }
     },
@@ -1424,11 +1424,11 @@
         "xPoints": 2.0,
         "pointsOverX": -2.0,
         "remainingDifficulty": 1.08,
-        "scorePg": 1.5,
-        "passCountPg": 457.5,
-        "ballRate": 58.2,
-        "airBattleWinCountPg": 18.5,
-        "interceptCount": 2,
+        "scorePg": 1,
+        "passCountPg": 500.7,
+        "ballRate": 55.5,
+        "airBattleWinCountPg": 15.3,
+        "interceptCount": 9,
         "cleanSheet": 0
       },
       "ranks": {
@@ -1451,37 +1451,37 @@
         "xPoints": 20,
         "pointsOverX": 19,
         "remainingDifficulty": 9,
-        "scorePg": 6,
-        "passCountPg": 7,
+        "scorePg": 12,
+        "passCountPg": 2,
         "ballRate": 2,
-        "airBattleWinCountPg": 9,
-        "interceptCount": 10,
-        "cleanSheet": 4
+        "airBattleWinCountPg": 15,
+        "interceptCount": 1,
+        "cleanSheet": 7
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": 6,
-          "rankComputed": 6
+          "rankOfficial": null,
+          "rankComputed": 12
         },
         "passCountPg": {
-          "rankOfficial": 7,
-          "rankComputed": 7
+          "rankOfficial": 2,
+          "rankComputed": 2
         },
         "ballRate": {
           "rankOfficial": 2,
           "rankComputed": 2
         },
         "airBattleWinCountPg": {
-          "rankOfficial": 9,
-          "rankComputed": 9
+          "rankOfficial": null,
+          "rankComputed": 15
         },
         "interceptCount": {
-          "rankOfficial": 10,
-          "rankComputed": 10
+          "rankOfficial": 1,
+          "rankComputed": 1
         },
         "cleanSheet": {
-          "rankOfficial": 4,
-          "rankComputed": 3
+          "rankOfficial": 7,
+          "rankComputed": 4
         }
       }
     },
@@ -1509,12 +1509,12 @@
         "xPoints": 5.4,
         "pointsOverX": 0.6,
         "remainingDifficulty": 1.07,
-        "scorePg": 2,
-        "passCountPg": 666.5,
-        "ballRate": 65.8,
-        "airBattleWinCountPg": 21,
+        "scorePg": 2.7,
+        "passCountPg": 628.3,
+        "ballRate": 59.3,
+        "airBattleWinCountPg": 16.7,
         "interceptCount": 2,
-        "cleanSheet": 1
+        "cleanSheet": 2
       },
       "ranks": {
         "points": 3,
@@ -1536,17 +1536,17 @@
         "xPoints": 2,
         "pointsOverX": 7,
         "remainingDifficulty": 4,
-        "scorePg": 3,
+        "scorePg": 1,
         "passCountPg": 1,
         "ballRate": 1,
-        "airBattleWinCountPg": 5,
-        "interceptCount": 10,
-        "cleanSheet": 3
+        "airBattleWinCountPg": 12,
+        "interceptCount": 15,
+        "cleanSheet": 2
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": 3,
-          "rankComputed": 3
+          "rankOfficial": 1,
+          "rankComputed": 1
         },
         "passCountPg": {
           "rankOfficial": 1,
@@ -1557,15 +1557,15 @@
           "rankComputed": 1
         },
         "airBattleWinCountPg": {
-          "rankOfficial": 5,
-          "rankComputed": 5
+          "rankOfficial": null,
+          "rankComputed": 12
         },
         "interceptCount": {
-          "rankOfficial": 10,
-          "rankComputed": 10
+          "rankOfficial": null,
+          "rankComputed": 15
         },
         "cleanSheet": {
-          "rankOfficial": 3,
+          "rankOfficial": 2,
           "rankComputed": 2
         }
       }
@@ -1594,12 +1594,12 @@
         "xPoints": 4.45,
         "pointsOverX": -2.45,
         "remainingDifficulty": 1.1,
-        "scorePg": 0.5,
-        "passCountPg": 458,
-        "ballRate": 53.9,
-        "airBattleWinCountPg": 16.5,
-        "interceptCount": 2,
-        "cleanSheet": 0
+        "scorePg": 0.3,
+        "passCountPg": 478.3,
+        "ballRate": 55.2,
+        "airBattleWinCountPg": 17,
+        "interceptCount": 4,
+        "cleanSheet": 1
       },
       "ranks": {
         "points": 17,
@@ -1621,36 +1621,36 @@
         "xPoints": 11,
         "pointsOverX": 20,
         "remainingDifficulty": 20,
-        "scorePg": 15,
-        "passCountPg": 6,
-        "ballRate": 5,
-        "airBattleWinCountPg": 13,
+        "scorePg": 18,
+        "passCountPg": 5,
+        "ballRate": 3,
+        "airBattleWinCountPg": 9,
         "interceptCount": 10,
-        "cleanSheet": 4
+        "cleanSheet": 6
       },
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": null,
-          "rankComputed": 15
+          "rankComputed": 18
         },
         "passCountPg": {
-          "rankOfficial": 6,
-          "rankComputed": 6
-        },
-        "ballRate": {
           "rankOfficial": 5,
           "rankComputed": 5
         },
+        "ballRate": {
+          "rankOfficial": 3,
+          "rankComputed": 3
+        },
         "airBattleWinCountPg": {
-          "rankOfficial": null,
-          "rankComputed": 13
+          "rankOfficial": 9,
+          "rankComputed": 9
         },
         "interceptCount": {
           "rankOfficial": 10,
           "rankComputed": 10
         },
         "cleanSheet": {
-          "rankOfficial": 4,
+          "rankOfficial": 6,
           "rankComputed": 3
         }
       }
@@ -1679,11 +1679,11 @@
         "xPoints": 3.17,
         "pointsOverX": -0.17,
         "remainingDifficulty": 1.09,
-        "scorePg": 1,
-        "passCountPg": 288,
-        "ballRate": 41.8,
-        "airBattleWinCountPg": 17.5,
-        "interceptCount": 3,
+        "scorePg": 0.7,
+        "passCountPg": 378.3,
+        "ballRate": 47.8,
+        "airBattleWinCountPg": 16.7,
+        "interceptCount": 4,
         "cleanSheet": 1
       },
       "ranks": {
@@ -1706,37 +1706,37 @@
         "xPoints": 16,
         "pointsOverX": 11,
         "remainingDifficulty": 15,
-        "scorePg": 9,
-        "passCountPg": 18,
-        "ballRate": 18,
-        "airBattleWinCountPg": 10,
-        "interceptCount": 7,
-        "cleanSheet": 3
+        "scorePg": 15,
+        "passCountPg": 16,
+        "ballRate": 14,
+        "airBattleWinCountPg": 12,
+        "interceptCount": 10,
+        "cleanSheet": 6
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": 9,
-          "rankComputed": 9
+          "rankOfficial": null,
+          "rankComputed": 15
         },
         "passCountPg": {
           "rankOfficial": null,
-          "rankComputed": 18
+          "rankComputed": 16
         },
         "ballRate": {
           "rankOfficial": null,
-          "rankComputed": 18
+          "rankComputed": 14
         },
         "airBattleWinCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 12
+        },
+        "interceptCount": {
           "rankOfficial": 10,
           "rankComputed": 10
         },
-        "interceptCount": {
-          "rankOfficial": 7,
-          "rankComputed": 7
-        },
         "cleanSheet": {
-          "rankOfficial": 3,
-          "rankComputed": 2
+          "rankOfficial": 6,
+          "rankComputed": 3
         }
       }
     },
@@ -1764,11 +1764,11 @@
         "xPoints": 3.04,
         "pointsOverX": -0.04,
         "remainingDifficulty": 1.08,
-        "scorePg": 1.5,
-        "passCountPg": 352,
-        "ballRate": 50.9,
-        "airBattleWinCountPg": 22.5,
-        "interceptCount": 3,
+        "scorePg": 1.3,
+        "passCountPg": 389.3,
+        "ballRate": 51.5,
+        "airBattleWinCountPg": 22,
+        "interceptCount": 5,
         "cleanSheet": 0
       },
       "ranks": {
@@ -1791,37 +1791,37 @@
         "xPoints": 17,
         "pointsOverX": 10,
         "remainingDifficulty": 7,
-        "scorePg": 6,
-        "passCountPg": 16,
-        "ballRate": 8,
+        "scorePg": 5,
+        "passCountPg": 15,
+        "ballRate": 9,
         "airBattleWinCountPg": 3,
-        "interceptCount": 7,
-        "cleanSheet": 4
+        "interceptCount": 8,
+        "cleanSheet": 7
       },
       "officialRankCheck": {
         "scorePg": {
-          "rankOfficial": 6,
-          "rankComputed": 6
+          "rankOfficial": 5,
+          "rankComputed": 5
         },
         "passCountPg": {
           "rankOfficial": null,
-          "rankComputed": 16
+          "rankComputed": 15
         },
         "ballRate": {
-          "rankOfficial": 8,
-          "rankComputed": 8
+          "rankOfficial": 9,
+          "rankComputed": 9
         },
         "airBattleWinCountPg": {
           "rankOfficial": 3,
           "rankComputed": 3
         },
         "interceptCount": {
-          "rankOfficial": 7,
-          "rankComputed": 7
+          "rankOfficial": 8,
+          "rankComputed": 8
         },
         "cleanSheet": {
-          "rankOfficial": 4,
-          "rankComputed": 3
+          "rankOfficial": 7,
+          "rankComputed": 4
         }
       }
     },
@@ -1849,10 +1849,10 @@
         "xPoints": 4.46,
         "pointsOverX": 1.54,
         "remainingDifficulty": 1.06,
-        "scorePg": 2.5,
-        "passCountPg": 351.5,
-        "ballRate": 49.2,
-        "airBattleWinCountPg": 20.5,
+        "scorePg": 2.7,
+        "passCountPg": 344,
+        "ballRate": 46.2,
+        "airBattleWinCountPg": 17,
         "interceptCount": 4,
         "cleanSheet": 1
       },
@@ -1877,11 +1877,11 @@
         "pointsOverX": 4,
         "remainingDifficulty": 1,
         "scorePg": 1,
-        "passCountPg": 17,
-        "ballRate": 12,
-        "airBattleWinCountPg": 6,
-        "interceptCount": 5,
-        "cleanSheet": 3
+        "passCountPg": 18,
+        "ballRate": 15,
+        "airBattleWinCountPg": 9,
+        "interceptCount": 10,
+        "cleanSheet": 6
       },
       "officialRankCheck": {
         "scorePg": {
@@ -1890,23 +1890,23 @@
         },
         "passCountPg": {
           "rankOfficial": null,
-          "rankComputed": 17
+          "rankComputed": 18
         },
         "ballRate": {
           "rankOfficial": null,
-          "rankComputed": 12
+          "rankComputed": 15
         },
         "airBattleWinCountPg": {
-          "rankOfficial": 6,
-          "rankComputed": 6
+          "rankOfficial": 9,
+          "rankComputed": 9
         },
         "interceptCount": {
-          "rankOfficial": 5,
-          "rankComputed": 5
+          "rankOfficial": 10,
+          "rankComputed": 10
         },
         "cleanSheet": {
-          "rankOfficial": 3,
-          "rankComputed": 2
+          "rankOfficial": 6,
+          "rankComputed": 3
         }
       }
     }
