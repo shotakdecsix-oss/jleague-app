@@ -34,6 +34,15 @@ YouTube Data API v3の無料枠(1日100検索まで)を使い切らないよう�
 DAZN_SEARCH_COOLDOWN_HOURS間隔・DAZN_SEARCH_MAX_ATTEMPTS回までしか検索しない
 (動画が見つかった後は検索しない。APIキー未設定の場合はこの機能全体を静かにスキップする)。
 
+第22弾: スタメンの表示名をフルネームに統一し、得点/カード/交代/出場メンバーの選手名を
+Jリーグ公式の個人ページ(https://www.jleague.jp/player/<id>/)にリンクできるようにした。
+formations側(出場メンバーのピッチ座標データ)は選手名が苗字のみ(ピッチ図の省スペース表示用)
+だが、基点ページ側(baseUrl、find_lineup_members)には同じ選手がスタメン込みで全員
+フルネーム+公式選手IDで載っているので、idで突き合わせてスタメンの表示名を上書きし
+(build_lineup_side)、同じ突き合わせ表(選手名->id)を使って得点/カード/交代にも
+playerId を付与する(build_full_name_lookup/player_id_for)。突き合わせできなかった選手は
+playerId=nullのままで、表示側(index.html)はプレーンテキストにフォールバックする。
+
 CLI:
     python scripts/fetch_match_events.py --league j2
     python scripts/fetch_match_events.py --league all
@@ -199,6 +208,24 @@ def resolve_codes(
     return resolved, unresolved
 
 
+def build_full_name_lookup(bench_by_slug: dict[str, list[dict]]) -> dict[str, dict[str, str]]:
+    """
+    第22弾: teamSlug -> {選手名: id(公式選手ID)} のルックアップ。
+    bench_by_slug(find_lineup_membersの戻り値。基点ページ側)には、スタメン+控えの
+    全員がフルネーム+公式選手IDで載っている。これを使って
+      (a) build_lineup_side()でスタメンの表示名を苗字だけ(formations側)からフルネームに直す
+      (b) 得点/カード/交代の選手名から公式選手ページへのリンク用idを引く
+    の両方を行う。同姓同名が同一チーム内に複数いる可能性はゼロではないが、その場合は
+    後勝ち(dictの上書き)になるだけでリンク先を誤るだけに留まる(例外は投げない安全弁)。
+    """
+    lookup: dict[str, dict[str, str]] = {}
+    for slug, players in bench_by_slug.items():
+        lookup[slug] = {
+            p["name"]: p["id"] for p in players if p.get("name") and p.get("id")
+        }
+    return lookup
+
+
 def build_lineup_side(side: dict, bench_by_slug: dict[str, list[dict]], all_teams: list[dict]) -> dict:
     team = match_team_ja(side.get("teamName") or "", all_teams)
     players = sorted(side.get("players", []) or [], key=lambda p: p.get("positionX", 0))
@@ -211,11 +238,24 @@ def build_lineup_side(side: dict, bench_by_slug: dict[str, list[dict]], all_team
     bench_raw = bench_by_slug.get(slug, []) if slug else []
     bench = [p for p in bench_raw if p.get("id") not in starter_ids]
 
+    # 第22弾: フルネーム統一。formations側(出場メンバーのピッチ座標データ)のnameは
+    # ピッチ図の省スペース表示用に苗字だけ(例:"杉本")しか持っていない。bench_raw(基点ページ側)
+    # には同じ選手がスタメン込みで全員フルネーム(例:"杉本 蓮")で載っているので、id(公式選手ID)で
+    # 突き合わせて上書きする。基点ページの取得に失敗した場合(bench_rawが空)は、従来通り
+    # formations側の苗字だけの表示にフォールバックする(安全弁。例外は投げない)。
+    full_name_by_id = {
+        p.get("id"): p.get("name") for p in bench_raw if p.get("id") and p.get("name")
+    }
+
     return {
         "idTeam": team["idTeam"] if team else None,
         "formation": side.get("formation"),
         "players": [
-            {"id": p.get("id"), "name": p.get("name"), "number": p.get("playerNumber")}
+            {
+                "id": p.get("id"),
+                "name": full_name_by_id.get(str(p.get("id")), p.get("name")),
+                "number": p.get("playerNumber"),
+            }
             for p in players
         ],
         "bench": [
@@ -284,12 +324,37 @@ def parse_and_merge(
         team = match_team_ja(name, all_teams)
         return team["idTeam"] if team else None
 
+    def resolve_slug(name: str | None) -> str | None:
+        if not name:
+            return None
+        team = match_team_ja(name, all_teams)
+        return (team or {}).get("jleagueSlug")
+
+    # 第22弾: 公式個人ページへのリンク化。得点/カード/交代は選手名の文字列しか持っていないので、
+    # bench_by_slug(基点ページ側、build_lineup_sideのフルネーム統一で使っているのと同じデータ)から
+    # 選手名 -> 公式選手ID のルックアップを作り、クラブ名(=所属チーム)で絞り込んでからnameで
+    # 引く。基点ページの取得に失敗した場合(bench_by_slugが空)はplayerIdが全てNoneになるだけで
+    # 他のデータ取得は妨げない(見つからなければ表示側はリンクなしのプレーンテキストにフォールバック)。
+    name_to_id = build_full_name_lookup(bench_by_slug)
+
+    def player_id_for(club_name: str | None, player_name: str | None) -> str | None:
+        if not player_name:
+            return None
+        slug = resolve_slug(club_name)
+        if not slug:
+            return None
+        return name_to_id.get(slug, {}).get(player_name)
+
     for g in goals:
         g["idTeam"] = resolve_club(g.get("club"))
+        g["playerId"] = player_id_for(g.get("club"), g.get("player"))
     for c in cards:
         c["idTeam"] = resolve_club(c.get("club"))
+        c["playerId"] = player_id_for(c.get("club"), c.get("player"))
     for s in subs:
         s["idTeam"] = resolve_club(s.get("club"))
+        for it in s.get("items", []):
+            it["playerId"] = player_id_for(s.get("club"), it.get("name"))
 
     old = existing_events.get(id_event)
 

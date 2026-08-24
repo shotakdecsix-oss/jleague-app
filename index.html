@@ -460,6 +460,9 @@
   .lineups-sub-title{font-size:10px; font-weight:700; color:var(--sub); margin:8px 0 3px}
   .lineups-bench{color:var(--sub)}
   .lineups-pos{display:inline-block; min-width:26px; font-size:10px; color:var(--sub)}
+  /* 第22弾: 選手名リンク(Jリーグ公式の個人ページ)。地の文と見分けがつく程度に留め、下線はhoverのみ */
+  .lineups-list a, .events-desc a{color:inherit; text-decoration:none; border-bottom:1px dotted var(--sub)}
+  .lineups-list a:hover, .events-desc a:hover{text-decoration:none; border-bottom-style:solid}
   /* 第14弾: ハイライト動画(YouTube埋め込み、16:9のレスポンシブ) */
   .highlight-video{margin-bottom:10px}
   .highlight-video-source{font-size:11px; font-weight:normal; color:#888}
@@ -1804,19 +1807,29 @@ function derivedScoreFromEvents(ev, homeId, awayId) {
 }
 /* ev = {code,url,fetchedAtJst,goals[],cards[],subs[]}(data/processed/{league}_match_events.json)。
    goals/cards/subsを分でまとめてソートし、自クラブの出来事だけ.meで強調する。 */
+/* 第22弾: 選手名を(公式選手IDが分かっていれば)Jリーグ公式の個人ページへのリンクにする。
+   playerUrl()は「今季の主役」「選手一覧」(club_extra.json由来)で使っているのと同じ関数を再利用する。
+   idが無い(=突き合わせできなかった)場合はこれまで通りプレーンテキストにフォールバックする。 */
+function playerLinkHtml(id, name) {
+  const label = esc(name == null ? "" : name);
+  const url = id ? playerUrl(id) : null;
+  return url ? '<a href="' + url + '" target="_blank" rel="noopener">' + label + '</a>' : label;
+}
 /* 第13弾: 出場メンバー(スタメン)。findビ_formationsで取れたpositionX昇順(GK→FW)のまま並べる。
-   第14弾: 控えメンバー(bench)があれば、スタメンの下に一段落ち着いた見た目で追加表示する。 */
+   第14弾: 控えメンバー(bench)があれば、スタメンの下に一段落ち着いた見た目で追加表示する。
+   第22弾: 表示名はfetch_match_events.py側で既にフルネームに統一済み(id突き合わせ)。ここでは
+   playerLinkHtml()で選手個人ページへのリンクにするだけ。 */
 function renderLineupSide(side, teamName, ownIdTeam) {
   if (!side) return "";
   const playersHtml = (side.players || []).map(p =>
-    '<li><span class="lineups-num">' + esc(p.number == null ? "" : p.number) + '</span>' + esc(p.name) + '</li>'
+    '<li><span class="lineups-num">' + esc(p.number == null ? "" : p.number) + '</span>' + playerLinkHtml(p.id, p.name) + '</li>'
   ).join("");
   const benchHtml = (side.bench && side.bench.length)
     ? '<div class="lineups-sub-title">控えメンバー</div>' +
       '<ol class="lineups-list lineups-bench">' + side.bench.map(p =>
         '<li><span class="lineups-num">' + esc(p.number == null ? "" : p.number) + '</span>' +
           (p.position ? '<span class="lineups-pos">' + esc(p.position) + '</span>' : "") +
-          esc(p.name) + '</li>'
+          playerLinkHtml(p.id, p.name) + '</li>'
       ).join("") + '</ol>'
     : "";
   return '<div class="lineups-col' + (ownIdTeam && side.idTeam === ownIdTeam ? " me" : "") + '">' +
@@ -1858,13 +1871,13 @@ function renderMatchEventsPanel(ev, homeId, homeName, awayId, awayName, ownIdTea
   for (const g of ev.goals || []) {
     items.push({
       minute: g.minute, idTeam: g.idTeam,
-      html: "⚽ " + esc(g.player) + (g.scoreAfter ? ' <span class="events-sub">(' + esc(g.scoreAfter) + ')</span>' : ""),
+      html: "⚽ " + playerLinkHtml(g.playerId, g.player) + (g.scoreAfter ? ' <span class="events-sub">(' + esc(g.scoreAfter) + ')</span>' : ""),
     });
   }
   for (const c of ev.cards || []) {
     items.push({
       minute: c.minute, idTeam: c.idTeam,
-      html: '<span class="card-dot ' + esc(c.type) + '"></span> ' + esc(c.player),
+      html: '<span class="card-dot ' + esc(c.type) + '"></span> ' + playerLinkHtml(c.playerId, c.player),
     });
   }
   for (const s of ev.subs || []) {
@@ -1872,7 +1885,8 @@ function renderMatchEventsPanel(ev, homeId, homeName, awayId, awayName, ownIdTea
     const outP = (s.items || []).find(it => it.variant === "out");
     items.push({
       minute: s.minute, idTeam: s.idTeam,
-      html: "IN " + esc(inP ? inP.name : "?") + ' <span class="events-sub">/ OUT ' + esc(outP ? outP.name : "?") + "</span>",
+      html: "IN " + playerLinkHtml(inP && inP.playerId, inP ? inP.name : "?") +
+        ' <span class="events-sub">/ OUT ' + playerLinkHtml(outP && outP.playerId, outP ? outP.name : "?") + "</span>",
     });
   }
   items.sort((a, b) => minuteSortKey(a.minute) - minuteSortKey(b.minute));

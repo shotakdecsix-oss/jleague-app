@@ -343,6 +343,92 @@ def test_dazn_search_cooldown_and_attempts():
         fme.load_youtube_api_key = original_load_key
 
 
+# ---------- 第22弾: スタメンのフルネーム統一 + 得点/カード/交代への公式選手IDリンク付与 ----------
+
+def test_player_id_and_full_name_links():
+    """
+    (a) formations側は選手名が苗字だけ(ピッチ図の省スペース表示用)なので、基点ページ側
+        (find_lineup_members)のフルネームで上書きされることを確認する。
+    (b) 得点/カード/交代に、クラブ+選手名で基点ページ側から引いた公式選手ID(playerId)が
+        付くことを確認する(見つからない選手はNoneのまま=表示側でリンクなしにフォールバック)。
+    HTMLの正規表現パース自体は他のテスト(test_parsers_against_samples等)で別途確認済みなので、
+    ここではfind_*関数を差し替えて、parse_and_merge()自身の突き合わせロジックだけを検証する。
+    """
+    fake_master = {
+        "teams": [
+            {"idTeam": "T_A", "en": "a", "aliases": [], "aliasesJa": [], "ja": "ホーム", "jleagueSlug": "home_slug"},
+            {"idTeam": "T_B", "en": "b", "aliases": [], "aliasesJa": [], "ja": "アウェイ", "jleagueSlug": "away_slug"},
+        ]
+    }
+    all_teams = load_master_teams("j2", fake_master)
+
+    import fetch_match_events as fme
+
+    original = {
+        "fetch_html": fme.fetch_html,
+        "find_goals": fme.find_goals,
+        "find_cards": fme.find_cards,
+        "find_subs": fme.find_subs,
+        "find_formations": fme.find_formations,
+        "find_lineup_members": fme.find_lineup_members,
+        "find_highlight_video_id": fme.find_highlight_video_id,
+        "SLEEP_BETWEEN_REQUESTS": fme.SLEEP_BETWEEN_REQUESTS,
+    }
+    fme.fetch_html = lambda url: "<html>dummy</html>"  # find_*を差し替えるので中身は使われない
+    fme.SLEEP_BETWEEN_REQUESTS = 0  # テストを待たせない
+    fme.find_goals = lambda chunks: [
+        {"minute": "10", "club": "ホーム", "player": "杉本 蓮", "position": "MF 24", "scoreAfter": "1-0"},
+    ]
+    fme.find_cards = lambda chunks: [
+        {"minute": "20", "type": "yellow", "player": "田中 太郎", "position": "FW 10", "club": "アウェイ"},
+    ]
+    fme.find_subs = lambda chunks: [
+        {"minute": "60", "club": "ホーム", "items": [
+            {"variant": "in", "position": "MF 8", "name": "無名 選手"},  # 台帳に無い選手 -> playerIdはNoneのはず
+            {"variant": "out", "position": "MF 24", "name": "杉本 蓮"},
+        ]},
+    ]
+    fme.find_formations = lambda chunks: [{
+        "homeTeam": {"teamName": "ホーム", "formation": "4-4-2", "players": [
+            {"id": 101, "name": "杉本", "playerNumber": "24", "positionX": 5},  # formations側は苗字のみ
+        ]},
+        "awayTeam": {"teamName": "アウェイ", "formation": "4-3-3", "players": [
+            {"id": 202, "name": "田中", "playerNumber": "10", "positionX": 8},
+        ]},
+    }]
+    fme.find_lineup_members = lambda chunks: {
+        "home_slug": [{"id": "101", "name": "杉本 蓮", "position": "MF", "number": "24"}],
+        "away_slug": [{"id": "202", "name": "田中 太郎", "position": "FW", "number": "10"}],
+    }
+    fme.find_highlight_video_id = lambda chunks: None
+
+    resolved = {
+        "code": "000000", "url": "dummy", "baseUrl": "dummy_base", "finished": False,
+        "homeJa": "ホーム", "awayJa": "アウェイ",
+    }
+    try:
+        result = parse_and_merge("P1", resolved, all_teams, {}, [])
+        assert result is not None
+
+        home_players = result["lineups"]["home"]["players"]
+        assert home_players[0]["name"] == "杉本 蓮", \
+            f"スタメンの表示名がフルネームになっていない: {home_players[0]}"
+        away_players = result["lineups"]["away"]["players"]
+        assert away_players[0]["name"] == "田中 太郎", \
+            f"スタメンの表示名がフルネームになっていない: {away_players[0]}"
+
+        assert result["goals"][0]["playerId"] == "101", result["goals"][0]
+        assert result["cards"][0]["playerId"] == "202", result["cards"][0]
+        sub_items = {it["name"]: it["playerId"] for it in result["subs"][0]["items"]}
+        assert sub_items["杉本 蓮"] == "101", sub_items
+        assert sub_items["無名 選手"] is None, "台帳に無い選手にplayerIdが付いてしまっている"
+
+        print("OK: スタメン表示名のフルネーム統一と、得点/カード/交代への公式選手ID付与を確認")
+    finally:
+        for k, v in original.items():
+            setattr(fme, k, v)
+
+
 def test_parsers_against_samples():
     livetxt = SAMPLE_DIR / "sample_match_livetxt.html"
     review = SAMPLE_DIR / "sample_match_review.html"
@@ -418,6 +504,24 @@ def test_parsers_against_samples():
         assert not (starter_ids & bench_ids), f"{side}: スタメンと控えでidが重複している"
     print("OK: build_lineups()でスタメン+控えメンバーを統合できることを確認")
 
+    # 第22弾: スタメンの表示名が、formations側の苗字だけでなく基点ページ側のフルネームに
+    # なっていることを確認する(基点ページの台帳に載っている選手のみ)
+    full_name_by_id = {}
+    for slug in ("sapporo", "omiya"):
+        for p in members[slug]:
+            full_name_by_id[p["id"]] = p["name"]
+    checked = 0
+    for side in ("home", "away"):
+        for p in lineups[side]["players"]:
+            expected = full_name_by_id.get(str(p["id"]))
+            if expected is None:
+                continue
+            checked += 1
+            assert p["name"] == expected, \
+                f"{side}: スタメン{p['id']}の表示名がフルネームになっていない({p['name']!r} != {expected!r})"
+    assert checked > 0, "フルネーム突き合わせの対象になったスタメンが1人もいない(台帳とidが噛み合っていない可能性)"
+    print("OK: スタメンの表示名が苗字だけでなくフルネームに統一されることを確認")
+
 
 if __name__ == "__main__":
     test_pick_candidates_window()
@@ -427,5 +531,6 @@ if __name__ == "__main__":
     test_search_dazn_highlight_published_after_filter()
     test_search_dazn_highlight_no_api_key_skips_silently()
     test_dazn_search_cooldown_and_attempts()
+    test_player_id_and_full_name_links()
     test_parsers_against_samples()
     print("\n全テスト完了")
