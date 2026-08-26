@@ -1,15 +1,6 @@
 {
   "runs": [
     {
-      "at": "2026-08-13T11:53:19+09:00",
-      "leagues": [
-        "j2"
-      ],
-      "requests": 3,
-      "count429": 0,
-      "durationSec": 1.2
-    },
-    {
       "at": "2026-08-13T21:43:29+09:00",
       "leagues": [
         "j2"
@@ -352,6 +343,18 @@
       "rounds": 10,
       "count429": 0,
       "durationSec": 19.0
+    },
+    {
+      "at": "2026-08-26T22:32:05+09:00",
+      "leagues": [
+        "j1",
+        "j2",
+        "j3"
+      ],
+      "requests": 11,
+      "rounds": 11,
+      "count429": 0,
+      "durationSec": 22.3
     }
   ]
 }
