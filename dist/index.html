@@ -530,6 +530,16 @@
     min-width:44px; min-height:44px; width:100%; height:100%;
     transform:translate(-50%,-50%);
   }
+  /* フォーカスリングはクラブカラーに依存させない。クラブ色にすると、その色の背景の上で消える。
+     :focus-visibleなので、マウス/タップでの押下時には出ない。 */
+  button:focus-visible, select:focus-visible, a:focus-visible, summary:focus-visible{
+    outline:3px solid #2563eb; outline-offset:2px; border-radius:6px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .live-dot{animation:none}          /* 赤点は残す。点滅だけ止める */
+    .events-panel{animation:none}
+    .events-toggle{transition:none}
+  }
 </style>
 </head>
 <body>
@@ -807,7 +817,7 @@ function currentActiveTabId() {
 function renderTabButtons() {
   const bar = document.getElementById("tabbar");
   bar.innerHTML = currentTabList().map(t =>
-    '<button type="button" data-tab="' + t.id + '">' + esc(t.label) + '</button>'
+    '<button type="button" data-tab="' + t.id + '" aria-current="false">' + esc(t.label) + '</button>'
   ).join("");
 }
 function bindTabBarEvents() {
@@ -823,14 +833,18 @@ function updateTabBarActive() {
   const bar = document.getElementById("tabbar");
   const active = currentActiveTabId();
   for (const btn of bar.querySelectorAll("button[data-tab]")) {
-    btn.classList.toggle("active", btn.dataset.tab === active);
+    const on = btn.dataset.tab === active;
+    btn.classList.toggle("active", on);
+    btn.setAttribute("aria-current", on ? "page" : "false");
   }
 }
 function updateModeToggleActive() {
   const wrap = document.getElementById("modeToggle");
   if (!wrap) return;
   for (const btn of wrap.querySelectorAll("button[data-viewmode]")) {
-    btn.classList.toggle("active", btn.dataset.viewmode === state.viewMode);
+    const on = btn.dataset.viewmode === state.viewMode;
+    btn.classList.toggle("active", on);
+    btn.setAttribute("aria-current", on ? "page" : "false");
   }
 }
 
