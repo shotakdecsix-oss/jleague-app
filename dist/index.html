@@ -84,7 +84,7 @@
   h2{
     /* 背景(1stカラー)の上に直接載るので、輝度反転させたaccent-inkを使う(var(--sub)だと濃紺クラブ等で読めない) */
     font-size:12px; font-weight:700; letter-spacing:.12em; color:var(--accent-ink);
-    margin:0 0 8px 2px; text-transform:uppercase;
+    margin:0 0 8px 2px;
   }
   .card{
     background:#fff; border:2px solid var(--accent-sub); border-radius:var(--radius); padding:16px;
@@ -107,7 +107,6 @@
 
   /* 直近結果 */
   ul.results{list-style:none; margin:0; padding:0}
-  ul.results li{ }
   /* 第14弾: 試合ドリルダウン対応のため、grid行(.r-row)と詳細パネルをliの中で縦に並べる */
   .r-row{
     display:grid; grid-template-columns:auto 26px 1fr auto auto 14px;
@@ -322,7 +321,7 @@
   }
   /* 第13弾でcal-rowを.cal-row-wrapに包んだため、:last-childは1つ外側で判定する */
   .cal-row-wrap:last-child .cal-row{border-bottom:none}
-  .cal-row.me{background:var(--me-bg,#eaf6ef); margin:0 -6px; padding-left:6px; padding-right:6px; border-radius:6px; box-shadow:inset 3px 0 0 var(--me-accent)}
+  .cal-row.me{background:var(--me-bg,#eaf6ef); margin:0 -6px; padding-left:6px; padding-right:6px; border-radius:6px; box-shadow:inset 3px 0 0 var(--me-accent, var(--accent))}
   .cal-time{font-size:11px; color:var(--sub); text-align:right; font-variant-numeric:tabular-nums}
   .cal-team{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px}
   .cal-team.away{text-align:right}
@@ -334,7 +333,7 @@
   .ec-row{padding:9px 0; border-bottom:1px solid var(--line)}
   .ec-row-wrap:last-child .ec-row{border-bottom:none}
   .ec-row.has-events{cursor:pointer}
-  .ec-row.me{background:var(--me-bg,#eaf6ef); margin:0 -6px; padding:9px 6px; border-radius:6px; box-shadow:inset 3px 0 0 var(--me-accent)}
+  .ec-row.me{background:var(--me-bg,#eaf6ef); margin:0 -6px; padding:9px 6px; border-radius:6px; box-shadow:inset 3px 0 0 var(--me-accent, var(--accent))}
   .ec-when{font-size:11px; color:var(--sub); display:flex; gap:8px; align-items:center}
   .ec-round-tag{font-weight:700}
   .ec-link{margin-left:auto; font-size:11px; color:var(--sub); flex:0 0 auto}
@@ -539,6 +538,13 @@
     .live-dot{animation:none}          /* 赤点は残す。点滅だけ止める */
     .events-panel{animation:none}
     .events-toggle{transition:none}
+  }
+  .skeleton{background:#fff; border:2px solid var(--accent-sub); border-radius:var(--radius); padding:16px}
+  .skeleton-line{height:12px; border-radius:6px; background:#eceff3; margin-bottom:10px}
+  .skeleton-line:last-child{margin-bottom:0; width:60%}
+  @media (prefers-reduced-motion: no-preference){
+    .skeleton-line{animation:skeleton-pulse 1.2s ease-in-out infinite}
+    @keyframes skeleton-pulse{0%,100%{opacity:1} 50%{opacity:.5}}
   }
 </style>
 </head>
@@ -1053,9 +1059,9 @@ async function ensureTabData(league, tabId) {
 async function init() {
   const app = document.getElementById("app");
   try {
-    for (const key of Object.keys(LEAGUES)) {
-      state.masters[key] = await getJson(LEAGUES[key].master);
-    }
+    const leagueKeys = Object.keys(LEAGUES);
+    const masterList = await Promise.all(leagueKeys.map(k => getJson(LEAGUES[k].master)));
+    leagueKeys.forEach((k, i) => { state.masters[k] = masterList[i]; });
     // 第14弾: チームカラー装飾用に、全リーグ横断のidTeam->チーム情報を1つにまとめておく
     for (const key of Object.keys(LEAGUES)) {
       for (const t of state.masters[key].teams) state.teamsById[t.idTeam] = t;
@@ -1336,6 +1342,14 @@ async function selectTeam(idTeam) {
 
 /* ---------- 描画(タブごと) ---------- */
 
+/* タブ切替中のつなぎ。高さのある箱を出すことで、本来の中身が入ったときの
+   レイアウトの飛びを抑える。中身の正確な形を模す必要はない。 */
+const LOADING_HTML =
+  '<section><div class="skeleton" aria-busy="true" aria-label="読み込み中">' +
+  '<div class="skeleton-line"></div><div class="skeleton-line"></div>' +
+  '<div class="skeleton-line"></div><div class="skeleton-line"></div>' +
+  '</div></section>';
+
 async function renderActiveTab() {
   if (state.viewMode === "all") {
     await renderAllModeActiveTab();
@@ -1346,7 +1360,7 @@ async function renderActiveTab() {
   const { league, team } = found;
   const master = state.masters[league];
   const app = document.getElementById("app");
-  app.innerHTML = '<p class="muted">読み込み中…</p>';
+  app.innerHTML = LOADING_HTML;
 
   try {
     await ensureTabData(league, state.activeTab);
@@ -1410,7 +1424,7 @@ async function renderActiveTab() {
 async function renderAllModeActiveTab() {
   const found = findTeam(state.idTeam);
   const app = document.getElementById("app");
-  app.innerHTML = '<p class="muted">読み込み中…</p>';
+  app.innerHTML = LOADING_HTML;
 
   // 順位/予想タブの既定リーグは自クラブの所属リーグ(未選択のときだけ決める)
   if (!state.allLeague) state.allLeague = found ? found.league : "j1";
