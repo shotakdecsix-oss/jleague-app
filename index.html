@@ -57,7 +57,7 @@
     color:var(--accent-ink); opacity:.75; font-size:12px; font-weight:700; padding:7px 4px;
     border-radius:999px; cursor:pointer; font-family:inherit;
   }
-  .mode-toggle button.active{background:#fff; color:var(--accent); opacity:1; border-color:#fff}
+  .mode-toggle button.active{background:#fff; color:var(--accent-on-light); opacity:1; border-color:#fff}
   @media (max-width:360px){ .mode-toggle{width:96px} .mode-toggle button{font-size:11px; padding:7px 2px} }
 
   #tabbar{
@@ -70,7 +70,7 @@
     font-family:inherit; cursor:pointer;
     border-bottom:3px solid transparent;
   }
-  #tabbar button.active{opacity:1; border-bottom-color:var(--accent)}
+  #tabbar button.active{opacity:1; border-bottom-color:var(--accent-sub-ink)}
   select{
     width:100%; padding:10px 12px; font-size:16px; font-weight:600;
     border:none; border-radius:10px; background:#fff; color:var(--ink);
@@ -98,7 +98,7 @@
     display:inline-block; padding:2px 8px; border-radius:999px;
     font-size:11px; font-weight:700; letter-spacing:.04em;
   }
-  .tag.home{background:var(--accent); color:#fff}
+  .tag.home{background:var(--accent); color:var(--accent-ink)}
   .tag.away{background:#eceff3; color:#4b5563}
   .next-date{font-size:22px; font-weight:700; letter-spacing:.01em}
   .next-opp{font-size:17px; font-weight:600; margin-top:4px}
@@ -173,7 +173,7 @@
 
   a.btn{
     display:block; text-align:center; text-decoration:none;
-    background:var(--card); color:var(--accent); font-weight:700; font-size:14px;
+    background:var(--card); color:var(--accent-on-light); font-weight:700; font-size:14px;
     padding:14px; border-radius:var(--radius); border:1px solid var(--line);
   }
   footer{text-align:center; font-size:11px; color:var(--accent-ink); margin-top:24px; padding:0 16px}
@@ -221,7 +221,7 @@
   .stat-group{margin-top:16px}
   .stat-group:first-child{margin-top:0}
   .stat-group-title{font-size:11px; font-weight:700; color:var(--sub); margin:0 0 4px 2px}
-  td.stat-rank-top{color:var(--accent); font-weight:700}
+  td.stat-rank-top{color:var(--accent-on-light); font-weight:700}
 
   /* 今季の主役 / 選手一覧 */
   td.p-name,th.p-name{text-align:left; padding-left:6px}
@@ -236,7 +236,7 @@
   td.p-name a:hover{text-decoration:underline}
 
   /* シーズン別成績 */
-  details > summary{cursor:pointer; font-size:13px; font-weight:600; color:var(--accent); padding:2px 0}
+  details > summary{cursor:pointer; font-size:13px; font-weight:600; color:var(--accent-on-light); padding:2px 0}
   details[open] > summary{margin-bottom:10px}
 
   /* クリックでクラブ切替できる要素(タップ可能に見せる: 下線+シェブロン) */
@@ -374,7 +374,8 @@
     position:absolute; top:50%; width:8px; height:8px; margin-top:-4px; margin-left:-4px;
     border-radius:50%; background:#fff; border:2px solid #444; opacity:.95;
   }
-  .predict-axis{display:flex; justify-content:space-between; font-size:10px; color:var(--sub); margin:4px 64px 0 64px}
+  /* margin左80px/右40pxは .predict-row の grid-template-columns(20px 44px 1fr 32px)と gap(8px)から来ている: 左=20+8+44+8, 右=32+8。列幅を変えたらここも直すこと。 */
+  .predict-axis{display:flex; justify-content:space-between; font-size:10px; color:var(--sub); margin:4px 40px 0 80px}
   .predict-detail{margin:2px 0 8px; padding:10px 12px; background:#f7f8fa; border-left:3px solid var(--accent); border-radius:0 8px 8px 0}
   .predict-detail-big{font-size:13px; margin-bottom:6px}
   .predict-detail-big b{font-size:19px}
@@ -481,7 +482,7 @@
   .lineups{margin-bottom:10px}
   .lineups-title{font-size:11px; font-weight:700; color:var(--sub); margin:0 0 6px}
   .lineups-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-  .lineups-col.me .lineups-team{color:var(--accent, inherit)}
+  .lineups-col.me .lineups-team{color:var(--accent-on-light, inherit)}
   .lineups-team{font-size:12px; font-weight:700; margin-bottom:4px}
   .lineups-formation{font-size:11px; font-weight:400; color:var(--sub)}
   .lineups-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px; font-size:12px}
@@ -631,6 +632,20 @@ function luminance(hex) {
   });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
+/* 相対輝度 l1,l2 のコントラスト比(WCAG 2.x)。 */
+function contrastRatio(l1, l2) {
+  const hi = Math.max(l1, l2), lo = Math.min(l1, l2);
+  return (hi + 0.05) / (lo + 0.05);
+}
+/* 背景hexの上に載せる文字色を、白/黒のうちコントラスト比が高い方から選ぶ。
+   旧実装は luminance>0.5 の固定しきい値だったが、これは中間輝度の色で白を選びすぎていた
+   (湘南 #82c039 で 2.2:1)。暗い側に純黒を使うのは、#111111 だと大分のcolorSub #6079b6 が
+   4.41:1 とAAの4.5:1にわずかに届かないため。目視で #111111 との差は分からない。 */
+const INK_ON_LIGHT = "#000000", INK_ON_DARK = "#ffffff";
+function pickInk(hex) {
+  const L = luminance(hex);
+  return contrastRatio(L, 0) >= contrastRatio(L, 1) ? INK_ON_LIGHT : INK_ON_DARK;
+}
 function mixWhite(hex, ratio) { // ratio=0で白、1でそのまま
   const [r, g, b] = hexToRgb(hex);
   const f = v => Math.round(255 - (255 - v) * ratio);
@@ -642,6 +657,19 @@ function darken(hex, factor) {
   const [r, g, b] = hexToRgb(hex);
   const f = v => Math.round(v * factor);
   return "rgb(" + f(r) + "," + f(g) + "," + f(b) + ")";
+}
+/* darken()と同じ考え方だが、繰り返し適用できるようhexで返す。 */
+function darkenHex(hex, factor) {
+  const [r, g, b] = hexToRgb(hex);
+  const f = v => Math.min(255, Math.round(v * factor));
+  return "#" + [f(r), f(g), f(b)].map(v => v.toString(16).padStart(2, "0")).join("");
+}
+/* 白背景の上で本文として読める(4.5:1)明るさになるまで、必要な回数だけ暗くしたクラブ色。
+   クラブの色味は保ったまま暗くなるので、固定色に逃がすよりブランド感が残る。 */
+function accentOnLight(hex) {
+  let c = hex;
+  for (let i = 0; i < 14 && contrastRatio(luminance(c), 1) < 4.5; i++) c = darkenHex(c, 0.85);
+  return c;
 }
 function toRgba(hex, alpha) {
   const [r, g, b] = hexToRgb(hex);
@@ -659,8 +687,9 @@ function applyTheme(team) {
   root.setProperty("--accent-sub", sub);
   // 背景の上に直接載る文字色は、それぞれの背景色の輝度で個別に反転させる
   // (1stとsubは明るさが逆のことが多いので、まとめて1つの判定にしないこと)
-  root.setProperty("--accent-ink", luminance(c) > 0.5 ? "#111111" : "#ffffff");
-  root.setProperty("--accent-sub-ink", luminance(sub) > 0.5 ? "#111111" : "#ffffff");
+  root.setProperty("--accent-ink", pickInk(c));
+  root.setProperty("--accent-sub-ink", pickInk(sub));
+  root.setProperty("--accent-on-light", accentOnLight(c));
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute("content", c);
 }
