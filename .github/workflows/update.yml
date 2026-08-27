@@ -103,6 +103,10 @@ jobs:
         id: fetch_emperors_cup
         continue-on-error: true
         run: python scripts/fetch_emperors_cup.py
+      - name: fetch_emperors_cup_events
+        id: fetch_emperors_cup_events
+        continue-on-error: true
+        run: python scripts/fetch_emperors_cup_events.py
 
       # stats.pyはclub_extra.json(直前のfetch_official)の公式スタッツを取り込むため、その後に置く。
       # fetch_officialが失敗していても、既存(前回分)のclub_extra.jsonを使って動くので実行はする。
