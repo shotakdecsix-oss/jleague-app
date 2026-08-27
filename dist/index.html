@@ -22,14 +22,14 @@
     background:var(--accent); color:var(--ink); /* 1stカラーのベタ塗り(グラデーションは使わない) */
     font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI",sans-serif;
     font-size:15px; line-height:1.55;
-    padding-bottom:24px;
+    padding-bottom:calc(24px + env(safe-area-inset-bottom));
   }
 
   /* ヘッダー+タブバーをまとめて上部固定 */
   #headerWrap{position:sticky; top:0; z-index:10}
   header{
     background:var(--accent); color:var(--accent-ink); /* 1stカラーのベタ塗り */
-    padding:12px 14px;
+    padding:12px calc(14px + env(safe-area-inset-right)) 12px calc(14px + env(safe-area-inset-left));
     box-shadow:0 1px 6px rgba(0,0,0,.15);
     position:relative; /* トースト/ポップオーバーをこの下端にオーバーレイ表示するための基準 */
   }
@@ -63,6 +63,7 @@
   #tabbar{
     display:flex; background:var(--accent-sub); /* 2ndカラーのベタ塗り */
     box-shadow:0 1px 6px rgba(0,0,0,.06);
+    padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right);
   }
   #tabbar button{
     flex:1; border:none; background:none; padding:12px 4px 10px;
@@ -78,7 +79,7 @@
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
     background-repeat:no-repeat; background-position:right 14px center;
   }
-  main{padding:16px; max-width:640px; margin:0 auto}
+  main{padding:16px calc(16px + env(safe-area-inset-right)) 16px calc(16px + env(safe-area-inset-left)); max-width:640px; margin:0 auto}
   section{margin-bottom:22px}
   h2{
     /* 背景(1stカラー)の上に直接載るので、輝度反転させたaccent-inkを使う(var(--sub)だと濃紺クラブ等で読めない) */
@@ -132,7 +133,9 @@
     padding:8px 12px; cursor:pointer; font-family:inherit;
   }
   .seg-toggle button.active{background:var(--accent); color:var(--accent-ink)}
-  .schedule-controls select{width:auto; flex:1; min-width:110px; padding:8px 10px; font-size:13px; font-weight:600}
+  /* font-sizeは16px未満にしないこと(iOS Safariがフォーカス時に自動ズームし、自動で戻らない)。
+     見た目を詰めたい場合はpaddingで調整する。 */
+  .schedule-controls select{width:auto; flex:1; min-width:110px; padding:8px 10px; font-size:16px; font-weight:600}
   .sched-round{margin-top:18px; scroll-margin-top:90px}
   .sched-round:first-child{margin-top:0}
   .sched-round-title{font-size:11px; font-weight:700; color:var(--sub); margin:0 0 6px 2px}
@@ -264,7 +267,7 @@
     font-size:12px; font-weight:700; padding:8px 4px; border-radius:999px; cursor:pointer; font-family:inherit;
   }
   .chart-series-tabs button.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
-  .chart-chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px}
+  .chart-chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px}
   .chart-chip{
     border:1px solid var(--line); background:#fff; color:var(--sub); font-size:11px; font-weight:700;
     padding:6px 10px; border-radius:999px; cursor:pointer; font-family:inherit;
@@ -406,12 +409,12 @@
      (stickyヘッダなので特に目立つ)。header{position:relative}を基準にオーバーレイ表示する
      (改訂: fix-header-layout)。#headerWrapのposition/z-indexはタブバー固定に関わるため触らない。 */
   .ondemand-toast{
-    position:absolute; top:100%; left:12px; right:12px; z-index:20;
+    position:absolute; top:100%; left:calc(12px + env(safe-area-inset-left)); right:calc(12px + env(safe-area-inset-right)); z-index:20;
     margin:6px 0 0; padding:8px 12px; border-radius:10px; background:rgba(0,0,0,.28);
     color:var(--accent-ink); font-size:12px; font-weight:600; text-align:center;
   }
   .ondemand-popover{
-    position:absolute; top:100%; left:12px; right:12px; z-index:20;
+    position:absolute; top:100%; left:calc(12px + env(safe-area-inset-left)); right:calc(12px + env(safe-area-inset-right)); z-index:20;
     margin:6px 0 0; padding:12px 14px; border-radius:var(--radius); background:#fff; color:var(--ink);
     box-shadow:0 4px 16px rgba(0,0,0,.18); font-size:12px;
   }
@@ -499,6 +502,34 @@
   .highlight-video-source{font-size:11px; font-weight:normal; color:#888}
   .highlight-video-frame{position:relative; padding-top:56.25%; border-radius:8px; overflow:hidden; background:#000}
   .highlight-video-frame iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+  /* 押した瞬間の反応。指の端末では:hoverが効かないので、押下状態だけは必ず返す。
+     transformではなくopacityにしているのは、position:absoluteの子(帯・トースト)を持つ
+     要素にtransformを掛けると座標基準がずれるため。 */
+  button:active, a.btn:active, .btn-secondary:active, .cal-loadmore:active,
+  .predict-row:active, .sched-row.has-events:active, .cal-row.has-events:active,
+  .ec-row.has-events:active, .team-link:active{
+    opacity:.6;
+  }
+  /* iOS/Androidの既定のタップ時グレー矩形は、上の指定と二重にちらつくので消す */
+  button, a, .predict-row, .sched-row, .cal-row, .ec-row, .team-link{
+    -webkit-tap-highlight-color:transparent;
+  }
+  /* 指のタップ領域の下限(44px, Apple HIG)。paddingを増やすのではなくmin-heightで
+     下限だけ決め、中身はflexで中央に置く。既に44pxを超えている#tabbar/a.btnは対象外。 */
+  .seg-toggle button, .stats-subtabs button, .chart-series-tabs button,
+  .cal-league-filter button, .ec-rounds button, .chart-chip,
+  .btn-secondary, .cal-loadmore{
+    min-height:44px; display:inline-flex; align-items:center; justify-content:center;
+  }
+  .btn-secondary, .cal-loadmore{display:flex}  /* 幅100%のものはblock相当のflexにする */
+  /* 見た目は26px/35pxのまま、透明な当たり判定だけ44pxに広げる。
+     ヘッダーはstickyで常時表示なので、実寸を増やすと本文の可視領域が恒久的に減る。 */
+  .ondemand-info-btn, .mode-toggle button{position:relative}
+  .ondemand-info-btn::before, .mode-toggle button::before{
+    content:""; position:absolute; top:50%; left:50%;
+    min-width:44px; min-height:44px; width:100%; height:100%;
+    transform:translate(-50%,-50%);
+  }
 </style>
 </head>
 <body>
