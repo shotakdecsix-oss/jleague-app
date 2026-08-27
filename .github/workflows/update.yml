@@ -141,6 +141,7 @@ jobs:
           echo "fetch_news: ${{ steps.fetch_news.outcome }}"
           echo "fetch_official: ${{ steps.fetch_official.outcome }}"
           echo "fetch_emperors_cup: ${{ steps.fetch_emperors_cup.outcome }}"
+          echo "fetch_emperors_cup_events: ${{ steps.fetch_emperors_cup_events.outcome }}"
 
       - name: Commit and push
         if: steps.changes.outputs.changed == 'true'
