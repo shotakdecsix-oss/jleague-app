@@ -99,7 +99,7 @@ jobs:
         continue-on-error: true
         run: python scripts/fetch_official.py
 
-        - name: fetch_emperors_cup
+      - name: fetch_emperors_cup
         id: fetch_emperors_cup
         continue-on-error: true
         run: python scripts/fetch_emperors_cup.py
