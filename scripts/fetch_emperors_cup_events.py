@@ -319,6 +319,37 @@ def parse_match_page(page_html: str) -> dict:
     }
 
 
+def fetch_state(entry: dict | None) -> dict:
+    """
+    取得の記録(最終取得時刻・試行回数)。
+    これらは中身が変わらなくても実行のたびに動くので、fetchStateという1つのキーに
+    まとめてある(git_diff_ignoring_timestamps.py の VOLATILE_KEYS で丸ごと無視させ、
+    「実質的な変更が無いのにコミット+デプロイ」が起きないようにするため)。
+    古い形式(トップレベルに置いていたもの)も読めるようにフォールバックする。
+    """
+    if not entry:
+        return {}
+    st = entry.get("fetchState")
+    if isinstance(st, dict):
+        return st
+    return {"lastFetchedAtJst": entry.get("lastFetchedAtJst"), "attempts": entry.get("attempts", 0)}
+
+
+def migrate_fetch_state(events: dict) -> int:
+    """古い形式(lastFetchedAtJst/attemptsがトップレベル)を fetchState に移す。移した件数を返す。"""
+    moved = 0
+    for entry in events.values():
+        if not isinstance(entry, dict) or isinstance(entry.get("fetchState"), dict):
+            continue
+        if "lastFetchedAtJst" in entry or "attempts" in entry:
+            entry["fetchState"] = {
+                "lastFetchedAtJst": entry.pop("lastFetchedAtJst", None),
+                "attempts": entry.pop("attempts", 0),
+            }
+            moved += 1
+    return moved
+
+
 def reclassify_cards(events: dict) -> int:
     """
     保存済みのカードを、今のCARD_ICON_TYPESで分類し直す。
@@ -357,13 +388,13 @@ def should_fetch(entry: dict | None, now: datetime, force: bool = False) -> bool
         return True
     if not entry:
         return True
-    if entry.get("attempts", 0) >= MAX_ATTEMPTS:
+    if fetch_state(entry).get("attempts", 0) >= MAX_ATTEMPTS:
         return False
     if not has_lineups(entry):
         return True
     if entry.get("videoId"):
         return False
-    last = entry.get("lastFetchedAtJst")
+    last = fetch_state(entry).get("lastFetchedAtJst")
     if not last:
         return True
     try:
@@ -412,8 +443,10 @@ def build_entry(match: dict, parsed: dict, year: int, now: datetime, prev: dict 
         "matchNumber": number,
         "round": match.get("round"),
         "url": page_url(year, number),
-        "lastFetchedAtJst": now.isoformat(timespec="seconds"),
-        "attempts": (prev or {}).get("attempts", 0) + 1,
+        "fetchState": {
+            "lastFetchedAtJst": now.isoformat(timespec="seconds"),
+            "attempts": fetch_state(prev).get("attempts", 0) + 1,
+        },
         "lineups": parsed["lineups"],
         "subs": parsed["subs"],
         "cards": parsed["cards"],
@@ -427,8 +460,9 @@ def build_entry(match: dict, parsed: dict, year: int, now: datetime, prev: dict 
     # (部分的な失敗で既存の良いデータを壊さない)。
     if prev and has_lineups(prev) and not has_lineups(entry):
         merged = dict(prev)
-        merged["lastFetchedAtJst"] = entry["lastFetchedAtJst"]
-        merged["attempts"] = entry["attempts"]
+        merged.pop("lastFetchedAtJst", None)
+        merged.pop("attempts", None)
+        merged["fetchState"] = entry["fetchState"]
         if entry["videoId"]:
             merged["videoId"] = entry["videoId"]
             merged["videoTitle"] = entry["videoTitle"]
@@ -461,6 +495,10 @@ def main() -> None:
     events: dict = dict(existing.get("events") or {})   # 既存を必ず引き継ぐ(上書きしない)
     now = datetime.now(JST)
 
+    moved = migrate_fetch_state(events)
+    if moved:
+        print(f"[info] 取得記録を{moved}件、fetchStateにまとめ直した(無駄なコミットを避けるため)")
+
     fixed = reclassify_cards(events)
     if fixed:
         print(f"[info] 既存データのカード種別を{fixed}件、現在のアイコン対応表で分類し直した")
@@ -481,8 +519,10 @@ def main() -> None:
             failed.append(number)
             prev = events.get(number)
             if prev:
-                prev["attempts"] = prev.get("attempts", 0) + 1
-                prev["lastFetchedAtJst"] = now.isoformat(timespec="seconds")
+                prev["fetchState"] = {
+                    "lastFetchedAtJst": now.isoformat(timespec="seconds"),
+                    "attempts": fetch_state(prev).get("attempts", 0) + 1,
+                }
             if idx < len(targets) - 1:
                 time.sleep(SLEEP_BETWEEN_REQUESTS)
             continue

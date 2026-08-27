@@ -29,7 +29,9 @@ from pathlib import Path
 
 # 再帰的に取り除くキー名(値ではなくキー名だけで判定。どの階層のオブジェクト直下にあっても対象)。
 # "runs" は meta.json の実行ログ配列そのもの(タイムスタンプ以外の実質的な情報を持たないため丸ごと除外)。
-VOLATILE_KEYS = {"generatedAtJst", "updatedAtJst", "at", "fetchedAt", "runs"}
+# fetchState: 天皇杯の試合詳細(fetch_emperors_cup_events.py)が持つ取得記録。
+# 最終取得時刻と試行回数だけが入っており、中身が変わらなくても動くのでまとめて無視する。
+VOLATILE_KEYS = {"generatedAtJst", "updatedAtJst", "at", "fetchedAt", "runs", "fetchState"}
 
 
 def strip_volatile(obj):

@@ -19,6 +19,8 @@ from time_utils import JST  # noqa: E402
 from fetch_emperors_cup_events import (  # noqa: E402
     MAX_ATTEMPTS,
     reclassify_cards,
+    migrate_fetch_state,
+    fetch_state,
     build_entry,
     normalize_minute,
     page_url,
@@ -221,19 +223,46 @@ def test_normalize_minute():
     print("OK: 分表記の正規化")
 
 
+def _entry(attempts=1, last=None, video="x", starters=True):
+    return {
+        "fetchState": {"attempts": attempts, "lastFetchedAtJst": (last or NOW).isoformat()},
+        "lineups": {"home": {"starters": [{"name": "A"}] if starters else []}},
+        "videoId": video,
+    }
+
+
 def test_should_fetch_rules():
-    full = {"attempts": 1, "lineups": {"home": {"starters": [{"name": "A"}]}}, "videoId": "x",
-            "lastFetchedAtJst": NOW.isoformat()}
-    no_video = dict(full, videoId=None)
     assert should_fetch(None, NOW) is True, "未取得なら取る"
-    assert should_fetch(full, NOW) is False, "メンバーも動画も揃っていれば取らない"
-    assert should_fetch(no_video, NOW) is False, "動画待ちでもクールダウン中は取らない"
-    assert should_fetch(dict(no_video, lastFetchedAtJst=(NOW - timedelta(hours=13)).isoformat()), NOW) is True, \
+    assert should_fetch(_entry(), NOW) is False, "メンバーも動画も揃っていれば取らない"
+    assert should_fetch(_entry(video=None), NOW) is False, "動画待ちでもクールダウン中は取らない"
+    assert should_fetch(_entry(video=None, last=NOW - timedelta(hours=13)), NOW) is True, \
         "クールダウンが明けたら動画のために取り直す"
-    assert should_fetch(dict(no_video, attempts=MAX_ATTEMPTS), NOW) is False, "試行上限で打ち切る"
-    assert should_fetch({"attempts": 1, "lineups": {}}, NOW) is True, "メンバーが取れていなければ取り直す"
-    assert should_fetch(full, NOW, force=True) is True, "--forceは全部取り直す"
+    assert should_fetch(_entry(video=None, attempts=MAX_ATTEMPTS), NOW) is False, "試行上限で打ち切る"
+    assert should_fetch(_entry(starters=False), NOW) is True, "メンバーが取れていなければ取り直す"
+    assert should_fetch(_entry(), NOW, force=True) is True, "--forceは全部取り直す"
+    # 古い形式(トップレベルにlastFetchedAtJst/attempts)でも同じ判断になること
+    legacy = {"attempts": MAX_ATTEMPTS, "lineups": {"home": {"starters": [{"name": "A"}]}}, "videoId": None,
+              "lastFetchedAtJst": (NOW - timedelta(hours=99)).isoformat()}
+    assert should_fetch(legacy, NOW) is False, "古い形式のattemptsも読めること"
     print("OK: 再取得の判定(未取得/動画待ち/クールダウン/試行上限)")
+
+
+def test_fetch_state_is_grouped_to_avoid_pointless_commits():
+    """
+    取得記録は fetchState にまとめる。中身が変わらなくても毎回動く値なので、
+    git_diff_ignoring_timestamps.py の VOLATILE_KEYS で丸ごと無視させるため
+    (バラバラのトップレベルキーだと「実質変更なし」の判定をすり抜けてしまう)。
+    """
+    events = {"1": {"lastFetchedAtJst": "2026-08-27T12:00:00+09:00", "attempts": 3, "cards": []}}
+    moved = migrate_fetch_state(events)
+    assert moved == 1
+    assert events["1"]["fetchState"] == {"lastFetchedAtJst": "2026-08-27T12:00:00+09:00", "attempts": 3}
+    assert "lastFetchedAtJst" not in events["1"] and "attempts" not in events["1"], "古いキーは残さない"
+    assert events["1"]["cards"] == [], "他のフィールドは触らない"
+    assert migrate_fetch_state(events) == 0, "2回目は変更なし(冪等)"
+    assert fetch_state(events["1"])["attempts"] == 3
+    assert fetch_state(None) == {}
+    print("OK: 取得記録をfetchStateにまとめる(無駄なコミット防止)")
 
 
 def test_pick_targets_only_finished():
@@ -255,7 +284,7 @@ def test_build_entry_keeps_previous_lineups_on_empty_parse():
     """今回メンバーが取れなくても、前回取れていた分を消さない(部分失敗で良いデータを壊さない)。"""
     match = {"matchNumber": "56", "round": "2回戦"}
     prev = {
-        "matchNumber": "56", "attempts": 1,
+        "matchNumber": "56", "fetchState": {"attempts": 1, "lastFetchedAtJst": NOW.isoformat()},
         "lineups": {"home": {"teamName": "湘南", "starters": [{"name": "A"}], "subs": [], "coach": None},
                     "away": {"teamName": "青森", "starters": [{"name": "B"}], "subs": [], "coach": None}},
         "subs": [{"side": "home"}], "cards": [], "videoId": None, "videoTitle": None,
@@ -268,14 +297,14 @@ def test_build_entry_keeps_previous_lineups_on_empty_parse():
     assert got["lineups"]["home"]["starters"] == [{"name": "A"}], "前回のメンバーを維持する"
     assert got["subs"] == [{"side": "home"}], "前回の交代も維持する"
     assert got["videoId"] == "NEWVID", "後から公開された動画は取り込む"
-    assert got["attempts"] == 2
+    assert got["fetchState"]["attempts"] == 2
 
     # 正常に取れた場合は素直に今回の内容で作る
     parsed = parse_match_page(make_page())
     parsed["officialReportPath"] = "../schedule_result/pdf/m56.pdf"
     fresh = build_entry(match, parsed, 2026, NOW, None)
     assert len(fresh["lineups"]["home"]["starters"]) == 3
-    assert fresh["attempts"] == 1
+    assert fresh["fetchState"]["attempts"] == 1
     assert fresh["url"] == page_url(2026, "56")
     assert fresh["officialReportUrl"] == "https://www.jfa.jp/match/emperorscup_2026/schedule_result/pdf/m56.pdf"
     print("OK: 既存データのマージ(部分失敗で上書きしない)")
@@ -295,6 +324,7 @@ def main() -> None:
         test_broken_page_raises,
         test_normalize_minute,
         test_should_fetch_rules,
+        test_fetch_state_is_grouped_to_avoid_pointless_commits,
         test_pick_targets_only_finished,
         test_build_entry_keeps_previous_lineups_on_empty_parse,
     ]
