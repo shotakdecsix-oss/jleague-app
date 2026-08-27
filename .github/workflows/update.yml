@@ -99,6 +99,11 @@ jobs:
         continue-on-error: true
         run: python scripts/fetch_official.py
 
+        - name: fetch_emperors_cup
+        id: fetch_emperors_cup
+        continue-on-error: true
+        run: python scripts/fetch_emperors_cup.py
+
       # stats.pyはclub_extra.json(直前のfetch_official)の公式スタッツを取り込むため、その後に置く。
       # fetch_officialが失敗していても、既存(前回分)のclub_extra.jsonを使って動くので実行はする。
       - name: stats
@@ -131,6 +136,7 @@ jobs:
         run: |
           echo "fetch_news: ${{ steps.fetch_news.outcome }}"
           echo "fetch_official: ${{ steps.fetch_official.outcome }}"
+          echo "fetch_emperors_cup: ${{ steps.fetch_emperors_cup.outcome }}"
 
       - name: Commit and push
         if: steps.changes.outputs.changed == 'true'
