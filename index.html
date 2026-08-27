@@ -329,7 +329,8 @@
   .ec-comp{font-size:11px; color:var(--sub); margin:-4px 2px 8px}
   .ec-sub{font-size:12px; font-weight:700; margin:0 0 8px; color:var(--sub)}
   .ec-row{padding:9px 0; border-bottom:1px solid var(--line)}
-  .ec-row:last-child{border-bottom:none}
+  .ec-row-wrap:last-child .ec-row{border-bottom:none}
+  .ec-row.has-events{cursor:pointer}
   .ec-row.me{background:var(--me-bg,#eaf6ef); margin:0 -6px; padding:9px 6px; border-radius:6px; box-shadow:inset 3px 0 0 var(--me-accent)}
   .ec-when{font-size:11px; color:var(--sub); display:flex; gap:8px; align-items:center}
   .ec-round-tag{font-weight:700}
@@ -473,6 +474,8 @@
   .card-dot{display:inline-block; width:8px; height:11px; border-radius:2px; vertical-align:-1px}
   .card-dot.yellow{background:#eab308}
   .card-dot.red{background:#dc2626}
+  /* 第23弾フェーズ2: JFA側は赤(退場)のアイコン名が未確認。黄とも赤とも断定せずグレーで出す。 */
+  .card-dot.unknown{background:var(--sub)}
 
   /* 第13弾: 出場メンバー(スタメン)。ホーム/アウェイを2カラムで並べる。 */
   .lineups{margin-bottom:10px}
@@ -566,6 +569,7 @@ const state = {
   news: undefined, clubExtra: undefined, // undefined=未取得, null=取得試行済みでデータ無し
   emperorsCup: undefined, // 第23弾: 天皇杯(data/processed/emperors_cup.json)。undefined=未取得, null=データ無し
   cupRound: null,         // 天皇杯タブで表示中のラウンド名。nullなら初回描画時に決める
+  emperorsCupEvents: undefined, // 第23弾フェーズ2: 天皇杯の試合詳細(emperors_cup_events.json)
   activeTab: "home",
   statsGroup: "model", // スタッツタブのレーダー切替(既定は「モデル」)
   scheduleMode: "mine", // 日程タブ: "mine"=自クラブのみ(既定) / "all"=リーグ全体
@@ -916,6 +920,7 @@ async function ensureAllTabData(tabId, league) {
     await ensureMatches(league); // 第10弾: 基準時刻併記の判定(オンデマンド有効かどうか)に必要
   } else if (tabId === "cup") {
     await ensureEmperorsCup(); // 第23弾: 天皇杯はリーグ非依存(1ファイルに全試合が入っている)
+    await ensureEmperorsCupEvents(); // フェーズ2: 試合詳細ドリルダウン用
   }
 }
 async function ensureClubExtra() {
@@ -932,6 +937,17 @@ async function ensureNews() {
 async function ensureEmperorsCup() {
   if (state.emperorsCup === undefined) state.emperorsCup = await getJsonOptional("data/processed/emperors_cup.json");
   return state.emperorsCup;
+}
+/* 第23弾フェーズ2: 天皇杯の試合詳細(出場メンバー/交代/カード/JFATVの動画)。
+   scripts/fetch_emperors_cup_events.py が生成する。キーは matchNumber の文字列。
+   まだ無くても構わない(ドリルダウンが出ないだけ)。 */
+async function ensureEmperorsCupEvents() {
+  if (state.emperorsCupEvents === undefined) state.emperorsCupEvents = await getJsonOptional("data/processed/emperors_cup_events.json");
+  return state.emperorsCupEvents;
+}
+function findCupEvents(matchNumber) {
+  const d = state.emperorsCupEvents;
+  return (d && d.events) ? (d.events[String(matchNumber)] || null) : null;
 }
 async function ensureTabData(league, tabId) {
   if (tabId === "home") {
@@ -1081,6 +1097,10 @@ async function init() {
         return;
       }
     }
+
+    // 外部リンク(公式記録PDF等)を踏んだときは、行タップとして扱わない
+    // (新しいタブが開くのと同時にドリルダウンが開閉すると挙動が分かりにくいため)。
+    if (ev.target.closest("a[href]")) return;
 
     // 第13弾: 試合行タップで得点/カード/交代のドリルダウンを開閉する("league:idEvent"キーで1件だけ開く)
     const eventsRowBtn = ev.target.closest("[data-eventsrow]");
@@ -1385,6 +1405,117 @@ function defaultCupRound(data, found) {
   return pending ? pending.round : rounds[rounds.length - 1];
 }
 
+/* ---------- 第23弾フェーズ2: 天皇杯の試合詳細 ----------
+   出典はJFAの個別試合ページ(scripts/fetch_emperors_cup_events.py)。
+   jleague.jp側と違いJFAは選手ページを持たないため、選手名は文字列のみでリンクは作れない。
+   得点者はフェーズ1のemperors_cup.json(scorers)から作り、カード/交代/メンバー/動画を
+   フェーズ2のemperors_cup_events.jsonから足す。 */
+
+function cupHasLineups(ev) {
+  return !!(ev && ev.lineups && ev.lineups.home && (ev.lineups.home.starters || []).length);
+}
+
+/* 「45+1」「HT」など数字でない表記も混ざる。数字のものは分として、HTは前半終了直後に並べる。 */
+function cupMinuteSortKey(v) {
+  const s = String(v == null ? "" : v);
+  const m = /^(\d+)(?:\+(\d+))?$/.exec(s);
+  if (m) return +m[1] + (m[2] ? +m[2] / 100 : 0);
+  if (s === "HT") return 45.9;
+  return 9999;
+}
+function cupMinuteLabel(v) {
+  const s = String(v == null ? "" : v);
+  return /^\d/.test(s) ? s + "'" : s;
+}
+
+function cupSidePlayersHtml(side, teamName) {
+  if (!side) return "";
+  const li = p => '<li><span class="lineups-pos">' + esc(p.pos || "") + '</span>' +
+    '<span class="lineups-num">' + esc(p.no || "") + '</span>' + esc(p.name) +
+    (p.captain ? ' <span class="events-sub">(C)</span>' : "") + '</li>';
+  const starters = (side.starters || []).length
+    ? '<ul class="lineups-list">' + side.starters.map(li).join("") + '</ul>' : "";
+  const subs = (side.subs || []).length
+    ? '<div class="lineups-sub-title">控え選手</div><ul class="lineups-list lineups-bench">' +
+        side.subs.map(li).join("") + '</ul>'
+    : "";
+  const coach = side.coach
+    ? '<div class="lineups-sub-title">監督</div><div class="lineups-bench" style="font-size:12px">' +
+        esc(side.coach) + '</div>'
+    : "";
+  return '<div class="lineups-col">' +
+    '<div class="lineups-team">' + esc(teamName || side.teamName || "") + '</div>' +
+    starters + subs + coach +
+  '</div>';
+}
+
+/* JFATVの埋め込みはハイライトとは限らない(フル配信のアーカイブのこともある)ので、
+   「ハイライト動画」と決め打ちせずページに書かれていたタイトルをそのまま見出しにする。 */
+function cupVideoHtml(ev) {
+  if (!ev || !ev.videoId) return "";
+  const src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(ev.videoId);
+  const title = ev.videoTitle || "試合映像";
+  return '<div class="highlight-video"><h4 class="lineups-title">' + esc(title) +
+    ' <span class="highlight-video-source">(JFATV)</span></h4>' +
+    '<div class="highlight-video-frame"><iframe src="' + esc(src) + '" title="' + esc(title) + '" ' +
+      'loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
+      'allowfullscreen></iframe></div></div>';
+}
+
+function renderCupEventsPanel(ev, m, ownIdTeam) {
+  const homeName = m.home.name, awayName = m.away.name;
+  const items = [];
+  for (const side of ["home", "away"]) {
+    for (const g of (m.scorers && m.scorers[side]) || []) {
+      items.push({ minute: g.minute, side: side, html: "⚽ " + esc(g.name || g.text) });
+    }
+  }
+  if (ev) {
+    for (const c of ev.cards || []) {
+      // type="unknown" は「JFA側のアイコンが未知で黄/赤を断定できない」ケース。灰色で出す。
+      const label = c.type === "yellow" ? "警告" : (c.type === "red" ? "退場" : "警告/退場(種別不明)");
+      items.push({
+        minute: c.minute, side: c.side,
+        html: '<span class="card-dot ' + esc(c.type || "unknown") + '" title="' + esc(label) + '"></span> ' +
+          (c.no ? '<span class="lineups-num">' + esc(c.no) + '</span>' : "") + esc(c.name),
+      });
+    }
+    for (const s of ev.subs || []) {
+      items.push({
+        minute: s.minute, side: s.side,
+        html: "IN " + esc(s.in ? s.in.name : "?") +
+          ' <span class="events-sub">/ OUT ' + esc(s.out ? s.out.name : "?") + '</span>',
+      });
+    }
+  }
+  items.sort((a, b) => cupMinuteSortKey(a.minute) - cupMinuteSortKey(b.minute));
+
+  const lineupsHtml = cupHasLineups(ev)
+    ? '<div class="lineups"><h4 class="lineups-title">メンバー</h4><div class="lineups-grid">' +
+        cupSidePlayersHtml(ev.lineups.home, homeName) + cupSidePlayersHtml(ev.lineups.away, awayName) +
+      '</div></div>'
+    : "";
+  const videoHtml = cupVideoHtml(ev);
+  if (!items.length && !lineupsHtml && !videoHtml) {
+    return '<div class="events-panel"><p class="muted" style="margin:0">詳細データはまだありません。</p></div>';
+  }
+
+  const listHtml = items.length
+    ? '<ul class="events-list">' + items.map(it => {
+        const sideId = it.side === "home" ? m.home.idTeam : m.away.idTeam;
+        return '<li class="events-row' + (ownIdTeam && sideId && sideId === ownIdTeam ? " me" : "") + '">' +
+          '<span class="events-minute">' + esc(cupMinuteLabel(it.minute)) + '</span>' +
+          '<span class="events-club">' + esc(it.side === "home" ? homeName : awayName) + '</span>' +
+          '<span class="events-desc">' + it.html + '</span>' +
+        '</li>';
+      }).join("") + '</ul>'
+    : "";
+  const pdfHtml = (ev && ev.officialReportUrl)
+    ? '<p class="promo-note"><a href="' + esc(ev.officialReportUrl) + '" target="_blank" rel="noopener">公式記録(PDF) ↗</a></p>'
+    : "";
+  return '<div class="events-panel">' + videoHtml + lineupsHtml + listHtml + pdfHtml + '</div>';
+}
+
 function cupTeamHtml(side, ownIdTeam, isAway) {
   const isMe = !!(side.idTeam && side.idTeam === ownIdTeam);
   const cls = "ec-team" + (isAway ? " away" : "") + (isMe ? " me" : "") + (side.idTeam ? " team-link" : "");
@@ -1421,17 +1552,29 @@ function cupWhenText(m) {
 function cupRowHtml(m, ownIdTeam, showRound) {
   const involvesMe = !!(ownIdTeam && (m.home.idTeam === ownIdTeam || m.away.idTeam === ownIdTeam));
   const venue = m.venueFull || m.venue;
-  return '<div class="ec-row' + (involvesMe ? " me" : "") + '">' +
-    '<div class="ec-when">' +
-      (showRound ? '<span class="ec-round-tag">' + esc(m.round) + '</span>' : "") +
-      '<span>' + esc(cupWhenText(m)) + '</span>' +
-      (m.matchPageUrl ? '<a class="ec-link" href="' + esc(m.matchPageUrl) + '" target="_blank" rel="noopener">公式 ↗</a>' : "") +
-    '</div>' +
-    '<div class="ec-teams">' +
-      cupTeamHtml(m.home, ownIdTeam, false) + cupScoreHtml(m) + cupTeamHtml(m.away, ownIdTeam, true) +
-    '</div>' +
-    (venue ? '<div class="ec-venue">' + esc(venue) + '</div>' : "") +
-    cupScorersHtml(m) +
+  // フェーズ2: 詳細(メンバー/交代/カード/動画)か得点者が1件でもあれば、行タップで展開できるようにする
+  const ev = findCupEvents(m.matchNumber);
+  const goalCount = ((m.scorers && m.scorers.home) || []).length + ((m.scorers && m.scorers.away) || []).length;
+  const hasEvents = !!(ev && (cupHasLineups(ev) || (ev.cards || []).length || (ev.subs || []).length || ev.videoId)) || goalCount > 0;
+  const eventsKey = "cup:" + m.matchNumber;
+  const isOpen = hasEvents && state.eventsOpen === eventsKey;
+  const expandHtml = hasEvents ? '<span class="events-toggle' + (isOpen ? " open" : "") + '">▸</span>' : "";
+  const videoMarkHtml = (ev && ev.videoId) ? '<span class="video-mark" title="JFATVの動画あり">🎥</span>' : "";
+  const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' : "";
+  return '<div class="ec-row-wrap">' +
+    '<div class="ec-row' + (involvesMe ? " me" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
+      '<div class="ec-when">' +
+        (showRound ? '<span class="ec-round-tag">' + esc(m.round) + '</span>' : "") +
+        '<span>' + esc(cupWhenText(m)) + '</span>' +
+        (m.matchPageUrl ? '<a class="ec-link" href="' + esc(m.matchPageUrl) + '" target="_blank" rel="noopener">公式 ↗</a>' : "") +
+        videoMarkHtml + expandHtml +
+      '</div>' +
+      '<div class="ec-teams">' +
+        cupTeamHtml(m.home, ownIdTeam, false) + cupScoreHtml(m) + cupTeamHtml(m.away, ownIdTeam, true) +
+      '</div>' +
+      (venue ? '<div class="ec-venue">' + esc(venue) + '</div>' : "") +
+      cupScorersHtml(m) +
+    '</div>' + (isOpen ? renderCupEventsPanel(ev, m, ownIdTeam) : "") +
   '</div>';
 }
 
