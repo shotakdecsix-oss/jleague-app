@@ -2021,11 +2021,26 @@ function renderHighlightVideoHtml(videoId, sourceLabel) {
       'loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
       'allowfullscreen></iframe></div></div>';
 }
+/* 第24弾: ハイライトは出典ごとに別フィールド(daznVideoId / highlightVideoId)で持っているので、
+   両方あるときは2本とも縦に並べて埋め込む(以前はDAZNがあると公式側を捨てていた)。DAZNを上にする。
+   同じ動画IDが両方に入っていた場合は1本にまとめ、出典ラベルを連結して出す。 */
+function renderHighlightVideosHtml(ev) {
+  if (!ev) return "";
+  const sources = [
+    { id: ev.daznVideoId, label: "DAZN" },
+    { id: ev.highlightVideoId, label: "Jリーグ公式" },
+  ].filter(s => !!s.id);
+  const merged = [];
+  for (const s of sources) {
+    const hit = merged.find(x => x.id === s.id);
+    if (hit) hit.labels.push(s.label);
+    else merged.push({ id: s.id, labels: [s.label] });
+  }
+  return merged.map(x => renderHighlightVideoHtml(x.id, x.labels.join(" / "))).join("");
+}
 function renderMatchEventsPanel(ev, homeId, homeName, awayId, awayName, ownIdTeam) {
   if (!ev) return "";
-  const highlightVideoId = ev.daznVideoId || ev.highlightVideoId;
-  const highlightSource = ev.daznVideoId ? "DAZN" : (ev.highlightVideoId ? "Jリーグ公式" : "");
-  const videoHtml = renderHighlightVideoHtml(highlightVideoId, highlightSource);
+  const videoHtml = renderHighlightVideosHtml(ev);
   const lineupsHtml = renderLineupsHtml(ev.lineups, homeName, awayName, ownIdTeam);
   const items = [];
   for (const g of ev.goals || []) {
