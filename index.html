@@ -354,6 +354,9 @@
 
   /* 今季の主役 / 選手一覧 */
   td.p-name,th.p-name{text-align:left; padding-left:6px}
+  /* 年齢は生年月日と同じセルに縦に積む。横に並べると狭い端末で選手名の幅を食うため。 */
+  td.p-age{white-space:nowrap; font-variant-numeric:tabular-nums}
+  .p-bd{display:block; font-size:10px; font-weight:400; color:var(--sub)}
   .leaders{display:flex; flex-direction:column; gap:8px}
   .leader-row{display:flex; align-items:baseline; gap:8px; font-size:13px}
   .leader-cat{color:var(--sub); font-size:11px; width:76px; flex:none}
@@ -4271,6 +4274,18 @@ function renderLeaders(clubExtra, team) {
 /* ---------- 選手一覧(club_extra.json由来。無ければ公式リンク1本にフォールバック) ---------- */
 
 const POSITION_ORDER = { GK: 0, DF: 1, MF: 2, FW: 3 };
+/* 本日(JST)時点の満年齢。生年月日は "1999-04-23T00:00:00.000Z" の形で入っているが、
+   Date に通すと端末のタイムゾーン次第で前日にずれるので、fmtBirthday と同じく
+   文字列のまま年月日を取り出して数える。 */
+function ageFromBirthday(iso) {
+  const b = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
+  const t = /^(\d{4})-(\d{2})-(\d{2})/.exec(todayDateStrJst());
+  if (!b || !t) return null;
+  let age = (+t[1]) - (+b[1]);
+  // 今年の誕生日をまだ迎えていなければ1つ引く
+  if ((+t[2]) < (+b[2]) || ((+t[2]) === (+b[2]) && (+t[3]) < (+b[3]))) age--;
+  return (age >= 0 && age < 120) ? age : null;
+}
 function fmtBirthday(iso) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
   if (!m) return "－";
@@ -4300,7 +4315,8 @@ function renderPlayers(clubExtra, team) {
       '<td class="rank">' + esc(p.uniformNo || "－") + '</td>' +
       '<td class="p-name">' + nameHtml + (p.isHomeGrown ? ' <span class="small muted">HG</span>' : '') + '</td>' +
       '<td>' + esc(p.position || "－") + '</td>' +
-      '<td>' + esc(fmtBirthday(p.birthday)) + '</td>' +
+      '<td class="p-age">' + (ageFromBirthday(p.birthday) ?? "－") +
+        '<span class="p-bd">' + esc(fmtBirthday(p.birthday)) + '</span></td>' +
       '<td>' + (p.totalGameCount == null ? "－" : p.totalGameCount) + '</td>' +
       '<td>' + (p.totalGoalCount == null ? "－" : p.totalGoalCount) + '</td>' +
     '</tr>';
@@ -4308,9 +4324,9 @@ function renderPlayers(clubExtra, team) {
 
   return '<section><h2>選手一覧</h2><div class="card">' +
     '<table><thead><tr>' +
-      '<th class="rank">番</th><th class="p-name">選手名</th><th>位置</th><th>生年月日</th><th>出場</th><th>得点</th>' +
+      '<th class="rank">番</th><th class="p-name">選手名</th><th>位置</th><th>年齢</th><th>出場</th><th>得点</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>' +
-    '<div class="legend"><span>HG=ホームグロウン選手 ／ 出場・得点は当該シーズンのレギュラーシーズン</span></div>' +
+    '<div class="legend"><span>HG=ホームグロウン選手 ／ 年齢は本日時点の満年齢（下段は生年月日） ／ 出場・得点は当該シーズンのレギュラーシーズン</span></div>' +
   '</div></section>';
 }
 
