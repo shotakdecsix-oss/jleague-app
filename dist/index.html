@@ -8,18 +8,78 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon.svg">
 <title>Jリーグ ダッシュボード</title>
+<script>
+/* テーマ(light/dark)の解決だけを、描画より前にここで行う。本体のJSに任せると、
+   ダーク設定の端末で一瞬まぶしい白が見えてしまう。判定結果は data-theme 属性に入れ、
+   CSSもJSもこの属性だけを見る。 */
+(function(){
+  try{
+    var p = localStorage.getItem("jleague-app.theme") || "auto";
+    var dark = p === "dark" ||
+      (p === "auto" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  }catch(e){ document.documentElement.setAttribute("data-theme", "light"); }
+})();
+</script>
 <style>
+  /* 面と文字の基本トークン。
+     --card / --surface-* / --line / --accent* は applyTheme() が「クラブ色をわずかに帯びた値」で
+     上書きする。ここに書いてあるのはJSが走る前と、色を持たないクラブのフォールバック。
+     意味を持つ色(ライブ・暫定・エラー)と影はクラブ色に依存しないのでCSS側で持つ。 */
   :root{
     --bg:#f4f5f7; --card:#fff; --ink:#15181d; --sub:#6b7280; --line:#e3e6ea;
+    --surface-1:#f7f8fa;   /* カード内で一段沈む面(タイル・チップ・詳細パネルの地) */
+    --surface-2:#eceff3;   /* さらに沈む面(帯のトラック・サムネイルの下地) */
     --accent:#0b6b3a; --accent-sub:#0b6b3a; --accent-ink:#fff; --accent-sub-ink:#fff;
+    --accent-on-light:#0b6b3a;  /* カード面の上で本文として読めるクラブ色(JSが生成) */
+    --accent-grad-to:#0b6b3a;   /* ヘッダーのグラデーション終点(JSが生成) */
     --win:#1a7f45; --draw:#8a8f98; --loss:#c0392b;
     --promo:#1a7f45; --po:#d99e0b; --releg:#c0392b;
-    --radius:14px;
+    --live-bg:#fff7f7; --live-line:#fca5a5; --live-row:#fff7ed; --live-ink:#c2410c;
+    --warn-bg:#fef3c7; --warn-ink:#92400e;
+    --err-bg:#fff2f0; --err-line:#f3c6c0; --err-ink:#8a2b20;
+    --diff-ink:#b45309;
+    --focus:#2563eb;
+    --marker:#fff; --marker-line:#444;   /* 帯の上に置く目印(中央値・現在地) */
+    --live-dot:#dc2626; --warn-dot:#d97706;
+    --lg-j1:#c62828; --lg-j2:#2e7d32; --lg-j3:#1565c0;   /* リーグ識別バッジ */
+    /* selectの矢印。data URIの中では変数が使えないので、テーマごとに画像ごと差し替える */
+    --select-arrow:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+    --radius:16px;
+    /* 影は3段だけ持つ。カード=1、その中間=2、浮くもの(ポップオーバー)=3。 */
+    --elev-1:0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10);
+    --elev-2:0 4px 10px rgba(16,24,40,.08), 0 2px 4px rgba(16,24,40,.06);
+    --elev-3:0 12px 28px rgba(16,24,40,.16), 0 4px 8px rgba(16,24,40,.08);
+  }
+  /* ダーク。data-theme は <head> の先頭で必ず設定される(OS設定 or 保存された選択)ので、
+     ここで prefers-color-scheme を二重に見ない(見ると手動トグルが効かなくなる)。
+     クラブ色に由来する面(--card, --surface-1, --surface-2, --line)は applyTheme() が
+     上書きするため、
+     ここではクラブ色と無関係なものだけを定義する。 */
+  :root[data-theme="dark"]{
+    --bg:#0e1116; --card:#171c24; --ink:#e7eaef; --sub:#9aa4b2; --line:#2a323d;
+    --surface-1:#1c222b; --surface-2:#232a35;
+    --win:#34d399; --draw:#9aa4b2; --loss:#f87171;
+    --promo:#34d399; --po:#fbbf24; --releg:#f87171;
+    --live-bg:#2a1417; --live-line:#7f1d1d; --live-row:#2a1a10; --live-ink:#fb923c;
+    --warn-bg:#3a2c08; --warn-ink:#fcd34d;
+    --err-bg:#2a1416; --err-line:#7f1d1d; --err-ink:#fca5a5;
+    --diff-ink:#fbbf24;
+    --focus:#60a5fa;
+    --marker:#e7eaef; --marker-line:#0e1116;
+    --pill-ink:#0e1116;   /* ダークの--win/--draw/--lossは明るい色なので、勝敗ピルの文字は暗くする */
+    --live-dot:#f87171; --warn-dot:#fbbf24;
+    --lg-j1:#ef5350; --lg-j2:#4caf50; --lg-j3:#42a5f5;
+    --select-arrow:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%239aa4b2' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+    /* 暗い地では黒い影が見えない。影は弱め、面の分離は境界線に寄せる。 */
+    --elev-1:0 1px 2px rgba(0,0,0,.40);
+    --elev-2:0 4px 12px rgba(0,0,0,.45);
+    --elev-3:0 14px 32px rgba(0,0,0,.55);
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
   body{
-    background:var(--accent); color:var(--ink); /* 1stカラーのベタ塗り(グラデーションは使わない) */
+    background:var(--page-bg, var(--accent)); color:var(--ink); /* 地はベタ塗り(縦に長いのでグラデーションにしない) */
     font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI",sans-serif;
     font-size:15px; line-height:1.55;
     padding-bottom:calc(24px + env(safe-area-inset-bottom));
@@ -28,9 +88,12 @@
   /* ヘッダー+タブバーをまとめて上部固定 */
   #headerWrap{position:sticky; top:0; z-index:10}
   header{
-    background:var(--accent); color:var(--accent-ink); /* 1stカラーのベタ塗り */
+    /* 1stカラーを地にしたまま、下端に向けてだけわずかに沈める。色が変わったと分かるほどの
+       グラデーションにはしない(第29弾。それ以前は完全なベタ塗りだった)。 */
+    background:linear-gradient(180deg, var(--accent) 0%, var(--accent-grad-to) 100%);
+    color:var(--accent-ink);
     padding:12px calc(14px + env(safe-area-inset-right)) 12px calc(14px + env(safe-area-inset-left));
-    box-shadow:0 1px 6px rgba(0,0,0,.15);
+    box-shadow:var(--elev-2);
     position:relative; /* トースト/ポップオーバーをこの下端にオーバーレイ表示するための基準 */
   }
   /* ヘッダを役割で2段に分ける(第10弾改訂2): 上段=アプリ全体・データの状態、下段=表示対象の選択 */
@@ -53,16 +116,16 @@
   /* モード切替(クラブ/全体)。タブバーと同じ2ndカラーのベタ塗りの上に、さらに一段浮かせた見た目にする */
   .mode-toggle{display:flex; gap:6px; flex:none; width:120px}
   .mode-toggle button{
-    flex:1; border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.08);
+    flex:1; border:1px solid var(--on-accent-line); background:var(--on-accent-soft);
     color:var(--accent-ink); opacity:.75; font-size:12px; font-weight:700; padding:7px 4px;
     border-radius:999px; cursor:pointer; font-family:inherit;
   }
-  .mode-toggle button.active{background:#fff; color:var(--accent-on-light); opacity:1; border-color:#fff}
+  .mode-toggle button.active{background:var(--card); color:var(--accent-on-light); opacity:1; border-color:var(--card)}
   @media (max-width:360px){ .mode-toggle{width:96px} .mode-toggle button{font-size:11px; padding:7px 2px} }
 
   #tabbar{
     display:flex; background:var(--accent-sub); /* 2ndカラーのベタ塗り */
-    box-shadow:0 1px 6px rgba(0,0,0,.06);
+    box-shadow:var(--elev-1);
     padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right);
   }
   #tabbar button{
@@ -71,24 +134,43 @@
     font-family:inherit; cursor:pointer;
     border-bottom:3px solid transparent;
   }
-  #tabbar button.active{opacity:1; border-bottom-color:var(--accent-sub-ink)}
+  /* 選択中のタブは下線だけでなく面もわずかに持ち上げる。半透明の向き(白/黒)はタブバーの
+     地色に載る文字色と揃えてあるので、明るい2ndカラーでも消えない。 */
+  #tabbar button.active{opacity:1; border-bottom-color:var(--accent-sub-ink); background:var(--on-sub-soft)}
   select{
     width:100%; padding:10px 12px; font-size:16px; font-weight:600;
-    border:none; border-radius:10px; background:#fff; color:var(--ink);
+    border:none; border-radius:12px; background:var(--card); color:var(--ink);
     -webkit-appearance:none; appearance:none;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+    background-image:var(--select-arrow);
     background-repeat:no-repeat; background-position:right 14px center;
   }
   main{padding:16px calc(16px + env(safe-area-inset-right)) 16px calc(16px + env(safe-area-inset-left)); max-width:640px; margin:0 auto}
   section{margin-bottom:22px}
   h2{
     /* 背景(1stカラー)の上に直接載るので、輝度反転させたaccent-inkを使う(var(--sub)だと濃紺クラブ等で読めない) */
-    font-size:12px; font-weight:700; letter-spacing:.12em; color:var(--accent-ink);
-    margin:0 0 8px 2px;
+    font-size:12px; font-weight:700; letter-spacing:.12em; color:var(--page-ink, var(--accent-ink));
+    margin:0 0 9px 2px;
+    display:flex; align-items:center; gap:7px;
+  }
+  /* 見出しの始点を示す短いバー。カードの外(クラブ色の地)に置かれた見出しを、
+     小さな文字の列だけで終わらせないための最小限の装飾。 */
+  h2::before{
+    content:""; width:3px; height:13px; border-radius:2px; flex:none;
+    background:var(--page-ink, var(--accent-ink)); opacity:.5;
   }
   .card{
-    background:#fff; border:2px solid var(--accent-sub); border-radius:var(--radius); padding:16px;
-    box-shadow:0 2px 8px rgba(0,0,0,.10);
+    position:relative;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:17px 16px 16px;
+    box-shadow:var(--elev-1);
+  }
+  /* カード上端のクラブカラーの帯。枠全体を2pxのクラブ色で囲うと色の濃いクラブで画面が
+     うるさくなるので、主張を1辺に集約する。1st→2ndの並びにすればクラブの2色が両方出る。
+     overflow:hiddenを使わず角丸だけ合わせているのは、カードから意図的にはみ出す要素
+     (自クラブ行の margin:0 -6px など)を切り落とさないため。 */
+  .card::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:3px;
+    border-radius:var(--radius) var(--radius) 0 0;
+    background:linear-gradient(90deg, var(--bar-a, var(--accent)) 0%, var(--bar-b, var(--accent-sub)) 100%);
   }
   .muted{color:var(--sub)}
   .small{font-size:12px}
@@ -100,10 +182,36 @@
     font-size:11px; font-weight:700; letter-spacing:.04em;
   }
   .tag.home{background:var(--accent); color:var(--accent-ink)}
-  .tag.away{background:#eceff3; color:#4b5563}
+  .tag.away{background:var(--surface-2); color:var(--sub)}
   .next-date{font-size:22px; font-weight:700; letter-spacing:.01em}
   .next-opp{font-size:17px; font-weight:600; margin-top:4px}
   .next-venue{font-size:13px; color:var(--sub); margin-top:6px}
+
+  /* クラブのバッジ。実物のエンブレムは使えないので、クラブの2色を斜めに分けた円と
+     短縮名の頭文字で代用する。斜めの分割線はユニフォームの配色を連想させるための形。 */
+  .crest{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:52px; height:52px; border-radius:50%; flex:none;
+    font-size:21px; font-weight:800; line-height:1;
+    box-shadow:var(--elev-1), inset 0 0 0 2px rgba(255,255,255,.22);
+  }
+  .crest.sm{width:34px; height:34px; font-size:14px; box-shadow:none; inset:0}
+
+  /* 次の試合(対戦カード) */
+  .vs-teams{display:grid; grid-template-columns:1fr auto 1fr; align-items:start; gap:10px; margin:16px 0 14px}
+  .vs-side{display:flex; flex-direction:column; align-items:center; gap:8px; min-width:0}
+  .vs-name{
+    font-size:13px; font-weight:600; text-align:center; max-width:100%;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .vs-side.me .vs-name{font-weight:800}
+  .vs-mid{flex:none; text-align:center; padding-top:6px}
+  /* カード内で一番大きい数字。ここが画面の主役になる。 */
+  .vs-kick{font-size:30px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1.05; letter-spacing:-.01em}
+  .vs-kick.tbd{font-size:19px}
+  .vs-date{font-size:12px; color:var(--sub); margin-top:4px; white-space:nowrap}
+  .vs-venue{text-align:center; font-size:12px; color:var(--sub)}
+  .vs-note{text-align:center; font-size:12px; color:var(--sub); margin-top:4px}
 
   /* 直近結果 */
   ul.results{list-style:none; margin:0; padding:0}
@@ -117,9 +225,9 @@
   .r-date{font-size:12px; color:var(--sub); font-variant-numeric:tabular-nums; white-space:nowrap}
   .r-ha{font-size:11px; font-weight:700; color:var(--sub); text-align:center}
   .r-opp{font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-  .r-score{font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.02em}
+  .r-score{font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.02em}
   .pill{
-    width:20px; height:20px; border-radius:6px; color:#fff;
+    width:20px; height:20px; border-radius:6px; color:var(--pill-ink,#fff);
     font-size:11px; font-weight:700; line-height:20px; text-align:center; flex:none;
   }
   .pill.W{background:var(--win)} .pill.D{background:var(--draw)} .pill.L{background:var(--loss)}
@@ -128,7 +236,7 @@
   .schedule-controls{display:flex; gap:8px; align-items:center; margin-bottom:14px; flex-wrap:wrap}
   .seg-toggle{display:flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; flex:none}
   .seg-toggle button{
-    border:none; background:#fff; color:var(--sub); font-size:12px; font-weight:700;
+    border:none; background:var(--card); color:var(--sub); font-size:12px; font-weight:700;
     padding:8px 12px; cursor:pointer; font-family:inherit;
   }
   .seg-toggle button.active{background:var(--accent); color:var(--accent-ink)}
@@ -158,13 +266,22 @@
   table{width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums}
   th,td{padding:7px 3px; text-align:right; font-size:13px; border-bottom:1px solid var(--line)}
   th{font-size:10px; color:var(--sub); font-weight:600; letter-spacing:.04em; border-bottom-width:2px}
-  td.rank,th.rank{text-align:center; width:26px; font-weight:600}
+  td.rank,th.rank{text-align:center; width:30px; font-weight:600}
+  /* 前節からの順位変動。順位表はrankHistoryを引数で受け取っていたのに使っていなかった
+     (推移グラフに丸投げしていた)ので、一番動きの分かる情報を表の中に出す。 */
+  .rk-delta{display:block; font-size:9px; font-weight:700; line-height:1.2; margin-top:1px}
+  .rk-delta.up{color:var(--win)}
+  .rk-delta.down{color:var(--loss)}
+  .rk-delta.same{color:var(--sub); opacity:.55}
+  /* 勝点は行の背景を伸びる帯で見せる(インラインstyleで幅を指定)。
+     セル内の細い線だと列幅が20px程度しかなく、勝点の開きが伝わらないため。
+     自クラブの行は tr.me td の背景が前に来るので帯は見えない(そちらの強調を優先する)。 */
   td.club,th.club{text-align:left; padding-left:6px}
   td.form,th.form{text-align:left; padding-left:8px}
   tr.me td{background:var(--me-bg,#eaf6ef); font-weight:700}
   tr.me td.club{box-shadow:inset 3px 0 0 var(--me-accent,var(--accent))}
-  .zone{display:inline-block; width:4px; height:16px; border-radius:2px; vertical-align:-3px; margin-right:5px}
-  .diff{font-size:10px; color:#b45309; margin-left:3px; font-weight:600}
+  .zone{display:inline-block; width:5px; height:18px; border-radius:3px; vertical-align:-4px; margin-right:6px}
+  .diff{font-size:10px; color:var(--diff-ink); margin-left:3px; font-weight:600}
   .form-row{display:flex; gap:3px}
   .form-row .pill{width:16px; height:16px; line-height:16px; font-size:9px; border-radius:4px}
   .legend{display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; font-size:11px; color:var(--sub)}
@@ -178,20 +295,26 @@
     background:var(--card); color:var(--accent-on-light); font-weight:700; font-size:14px;
     padding:14px; border-radius:var(--radius); border:1px solid var(--line);
   }
-  footer{text-align:center; font-size:11px; color:var(--accent-ink); margin-top:24px; padding:0 16px}
-  .err{background:#fff2f0; border:1px solid #f3c6c0; color:#8a2b20; padding:14px; border-radius:var(--radius); font-size:13px}
+  footer{text-align:center; font-size:11px; color:var(--page-ink, var(--accent-ink)); margin-top:24px; padding:0 16px}
+  .err{background:var(--err-bg); border:1px solid var(--err-line); color:var(--err-ink); padding:14px; border-radius:var(--radius); font-size:13px}
 
   /* 昇格確率 */
   .promo-grid{display:flex; gap:10px}
-  .promo-cell{flex:1; text-align:center; padding:12px 4px; border-radius:10px; background:#f7f8fa}
-  .promo-num{font-size:22px; font-weight:700; font-variant-numeric:tabular-nums}
-  .promo-label{font-size:11px; color:var(--sub); margin-top:3px}
+  .promo-cell{flex:1; text-align:center; padding:14px 4px 12px; border-radius:12px; background:var(--surface-1)}
+  /* 確率はリング(ドーナツ)で出す。数字だけを並べるより、3つのゾーンの大小が一目で比べられる。 */
+  .promo-ring{position:relative; width:64px; height:64px; margin:0 auto 7px}
+  .promo-ring svg{display:block}
+  .promo-num{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.02em;
+  }
+  .promo-label{font-size:11px; color:var(--sub)}
   .promo-auto{color:var(--promo)} .promo-po{color:var(--po)} .promo-releg{color:var(--releg)}
   .promo-note{margin:10px 0 0; font-size:12px; color:var(--sub)}
   /* 消化試合が少ない序盤に、注記を目立たせる(赤系は使わない) */
   .promo-note-emphasis{
     margin:10px 0 0; padding:10px 12px; border-radius:10px;
-    background:#f7f8fa; font-size:12px; font-weight:700; color:var(--ink);
+    background:var(--surface-1); font-size:12px; font-weight:700; color:var(--ink);
   }
   /* 予想順位(最頻値)ブロック。確率タイルと同じカード内の別セクションとして下に積む */
   .mode-rank{margin-top:14px; padding-top:14px; border-top:1px solid var(--line); text-align:center}
@@ -205,7 +328,7 @@
   ul.news-list{list-style:none; margin:0; padding:0}
   ul.news-list li.news-item{display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--line)}
   ul.news-list li.news-item:last-child{border-bottom:none}
-  .news-thumb{width:72px; height:72px; flex:none; border-radius:8px; object-fit:cover; background:#f0f1f3}
+  .news-thumb{width:72px; height:72px; flex:none; border-radius:8px; object-fit:cover; background:var(--surface-2)}
   .news-item-body{min-width:0; flex:1}
   .news-item a{color:var(--ink); text-decoration:none; font-size:14px; font-weight:600; display:block}
   .news-item a:hover{text-decoration:underline}
@@ -216,7 +339,7 @@
   /* スタッツ */
   .stats-subtabs{display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap}
   .stats-subtabs button{
-    flex:1; min-width:70px; border:1px solid var(--line); background:#f7f8fa; color:var(--sub);
+    flex:1; min-width:70px; border:1px solid var(--line); background:var(--surface-1); color:var(--sub);
     font-size:12px; font-weight:700; padding:8px 4px; border-radius:999px; cursor:pointer; font-family:inherit;
   }
   .stats-subtabs button.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
@@ -262,13 +385,13 @@
   /* 確率推移グラフ(第8弾A) */
   .chart-series-tabs{display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap}
   .chart-series-tabs button{
-    flex:1; min-width:70px; border:1px solid var(--line); background:#f7f8fa; color:var(--sub);
+    flex:1; min-width:70px; border:1px solid var(--line); background:var(--surface-1); color:var(--sub);
     font-size:12px; font-weight:700; padding:8px 4px; border-radius:999px; cursor:pointer; font-family:inherit;
   }
   .chart-series-tabs button.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
   .chart-chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px}
   .chart-chip{
-    border:1px solid var(--line); background:#fff; color:var(--sub); font-size:11px; font-weight:700;
+    border:1px solid var(--line); background:var(--card); color:var(--sub); font-size:11px; font-weight:700;
     padding:6px 10px; border-radius:999px; cursor:pointer; font-family:inherit;
   }
   .chart-chip.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
@@ -303,12 +426,12 @@
     display:inline-block; font-size:9px; font-weight:700; padding:2px 5px; border-radius:4px;
     color:#fff; letter-spacing:.02em; flex:none;
   }
-  .league-badge.j1{background:#c62828} .league-badge.j2{background:#2e7d32} .league-badge.j3{background:#1565c0}
+  .league-badge.j1{background:var(--lg-j1)} .league-badge.j2{background:var(--lg-j2)} .league-badge.j3{background:var(--lg-j3)}
 
   /* 全体モード: 日程タブ(日付軸) */
   .cal-league-filter{display:flex; gap:6px; margin-bottom:14px}
   .cal-league-filter button{
-    flex:1; border:1px solid var(--line); background:#f7f8fa; color:var(--sub);
+    flex:1; border:1px solid var(--line); background:var(--surface-1); color:var(--sub);
     font-size:12px; font-weight:700; padding:8px 4px; border-radius:999px; cursor:pointer; font-family:inherit;
   }
   .cal-league-filter button.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
@@ -351,13 +474,13 @@
   .ec-scorers .away{text-align:right}
   .ec-rounds{display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; margin-bottom:8px; -webkit-overflow-scrolling:touch}
   .ec-rounds button{
-    flex:0 0 auto; border:1px solid var(--line); background:#fff; color:var(--sub); white-space:nowrap;
+    flex:0 0 auto; border:1px solid var(--line); background:var(--card); color:var(--sub); white-space:nowrap;
     font-size:12px; font-weight:700; padding:7px 12px; border-radius:999px; cursor:pointer; font-family:inherit;
   }
   .ec-rounds button.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
   .cal-loadmore{
     display:block; width:100%; margin:14px 0; padding:10px; border-radius:var(--radius);
-    border:1px solid var(--line); background:#fff; color:var(--sub); font-weight:700; font-size:13px;
+    border:1px solid var(--line); background:var(--card); color:var(--sub); font-weight:700; font-size:13px;
     cursor:pointer; font-family:inherit;
   }
 
@@ -368,17 +491,17 @@
   .predict-rk{font-size:11px; color:var(--sub); text-align:right; font-variant-numeric:tabular-nums}
   .predict-nm{font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .predict-pt{font-size:11px; color:var(--sub); text-align:right; font-variant-numeric:tabular-nums}
-  .predict-track{position:relative; height:20px; background:#f0f1f3; border-radius:5px; overflow:hidden}
+  .predict-track{position:relative; height:20px; background:var(--surface-2); border-radius:5px; overflow:hidden}
   .predict-band-zone{position:absolute; top:0; bottom:0; opacity:.28}
   .predict-band{position:absolute; top:3px; bottom:3px; border-radius:4px; opacity:.92; box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
-  .predict-med{position:absolute; top:2px; bottom:2px; width:2px; background:#fff; opacity:.9; border-radius:1px}
+  .predict-med{position:absolute; top:2px; bottom:2px; width:2px; background:var(--marker); opacity:.9; border-radius:1px}
   .predict-cur{
     position:absolute; top:50%; width:8px; height:8px; margin-top:-4px; margin-left:-4px;
-    border-radius:50%; background:#fff; border:2px solid #444; opacity:.95;
+    border-radius:50%; background:var(--marker); border:2px solid var(--marker-line); opacity:.95;
   }
   /* margin左80px/右40pxは .predict-row の grid-template-columns(20px 44px 1fr 32px)と gap(8px)から来ている: 左=20+8+44+8, 右=32+8。列幅を変えたらここも直すこと。 */
   .predict-axis{display:flex; justify-content:space-between; font-size:10px; color:var(--sub); margin:4px 40px 0 80px}
-  .predict-detail{margin:2px 0 8px; padding:10px 12px; background:#f7f8fa; border-left:3px solid var(--accent); border-radius:0 8px 8px 0}
+  .predict-detail{margin:2px 0 8px; padding:10px 12px; background:var(--surface-1); border-left:3px solid var(--accent); border-radius:0 8px 8px 0}
   .predict-detail-big{font-size:13px; margin-bottom:6px}
   .predict-detail-big b{font-size:19px}
   .predict-detail-kv{display:flex; gap:12px; flex-wrap:wrap; font-size:11px; color:var(--sub)}
@@ -390,7 +513,7 @@
   .ondemand-header-btn{
     display:inline-flex; align-items:center; justify-content:center; gap:3px;
     min-height:44px; min-width:44px; padding:0 10px; box-sizing:border-box;
-    border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.08);
+    border:1px solid var(--on-accent-line); background:var(--on-accent-soft);
     color:var(--accent-ink); font-size:12px; font-weight:700; letter-spacing:.02em;
     border-radius:999px; cursor:pointer; font-family:inherit; white-space:nowrap;
   }
@@ -400,10 +523,19 @@
   }
   .ondemand-info-btn{
     display:inline-flex; align-items:center; justify-content:center;
-    width:26px; height:26px; flex:none; border-radius:50%; border:1px solid rgba(255,255,255,.35);
-    background:rgba(255,255,255,.08); color:var(--accent-ink); font-size:11px; font-weight:700;
+    width:26px; height:26px; flex:none; border-radius:50%; border:1px solid var(--on-accent-line);
+    background:var(--on-accent-soft); color:var(--accent-ink); font-size:11px; font-weight:700;
     font-style:italic; cursor:pointer; font-family:inherit; opacity:.85;
   }
+  /* 表示テーマ(ライト/ダーク)の切替。iボタンと同じ大きさ・同じ質感で隣に並べる。
+     見た目は26pxのままで、当たり判定だけ44pxに広げる(第24弾と同じ手法・下で指定)。 */
+  .theme-toggle-btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; flex:none; border-radius:50%; border:1px solid var(--on-accent-line);
+    background:var(--on-accent-soft); color:var(--accent-ink);
+    cursor:pointer; font-family:inherit; opacity:.85; padding:0;
+  }
+  .theme-toggle-btn svg{display:block}
   /* headerの通常フローに置くと、表示/非表示のたびにヘッダの高さが変わり下のコンテンツが飛ぶ
      (stickyヘッダなので特に目立つ)。header{position:relative}を基準にオーバーレイ表示する
      (改訂: fix-header-layout)。#headerWrapのposition/z-indexはタブバー固定に関わるため触らない。 */
@@ -414,7 +546,7 @@
   }
   .ondemand-popover{
     position:absolute; top:100%; left:calc(12px + env(safe-area-inset-left)); right:calc(12px + env(safe-area-inset-right)); z-index:20;
-    margin:6px 0 0; padding:12px 14px; border-radius:var(--radius); background:#fff; color:var(--ink);
+    margin:6px 0 0; padding:12px 14px; border-radius:var(--radius); background:var(--card); color:var(--ink);
     box-shadow:0 4px 16px rgba(0,0,0,.18); font-size:12px;
   }
   .ondemand-popover h4{margin:0 0 8px; font-size:11px; font-weight:700; color:var(--sub); letter-spacing:.06em}
@@ -427,22 +559,23 @@
   /* 暫定(オンデマンド由来)であることの視覚区別。赤系(エラーと紛らわしい)は使わず琥珀系にする */
   .provisional-badge{
     display:inline-block; font-size:10px; font-weight:700; padding:2px 7px; border-radius:999px;
-    background:#fef3c7; color:#92400e; margin-left:6px; vertical-align:2px; letter-spacing:0; text-transform:none;
+    background:var(--warn-bg); color:var(--warn-ink); margin-left:6px; vertical-align:2px; letter-spacing:0; text-transform:none;
   }
   .provisional-dot{
-    display:inline-block; width:6px; height:6px; border-radius:50%; background:#d97706;
+    display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--warn-dot);
     margin-left:4px; vertical-align:2px; flex:none;
   }
-  .ondemand-basis{margin:10px 0 0; font-size:11px; color:#92400e; background:#fef3c7; padding:8px 10px; border-radius:8px}
+  .ondemand-basis{margin:10px 0 0; font-size:11px; color:var(--warn-ink); background:var(--warn-bg); padding:8px 10px; border-radius:8px}
 
   /* 第12弾: ライブスコア。動きのある要素(点滅ドット)で「更新され続けている」ことを示す。
      確定表示(通常のスコア)とは色を変え、進行中であることを一目で区別できるようにする。 */
   .live-dot{
-    display:inline-block; width:7px; height:7px; border-radius:50%; background:#dc2626;
+    display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--live-dot);
     margin-left:4px; vertical-align:2px; flex:none; animation:live-pulse 1.4s ease-in-out infinite;
   }
   @keyframes live-pulse{0%,100%{opacity:1} 50%{opacity:.25}}
-  .live-card{border:1px solid #fca5a5; background:#fff7f7}
+  .live-card{border:1px solid var(--live-line); background:var(--live-bg)}
+  .live-card::before{background:var(--live-ink)}  /* 進行中のカードだけ帯を試合中の色にする */
   .live-score-row{
     display:flex; align-items:center; justify-content:center; gap:14px;
     font-size:22px; font-weight:800; font-variant-numeric:tabular-nums;
@@ -450,9 +583,9 @@
   .live-team{font-size:13px; font-weight:700; max-width:36%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--sub)}
   .live-team.me{color:var(--ink)}
   .live-updated{margin-top:8px; text-align:center; font-size:11px; color:var(--sub)}
-  .cal-row.live{background:#fff7ed}
-  .cal-row.live .cal-time{color:#c2410c; font-weight:800}
-  .sched-row.live{background:#fff7ed}
+  .cal-row.live{background:var(--live-row)}
+  .cal-row.live .cal-time{color:var(--live-ink); font-weight:800}
+  .sched-row.live{background:var(--live-row)}
 
   /* 第13弾: 試合詳細(得点/カード/交代)ドリルダウン。has-eventsが付いた行だけタップできる。 */
   .sched-row.has-events, .cal-row.has-events{cursor:pointer}
@@ -467,7 +600,7 @@
   .events-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
   .events-row{
     display:grid; grid-template-columns:30px 90px 1fr; align-items:center; gap:8px;
-    font-size:12px; padding:4px 8px; border-radius:6px; background:var(--card-alt,#f7f7f8);
+    font-size:12px; padding:4px 8px; border-radius:6px; background:var(--surface-1);
   }
   .events-row.me{background:var(--me-bg,#eaf6ef)}
   .events-minute{color:var(--sub); font-variant-numeric:tabular-nums; text-align:right}
@@ -498,7 +631,7 @@
   .lineups-list a:hover, .events-desc a:hover{text-decoration:none; border-bottom-style:solid}
   /* 第14弾: ハイライト動画(YouTube埋め込み、16:9のレスポンシブ) */
   .highlight-video{margin-bottom:10px}
-  .highlight-video-source{font-size:11px; font-weight:normal; color:#888}
+  .highlight-video-source{font-size:11px; font-weight:normal; color:var(--sub)}
   .highlight-video-frame{position:relative; padding-top:56.25%; border-radius:8px; overflow:hidden; background:#000}
   .highlight-video-frame iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
   /* 押した瞬間の反応。指の端末では:hoverが効かないので、押下状態だけは必ず返す。
@@ -523,8 +656,8 @@
   .btn-secondary, .cal-loadmore{display:flex}  /* 幅100%のものはblock相当のflexにする */
   /* 見た目は26px/35pxのまま、透明な当たり判定だけ44pxに広げる。
      ヘッダーはstickyで常時表示なので、実寸を増やすと本文の可視領域が恒久的に減る。 */
-  .ondemand-info-btn, .mode-toggle button{position:relative}
-  .ondemand-info-btn::before, .mode-toggle button::before{
+  .ondemand-info-btn, .theme-toggle-btn, .mode-toggle button{position:relative}
+  .ondemand-info-btn::before, .theme-toggle-btn::before, .mode-toggle button::before{
     content:""; position:absolute; top:50%; left:50%;
     min-width:44px; min-height:44px; width:100%; height:100%;
     transform:translate(-50%,-50%);
@@ -532,15 +665,15 @@
   /* フォーカスリングはクラブカラーに依存させない。クラブ色にすると、その色の背景の上で消える。
      :focus-visibleなので、マウス/タップでの押下時には出ない。 */
   button:focus-visible, select:focus-visible, a:focus-visible, summary:focus-visible{
-    outline:3px solid #2563eb; outline-offset:2px; border-radius:6px;
+    outline:3px solid var(--focus); outline-offset:2px; border-radius:6px;
   }
   @media (prefers-reduced-motion: reduce){
     .live-dot{animation:none}          /* 赤点は残す。点滅だけ止める */
     .events-panel{animation:none}
     .events-toggle{transition:none}
   }
-  .skeleton{background:#fff; border:2px solid var(--accent-sub); border-radius:var(--radius); padding:16px}
-  .skeleton-line{height:12px; border-radius:6px; background:#eceff3; margin-bottom:10px}
+  .skeleton{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; box-shadow:var(--elev-1)}
+  .skeleton-line{height:12px; border-radius:6px; background:var(--surface-2); margin-bottom:10px}
   .skeleton-line:last-child{margin-bottom:0; width:60%}
   @media (prefers-reduced-motion: no-preference){
     .skeleton-line{animation:skeleton-pulse 1.2s ease-in-out infinite}
@@ -559,6 +692,8 @@
         aria-label="J1〜J3の最新結果を取得" title="J1〜J3の最新結果を取得">⟳ --:--</button>
       <button type="button" id="ondemandInfoBtn" class="ondemand-info-btn" data-ondemand-info
         aria-label="データの基準時刻を見る" title="データの基準時刻を見る">i</button>
+      <button type="button" id="themeToggleBtn" class="theme-toggle-btn"
+        aria-label="暗い表示に切り替え" title="表示テーマを切り替え"></button>
       <div id="deployBadge" class="deploy-badge"></div>
     </div>
   </div>
@@ -711,12 +846,77 @@ function darkenHex(hex, factor) {
   const f = v => Math.min(255, Math.round(v * factor));
   return "#" + [f(r), f(g), f(b)].map(v => v.toString(16).padStart(2, "0")).join("");
 }
-/* 白背景の上で本文として読める(4.5:1)明るさになるまで、必要な回数だけ暗くしたクラブ色。
-   クラブの色味は保ったまま暗くなるので、固定色に逃がすよりブランド感が残る。 */
-function accentOnLight(hex) {
+/* 面(surfaceHex)の上で本文として読める(4.5:1)まで、クラブ色を面から離す方向へ寄せる。
+   明るい面なら暗く、暗い面なら明るくする。色相は保たれるので、固定色に逃がすより
+   クラブらしさが残る。ライト/ダークで呼び分けずに済むよう、面の輝度から方向を決める。 */
+function accentOnSurface(hex, surfaceHex) {
+  const ls = luminance(surfaceHex);
+  const goDark = ls > 0.18;
   let c = hex;
-  for (let i = 0; i < 14 && contrastRatio(luminance(c), 1) < 4.5; i++) c = darkenHex(c, 0.85);
+  for (let i = 0; i < 16 && contrastRatio(luminance(c), ls) < 4.5; i++) {
+    c = goDark ? darkenHex(c, 0.85) : lightenHex(c, 0.18);
+  }
   return c;
+}
+
+/* ---------- テーマ(ライト/ダーク) ----------
+   解決済みの状態は <head> の先頭スクリプトが data-theme に入れている。
+   ここではその属性を読むだけで、prefers-color-schemeを二重に見ない。 */
+const THEME_KEY = "jleague-app.theme";
+/* ダークでクラブ色を混ぜる相手。真っ黒ではなく少し青みを残すと、
+   どのクラブ色と混ぜても濁らずに沈む。 */
+const DARK_MIX_BASE = "#0f1319";
+
+function loadThemePref() {
+  try { return localStorage.getItem(THEME_KEY) || "auto"; } catch (e) { return "auto"; }
+}
+function saveThemePref(v) {
+  try { localStorage.setItem(THEME_KEY, v); } catch (e) { /* 無視 */ }
+}
+function systemPrefersDark() {
+  return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+}
+function resolvedTheme() {
+  const pref = loadThemePref();
+  return (pref === "dark" || (pref === "auto" && systemPrefersDark())) ? "dark" : "light";
+}
+function isDarkTheme() {
+  return document.documentElement.getAttribute("data-theme") === "dark";
+}
+/* data-themeを引き直し、クラブ色由来の変数を作り直す。テーマを触ったら必ずこれを呼ぶ。 */
+function applyResolvedTheme() {
+  document.documentElement.setAttribute("data-theme", resolvedTheme());
+  applyThemeForMode();
+  updateThemeToggleBtn();
+}
+/* 押すたびに「今見えている見た目の逆」に固定する。autoは初期状態としてだけ存在し、
+   一度押した後はOS設定に追随しない(そのほうが挙動を予測しやすい)。 */
+function toggleTheme() {
+  saveThemePref(isDarkTheme() ? "light" : "dark");
+  applyResolvedTheme();
+}
+const ICON_SUN = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/></svg>';
+const ICON_MOON = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.2 8.2 0 1 0 10.2 10.2z"/></svg>';
+function updateThemeToggleBtn() {
+  const btn = document.getElementById("themeToggleBtn");
+  if (!btn) return;
+  const dark = isDarkTheme();
+  // 押すと何になるかをアイコンで示す(今が暗いなら太陽=明るくする)
+  btn.innerHTML = dark ? ICON_SUN : ICON_MOON;
+  btn.setAttribute("aria-label", dark ? "明るい表示に切り替え" : "暗い表示に切り替え");
+}
+/* 2色を混ぜる。ratio=1でa、0でb。mixWhite()の一般化版。
+   ダークでは「白と混ぜて薄める」が使えず、暗い地と混ぜる必要があるので用意した。 */
+function mixHex(a, b, ratio) {
+  const [r1, g1, b1] = hexToRgb(a), [r2, g2, b2] = hexToRgb(b);
+  const m = (x, y) => Math.round(x * ratio + y * (1 - ratio));
+  return "#" + [m(r1, r2), m(g1, g2), m(b1, b2)].map(v => v.toString(16).padStart(2, "0")).join("");
+}
+/* darkenHex()の逆。白に寄せる。 */
+function lightenHex(hex, factor) {
+  const [r, g, b] = hexToRgb(hex);
+  const f = v => Math.round(v + (255 - v) * factor);
+  return "#" + [f(r), f(g), f(b)].map(v => v.toString(16).padStart(2, "0")).join("");
 }
 function toRgba(hex, alpha) {
   const [r, g, b] = hexToRgb(hex);
@@ -727,16 +927,63 @@ function toRgba(hex, alpha) {
 const NEUTRAL_COLOR = "#33404f", NEUTRAL_COLOR_SUB = "#46566a";
 
 function applyTheme(team) {
-  const c = (team && team.color) || NEUTRAL_COLOR; // 1stカラー: ヘッダー/ボディ背景にベタ塗り
-  const sub = (team && team.colorSub) || NEUTRAL_COLOR_SUB; // 2ndカラー: タブバーのベタ塗り/カードの枠線
+  const dark = isDarkTheme();
+  const rawC = (team && team.color) || NEUTRAL_COLOR;      // 1stカラー
+  const rawSub = (team && team.colorSub) || NEUTRAL_COLOR_SUB; // 2ndカラー
+  /* ダークではクラブ色のベタ塗りをそのまま出すと夜間に眩しい。色味は保ったまま
+     暗い地と混ぜて沈ませる。ベタ塗り自体はやめない(アプリの見た目の核なので)。 */
+  const c = dark ? mixHex(rawC, DARK_MIX_BASE, 0.42) : rawC;
+  const sub = dark ? mixHex(rawSub, DARK_MIX_BASE, 0.42) : rawSub;
+
   const root = document.documentElement.style;
   root.setProperty("--accent", c);
   root.setProperty("--accent-sub", sub);
+  /* ページの地。ヘッダーと同じ色にすると、ダークでは縦に長い面がクラブ色で埋まって
+     目が疲れる。ヘッダーには色を残しつつ、地はもう一段沈める(ライトでは同色のまま)。 */
+  const pageBg = dark ? mixHex(rawC, DARK_MIX_BASE, 0.20) : c;
+  root.setProperty("--page-bg", pageBg);
+  root.setProperty("--page-ink", pickInk(pageBg));
+  /* カード上端の帯。ダークではクラブ色がそのままだと沈んで見えないので持ち上げる。 */
+  root.setProperty("--bar-a", dark ? lightenHex(rawC, 0.12) : rawC);
+  root.setProperty("--bar-b", dark ? lightenHex(rawSub, 0.12) : rawSub);
   // 背景の上に直接載る文字色は、それぞれの背景色の輝度で個別に反転させる
   // (1stとsubは明るさが逆のことが多いので、まとめて1つの判定にしないこと)
   root.setProperty("--accent-ink", pickInk(c));
   root.setProperty("--accent-sub-ink", pickInk(sub));
-  root.setProperty("--accent-on-light", accentOnLight(c));
+  /* ヘッダーのグラデーション終点。同系色をわずかに落とすだけにして、
+     「色が変わった」と見えない範囲に留める(ベタ塗りの延長として扱う)。 */
+  /* クラブ色のベタ塗りの上に重ねる、淡い面と境界線。白の半透明で固定すると
+     明るいクラブ色(柏#fff100など)の上で完全に消えるので、載る文字色と同じ側に振る。 */
+  const softOn = (hex) => pickInk(hex) === INK_ON_LIGHT
+    ? { soft: "rgba(0,0,0,.07)", line: "rgba(0,0,0,.22)", strong: "rgba(0,0,0,.13)" }
+    : { soft: "rgba(255,255,255,.10)", line: "rgba(255,255,255,.35)", strong: "rgba(255,255,255,.18)" };
+  const onAccent = softOn(c), onSub = softOn(sub);
+  root.setProperty("--on-accent-soft", onAccent.soft);
+  root.setProperty("--on-accent-line", onAccent.line);
+  root.setProperty("--on-sub-soft", onSub.strong);
+  /* 動かす向きは必ず「文字色から離れる側」にする。黒文字が選ばれた明るいクラブ色で
+     終点を暗くすると、ヘッダー下端でコントラストが落ちる(宮崎#e62e8bで3.98:1になっていた)。 */
+  const inkIsDark = pickInk(c) === INK_ON_LIGHT;
+  root.setProperty("--accent-grad-to", dark
+    ? mixHex(c, DARK_MIX_BASE, 0.72)
+    : (inkIsDark ? lightenHex(c, 0.10) : darkenHex(c, 0.86)));
+
+  /* カードとその内側の面に、クラブ色をごく薄く混ぜる。ここを無彩色のままにすると
+     「カードの中に入った瞬間クラブの色が消える」画面になる。混ぜすぎると文字が読みづらく
+     なるので、ライトは3〜7%、ダークは面が暗いぶん少しだけ強くする。 */
+  const cardHex  = dark ? mixHex(rawC, "#171c24", 0.06) : mixHex(rawC, "#ffffff", 0.025);
+  const surface1 = dark ? mixHex(rawC, "#1c222b", 0.09) : mixHex(rawC, "#f4f6f8", 0.05);
+  const surface2 = dark ? mixHex(rawC, "#232a35", 0.11) : mixHex(rawC, "#e9edf1", 0.07);
+  const lineHex  = dark ? mixHex(rawC, "#2a323d", 0.10) : mixHex(rawC, "#e3e6ea", 0.12);
+  root.setProperty("--card", cardHex);
+  root.setProperty("--surface-1", surface1);
+  root.setProperty("--surface-2", surface2);
+  root.setProperty("--line", lineHex);
+  // カード面の上で本文として読めるクラブ色。面の明るさから寄せる方向が決まる。
+  root.setProperty("--accent-on-light", accentOnSurface(rawC, cardHex));
+  // 順位表で勝点の長さを示す帯。文字が読める濃さに留める(カード面とクラブ色の間)。
+  root.setProperty("--pts-tint", mixHex(rawC, cardHex, dark ? 0.15 : 0.13));
+
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute("content", c);
 }
@@ -746,8 +993,11 @@ function applyTheme(team) {
 function applyOwnClubAccent(team) {
   const c = (team && team.color) || NEUTRAL_COLOR;
   const root = document.documentElement.style;
-  root.setProperty("--me-accent", c);
-  root.setProperty("--me-bg", mixWhite(c, 0.14));
+  const dark = isDarkTheme();
+  // 暗い画面では元のクラブ色が沈みすぎるので、罫線側は少し持ち上げる
+  root.setProperty("--me-accent", dark ? lightenHex(c, 0.25) : c);
+  /* 自クラブ行の下地。ダークで白と混ぜるとその行だけが光ってしまうので、暗い地と混ぜる。 */
+  root.setProperty("--me-bg", dark ? mixHex(c, "#1e242e", 0.22) : mixWhite(c, 0.14));
 }
 function applyThemeForMode() {
   const found = findTeam(state.idTeam);
@@ -1094,6 +1344,16 @@ async function init() {
   const initial = (saved && findTeam(saved)) ? saved : findFavoriteTeam();
   document.getElementById("clubSelect").value = initial;
   await selectTeam(initial);
+
+  document.getElementById("themeToggleBtn").addEventListener("click", toggleTheme);
+  updateThemeToggleBtn();
+  /* 明示的に選ぶ前(auto)だけ、OS側の切り替えに追随する。一度自分で選んだら追随しない。 */
+  if (window.matchMedia) {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onSchemeChange = () => { if (loadThemePref() === "auto") applyResolvedTheme(); };
+    if (mq.addEventListener) mq.addEventListener("change", onSchemeChange);
+    else if (mq.addListener) mq.addListener(onSchemeChange);
+  }
 
   document.getElementById("clubSelect").addEventListener("change", ev => {
     saveFav(ev.target.value);
@@ -1724,11 +1984,13 @@ function renderAllStandings(league, standings, found, provisional, rankHistory) 
   const zones = resolveZones(rules);
   const ownIdTeam = found ? found.team.idTeam : null;
 
+  // 勝点バーの基準。首位の勝点を100%にする(0除算を避けるため下限1)
+  const maxPoints = Math.max(1, ...standings.table.map(r => r.points || 0));
   const rows = standings.table.map(r => {
     const z = zoneColor(r.rank, rules);
     const form = (r.recent5 || []).map(x => '<span class="pill ' + x + '">' + x + '</span>').join("");
     return '<tr class="' + (r.idTeam === ownIdTeam ? "me" : "") + '">' +
-      '<td class="rank">' + r.rank + '</td>' +
+      '<td class="rank">' + r.rank + rankDeltaHtml(rankHistory, r.idTeam, provisional) + '</td>' +
       '<td class="club">' +
         (z ? '<span class="zone" style="background:' + z.color + '"></span>' : '<span class="zone" style="background:transparent"></span>') +
         '<span class="team-link" data-idteam="' + esc(r.idTeam) + '">' + teamSwatchHtml(r.idTeam) + esc(r.short || r.ja) + '</span>' +
@@ -1742,7 +2004,7 @@ function renderAllStandings(league, standings, found, provisional, rankHistory) 
   }).join("");
 
   const legend = zones.map(z => '<span><i class="sw" style="background:' + z.color + '"></i>' + esc(z.label) + '</span>');
-  legend.push('<span><b style="color:#b45309">-1</b> は消化試合が1つ少ないことを示します</span>');
+  legend.push('<span><b style="color:var(--diff-ink)">-1</b> は消化試合が1つ少ないことを示します</span>');
   const badgeHtml = provisional ? '<span class="provisional-badge">暫定</span>' : "";
   const provisionalNoteHtml = provisional
     ? '<p class="ondemand-basis">※ アプリから取得した最新結果を反映した暫定順位です(当該チーム間の比較までは行っていないため、公式の順位とは並びが異なることがあります)。</p>'
@@ -2086,17 +2348,36 @@ function renderNext(mine, team, venues) {
     body = '<p class="muted" style="margin:0">予定されている試合はありません。</p>';
   } else {
     const isHome = m.home.idTeam === team.idTeam;
-    const opp = isHome ? m.away : m.home;
     const venue = venues[m.idVenue];
+    /* 中継やスポーツ紙と同じく、ホームのクラブを左に置く。自分の側だけ太字にして、
+       相手側は従来どおりタップでクラブを切り替えられるようにする。 */
+    const sideHtml = (side) => {
+      const isMe = side.idTeam === team.idTeam;
+      const t = state.teamsById[side.idTeam] || {};
+      const name = esc(t.short || side.ja || "");
+      return '<div class="vs-side' + (isMe ? " me" : "") + '">' +
+        teamCrestHtml(side.idTeam) +
+        (isMe
+          ? '<span class="vs-name">' + name + '</span>'
+          : '<span class="vs-name team-link" data-idteam="' + esc(side.idTeam) + '">' + name + '</span>') +
+      '</div>';
+    };
+    const midHtml = m.kickoffTbd
+      ? '<div class="vs-kick tbd">未定</div>'
+      : '<div class="vs-kick">' + esc(timeOnly(m.kickoffJst)) + '</div>' +
+        '<div class="vs-date">' + esc(fmtDateOnly(dateOnly(m.kickoffJst))) + '</div>';
     body =
       '<div class="next-meta">' +
         '<span class="tag ' + (isHome ? "home" : "away") + '">' + (isHome ? "ホーム" : "アウェイ") + '</span>' +
         '<span>第' + m.round + '節</span>' +
       '</div>' +
-      '<div class="next-date">' + (m.kickoffTbd ? "日時未定" : esc(fmtDate(m.kickoffJst, true))) + '</div>' +
-      '<div class="next-opp">vs <span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></div>' +
-      (venue ? '<div class="next-venue">' + esc(venue.ja) + '</div>' : "") +
-      (m.kickoffTbd ? '<div class="next-venue">※ 延期などで日程が確定していません</div>' : "");
+      '<div class="vs-teams">' +
+        sideHtml(m.home) +
+        '<div class="vs-mid">' + midHtml + '</div>' +
+        sideHtml(m.away) +
+      '</div>' +
+      (venue ? '<div class="vs-venue">' + esc(venue.ja) + '</div>' : "") +
+      (m.kickoffTbd ? '<div class="vs-note">※ 延期などで日程が確定していません</div>' : "");
   }
   return '<section><h2>次の試合</h2><div class="card">' + body + '</div></section>';
 }
@@ -2182,6 +2463,16 @@ function teamNameForEvent(idTeam, homeId, homeName, awayId, awayName) {
    得点が無く0-0のままでもそれは正しい状態なので、evがある限り(得点0件でも)暫定スコアとして表示する。 */
 /* 第14弾: チーム名の前に置くチームカラーの小さな四角(フラッグ代わり)。
    マスタにcolorが無いチーム(未確認・欠損)では何も出さない(空文字)。 */
+/* クラブカラーの2色を斜めに分けた円形バッジ。size="sm"で小さい版。
+   文字色は1stカラーに対して読める側を選ぶ(pickInkは第24弾で入れた判定)。 */
+function teamCrestHtml(idTeam, extraClass) {
+  const t = state.teamsById[idTeam];
+  const c = (t && t.color) || NEUTRAL_COLOR;
+  const sub = (t && t.colorSub) || NEUTRAL_COLOR_SUB;
+  const label = String((t && (t.short || t.ja)) || "?").slice(0, 1);
+  const style = "background:linear-gradient(145deg," + c + " 0%," + c + " 52%," + sub + " 52%," + sub + " 100%);color:" + pickInk(c);
+  return '<span class="crest ' + (extraClass || "") + '" style="' + style + '">' + esc(label) + '</span>';
+}
 function teamSwatchHtml(idTeam) {
   const t = state.teamsById && state.teamsById[idTeam];
   const c = t && t.color;
@@ -2468,14 +2759,44 @@ function zoneColor(rank, rules) {
   return null;
 }
 
+/* 前節からの順位変動。順位は小さいほうが上なので、cur<prev が上昇。
+   暫定順位(オンデマンド反映)のときは公式の順位と並びが違うことがあるので出さない。 */
+function rankDeltaHtml(rankHistory, idTeam, provisional) {
+  if (provisional) return "";
+  const seq = rankHistory && rankHistory.ranks && rankHistory.ranks[idTeam];
+  if (!seq || seq.length < 2) return "";
+  const cur = seq[seq.length - 1], prev = seq[seq.length - 2];
+  if (cur == null || prev == null) return "";
+  if (cur === prev) return "";
+  const up = cur < prev;
+  return '<span class="rk-delta ' + (up ? "up" : "down") + '">' +
+    (up ? "▲" : "▼") + Math.abs(prev - cur) + '</span>';
+}
+/* 確率のリング。半径26の円周を stroke-dasharray で塗り分ける。
+   0%でも輪郭(下地の円)は残るので、タイルの大きさが確率で変わらない。 */
+function probRingHtml(value, color) {
+  const R = 26, C = 2 * Math.PI * R;
+  const v = Math.max(0, Math.min(1, value || 0));
+  const dash = C * v;
+  return '<svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">' +
+    '<circle cx="32" cy="32" r="' + R + '" fill="none" stroke="var(--surface-2)" stroke-width="7"/>' +
+    (v > 0 ? '<circle cx="32" cy="32" r="' + R + '" fill="none" stroke="' + color + '" stroke-width="7" ' +
+      'stroke-linecap="round" stroke-dasharray="' + dash.toFixed(1) + ' ' + (C - dash).toFixed(1) + '" ' +
+      'transform="rotate(-90 32 32)"/>' : "") +
+  '</svg>';
+}
 function renderStandings(standings, team, master, provisional, rankHistory, league) {
   const rules = master.promotionRules;
   const zones = resolveZones(rules);
+  // 勝点バーの基準。首位の勝点を100%にする(0除算を避けるため下限1)
+  const maxPoints = Math.max(1, ...standings.table.map(r => r.points || 0));
   const rows = standings.table.map(r => {
     const z = zoneColor(r.rank, rules);
     const form = (r.recent5 || []).map(x => '<span class="pill ' + x + '">' + x + '</span>').join("");
-    return '<tr class="' + (r.idTeam === team.idTeam ? "me" : "") + '">' +
-      '<td class="rank">' + r.rank + '</td>' +
+    const ptsPct = Math.round((r.points || 0) / maxPoints * 100);
+    return '<tr class="' + (r.idTeam === team.idTeam ? "me" : "") + '"' +
+      ' style="background:linear-gradient(90deg, var(--pts-tint) ' + ptsPct + '%, transparent ' + ptsPct + '%)">' +
+      '<td class="rank">' + r.rank + rankDeltaHtml(rankHistory, r.idTeam, provisional) + '</td>' +
       '<td class="club">' +
         (z ? '<span class="zone" style="background:' + z.color + '"></span>' : '<span class="zone" style="background:transparent"></span>') +
         '<span class="team-link" data-idteam="' + esc(r.idTeam) + '">' + teamSwatchHtml(r.idTeam) + esc(r.short || r.ja) + '</span>' +
@@ -2489,7 +2810,7 @@ function renderStandings(standings, team, master, provisional, rankHistory, leag
   }).join("");
 
   const legend = zones.map(z => '<span><i class="sw" style="background:' + z.color + '"></i>' + esc(z.label) + '</span>');
-  legend.push('<span><b style="color:#b45309">-1</b> は消化試合が1つ少ないことを示します</span>');
+  legend.push('<span><b style="color:var(--diff-ink)">-1</b> は消化試合が1つ少ないことを示します</span>');
   const badgeHtml = provisional ? '<span class="provisional-badge">暫定</span>' : "";
   const provisionalNoteHtml = provisional
     ? '<p class="ondemand-basis">※ アプリから取得した最新結果を反映した暫定順位です(当該チーム間の比較までは行っていないため、公式の順位とは並びが異なることがあります)。</p>'
@@ -2569,7 +2890,10 @@ function renderPromotion(simulation, team, allMatches, rules, league) {
   const zones = resolveZones(rules);
   const tilesHtml = zones.length
     ? '<div class="promo-grid">' + zones.map(z =>
-        '<div class="promo-cell"><div class="promo-num" style="color:' + z.color + '">' + pct(t[z.key]) + '</div><div class="promo-label">' + esc(z.label) + '</div></div>'
+        '<div class="promo-cell">' +
+          '<div class="promo-ring">' + probRingHtml(t[z.key], z.color) +
+            '<span class="promo-num" style="color:' + z.color + '">' + pct(t[z.key]) + '</span></div>' +
+          '<div class="promo-label">' + esc(z.label) + '</div></div>'
       ).join("") + '</div>'
     : "";
 
