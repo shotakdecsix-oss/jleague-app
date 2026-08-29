@@ -204,6 +204,10 @@ def commit_and_push() -> bool:
         r = git("pull", "--rebase", "--autostash", "origin", "main", timeout=180)
         if r.returncode != 0:
             log(f"[warn] pull失敗 ({i}/3): {(r.stderr or r.stdout).strip()[:300]}")
+            # コンフリクトでrebaseが中断したまま残ると、次回以降の実行が全部失敗し続ける。
+            # 5分おきに走るスクリプトなので、途中状態を残さず必ず元に戻す
+            # (取り込めなかった変更は手元のコミットとして残るので、次回また試される)。
+            git("rebase", "--abort")
         else:
             r = git("push", "origin", "main", timeout=180)
             if r.returncode == 0:
