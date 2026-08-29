@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-08-29T19:45:15+09:00",
+    "generatedAtJst": "2026-08-30T00:17:38+09:00",
     "windowHours": 36,
     "candidateCount": 10,
     "fetchedCount": 10,
@@ -4633,9 +4633,18 @@
     "2492810": {
       "code": "082902",
       "url": "https://www.jleague.jp/match/j1/2026/082902/livetxt/",
-      "fetchedAtJst": "2026-08-29T19:45:17+09:00",
+      "fetchedAtJst": "2026-08-30T00:17:41+09:00",
       "goals": [],
       "cards": [
+        {
+          "minute": "87",
+          "type": "red",
+          "player": "岸本 武流",
+          "position": "DF 15",
+          "club": "ガンバ大阪",
+          "idTeam": "137705",
+          "playerId": "1600171"
+        },
         {
           "minute": "36",
           "type": "yellow",
@@ -4665,6 +4674,25 @@
         }
       ],
       "subs": [
+        {
+          "minute": "86",
+          "club": "ガンバ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 20",
+              "name": "イーライ アダムス",
+              "playerId": "1657480"
+            },
+            {
+              "variant": "out",
+              "position": "FW 11",
+              "name": "イッサム ジェバリ",
+              "playerId": "1638665"
+            }
+          ],
+          "idTeam": "137705"
+        },
         {
           "minute": "75",
           "club": "ガンバ大阪",
@@ -4761,10 +4789,10 @@
           "idTeam": "137713"
         }
       ],
-      "highlightVideoId": null,
-      "daznVideoId": null,
-      "daznSearchAttempts": 0,
-      "daznLastSearchedAtJst": null,
+      "highlightVideoId": "b_10uDVSItY",
+      "daznVideoId": "KbL1WW5biM8",
+      "daznSearchAttempts": 1,
+      "daznLastSearchedAtJst": "2026-08-30T00:10:49+09:00",
       "lineups": {
         "home": {
           "idTeam": "137705",
@@ -5011,7 +5039,7 @@
     "2492813": {
       "code": "082901",
       "url": "https://www.jleague.jp/match/j1/2026/082901/livetxt/",
-      "fetchedAtJst": "2026-08-29T19:45:21+09:00",
+      "fetchedAtJst": "2026-08-30T00:17:47+09:00",
       "goals": [
         {
           "minute": "33",
@@ -5023,8 +5051,151 @@
           "playerId": "1604777"
         }
       ],
-      "cards": [],
+      "cards": [
+        {
+          "minute": null,
+          "type": "yellow",
+          "player": "小川 航基",
+          "position": "FW 9",
+          "club": "ＦＣ町田ゼルビア",
+          "idTeam": "139889",
+          "playerId": "1600008"
+        }
+      ],
       "subs": [
+        {
+          "minute": "90",
+          "club": "水戸ホーリーホック",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 53",
+              "name": "山下 翔大",
+              "playerId": "1655790"
+            },
+            {
+              "variant": "out",
+              "position": "MF 11",
+              "name": "鳥海 芳樹",
+              "playerId": "1600011"
+            }
+          ],
+          "idTeam": "139891"
+        },
+        {
+          "minute": "90",
+          "club": "水戸ホーリーホック",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 39",
+              "name": "山本 隼大",
+              "playerId": "1647012"
+            },
+            {
+              "variant": "out",
+              "position": "MF 20",
+              "name": "舩橋 佑",
+              "playerId": "1631701"
+            }
+          ],
+          "idTeam": "139891"
+        },
+        {
+          "minute": "90",
+          "club": "水戸ホーリーホック",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 33",
+              "name": "パトリッキ",
+              "playerId": "1656732"
+            },
+            {
+              "variant": "out",
+              "position": "FW 22",
+              "name": "谷口 海斗",
+              "playerId": "1611450"
+            }
+          ],
+          "idTeam": "139891"
+        },
+        {
+          "minute": "88",
+          "club": "ＦＣ町田ゼルビア",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 14",
+              "name": "松尾 佑介",
+              "playerId": "1626167"
+            },
+            {
+              "variant": "out",
+              "position": "DF 5",
+              "name": "ドレシェヴィッチ",
+              "playerId": "1645998"
+            }
+          ],
+          "idTeam": "139889"
+        },
+        {
+          "minute": "84",
+          "club": "水戸ホーリーホック",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "根本 凌",
+              "playerId": "1630109"
+            },
+            {
+              "variant": "out",
+              "position": "FW 18",
+              "name": "内野 航太郎",
+              "playerId": "1639096"
+            }
+          ],
+          "idTeam": "139891"
+        },
+        {
+          "minute": "82",
+          "club": "ＦＣ町田ゼルビア",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 18",
+              "name": "下田 北斗",
+              "playerId": "1400049"
+            },
+            {
+              "variant": "out",
+              "position": "MF 31",
+              "name": "ネタ ラヴィ",
+              "playerId": "1640980"
+            }
+          ],
+          "idTeam": "139889"
+        },
+        {
+          "minute": "82",
+          "club": "ＦＣ町田ゼルビア",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "小川 航基",
+              "playerId": "1600008"
+            },
+            {
+              "variant": "out",
+              "position": "FW 99",
+              "name": "テテ イェンギ",
+              "playerId": "1656011"
+            }
+          ],
+          "idTeam": "139889"
+        },
         {
           "minute": "75",
           "club": "水戸ホーリーホック",
@@ -5064,10 +5235,10 @@
           "idTeam": "139889"
         }
       ],
-      "highlightVideoId": null,
-      "daznVideoId": null,
-      "daznSearchAttempts": 0,
-      "daznLastSearchedAtJst": null,
+      "highlightVideoId": "kEl4R08d6Q0",
+      "daznVideoId": "IBfXQGdVdvg",
+      "daznSearchAttempts": 1,
+      "daznLastSearchedAtJst": "2026-08-30T00:10:55+09:00",
       "lineups": {
         "home": {
           "idTeam": "139891",
@@ -5308,10 +5479,211 @@
     "2492815": {
       "code": "082903",
       "url": "https://www.jleague.jp/match/j1/2026/082903/livetxt/",
-      "fetchedAtJst": "2026-08-29T19:45:25+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-08-30T00:17:50+09:00",
+      "goals": [
+        {
+          "minute": "71",
+          "club": "柏レイソル",
+          "player": "瀬川 祐輔",
+          "position": "MF 20",
+          "scoreAfter": "0-1",
+          "idTeam": "137708",
+          "playerId": "1600146"
+        }
+      ],
       "cards": [],
-      "subs": [],
+      "subs": [
+        {
+          "minute": null,
+          "club": "柏レイソル",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 88",
+              "name": "馬場 晴也",
+              "playerId": "1613331"
+            },
+            {
+              "variant": "out",
+              "position": "MF 24",
+              "name": "久保 藤次郎",
+              "playerId": "1634324"
+            }
+          ],
+          "idTeam": "137708"
+        },
+        {
+          "minute": "82",
+          "club": "清水エスパルス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 37",
+              "name": "小泉 慶",
+              "playerId": "1400051"
+            },
+            {
+              "variant": "out",
+              "position": "MF 17",
+              "name": "弓場 将輝",
+              "playerId": "1627819"
+            }
+          ],
+          "idTeam": "137714"
+        },
+        {
+          "minute": "82",
+          "club": "清水エスパルス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 70",
+              "name": "高木 践",
+              "playerId": "1641666"
+            },
+            {
+              "variant": "out",
+              "position": "DF 28",
+              "name": "吉田 豊",
+              "playerId": "800144"
+            }
+          ],
+          "idTeam": "137714"
+        },
+        {
+          "minute": "75",
+          "club": "清水エスパルス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 7",
+              "name": "カピシャーバ",
+              "playerId": "1640499"
+            },
+            {
+              "variant": "out",
+              "position": "MF 50",
+              "name": "藤井 智也",
+              "playerId": "1629897"
+            }
+          ],
+          "idTeam": "137714"
+        },
+        {
+          "minute": "70",
+          "club": "柏レイソル",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 16",
+              "name": "汰木 康也",
+              "playerId": "1300447"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "小泉 佳穂",
+              "playerId": "1500292"
+            }
+          ],
+          "idTeam": "137708"
+        },
+        {
+          "minute": "70",
+          "club": "柏レイソル",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 44",
+              "name": "弓場 堅真",
+              "playerId": "1635506"
+            },
+            {
+              "variant": "out",
+              "position": "MF 5",
+              "name": "遠藤 渓太",
+              "playerId": "1600177"
+            }
+          ],
+          "idTeam": "137708"
+        },
+        {
+          "minute": "65",
+          "club": "清水エスパルス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 19",
+              "name": "木下 康介",
+              "playerId": "1200538"
+            },
+            {
+              "variant": "out",
+              "position": "MF 38",
+              "name": "辻 友翔",
+              "playerId": "1657649"
+            }
+          ],
+          "idTeam": "137714"
+        },
+        {
+          "minute": "65",
+          "club": "清水エスパルス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 51",
+              "name": "住吉 ジェラニレショーン",
+              "playerId": "1629435"
+            },
+            {
+              "variant": "out",
+              "position": "DF 15",
+              "name": "本多 勇喜",
+              "playerId": "1300084"
+            }
+          ],
+          "idTeam": "137714"
+        },
+        {
+          "minute": "57",
+          "club": "柏レイソル",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "細谷 真大",
+              "playerId": "1625303"
+            },
+            {
+              "variant": "out",
+              "position": "MF 87",
+              "name": "山内 日向汰",
+              "playerId": "1635485"
+            }
+          ],
+          "idTeam": "137708"
+        },
+        {
+          "minute": "45",
+          "club": "柏レイソル",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 20",
+              "name": "瀬川 祐輔",
+              "playerId": "1600146"
+            },
+            {
+              "variant": "out",
+              "position": "FW 18",
+              "name": "垣田 裕暉",
+              "playerId": "1600141"
+            }
+          ],
+          "idTeam": "137708"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -5556,8 +5928,17 @@
     "2492819": {
       "code": "082904",
       "url": "https://www.jleague.jp/match/j1/2026/082904/livetxt/",
-      "fetchedAtJst": "2026-08-29T19:45:28+09:00",
+      "fetchedAtJst": "2026-08-30T00:17:55+09:00",
       "goals": [
+        {
+          "minute": "55",
+          "club": "ＦＣ東京",
+          "player": "マルセロ ヒアン",
+          "position": "FW 9",
+          "scoreAfter": "0-3",
+          "idTeam": "137704",
+          "playerId": "1639139"
+        },
         {
           "minute": "49",
           "club": "ＦＣ東京",
@@ -5579,6 +5960,24 @@
       ],
       "cards": [
         {
+          "minute": "78",
+          "type": "yellow",
+          "player": "ノーマン キャンベル",
+          "position": "FW 11",
+          "club": "Ｖ・ファーレン長崎",
+          "idTeam": "139899",
+          "playerId": "1656010"
+        },
+        {
+          "minute": "48",
+          "type": "yellow",
+          "player": "高 宇洋",
+          "position": "MF 8",
+          "club": "ＦＣ東京",
+          "idTeam": "137704",
+          "playerId": "1600022"
+        },
+        {
           "minute": "3",
           "type": "yellow",
           "player": "岩崎 悠人",
@@ -5590,6 +5989,196 @@
       ],
       "subs": [
         {
+          "minute": "83",
+          "club": "ＦＣ東京",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 22",
+              "name": "石原 広教",
+              "playerId": "1603257"
+            },
+            {
+              "variant": "out",
+              "position": "FW 10",
+              "name": "佐藤 恵允",
+              "playerId": "1635332"
+            }
+          ],
+          "idTeam": "137704"
+        },
+        {
+          "minute": "79",
+          "club": "ＦＣ東京",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 27",
+              "name": "常盤 亨太",
+              "playerId": "1627192"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "高 宇洋",
+              "playerId": "1600022"
+            }
+          ],
+          "idTeam": "137704"
+        },
+        {
+          "minute": "77",
+          "club": "Ｖ・ファーレン長崎",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 10",
+              "name": "マテウス ジェズス",
+              "playerId": "1618765"
+            },
+            {
+              "variant": "out",
+              "position": "DF 23",
+              "name": "米田 隼也",
+              "playerId": "1503694"
+            }
+          ],
+          "idTeam": "139899"
+        },
+        {
+          "minute": "70",
+          "club": "Ｖ・ファーレン長崎",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 21",
+              "name": "ディエゴ ピトゥカ",
+              "playerId": "1632395"
+            },
+            {
+              "variant": "out",
+              "position": "MF 24",
+              "name": "山田 陸",
+              "playerId": "1606084"
+            }
+          ],
+          "idTeam": "139899"
+        },
+        {
+          "minute": "70",
+          "club": "Ｖ・ファーレン長崎",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 39",
+              "name": "洪 怜鎭",
+              "playerId": "1639124"
+            },
+            {
+              "variant": "out",
+              "position": "FW 9",
+              "name": "チアゴ サンタナ",
+              "playerId": "1632264"
+            }
+          ],
+          "idTeam": "139899"
+        },
+        {
+          "minute": "67",
+          "club": "ＦＣ東京",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 39",
+              "name": "仲川 輝人",
+              "playerId": "1400647"
+            },
+            {
+              "variant": "out",
+              "position": "FW 26",
+              "name": "長倉 幹樹",
+              "playerId": "1632774"
+            }
+          ],
+          "idTeam": "137704"
+        },
+        {
+          "minute": "60",
+          "club": "ＦＣ東京",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 7",
+              "name": "安斎 颯馬",
+              "playerId": "1632809"
+            },
+            {
+              "variant": "out",
+              "position": "MF 19",
+              "name": "本間 至恩",
+              "playerId": "1610939"
+            }
+          ],
+          "idTeam": "137704"
+        },
+        {
+          "minute": "60",
+          "club": "ＦＣ東京",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 71",
+              "name": "山田 楓喜",
+              "playerId": "1628223"
+            },
+            {
+              "variant": "out",
+              "position": "FW 9",
+              "name": "マルセロ ヒアン",
+              "playerId": "1639139"
+            }
+          ],
+          "idTeam": "137704"
+        },
+        {
+          "minute": "60",
+          "club": "ＦＣ東京",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 42",
+              "name": "橋本 健人",
+              "playerId": "1630141"
+            },
+            {
+              "variant": "out",
+              "position": "DF 6",
+              "name": "バングーナガンデ 佳史扶",
+              "playerId": "1618671"
+            }
+          ],
+          "idTeam": "137704"
+        },
+        {
+          "minute": "58",
+          "club": "Ｖ・ファーレン長崎",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 11",
+              "name": "ノーマン キャンベル",
+              "playerId": "1656010"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "岩崎 悠人",
+              "playerId": "1500418"
+            }
+          ],
+          "idTeam": "139899"
+        },
+        {
           "minute": "45",
           "club": "Ｖ・ファーレン長崎",
           "items": [
@@ -5598,6 +6187,12 @@
               "position": "MF 7",
               "name": "保田 堅心",
               "playerId": "1635204"
+            },
+            {
+              "variant": "out",
+              "position": "MF 5",
+              "name": "山口 蛍",
+              "playerId": "400761"
             }
           ],
           "idTeam": "139899"
@@ -5866,8 +6461,26 @@
     "2492811": {
       "code": "082907",
       "url": "https://www.jleague.jp/match/j1/2026/082907/livetxt/",
-      "fetchedAtJst": "2026-08-29T19:45:34+09:00",
+      "fetchedAtJst": "2026-08-30T00:17:59+09:00",
       "goals": [
+        {
+          "minute": "48",
+          "club": "川崎フロンターレ",
+          "player": "脇坂 泰斗",
+          "position": "MF 14",
+          "scoreAfter": "4-2",
+          "idTeam": "137709",
+          "playerId": "1614103"
+        },
+        {
+          "minute": "42",
+          "club": "川崎フロンターレ",
+          "player": "マルシーニョ",
+          "position": "FW 23",
+          "scoreAfter": "3-2",
+          "idTeam": "137709",
+          "playerId": "1635026"
+        },
         {
           "minute": "38",
           "club": "ジェフユナイテッド千葉",
@@ -5907,6 +6520,33 @@
       ],
       "cards": [
         {
+          "minute": null,
+          "type": "yellow",
+          "player": "喜田 陽",
+          "position": "MF 55",
+          "club": "ジェフユナイテッド千葉",
+          "idTeam": "139886",
+          "playerId": "1601788"
+        },
+        {
+          "minute": "87",
+          "type": "yellow",
+          "player": "本間 凜",
+          "position": "FW 36",
+          "club": "川崎フロンターレ",
+          "idTeam": "137709",
+          "playerId": "1642082"
+        },
+        {
+          "minute": "58",
+          "type": "yellow",
+          "player": "マテウス インディオ",
+          "position": "MF 25",
+          "club": "ジェフユナイテッド千葉",
+          "idTeam": "139886",
+          "playerId": "1657619"
+        },
+        {
           "minute": "33",
           "type": "yellow",
           "player": "エリソン",
@@ -5935,6 +6575,177 @@
         }
       ],
       "subs": [
+        {
+          "minute": "83",
+          "club": "川崎フロンターレ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 19",
+              "name": "河原 創",
+              "playerId": "1629412"
+            },
+            {
+              "variant": "out",
+              "position": "DF 29",
+              "name": "山原 怜音",
+              "playerId": "1632749"
+            }
+          ],
+          "idTeam": "137709"
+        },
+        {
+          "minute": "83",
+          "club": "川崎フロンターレ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 28",
+              "name": "丸山 祐市",
+              "playerId": "1101476"
+            },
+            {
+              "variant": "out",
+              "position": "DF 4",
+              "name": "ペドロ ホマーノ",
+              "playerId": "1657458"
+            }
+          ],
+          "idTeam": "137709"
+        },
+        {
+          "minute": "79",
+          "club": "ジェフユナイテッド千葉",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 18",
+              "name": "杉山 直宏",
+              "playerId": "1632219"
+            },
+            {
+              "variant": "out",
+              "position": "FW 99",
+              "name": "エリソン",
+              "playerId": "1645985"
+            }
+          ],
+          "idTeam": "139886"
+        },
+        {
+          "minute": "79",
+          "club": "ジェフユナイテッド千葉",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 45",
+              "name": "ホシャ",
+              "playerId": "1657561"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "津久井 匠海",
+              "playerId": "1622683"
+            }
+          ],
+          "idTeam": "139886"
+        },
+        {
+          "minute": "79",
+          "club": "ジェフユナイテッド千葉",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 39",
+              "name": "石尾 陸登",
+              "playerId": "1641392"
+            },
+            {
+              "variant": "out",
+              "position": "DF 22",
+              "name": "飯田 貴敬",
+              "playerId": "1603283"
+            }
+          ],
+          "idTeam": "139886"
+        },
+        {
+          "minute": "63",
+          "club": "ジェフユナイテッド千葉",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 55",
+              "name": "喜田 陽",
+              "playerId": "1601788"
+            },
+            {
+              "variant": "out",
+              "position": "MF 4",
+              "name": "田口 泰士",
+              "playerId": "900106"
+            }
+          ],
+          "idTeam": "139886"
+        },
+        {
+          "minute": "63",
+          "club": "ジェフユナイテッド千葉",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 14",
+              "name": "椿 直起",
+              "playerId": "1604302"
+            },
+            {
+              "variant": "out",
+              "position": "FW 7",
+              "name": "田中 和樹",
+              "playerId": "1612122"
+            }
+          ],
+          "idTeam": "139886"
+        },
+        {
+          "minute": "57",
+          "club": "川崎フロンターレ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 36",
+              "name": "本間 凜",
+              "playerId": "1642082"
+            },
+            {
+              "variant": "out",
+              "position": "FW 97",
+              "name": "デリキ ラセルダ",
+              "playerId": "1657622"
+            }
+          ],
+          "idTeam": "137709"
+        },
+        {
+          "minute": "57",
+          "club": "川崎フロンターレ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 13",
+              "name": "三浦 颯太",
+              "playerId": "1634321"
+            },
+            {
+              "variant": "out",
+              "position": "FW 23",
+              "name": "マルシーニョ",
+              "playerId": "1635026"
+            }
+          ],
+          "idTeam": "137709"
+        },
         {
           "minute": "6",
           "club": "川崎フロンターレ",
@@ -6199,8 +7010,17 @@
     "2492812": {
       "code": "082909",
       "url": "https://www.jleague.jp/match/j1/2026/082909/livetxt/",
-      "fetchedAtJst": "2026-08-29T19:45:37+09:00",
+      "fetchedAtJst": "2026-08-30T00:18:02+09:00",
       "goals": [
+        {
+          "minute": "86",
+          "club": "アビスパ福岡",
+          "player": "碓井 聖生",
+          "position": "FW 7",
+          "scoreAfter": "2-1",
+          "idTeam": "139882",
+          "playerId": "1644286"
+        },
         {
           "minute": "8",
           "club": "京都サンガF.C.",
@@ -6209,9 +7029,36 @@
           "scoreAfter": "1-0",
           "idTeam": "139888",
           "playerId": "1647904"
+        },
+        {
+          "minute": "63",
+          "club": "京都サンガF.C.",
+          "player": "新井 晴樹",
+          "position": "MF 77",
+          "scoreAfter": "2-0",
+          "idTeam": "139888",
+          "playerId": "1634968"
         }
       ],
       "cards": [
+        {
+          "minute": "75",
+          "type": "yellow",
+          "player": "橋本 悠",
+          "position": "DF 47",
+          "club": "アビスパ福岡",
+          "idTeam": "139882",
+          "playerId": "1646125"
+        },
+        {
+          "minute": "67",
+          "type": "yellow",
+          "player": "尹 星俊",
+          "position": "MF 25",
+          "club": "京都サンガF.C.",
+          "idTeam": "139888",
+          "playerId": "1649549"
+        },
         {
           "minute": "30",
           "type": "yellow",
@@ -6231,7 +7078,198 @@
           "playerId": "1653372"
         }
       ],
-      "subs": [],
+      "subs": [
+        {
+          "minute": null,
+          "club": "京都サンガF.C.",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 99",
+              "name": "本田 風智",
+              "playerId": "1625672"
+            },
+            {
+              "variant": "out",
+              "position": "MF 77",
+              "name": "新井 晴樹",
+              "playerId": "1634968"
+            }
+          ],
+          "idTeam": "139888"
+        },
+        {
+          "minute": "89",
+          "club": "京都サンガF.C.",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 10",
+              "name": "福岡 慎平",
+              "playerId": "1601787"
+            },
+            {
+              "variant": "out",
+              "position": "MF 6",
+              "name": "ジョアン ペドロ",
+              "playerId": "1650730"
+            }
+          ],
+          "idTeam": "139888"
+        },
+        {
+          "minute": "89",
+          "club": "京都サンガF.C.",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 15",
+              "name": "永田 倖大",
+              "playerId": "1630198"
+            },
+            {
+              "variant": "out",
+              "position": "DF 43",
+              "name": "ウェベルトン",
+              "playerId": "1657474"
+            }
+          ],
+          "idTeam": "139888"
+        },
+        {
+          "minute": "81",
+          "club": "アビスパ福岡",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 32",
+              "name": "サニブラウン ハナン",
+              "playerId": "1650538"
+            },
+            {
+              "variant": "out",
+              "position": "FW 13",
+              "name": "師岡 柊生",
+              "playerId": "1637049"
+            }
+          ],
+          "idTeam": "139882"
+        },
+        {
+          "minute": "68",
+          "club": "アビスパ福岡",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 14",
+              "name": "名古 新太郎",
+              "playerId": "1500384"
+            },
+            {
+              "variant": "out",
+              "position": "FW 9",
+              "name": "ウェリック ポポ",
+              "playerId": "1652453"
+            }
+          ],
+          "idTeam": "139882"
+        },
+        {
+          "minute": "68",
+          "club": "アビスパ福岡",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 34",
+              "name": "椎橋 慧也",
+              "playerId": "1600127"
+            },
+            {
+              "variant": "out",
+              "position": "MF 55",
+              "name": "前田 快",
+              "playerId": "1653372"
+            }
+          ],
+          "idTeam": "139882"
+        },
+        {
+          "minute": "62",
+          "club": "京都サンガF.C.",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 18",
+              "name": "松田 天馬",
+              "playerId": "1613092"
+            },
+            {
+              "variant": "out",
+              "position": "FW 38",
+              "name": "エベルトン マセイオ",
+              "playerId": "1657475"
+            }
+          ],
+          "idTeam": "139888"
+        },
+        {
+          "minute": "62",
+          "club": "京都サンガF.C.",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 93",
+              "name": "長沢 駿",
+              "playerId": "700767"
+            },
+            {
+              "variant": "out",
+              "position": "MF 48",
+              "name": "中野 瑠馬",
+              "playerId": "1622198"
+            }
+          ],
+          "idTeam": "139888"
+        },
+        {
+          "minute": "57",
+          "club": "アビスパ福岡",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 7",
+              "name": "碓井 聖生",
+              "playerId": "1644286"
+            },
+            {
+              "variant": "out",
+              "position": "MF 6",
+              "name": "重見 柾斗",
+              "playerId": "1641497"
+            }
+          ],
+          "idTeam": "139882"
+        },
+        {
+          "minute": "45",
+          "club": "アビスパ福岡",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 29",
+              "name": "前嶋 洋太",
+              "playerId": "1600179"
+            },
+            {
+              "variant": "out",
+              "position": "FW 22",
+              "name": "藤本 一輝",
+              "playerId": "1630138"
+            }
+          ],
+          "idTeam": "139882"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -6476,8 +7514,26 @@
     "2492814": {
       "code": "082908",
       "url": "https://www.jleague.jp/match/j1/2026/082908/livetxt/",
-      "fetchedAtJst": "2026-08-29T19:45:42+09:00",
+      "fetchedAtJst": "2026-08-30T00:18:06+09:00",
       "goals": [
+        {
+          "minute": "91",
+          "club": "名古屋グランパス",
+          "player": "中山 克広",
+          "position": "MF 27",
+          "scoreAfter": "2-1",
+          "idTeam": "137710",
+          "playerId": "1624306"
+        },
+        {
+          "minute": "43",
+          "club": "名古屋グランパス",
+          "player": "稲垣 祥",
+          "position": "MF 15",
+          "scoreAfter": "1-1",
+          "idTeam": "137710",
+          "playerId": "1400047"
+        },
         {
           "minute": "38",
           "club": "ファジアーノ岡山",
@@ -6488,8 +7544,207 @@
           "playerId": "1601448"
         }
       ],
-      "cards": [],
-      "subs": [],
+      "cards": [
+        {
+          "minute": "86",
+          "type": "yellow",
+          "player": "宮本 英治",
+          "position": "MF 41",
+          "club": "ファジアーノ岡山",
+          "idTeam": "139884",
+          "playerId": "1636324"
+        },
+        {
+          "minute": "70",
+          "type": "yellow",
+          "player": "レオ ガウショ",
+          "position": "FW 9",
+          "club": "ファジアーノ岡山",
+          "idTeam": "139884",
+          "playerId": "1656733"
+        },
+        {
+          "minute": "67",
+          "type": "yellow",
+          "player": "山岸 祐也",
+          "position": "FW 11",
+          "club": "名古屋グランパス",
+          "idTeam": "137710",
+          "playerId": "1503339"
+        },
+        {
+          "minute": "66",
+          "type": "yellow",
+          "player": "浅野 雄也",
+          "position": "MF 9",
+          "club": "名古屋グランパス",
+          "idTeam": "137710",
+          "playerId": "1624344"
+        },
+        {
+          "minute": "60",
+          "type": "yellow",
+          "player": "ナ サンホ",
+          "position": "FW 10",
+          "club": "ファジアーノ岡山",
+          "idTeam": "139884",
+          "playerId": "1621161"
+        }
+      ],
+      "subs": [
+        {
+          "minute": "82",
+          "club": "名古屋グランパス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 18",
+              "name": "永井 謙佑",
+              "playerId": "801348"
+            },
+            {
+              "variant": "out",
+              "position": "FW 11",
+              "name": "山岸 祐也",
+              "playerId": "1503339"
+            }
+          ],
+          "idTeam": "137710"
+        },
+        {
+          "minute": "82",
+          "club": "名古屋グランパス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 19",
+              "name": "甲田 英將",
+              "playerId": "1629920"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "和泉 竜司",
+              "playerId": "1503926"
+            }
+          ],
+          "idTeam": "137710"
+        },
+        {
+          "minute": "82",
+          "club": "ファジアーノ岡山",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 79",
+              "name": "ブラウン ノア 賢信",
+              "playerId": "1622681"
+            },
+            {
+              "variant": "out",
+              "position": "MF 88",
+              "name": "山根 永遠",
+              "playerId": "1607218"
+            }
+          ],
+          "idTeam": "139884"
+        },
+        {
+          "minute": "82",
+          "club": "ファジアーノ岡山",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 5",
+              "name": "池戸 柊宇",
+              "playerId": "1657650"
+            },
+            {
+              "variant": "out",
+              "position": "DF 43",
+              "name": "鈴木 喜丈",
+              "playerId": "1601448"
+            }
+          ],
+          "idTeam": "139884"
+        },
+        {
+          "minute": "76",
+          "club": "ファジアーノ岡山",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 33",
+              "name": "神谷 優太",
+              "playerId": "1504445"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "江坂 任",
+              "playerId": "1500455"
+            }
+          ],
+          "idTeam": "139884"
+        },
+        {
+          "minute": "76",
+          "club": "ファジアーノ岡山",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 20",
+              "name": "河野 孝汰",
+              "playerId": "1626006"
+            },
+            {
+              "variant": "out",
+              "position": "FW 99",
+              "name": "ルカオ",
+              "playerId": "1627569"
+            }
+          ],
+          "idTeam": "139884"
+        },
+        {
+          "minute": "70",
+          "club": "名古屋グランパス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 3",
+              "name": "佐藤 瑶大",
+              "playerId": "1630125"
+            },
+            {
+              "variant": "out",
+              "position": "DF 2",
+              "name": "野上 結貴",
+              "playerId": "1200335"
+            }
+          ],
+          "idTeam": "137710"
+        },
+        {
+          "minute": "62",
+          "club": "ファジアーノ岡山",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "レオ ガウショ",
+              "playerId": "1656733"
+            },
+            {
+              "variant": "out",
+              "position": "FW 10",
+              "name": "ナ サンホ",
+              "playerId": "1621161"
+            }
+          ],
+          "idTeam": "139884"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -6734,8 +7989,26 @@
     "2492816": {
       "code": "082905",
       "url": "https://www.jleague.jp/match/j1/2026/082905/livetxt/",
-      "fetchedAtJst": "2026-08-29T19:45:45+09:00",
+      "fetchedAtJst": "2026-08-30T00:18:10+09:00",
       "goals": [
+        {
+          "minute": "71",
+          "club": "浦和レッズ",
+          "player": "南野 遥海",
+          "position": "FW 42",
+          "scoreAfter": "3-2",
+          "idTeam": "137716",
+          "playerId": "1636782"
+        },
+        {
+          "minute": "64",
+          "club": "浦和レッズ",
+          "player": "根本 健太",
+          "position": "DF 5",
+          "scoreAfter": "2-2",
+          "idTeam": "137716",
+          "playerId": "1636965"
+        },
         {
           "minute": "40",
           "club": "浦和レッズ",
@@ -6744,10 +8017,237 @@
           "scoreAfter": "1-1",
           "idTeam": "137716",
           "playerId": "1627458"
+        },
+        {
+          "minute": "38",
+          "club": "横浜Ｆ・マリノス",
+          "player": "谷村 海那",
+          "position": "FW 9",
+          "scoreAfter": null,
+          "idTeam": "137719",
+          "playerId": "1630058"
+        },
+        {
+          "minute": "57",
+          "club": "横浜Ｆ・マリノス",
+          "player": "谷村 海那",
+          "position": "FW 9",
+          "scoreAfter": "1-2",
+          "idTeam": "137719",
+          "playerId": "1630058"
         }
       ],
-      "cards": [],
-      "subs": [],
+      "cards": [
+        {
+          "minute": null,
+          "type": "yellow",
+          "player": "渡邊 凌磨",
+          "position": "MF 13",
+          "club": "浦和レッズ",
+          "idTeam": "137716",
+          "playerId": "1500294"
+        },
+        {
+          "minute": "89",
+          "type": "yellow",
+          "player": "ジョルディ クルークス",
+          "position": "FW 11",
+          "club": "横浜Ｆ・マリノス",
+          "idTeam": "137719",
+          "playerId": "1632280"
+        },
+        {
+          "minute": "80",
+          "type": "yellow",
+          "player": "喜田 拓也",
+          "position": "MF 8",
+          "club": "横浜Ｆ・マリノス",
+          "idTeam": "137719",
+          "playerId": "1200129"
+        },
+        {
+          "minute": "48",
+          "type": "yellow",
+          "player": "松村 晃助",
+          "position": "MF 41",
+          "club": "横浜Ｆ・マリノス",
+          "idTeam": "137719",
+          "playerId": "1639094"
+        }
+      ],
+      "subs": [
+        {
+          "minute": "89",
+          "club": "浦和レッズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 18",
+              "name": "林 幸多郎",
+              "playerId": "1635337"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "金子 拓郎",
+              "playerId": "1624851"
+            }
+          ],
+          "idTeam": "137716"
+        },
+        {
+          "minute": "89",
+          "club": "浦和レッズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 32",
+              "name": "片山 瑛一",
+              "playerId": "1400104"
+            },
+            {
+              "variant": "out",
+              "position": "MF 10",
+              "name": "マテウス サヴィオ",
+              "playerId": "1627458"
+            }
+          ],
+          "idTeam": "137716"
+        },
+        {
+          "minute": "87",
+          "club": "横浜Ｆ・マリノス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 11",
+              "name": "ジョルディ クルークス",
+              "playerId": "1632280"
+            },
+            {
+              "variant": "out",
+              "position": "FW 24",
+              "name": "近藤 友喜",
+              "playerId": "1634319"
+            }
+          ],
+          "idTeam": "137719"
+        },
+        {
+          "minute": "87",
+          "club": "横浜Ｆ・マリノス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 23",
+              "name": "宮市 亮",
+              "playerId": "1100118"
+            },
+            {
+              "variant": "out",
+              "position": "DF 13",
+              "name": "井上 太聖",
+              "playerId": "1637156"
+            }
+          ],
+          "idTeam": "137719"
+        },
+        {
+          "minute": "80",
+          "club": "横浜Ｆ・マリノス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 8",
+              "name": "喜田 拓也",
+              "playerId": "1200129"
+            },
+            {
+              "variant": "out",
+              "position": "MF 41",
+              "name": "松村 晃助",
+              "playerId": "1639094"
+            }
+          ],
+          "idTeam": "137719"
+        },
+        {
+          "minute": "80",
+          "club": "横浜Ｆ・マリノス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 43",
+              "name": "二田 理央",
+              "playerId": "1634323"
+            },
+            {
+              "variant": "out",
+              "position": "DF 22",
+              "name": "角田 涼太朗",
+              "playerId": "1631700"
+            }
+          ],
+          "idTeam": "137719"
+        },
+        {
+          "minute": "72",
+          "club": "横浜Ｆ・マリノス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 25",
+              "name": "鈴木 冬一",
+              "playerId": "1601786"
+            },
+            {
+              "variant": "out",
+              "position": "MF 47",
+              "name": "三井寺 眞",
+              "playerId": "1656651"
+            }
+          ],
+          "idTeam": "137719"
+        },
+        {
+          "minute": "69",
+          "club": "浦和レッズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 42",
+              "name": "南野 遥海",
+              "playerId": "1636782"
+            },
+            {
+              "variant": "out",
+              "position": "MF 25",
+              "name": "安居 海渡",
+              "playerId": "1633165"
+            }
+          ],
+          "idTeam": "137716"
+        },
+        {
+          "minute": "58",
+          "club": "浦和レッズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 12",
+              "name": "瀬古 樹",
+              "playerId": "1627548"
+            },
+            {
+              "variant": "out",
+              "position": "MF 37",
+              "name": "植木 颯",
+              "playerId": "1641597"
+            }
+          ],
+          "idTeam": "137716"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -6992,8 +8492,27 @@
     "2492817": {
       "code": "082906",
       "url": "https://www.jleague.jp/match/j1/2026/082906/livetxt/",
-      "fetchedAtJst": "2026-08-29T19:45:51+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-08-30T00:18:14+09:00",
+      "goals": [
+        {
+          "minute": "50",
+          "club": "鹿島アントラーズ",
+          "player": "レオ セアラ",
+          "position": "FW 9",
+          "scoreAfter": "0-2",
+          "idTeam": "137707",
+          "playerId": "1600257"
+        },
+        {
+          "minute": "42",
+          "club": "鹿島アントラーズ",
+          "player": "レオ セアラ",
+          "position": "FW 9",
+          "scoreAfter": "0-1",
+          "idTeam": "137707",
+          "playerId": "1600257"
+        }
+      ],
       "cards": [
         {
           "minute": "36",
@@ -7034,6 +8553,215 @@
       ],
       "subs": [
         {
+          "minute": null,
+          "club": "東京ヴェルディ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 30",
+              "name": "川村 楽人",
+              "playerId": "1643251"
+            },
+            {
+              "variant": "out",
+              "position": "FW 27",
+              "name": "白井 亮丞",
+              "playerId": "1642054"
+            }
+          ],
+          "idTeam": "139901"
+        },
+        {
+          "minute": "88",
+          "club": "鹿島アントラーズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 30",
+              "name": "吉田 湊海",
+              "playerId": "1646924"
+            },
+            {
+              "variant": "out",
+              "position": "FW 40",
+              "name": "鈴木 優磨",
+              "playerId": "1400359"
+            }
+          ],
+          "idTeam": "137707"
+        },
+        {
+          "minute": "88",
+          "club": "鹿島アントラーズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 35",
+              "name": "元砂 晏翔仁 ウデンバ",
+              "playerId": "1647819"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "マテウス ブエノ",
+              "playerId": "1650728"
+            }
+          ],
+          "idTeam": "137707"
+        },
+        {
+          "minute": "83",
+          "club": "鹿島アントラーズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 24",
+              "name": "林 晴己",
+              "playerId": "1639689"
+            },
+            {
+              "variant": "out",
+              "position": "MF 27",
+              "name": "松村 優太",
+              "playerId": "1629407"
+            }
+          ],
+          "idTeam": "137707"
+        },
+        {
+          "minute": "83",
+          "club": "鹿島アントラーズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 23",
+              "name": "津久井 佳祐",
+              "playerId": "1640644"
+            },
+            {
+              "variant": "out",
+              "position": "DF 37",
+              "name": "広瀬 陸斗",
+              "playerId": "1400080"
+            }
+          ],
+          "idTeam": "137707"
+        },
+        {
+          "minute": "73",
+          "club": "鹿島アントラーズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 77",
+              "name": "チャヴリッチ",
+              "playerId": "1646090"
+            },
+            {
+              "variant": "out",
+              "position": "FW 17",
+              "name": "エウベル",
+              "playerId": "1632263"
+            }
+          ],
+          "idTeam": "137707"
+        },
+        {
+          "minute": "73",
+          "club": "鹿島アントラーズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 6",
+              "name": "三竿 健斗",
+              "playerId": "1400757"
+            },
+            {
+              "variant": "out",
+              "position": "MF 10",
+              "name": "柴崎 岳",
+              "playerId": "1100202"
+            }
+          ],
+          "idTeam": "137707"
+        },
+        {
+          "minute": "73",
+          "club": "東京ヴェルディ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 2",
+              "name": "柴戸 海",
+              "playerId": "1617891"
+            },
+            {
+              "variant": "out",
+              "position": "MF 16",
+              "name": "平川 怜",
+              "playerId": "1601785"
+            }
+          ],
+          "idTeam": "139901"
+        },
+        {
+          "minute": "73",
+          "club": "東京ヴェルディ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 24",
+              "name": "仲山 獅恩",
+              "playerId": "1643253"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "松橋 優安",
+              "playerId": "1629684"
+            }
+          ],
+          "idTeam": "139901"
+        },
+        {
+          "minute": "60",
+          "club": "東京ヴェルディ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 38",
+              "name": "神田 奏真",
+              "playerId": "1646000"
+            },
+            {
+              "variant": "out",
+              "position": "FW 9",
+              "name": "染野 唯月",
+              "playerId": "1629408"
+            }
+          ],
+          "idTeam": "139901"
+        },
+        {
+          "minute": "45",
+          "club": "東京ヴェルディ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 27",
+              "name": "白井 亮丞",
+              "playerId": "1642054"
+            },
+            {
+              "variant": "out",
+              "position": "FW 25",
+              "name": "熊取谷 一星",
+              "playerId": "1635352"
+            }
+          ],
+          "idTeam": "139901"
+        },
+        {
           "minute": "41",
           "club": "東京ヴェルディ",
           "items": [
@@ -7042,6 +8770,12 @@
               "position": "MF 28",
               "name": "山本 丈偉",
               "playerId": "1643252"
+            },
+            {
+              "variant": "out",
+              "position": "MF 10",
+              "name": "森田 晃樹",
+              "playerId": "1614206"
             }
           ],
           "idTeam": "139901"
@@ -7291,10 +9025,195 @@
     "2492818": {
       "code": "082910",
       "url": "https://www.jleague.jp/match/j1/2026/082910/livetxt/",
-      "fetchedAtJst": "2026-08-29T19:45:54+09:00",
-      "goals": [],
-      "cards": [],
-      "subs": [],
+      "fetchedAtJst": "2026-08-30T00:18:17+09:00",
+      "goals": [
+        {
+          "minute": "71",
+          "club": "ヴィッセル神戸",
+          "player": "小松 蓮",
+          "position": "FW 29",
+          "scoreAfter": "1-0",
+          "idTeam": "137717",
+          "playerId": "1601839"
+        }
+      ],
+      "cards": [
+        {
+          "minute": "81",
+          "type": "yellow",
+          "player": "郷家 友太",
+          "position": "MF 5",
+          "club": "ヴィッセル神戸",
+          "idTeam": "137717",
+          "playerId": "1504456"
+        },
+        {
+          "minute": "75",
+          "type": "yellow",
+          "player": "ルーカス フェルナンデス",
+          "position": "MF 77",
+          "club": "セレッソ大阪",
+          "idTeam": "137703",
+          "playerId": "1624314"
+        },
+        {
+          "minute": "53",
+          "type": "yellow",
+          "player": "小松 蓮",
+          "position": "FW 29",
+          "club": "ヴィッセル神戸",
+          "idTeam": "137717",
+          "playerId": "1601839"
+        }
+      ],
+      "subs": [
+        {
+          "minute": null,
+          "club": "ヴィッセル神戸",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 17",
+              "name": "髙橋 壱晟",
+              "playerId": "1504442"
+            },
+            {
+              "variant": "out",
+              "position": "DF 41",
+              "name": "永戸 勝也",
+              "playerId": "1607075"
+            }
+          ],
+          "idTeam": "137717"
+        },
+        {
+          "minute": "87",
+          "club": "ヴィッセル神戸",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 44",
+              "name": "日髙 光揮",
+              "playerId": "1636947"
+            },
+            {
+              "variant": "out",
+              "position": "FW 29",
+              "name": "小松 蓮",
+              "playerId": "1601839"
+            }
+          ],
+          "idTeam": "137717"
+        },
+        {
+          "minute": "81",
+          "club": "セレッソ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 19",
+              "name": "パブロ サバック",
+              "playerId": "1646038"
+            },
+            {
+              "variant": "out",
+              "position": "FW 9",
+              "name": "櫻川 ソロモン",
+              "playerId": "1629394"
+            }
+          ],
+          "idTeam": "137703"
+        },
+        {
+          "minute": "81",
+          "club": "セレッソ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 8",
+              "name": "香川 真司",
+              "playerId": "600064"
+            },
+            {
+              "variant": "out",
+              "position": "FW 41",
+              "name": "小見 洋太",
+              "playerId": "1632203"
+            }
+          ],
+          "idTeam": "137703"
+        },
+        {
+          "minute": "73",
+          "club": "ヴィッセル神戸",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 25",
+              "name": "鍬先 祐弥",
+              "playerId": "1632201"
+            },
+            {
+              "variant": "out",
+              "position": "MF 23",
+              "name": "岩本 悠庵",
+              "playerId": "1646558"
+            }
+          ],
+          "idTeam": "137717"
+        },
+        {
+          "minute": "73",
+          "club": "セレッソ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 77",
+              "name": "ルーカス フェルナンデス",
+              "playerId": "1624314"
+            },
+            {
+              "variant": "out",
+              "position": "DF 2",
+              "name": "中村 拓海",
+              "playerId": "1624315"
+            }
+          ],
+          "idTeam": "137703"
+        },
+        {
+          "minute": "65",
+          "club": "セレッソ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 11",
+              "name": "チアゴ アンドラーデ",
+              "playerId": "1650806"
+            },
+            {
+              "variant": "out",
+              "position": "MF 14",
+              "name": "横山 夢樹",
+              "playerId": "1642028"
+            }
+          ],
+          "idTeam": "137703"
+        },
+        {
+          "minute": "45",
+          "club": "ヴィッセル神戸",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 2",
+              "name": "飯野 七聖",
+              "playerId": "1611254"
+            }
+          ],
+          "idTeam": "137717"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
