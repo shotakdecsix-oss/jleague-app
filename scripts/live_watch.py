@@ -45,6 +45,7 @@ TMP_DIR = BASE_DIR / "data" / "tmp"
 LOCK_PATH = TMP_DIR / "live_watch.lock"
 LOG_PATH = TMP_DIR / "live_watch.log"
 HEARTBEAT_PATH = TMP_DIR / "live_watch_last.txt"
+IDLE_STAMP_PATH = TMP_DIR / "live_watch_idle.txt"
 
 LEAGUES = ("j1", "j2", "j3")
 # ライブ扱いにする時間幅。index.html の LIVE_WINDOW_MINUTES と合わせてある
@@ -53,6 +54,12 @@ LIVE_WINDOW = timedelta(minutes=150)
 # 前回の実行が固まったまま残った場合に備え、この時間を過ぎたロックは無視する
 LOCK_STALE = timedelta(minutes=20)
 LOG_MAX_BYTES = 512 * 1024
+# 進行中の試合が無いときでも、この間隔で1回は取りに行く。
+# 毎回取りに行かないのは、fetch_match_events.py が EVENTS_WINDOW_HOURS(36時間)以内の試合を
+# すべて舐めるため。試合の翌日は24試合ぶんのリクエストになり、5分おきだと jleague.jp へ
+# 1日約7000リクエストと過剰になる。1時間おきなら約600で、相手にも自分のPCにも無理がない。
+# それでも拾いたいのは、試合後に遅れて公開されるハイライト動画(DAZN/J公式)と得点の訂正。
+IDLE_INTERVAL = timedelta(hours=1)
 
 
 def log(msg: str) -> None:
@@ -74,6 +81,24 @@ def heartbeat(live_count: int) -> None:
         )
     except Exception:
         pass  # 記録の都合でバッチ本体を止めない
+
+
+def idle_run_due(now: datetime) -> bool:
+    """進行中の試合が無いときに、そろそろ1回取りに行くべきか。記録が無ければ行く。"""
+    try:
+        t = datetime.fromisoformat(IDLE_STAMP_PATH.read_text(encoding="utf-8").strip())
+        return now - t >= IDLE_INTERVAL
+    except Exception:
+        return True
+
+
+def mark_idle_run(now: datetime) -> None:
+    """取りに行く直前に記録する(失敗しても次の1時間は間を空ける)。"""
+    try:
+        TMP_DIR.mkdir(parents=True, exist_ok=True)
+        IDLE_STAMP_PATH.write_text(now.isoformat(), encoding="utf-8")
+    except Exception:
+        pass
 
 
 def rotate_log() -> None:
@@ -172,7 +197,11 @@ def commit_and_push() -> bool:
     # 失敗の中身を必ずログに残すこと。理由が出ないと、通信の問題なのか作業ツリーの問題なのか
     # 切り分けられない(実際それで一度詰まった)。
     for i in (1, 2, 3):
-        r = git("pull", "--rebase", "origin", "main", timeout=180)
+        # --autostash が要る。このスクリプトは5分おきに走るので、利用者が index.html などを
+        # 編集している最中に動くことがある。未コミットの変更が1つでもあると git は rebase を
+        # 拒否し("cannot pull with rebase: You have unstaged changes")、pushまで到達しない。
+        # --autostash なら自動で退避して rebase 後に戻すので、編集中でも巻き込まない。
+        r = git("pull", "--rebase", "--autostash", "origin", "main", timeout=180)
         if r.returncode != 0:
             log(f"[warn] pull失敗 ({i}/3): {(r.stderr or r.stdout).strip()[:300]}")
         else:
@@ -196,8 +225,10 @@ def main() -> None:
 
     live = live_matches(now)
     heartbeat(len(live))
-    if not live and not force:
-        # 試合の無い時間帯はここで終わる。ログも残さない(1日に何百行も増えるため)
+    idle_due = (not live) and idle_run_due(now)
+    if not live and not idle_due and not force:
+        # 試合が無く、前回の拾い直しから1時間も経っていない。ログも残さず終わる
+        # (5分おきに起動されるので、ここで毎回書くと1日に何百行も増える)。
         return
 
     if not acquire_lock():
@@ -205,7 +236,11 @@ def main() -> None:
         return
 
     try:
-        log(f"進行中の試合 {len(live)}件: " + ", ".join(f"{m['home']}-{m['away']}" for m in live[:4]))
+        if live:
+            log(f"進行中の試合 {len(live)}件: " + ", ".join(f"{m['home']}-{m['away']}" for m in live[:4]))
+        else:
+            log("進行中の試合なし。1時間ごとの拾い直し(ハイライト動画・得点の訂正)")
+            mark_idle_run(now)
         r = run([sys.executable, str(BASE_DIR / "scripts" / "fetch_match_events.py"), "--league", "all"])
         if r.returncode != 0:
             log(f"[error] fetch_match_events 失敗: {(r.stderr or r.stdout).strip()[-500:]}")
