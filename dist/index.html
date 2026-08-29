@@ -3242,7 +3242,15 @@ async function fetchLiveScores() {
     if (!res.ok) return null;
     const json = await res.json();
     if (!json) return null;
-    return Array.isArray(json.events) ? json.events : [];
+    /* トップレベルのキーは "livescore"。2026-08-22 16:37 JST に実機のNetworkタブで確認して
+       直した(第12弾の指示書には "events" と書いてあったが、実機の応答を優先した/コミット2dfc3b9)。
+       ところが第13弾(9f26fe5)でこの関数を書き直した際に "events" に戻ってしまい、
+       2026-08-29 に気づくまでライブスコアが一切出なくなっていた。
+       同じ巻き戻しを繰り返さないよう両方のキーを受ける。片方だけに戻さないこと。 */
+    if (Array.isArray(json.livescore)) return json.livescore;
+    if (Array.isArray(json.events)) return json.events;
+    // {"livescore":null} は「世界のどこにも進行中の試合が無い」であってエラーではない
+    return [];
   } catch (e) {
     return null;
   }
