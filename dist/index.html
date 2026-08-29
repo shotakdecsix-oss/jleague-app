@@ -561,6 +561,25 @@
   .ondemand-popover-label{color:var(--sub); flex:none}
   .ondemand-popover-val{text-align:right}
   .ondemand-popover-hint{margin:8px 0 0; padding-top:8px; border-top:1px solid var(--line); font-size:11px; color:var(--sub); line-height:1.5}
+  /* 第31弾: ポップオーバー内の設定。文字リンク風のボタンは見た目を小さくする代わりに、
+     上下のpaddingで当たり判定だけ確保する(marginで相殺して行の高さは変えない)。 */
+  .linklike{
+    border:none; background:none; padding:8px 4px; margin:-8px 0;
+    color:var(--accent-on-light); font-size:11px; font-weight:700;
+    cursor:pointer; font-family:inherit; text-decoration:underline;
+  }
+  .ghtoken-form{display:flex; gap:6px; margin-top:9px}
+  .ghtoken-form input{
+    flex:1; min-width:0; font-size:16px; padding:8px 10px; border:1px solid var(--line);
+    border-radius:8px; background:var(--surface-1); color:var(--ink); font-family:inherit;
+  }
+  .ghtoken-form button{
+    flex:none; min-height:40px; border:1px solid var(--line); background:var(--surface-1);
+    color:var(--ink); font-size:12px; font-weight:700; padding:8px 12px; border-radius:8px;
+    cursor:pointer; font-family:inherit;
+  }
+  .ghtoken-note{margin:7px 0 0; font-size:10px; color:var(--sub); line-height:1.5}
+
   /* ホームタブの昇格確率タイルだけは、その場に小さく基準時刻を残す(一番誤解されやすい数字のため) */
   .ondemand-basis-compact{margin:8px 0 0; font-size:11px; color:var(--sub)}
   /* 暫定(オンデマンド由来)であることの視覚区別。赤系(エラーと紛らわしい)は使わず琥珀系にする */
@@ -1397,6 +1416,29 @@ async function init() {
     const ondemandInfoBtn = ev.target.closest("[data-ondemand-info]");
     if (ondemandInfoBtn) {
       toggleOndemandPopover();
+      return;
+    }
+
+    // 第31弾: 速報の自動取得(GitHubトークン)の設定。ポップオーバーの中だけに出る。
+    const ghTokenBtn = ev.target.closest("[data-ghtoken]");
+    if (ghTokenBtn) {
+      const act = ghTokenBtn.dataset.ghtoken;
+      if (act === "open") {
+        state.ghTokenFormOpen = true;
+      } else if (act === "clear") {
+        saveGhToken("");
+        state.ghTokenFormOpen = false;
+        showOndemandToast("速報の自動取得を解除しました", true);
+      } else if (act === "save") {
+        const input = document.getElementById("ghTokenInput");
+        const v = input ? input.value.trim() : "";
+        if (v) {
+          saveGhToken(v);
+          state.ghTokenFormOpen = false;
+          showOndemandToast("保存しました。試合中に自動で取りに行きます", true);
+        }
+      }
+      updateOndemandPopoverInPlace();
       return;
     }
 
@@ -3219,6 +3261,115 @@ const LIVE_MISSING_STREAK_LIMIT = 2; // 候補なのに2回連続でレスポン
 /* 3-1章: 自分のデータ上「試合中でありうる」候補を集める(kickoffJst<=now<kickoffJst+150分 かつ未消化)。
    matchesByLeague = {j1:[...matches], j2:[...], j3:[...]}(matches.json/effectiveMatchesと同じ形の配列)。
    戻り値: idEvent(string) -> {league, idEvent, round, kickoffJst, home, away} のMap。nowはms epoch(呼び出し側が渡す)。 */
+/* ---------- 第31弾: 得点者・出場メンバーの取得をアプリから依頼する ----------
+   jleague.jpはCORSが無いのでブラウザから直接読めず、得点者・カード・交代・出場メンバーは
+   GitHub Actions(match_events.yml)に取らせるしかない。ところがGitHubのスケジュール実行は
+   大幅に間引かれ、実測では6〜11時間に1回しか起動していなかった(2026-08-29に判明)。
+   cronの頻度や分をずらしても改善しなかったため、試合中にアプリを開いているあいだだけ
+   workflow_dispatchで起動を依頼する形にした。
+
+   トークンはコードに埋めない。このリポジトリはPublicなので、埋めれば誰でも読める。
+   利用者が自分の端末のlocalStorageに入れたときだけ有効になり、家族にURLを渡しても
+   その端末にはトークンが無いので何も起きない(ボタンも出ない)。 */
+const GH_REPO = "shotakdecsix-oss/jleague-app";
+const GH_WORKFLOW_FILE = "match_events.yml";
+const GH_TOKEN_KEY = "jleague-app.ghToken";
+const EVENTS_STALE_MS = 5 * 60 * 1000;        // 得点者データがこれ以上古ければ起動を依頼する
+const EVENTS_RELOAD_AFTER_MS = 3 * 60 * 1000; // 依頼から取り直すまでの待ち(workflow+Renderデプロイの所要)
+
+function loadGhToken() {
+  try { return localStorage.getItem(GH_TOKEN_KEY) || ""; } catch (e) { return ""; }
+}
+function saveGhToken(v) {
+  try {
+    if (v) localStorage.setItem(GH_TOKEN_KEY, v);
+    else localStorage.removeItem(GH_TOKEN_KEY);
+  } catch (e) { /* 無視 */ }
+  state.ghTokenInvalid = false;
+}
+/* workflow_dispatchで起動を依頼する。成功は204 No Content(202ではない)。 */
+async function dispatchMatchEventsWorkflow() {
+  const token = loadGhToken();
+  if (!token || state.ghTokenInvalid) return false;
+  try {
+    const res = await fetch(
+      "https://api.github.com/repos/" + GH_REPO + "/actions/workflows/" + GH_WORKFLOW_FILE + "/dispatches",
+      {
+        method: "POST",
+        headers: {
+          "Accept": "application/vnd.github+json",
+          "Authorization": "Bearer " + token,
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+        body: JSON.stringify({ ref: "main" }),
+      }
+    );
+    if (res.status === 204) return true;
+    /* 401/403/404はトークン側の問題(期限切れ・権限不足・リポジトリ違い)。
+       毎分叩き続けても直らないので、このセッションでは以後止める。 */
+    if (res.status === 401 || res.status === 403 || res.status === 404) {
+      state.ghTokenInvalid = true;
+      showOndemandToast("速報の自動取得を停止しました(トークンを確認してください)");
+      updateOndemandPopoverInPlace();
+    }
+    return false;
+  } catch (e) {
+    return false;
+  }
+}
+/* 配信中の得点者データが何ミリ秒前のものか。取得できていなければInfinity。 */
+function matchEventsAgeMs(league) {
+  const c = leagueCache(league);
+  const gen = c.matchEvents && c.matchEvents.meta && c.matchEvents.meta.generatedAtJst;
+  if (!gen) return Infinity;
+  const t = new Date(gen).getTime();
+  return isNaN(t) ? Infinity : Date.now() - t;
+}
+/* 起動の間隔を端末側で数えず「データが今どれだけ古いか」だけで判断する。
+   こうしておくと複数の端末で開いていても、誰かが起動した直後は他の端末が
+   「もう新しい」と判断するので、無駄な多重起動になりにくい。 */
+async function maybeDispatchMatchEvents(candidates) {
+  if (!loadGhToken() || state.ghTokenInvalid) return;
+  if (!candidates || candidates.size === 0) return;
+  if (state.eventsDispatchedAt && Date.now() - state.eventsDispatchedAt < EVENTS_STALE_MS) return;
+
+  const leagues = new Set([...candidates.values()].map(c => c.league));
+  let stale = false;
+  for (const lg of leagues) {
+    await ensureMatchEvents(lg);
+    if (matchEventsAgeMs(lg) > EVENTS_STALE_MS) { stale = true; break; }
+  }
+  if (!stale) return;
+
+  if (await dispatchMatchEventsWorkflow()) {
+    state.eventsDispatchedAt = Date.now();
+    showOndemandToast("得点者の取得を依頼しました(反映まで数分)", true);
+    updateOndemandPopoverInPlace();
+  }
+}
+/* 依頼から一定時間たったら、配信された新しいJSONを取り直す。
+   依頼直後に取ってもworkflowもRenderのデプロイも終わっていないので、必ず待ってから取る。 */
+async function reloadMatchEventsAfterDispatch(candidates) {
+  if (!state.eventsDispatchedAt) return;
+  if (Date.now() - state.eventsDispatchedAt < EVENTS_RELOAD_AFTER_MS) return;
+  const leagues = new Set([...(candidates || new Map()).values()].map(c => c.league));
+  let updated = false;
+  for (const lg of leagues) {
+    const before = matchEventsAgeMs(lg);
+    leagueCache(lg).matchEvents = undefined;
+    await ensureMatchEvents(lg);
+    if (matchEventsAgeMs(lg) < before) updated = true;
+  }
+  // 解除しておく。まだ古いままなら次の周回で改めて依頼される。
+  state.eventsDispatchedAt = null;
+  if (updated) { renderActiveTab(); updateOndemandPopoverInPlace(); }
+}
+/* 取り直し -> 依頼 の順に1本にまとめる(同時に走らせると取り直しの直後に無駄な依頼が出る)。 */
+async function tickMatchEvents(candidates) {
+  await reloadMatchEventsAfterDispatch(candidates);
+  await maybeDispatchMatchEvents(candidates);
+}
+
 function pickLiveCandidates(matchesByLeague, now) {
   const windowMs = LIVE_WINDOW_MINUTES * 60 * 1000;
   const out = new Map();
@@ -3481,8 +3632,32 @@ function ondemandPopoverInnerHtml() {
   const newsTime = state.news && state.news.meta && state.news.meta.generatedAtJst;
   rows.push(ondemandPopoverRowHtml("ニュース", newsTime ? esc(fmtDate(newsTime, true)) : "－"));
 
-  return '<h4>データの基準</h4>' + rows.join("") +
-    '<p class="ondemand-popover-hint">※ 試合終了直後は反映されないことがあります。しばらく待って再度お試しください。</p>';
+  // 第31弾: 得点者データの鮮度と、アプリからの自動取得の設定
+  const evData = league ? leagueCache(league).matchEvents : null;
+  const evTime = evData && evData.meta && evData.meta.generatedAtJst;
+  rows.push(ondemandPopoverRowHtml("得点者・メンバー", evTime ? esc(fmtDate(evTime, true)) : "－"));
+
+  const hasToken = !!loadGhToken();
+  const autoLabel = !hasToken ? "未設定" : (state.ghTokenInvalid ? "エラー(要確認)" : "有効");
+  const autoBtn = hasToken
+    ? '<button type="button" class="linklike" data-ghtoken="clear">解除</button>'
+    : '<button type="button" class="linklike" data-ghtoken="open">設定</button>';
+  rows.push(ondemandPopoverRowHtml("速報の自動取得", esc(autoLabel) + " " + autoBtn));
+
+  /* トークンの入力欄。開いているときだけ出す。type=passwordにしているのは肩越しに
+     読まれないようにするためで、font-size:16pxはiOSのフォーカス時ズーム対策(第24弾)。 */
+  const formHtml = state.ghTokenFormOpen
+    ? '<div class="ghtoken-form">' +
+        '<input type="password" id="ghTokenInput" placeholder="github_pat_..." autocomplete="off" spellcheck="false">' +
+        '<button type="button" data-ghtoken="save">保存</button>' +
+      '</div>' +
+      '<p class="ghtoken-note">GitHubの細粒度トークン(対象を jleague-app のみ、権限は Actions: Read and write)を貼り付けてください。' +
+      'この端末のブラウザにだけ保存され、配信されるコードには一切含まれません。</p>'
+    : "";
+
+  return '<h4>データの基準</h4>' + rows.join("") + formHtml +
+    '<p class="ondemand-popover-hint">※ 試合終了直後は反映されないことがあります。しばらく待って再度お試しください。' +
+    (hasToken ? '<br>※ 試合中にこの画面を開いていると、得点者を自動で取りに行きます(反映まで数分)。' : '') + '</p>';
 }
 function updateOndemandPopoverInPlace() {
   const el = document.getElementById("ondemandPopover");
@@ -3708,6 +3883,10 @@ async function liveTick() {
   state.liveMissingStreak = nextMissing;
   state.liveUpdatedAt = nowJstIso(); // 端末時刻。livescore.phpのupdatedフィールドは使わない(1章の落とし穴)
   renderActiveTab();
+
+  // 第31弾: 得点者データの取り直しと、必要なら取得の依頼。
+  // awaitしない(ポーリングの周期をこの通信で遅らせない)。
+  tickMatchEvents(candidates);
 
   if (!stillOngoing && !state.liveAutoFetchDone) {
     state.liveAutoFetchDone = true;
