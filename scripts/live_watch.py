@@ -44,6 +44,7 @@ PROCESSED_DIR = BASE_DIR / "data" / "processed"
 TMP_DIR = BASE_DIR / "data" / "tmp"
 LOCK_PATH = TMP_DIR / "live_watch.lock"
 LOG_PATH = TMP_DIR / "live_watch.log"
+HEARTBEAT_PATH = TMP_DIR / "live_watch_last.txt"
 
 LEAGUES = ("j1", "j2", "j3")
 # ライブ扱いにする時間幅。index.html の LIVE_WINDOW_MINUTES と合わせてある
@@ -57,6 +58,22 @@ LOG_MAX_BYTES = 512 * 1024
 def log(msg: str) -> None:
     line = f"[{datetime.now(JST):%Y-%m-%d %H:%M:%S}] {msg}"
     print(line, flush=True)
+
+
+def heartbeat(live_count: int) -> None:
+    """
+    起動したこと自体を1行だけ残す(毎回上書き)。試合の無い時間帯はログに何も出さない設計なので、
+    これが無いと「タスクスケジューラが動いていないのか、動いた上で何もしなかったのか」を
+    区別できない。ログ本体に毎回書くと1日288行増えるため、別ファイルに最終状態だけ持つ。
+    """
+    try:
+        TMP_DIR.mkdir(parents=True, exist_ok=True)
+        HEARTBEAT_PATH.write_text(
+            f"{datetime.now(JST):%Y-%m-%d %H:%M:%S} JST  進行中の試合={live_count}件\n",
+            encoding="utf-8",
+        )
+    except Exception:
+        pass  # 記録の都合でバッチ本体を止めない
 
 
 def rotate_log() -> None:
@@ -178,6 +195,7 @@ def main() -> None:
     now = datetime.now(JST)
 
     live = live_matches(now)
+    heartbeat(len(live))
     if not live and not force:
         # 試合の無い時間帯はここで終わる。ログも残さない(1日に何百行も増えるため)
         return
