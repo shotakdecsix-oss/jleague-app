@@ -32,6 +32,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -137,7 +138,12 @@ def has_meaningful_changes() -> bool:
 
 def commit_and_push() -> bool:
     stamp = f"{datetime.now(JST):%Y-%m-%d %H:%M}"
-    git("add", "-A", "data/processed", "dist")
+    # data/history も必ず含める。build_dist.py は build_ics 経由で
+    # data/history/ics_state.json(.icsのSEQUENCE永続化用)を書き換えるため、ここに入れないと
+    # 未ステージのまま残り、直後の git pull --rebase が
+    # "cannot pull with rebase: You have unstaged changes" で即座に失敗する。
+    # Actionsは毎回クリーンなcheckoutなので表面化しない、ローカル実行に固有の落とし穴。
+    git("add", "-A", "data/processed", "dist", "data/history")
     if git("diff", "--cached", "--quiet").returncode == 0:
         log("ステージに何も無い。コミットはしない")
         return True
@@ -145,13 +151,21 @@ def commit_and_push() -> bool:
     if r.returncode != 0:
         log(f"[error] commit失敗: {r.stderr.strip()[:300]}")
         return False
-    # Actions(update.yml)や手元の作業とpushが競合する前提で、必ずrebaseしてから押す
+    # Actions(update.yml)や手元の作業とpushが競合する前提で、必ずrebaseしてから押す。
+    # 失敗の中身を必ずログに残すこと。理由が出ないと、通信の問題なのか作業ツリーの問題なのか
+    # 切り分けられない(実際それで一度詰まった)。
     for i in (1, 2, 3):
-        if git("pull", "--rebase", "origin", "main", timeout=180).returncode == 0 and \
-           git("push", "origin", "main", timeout=180).returncode == 0:
-            log(f"push成功 (試行{i}回目)")
-            return True
-        log(f"[warn] push失敗、リトライ ({i}/3)")
+        r = git("pull", "--rebase", "origin", "main", timeout=180)
+        if r.returncode != 0:
+            log(f"[warn] pull失敗 ({i}/3): {(r.stderr or r.stdout).strip()[:300]}")
+        else:
+            r = git("push", "origin", "main", timeout=180)
+            if r.returncode == 0:
+                log(f"push成功 (試行{i}回目)")
+                return True
+            log(f"[warn] push失敗 ({i}/3): {(r.stderr or r.stdout).strip()[:300]}")
+        if i < 3:
+            time.sleep(5)  # 競合の解消を待つ。即座に3回叩いても意味がない
     log("[error] pushできなかった。次回の実行で再試行される")
     return False
 
