@@ -3,13 +3,14 @@
     "league": "j1",
     "idLeague": "4633",
     "season": "2026-2027",
-    "generatedAtJst": "2026-08-29T11:52:51+09:00",
+    "generatedAtJst": "2026-08-29T20:16:57+09:00",
     "totalRounds": 38,
     "okRounds": [
       3,
       4,
       5,
-      6
+      6,
+      7
     ],
     "badRounds": [],
     "aborted": false,
@@ -716,19 +717,19 @@
       "kickoffDate": "2026-08-29",
       "kickoffTime": "18:00:00",
       "kickoffTbd": false,
-      "status": "NS",
-      "finished": false,
+      "status": "FT",
+      "finished": true,
       "home": {
         "idTeam": "137705",
         "ja": "ガンバ大阪",
         "short": "G大阪",
-        "score": null
+        "score": 0
       },
       "away": {
         "idTeam": "137713",
         "ja": "サンフレッチェ広島",
         "short": "広島",
-        "score": null
+        "score": 0
       },
       "idVenue": "20737"
     },
@@ -739,19 +740,19 @@
       "kickoffDate": "2026-08-29",
       "kickoffTime": "18:00:00",
       "kickoffTbd": false,
-      "status": "NS",
-      "finished": false,
+      "status": "FT",
+      "finished": true,
       "home": {
         "idTeam": "139891",
         "ja": "水戸ホーリーホック",
         "short": "水戸",
-        "score": null
+        "score": 1
       },
       "away": {
         "idTeam": "139889",
         "ja": "FC町田ゼルビア",
         "short": "町田",
-        "score": null
+        "score": 1
       },
       "idVenue": "17219"
     },
@@ -762,7 +763,7 @@
       "kickoffDate": "2026-08-29",
       "kickoffTime": "18:30:00",
       "kickoffTbd": false,
-      "status": "NS",
+      "status": "2H",
       "finished": false,
       "home": {
         "idTeam": "137714",
@@ -785,7 +786,7 @@
       "kickoffDate": "2026-08-29",
       "kickoffTime": "18:30:00",
       "kickoffTbd": false,
-      "status": "NS",
+      "status": "2H",
       "finished": false,
       "home": {
         "idTeam": "139899",
@@ -808,7 +809,7 @@
       "kickoffDate": "2026-08-29",
       "kickoffTime": "19:00:00",
       "kickoffTbd": false,
-      "status": "NS",
+      "status": "2H",
       "finished": false,
       "home": {
         "idTeam": "137709",
@@ -831,7 +832,7 @@
       "kickoffDate": "2026-08-29",
       "kickoffTime": "19:00:00",
       "kickoffTbd": false,
-      "status": "NS",
+      "status": "2H",
       "finished": false,
       "home": {
         "idTeam": "139888",
@@ -854,7 +855,7 @@
       "kickoffDate": "2026-08-29",
       "kickoffTime": "19:00:00",
       "kickoffTbd": false,
-      "status": "NS",
+      "status": "2H",
       "finished": false,
       "home": {
         "idTeam": "137710",
@@ -877,7 +878,7 @@
       "kickoffDate": "2026-08-29",
       "kickoffTime": "19:00:00",
       "kickoffTbd": false,
-      "status": "NS",
+      "status": "2H",
       "finished": false,
       "home": {
         "idTeam": "137716",
@@ -900,7 +901,7 @@
       "kickoffDate": "2026-08-29",
       "kickoffTime": "19:00:00",
       "kickoffTbd": false,
-      "status": "NS",
+      "status": "2H",
       "finished": false,
       "home": {
         "idTeam": "139901",
@@ -923,7 +924,7 @@
       "kickoffDate": "2026-08-29",
       "kickoffTime": "19:00:00",
       "kickoffTbd": false,
-      "status": "NS",
+      "status": "2H",
       "finished": false,
       "home": {
         "idTeam": "137717",
@@ -1400,6 +1401,52 @@
       "idVenue": "16534"
     },
     {
+      "idEvent": "2492841",
+      "round": 7,
+      "kickoffJst": "2026-09-11T19:00:00+09:00",
+      "kickoffDate": "2026-09-11",
+      "kickoffTime": "19:00:00",
+      "kickoffTbd": false,
+      "status": "NS",
+      "finished": false,
+      "home": {
+        "idTeam": "139888",
+        "ja": "京都サンガF.C.",
+        "short": "京都",
+        "score": null
+      },
+      "away": {
+        "idTeam": "137708",
+        "ja": "柏レイソル",
+        "short": "柏",
+        "score": null
+      },
+      "idVenue": "17400"
+    },
+    {
+      "idEvent": "2492848",
+      "round": 7,
+      "kickoffJst": "2026-09-11T19:00:00+09:00",
+      "kickoffDate": "2026-09-11",
+      "kickoffTime": "19:00:00",
+      "kickoffTbd": false,
+      "status": "NS",
+      "finished": false,
+      "home": {
+        "idTeam": "137717",
+        "ja": "ヴィッセル神戸",
+        "short": "神戸",
+        "score": null
+      },
+      "away": {
+        "idTeam": "137707",
+        "ja": "鹿島アントラーズ",
+        "short": "鹿島",
+        "score": null
+      },
+      "idVenue": "16512"
+    },
+    {
       "idEvent": "2492843",
       "round": 7,
       "kickoffJst": "2026-09-12T18:00:00+09:00",
@@ -1469,29 +1516,6 @@
       "idVenue": "20737"
     },
     {
-      "idEvent": "2492841",
-      "round": 7,
-      "kickoffJst": "2026-09-12T19:00:00+09:00",
-      "kickoffDate": "2026-09-12",
-      "kickoffTime": "19:00:00",
-      "kickoffTbd": false,
-      "status": "NS",
-      "finished": false,
-      "home": {
-        "idTeam": "139888",
-        "ja": "京都サンガF.C.",
-        "short": "京都",
-        "score": null
-      },
-      "away": {
-        "idTeam": "137708",
-        "ja": "柏レイソル",
-        "short": "柏",
-        "score": null
-      },
-      "idVenue": "17400"
-    },
-    {
       "idEvent": "2492842",
       "round": 7,
       "kickoffJst": "2026-09-12T19:00:00+09:00",
@@ -1536,29 +1560,6 @@
         "score": null
       },
       "idVenue": "17234"
-    },
-    {
-      "idEvent": "2492848",
-      "round": 7,
-      "kickoffJst": "2026-09-12T19:00:00+09:00",
-      "kickoffDate": "2026-09-12",
-      "kickoffTime": "19:00:00",
-      "kickoffTbd": false,
-      "status": "NS",
-      "finished": false,
-      "home": {
-        "idTeam": "137717",
-        "ja": "ヴィッセル神戸",
-        "short": "神戸",
-        "score": null
-      },
-      "away": {
-        "idTeam": "137707",
-        "ja": "鹿島アントラーズ",
-        "short": "鹿島",
-        "score": null
-      },
-      "idVenue": "16512"
     },
     {
       "idEvent": "2492849",
