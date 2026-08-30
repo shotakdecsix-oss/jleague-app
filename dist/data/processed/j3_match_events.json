@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-08-30T19:50:02+09:00",
+    "generatedAtJst": "2026-08-30T19:55:02+09:00",
     "windowHours": 36,
     "candidateCount": 10,
     "fetchedCount": 10,
@@ -4690,7 +4690,7 @@
     "2491634": {
       "code": "082923",
       "url": "https://www.jleague.jp/match/j3/2026/082923/livetxt/",
-      "fetchedAtJst": "2026-08-30T19:52:01+09:00",
+      "fetchedAtJst": "2026-08-30T19:57:04+09:00",
       "goals": [
         {
           "minute": "96",
@@ -5175,7 +5175,7 @@
     "2492414": {
       "code": "082922",
       "url": "https://www.jleague.jp/match/j3/2026/082922/livetxt/",
-      "fetchedAtJst": "2026-08-30T19:52:06+09:00",
+      "fetchedAtJst": "2026-08-30T19:57:10+09:00",
       "goals": [
         {
           "minute": "93",
@@ -5670,7 +5670,7 @@
     "2492418": {
       "code": "082924",
       "url": "https://www.jleague.jp/match/j3/2026/082924/livetxt/",
-      "fetchedAtJst": "2026-08-30T19:52:13+09:00",
+      "fetchedAtJst": "2026-08-30T19:57:15+09:00",
       "goals": [
         {
           "minute": "69",
@@ -6156,7 +6156,7 @@
     "2492419": {
       "code": "082921",
       "url": "https://www.jleague.jp/match/j3/2026/082921/livetxt/",
-      "fetchedAtJst": "2026-08-30T19:52:20+09:00",
+      "fetchedAtJst": "2026-08-30T19:57:21+09:00",
       "goals": [
         {
           "minute": "76",
@@ -6651,7 +6651,7 @@
     "2492417": {
       "code": "083002",
       "url": "https://www.jleague.jp/match/j3/2026/083002/livetxt/",
-      "fetchedAtJst": "2026-08-30T19:52:23+09:00",
+      "fetchedAtJst": "2026-08-30T19:57:25+09:00",
       "goals": [
         {
           "minute": "89",
@@ -6684,6 +6684,25 @@
         }
       ],
       "subs": [
+        {
+          "minute": "87",
+          "club": "松本山雅ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 22",
+              "name": "佐相 壱明",
+              "playerId": "1617892"
+            },
+            {
+              "variant": "out",
+              "position": "DF 30",
+              "name": "北爪 健吾",
+              "playerId": "1400640"
+            }
+          ],
+          "idTeam": "139890"
+        },
         {
           "minute": "86",
           "club": "ギラヴァンツ北九州",
@@ -7100,7 +7119,7 @@
     "2492420": {
       "code": "083001",
       "url": "https://www.jleague.jp/match/j3/2026/083001/livetxt/",
-      "fetchedAtJst": "2026-08-30T19:52:26+09:00",
+      "fetchedAtJst": "2026-08-30T19:57:28+09:00",
       "goals": [
         {
           "minute": "75",
@@ -7131,6 +7150,15 @@
         }
       ],
       "cards": [
+        {
+          "minute": null,
+          "type": "yellow",
+          "player": "玉城 大志",
+          "position": "MF 4",
+          "club": "ザスパ群馬",
+          "idTeam": "139897",
+          "playerId": null
+        },
         {
           "minute": "49",
           "type": "yellow",
@@ -7169,6 +7197,12 @@
               "position": "MF 22",
               "name": "吉田 桂介",
               "playerId": "1637052"
+            },
+            {
+              "variant": "out",
+              "position": "MF 77",
+              "name": "森田 大智",
+              "playerId": "1655842"
             }
           ],
           "idTeam": "141252"
@@ -7534,10 +7568,58 @@
     "2492421": {
       "code": "083003",
       "url": "https://www.jleague.jp/match/j3/2026/083003/livetxt/",
-      "fetchedAtJst": "2026-08-30T19:52:30+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-08-30T19:57:32+09:00",
+      "goals": [
+        {
+          "minute": "61",
+          "club": "ガイナーレ鳥取",
+          "player": "篠田 大輝",
+          "position": "FW 9",
+          "scoreAfter": "0-1",
+          "idTeam": "141247",
+          "playerId": "1651530"
+        }
+      ],
       "cards": [],
       "subs": [
+        {
+          "minute": null,
+          "club": "レイラック滋賀ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 28",
+              "name": "田部井 悠",
+              "playerId": "1632791"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "久保 瑛史",
+              "playerId": "1653084"
+            }
+          ],
+          "idTeam": "150625"
+        },
+        {
+          "minute": "61",
+          "club": "レイラック滋賀ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 66",
+              "name": "松原 海斗",
+              "playerId": "1651528"
+            },
+            {
+              "variant": "out",
+              "position": "FW 29",
+              "name": "日野 友貴",
+              "playerId": "1630015"
+            }
+          ],
+          "idTeam": "150625"
+        },
         {
           "minute": "45",
           "club": "ガイナーレ鳥取",
@@ -7815,7 +7897,7 @@
     "2492415": {
       "code": "083004",
       "url": "https://www.jleague.jp/match/j3/2026/083004/livetxt/",
-      "fetchedAtJst": "2026-08-30T19:52:33+09:00",
+      "fetchedAtJst": "2026-08-30T19:57:35+09:00",
       "goals": [],
       "cards": [
         {
@@ -8082,7 +8164,7 @@
     "2492416": {
       "code": "083005",
       "url": "https://www.jleague.jp/match/j3/2026/083005/livetxt/",
-      "fetchedAtJst": "2026-08-30T19:52:37+09:00",
+      "fetchedAtJst": "2026-08-30T19:57:39+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -8330,7 +8412,7 @@
     "2492422": {
       "code": "083006",
       "url": "https://www.jleague.jp/match/j3/2026/083006/livetxt/",
-      "fetchedAtJst": "2026-08-30T19:52:40+09:00",
+      "fetchedAtJst": "2026-08-30T19:57:42+09:00",
       "goals": [
         {
           "minute": "23",
