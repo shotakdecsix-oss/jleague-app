@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#82c039">
+<meta name="theme-color" content="#33404f">
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.webmanifest">
 <!-- iOSはapple-touch-iconにSVGを受け付けない(ホーム画面のアイコンがページの縮小版になる)ので、
      ここだけは実寸のPNGを指す。生成は scripts/build_icons.py。 -->
 <link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg" id="faviconLink">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <title>Jリーグ ダッシュボード</title>
 <script>
@@ -1025,9 +1025,34 @@ function applyOwnClubAccent(team) {
   /* 自クラブ行の下地。ダークで白と混ぜるとその行だけが光ってしまうので、暗い地と混ぜる。 */
   root.setProperty("--me-bg", dark ? mixHex(c, "#1e242e", 0.22) : mixWhite(c, 0.14));
 }
+/* タブのファビコンを、選択中のクラブの2色で描き直す。
+   ホーム画面に追加したアイコンは追加した時点のファイルで固定されるので変えられない
+   (JSで<link>を書き換えても反映されない)。一方ブラウザのタブとブックマークは
+   差し替えが効くので、そちらだけクラブ色にする。ファイルは配信せず data URI で組み立てる。
+   16px程度まで縮むことを前提に、文字よりも「2色の面」で見分けがつく形にしてある
+   (アプリ内のクラブバッジ teamCrestHtml と同じ斜め分割)。 */
+function applyFavicon(team) {
+  const link = document.getElementById("faviconLink");
+  if (!link) return;
+  const c = (team && team.color) || NEUTRAL_COLOR;
+  const sub = (team && team.colorSub) || NEUTRAL_COLOR_SUB;
+  const label = String((team && (team.short || team.ja)) || "J").slice(0, 1);
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' +
+      '<rect width="64" height="64" rx="14" fill="' + c + '"/>' +
+      '<path d="M64 0 L64 64 L0 64 Z" fill="' + sub + '"/>' +
+      '<text x="32" y="34" text-anchor="middle" dominant-baseline="central" ' +
+        'font-family="sans-serif" font-size="38" font-weight="700" fill="' + pickInk(c) + '">' +
+        esc(label) + '</text>' +
+    '</svg>';
+  link.setAttribute("href", "data:image/svg+xml," + encodeURIComponent(svg));
+}
 function applyThemeForMode() {
   const found = findTeam(state.idTeam);
   applyTheme(state.viewMode === "all" ? null : (found && found.team));
+  // ファビコンは表示モードに関わらず自クラブの色にする(タブの中でアプリを見分けるための印なので、
+  // 全体モードを見ている間だけ中立色に戻ると、かえって分かりにくい)
+  applyFavicon(found && found.team);
   if (found) applyOwnClubAccent(found.team);
 }
 

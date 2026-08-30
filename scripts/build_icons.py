@@ -16,10 +16,18 @@ PWA用のPNGアイコンを icons/ に生成する。
     icons/icon-maskable-512.png  purpose="maskable"。端末が円や角丸に切り抜くので、
                                  文字は中央の安全域(直径80%)に収まるよう小さめに描く。
 
+なぜ中立色なのか:
+    ホーム画面のアイコンとmanifestは静的ファイルで、全員に同じものが配られる。
+    追加した時点の内容で固定されるため、選んだクラブに応じて出し分けることはできない
+    (JSで<link>を書き換えても、既にホーム画面にあるアイコンには反映されない)。
+    特定クラブの色(以前は湘南の#82c039だった)を焼き付けるより、アプリ共通の中立色にしておく。
+    クラブ色を反映したいのはブラウザのタブのファビコンで、そちらは index.html の
+    applyFavicon() がSVGを組み立てて動的に差し替えている。
+
 色を変えたいとき:
-    BG_COLOR を書き換えて再実行するだけ。manifest.webmanifest の
-    theme_color / background_color と、index.html の <meta name="theme-color"> の
-    既定値も合わせて直すこと(3箇所ある)。
+    BG_COLOR を書き換えて再実行するだけ(icon.svg も一緒に作り直される)。
+    manifest.webmanifest の theme_color / background_color と、
+    index.html の <meta name="theme-color"> の既定値も合わせて直すこと(3箇所ある)。
 
 CLI:
     python scripts/build_icons.py
@@ -34,7 +42,7 @@ from PIL import Image, ImageDraw, ImageFont
 BASE_DIR = Path(__file__).resolve().parent.parent
 ICONS_DIR = BASE_DIR / "icons"
 
-BG_COLOR = "#82c039"   # icons/icon.svg と同じ色
+BG_COLOR = "#33404f"   # 全体モードの中立色(NEUTRAL_COLOR)。特定クラブの色を焼き付けない
 FG_COLOR = "#ffffff"
 GLYPH = "J"
 
@@ -70,8 +78,28 @@ def draw_icon(size: int, glyph_ratio: float) -> Image.Image:
     return img
 
 
+def write_svg() -> None:
+    """
+    フォールバック用のSVG(ベクタ対応ブラウザ向け)。PNGと同じ色・同じ字で作り直す。
+    以前は手書きのファイルだったので、BG_COLORを変えてもここだけ古い色が残っていた。
+    """
+    svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">\n'
+        f'  <rect width="192" height="192" rx="42" fill="{BG_COLOR}"/>\n'
+        '  <text x="96" y="96" text-anchor="middle" dominant-baseline="central"\n'
+        '        font-family="-apple-system,BlinkMacSystemFont,\'Hiragino Kaku Gothic ProN\','
+        '\'Noto Sans JP\',sans-serif"\n'
+        f'        font-size="112" font-weight="700" fill="{FG_COLOR}">{GLYPH}</text>\n'
+        '</svg>\n'
+    )
+    out = ICONS_DIR / "icon.svg"
+    out.write_text(svg, encoding="utf-8")
+    print(f"[info] 生成: icons/icon.svg ({out.stat().st_size:,} bytes)")
+
+
 def main() -> None:
     ICONS_DIR.mkdir(parents=True, exist_ok=True)
+    write_svg()
     targets = [
         ("icon-180.png", 180, 0.62),
         ("icon-192.png", 192, 0.62),
