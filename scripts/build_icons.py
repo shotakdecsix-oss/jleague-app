@@ -1,31 +1,36 @@
 """
-PWA用のPNGアイコンを icons/ に生成する。
+PWA用のアイコン(PNG + SVG)を icons/ に生成する。
 
 なぜPNGが要るか:
     icons/icon.svg だけでは iOS Safari の apple-touch-icon が機能しない
-    (iOSはapple-touch-iconにSVGを受け付けず、ホーム画面に追加したときのアイコンが
-     ページのスクリーンショットの縮小版になる)。AndroidのインストールバナーとMaskable対応にも
-    実寸のPNGが要る。
+    (iOSはapple-touch-iconにSVGを受け付けず、ホーム画面のアイコンがページの縮小版になる)。
+    AndroidのインストールバナーとMaskable対応にも実寸のPNGが要る。
+
+デザインについて:
+    赤地に白い「J」、左下に黒の斜め。白・赤・黒の3色。
+    **Jリーグの公式ロゴは登録商標なので、それに似せた形は使っていない。**
+    配色だけを借りた独自の図案にしてある(公式アプリと誤認されないため)。
+    斜めの角度は、Jの文字に黒がかからない高さ(DIAG_Y)にしてある。重なると読みにくく、
+    16px程度まで縮んだときに字が潰れる。
+
+    小さいサイズでの見え方を優先している。16pxではもう字は読めないので、
+    「赤と黒の斜め分割」というシルエットで見分けがつくことを狙っている。
 
 生成するもの:
-    icons/icon-180.png           apple-touch-icon (iOS)。iOS側が角を丸めるので、
-                                 こちらは角丸にせず、透明部分も作らない正方形で描く
-                                 (透明にするとiOSが黒で埋める)。
-    icons/icon-192.png           Android/Chrome の purpose="any"
-    icons/icon-512.png           同上(スプラッシュ用の大きい方)
-    icons/icon-maskable-512.png  purpose="maskable"。端末が円や角丸に切り抜くので、
-                                 文字は中央の安全域(直径80%)に収まるよう小さめに描く。
+    icons/icon.svg              ベクタ対応ブラウザ向け(タブのファビコンの初期値)
+    icons/icon-180.png          apple-touch-icon (iOS)。iOS側が角を丸めるので角丸にせず、
+                                透明部分も作らない(透明にするとiOSが黒で埋める)
+    icons/icon-192.png          Android/Chrome の purpose="any"
+    icons/icon-512.png          同上(スプラッシュ用)
+    icons/icon-maskable-512.png purpose="maskable"。端末が最大20%を切り落とすので、
+                                文字を中央の安全域に収まるよう小さめに描く
 
-なぜ中立色なのか:
-    ホーム画面のアイコンとmanifestは静的ファイルで、全員に同じものが配られる。
-    追加した時点の内容で固定されるため、選んだクラブに応じて出し分けることはできない
-    (JSで<link>を書き換えても、既にホーム画面にあるアイコンには反映されない)。
-    特定クラブの色(以前は湘南の#82c039だった)を焼き付けるより、アプリ共通の中立色にしておく。
-    クラブ色を反映したいのはブラウザのタブのファビコンで、そちらは index.html の
-    applyFavicon() がSVGを組み立てて動的に差し替えている。
+    なお、ブラウザのタブのファビコンは index.html の applyFavicon() が選択中のクラブの色で
+    動的に差し替える。ここで作るのは、その初期値とホーム画面用のアイコン。
+    ホーム画面のアイコンは追加した時点で固定されるため、クラブごとの出し分けはできない。
 
 色を変えたいとき:
-    BG_COLOR を書き換えて再実行するだけ(icon.svg も一緒に作り直される)。
+    下の3色を書き換えて再実行する(SVGとPNGが揃って作り直される)。
     manifest.webmanifest の theme_color / background_color と、
     index.html の <meta name="theme-color"> の既定値も合わせて直すこと(3箇所ある)。
 
@@ -42,11 +47,17 @@ from PIL import Image, ImageDraw, ImageFont
 BASE_DIR = Path(__file__).resolve().parent.parent
 ICONS_DIR = BASE_DIR / "icons"
 
-BG_COLOR = "#33404f"   # 全体モードの中立色(NEUTRAL_COLOR)。特定クラブの色を焼き付けない
-FG_COLOR = "#ffffff"
+RED = "#e60012"
+BLACK = "#141414"
+WHITE = "#ffffff"
 GLYPH = "J"
 
-# 太めのサンセリフ。環境に無ければ順に次を試す(Windows/macOS/Linuxのどれでも動くように)。
+# 図案のパラメータ(いずれも一辺に対する比率)
+DIAG_Y = 0.58      # 黒の斜めが左辺のどの高さから始まるか。下げるほど黒が減る
+GLYPH_Y = 0.46     # 文字の中心の高さ。斜めにかからないよう少し上に置く
+GLYPH_SIZE = 0.60  # 文字の大きさ
+GLYPH_SIZE_MASKABLE = 0.44  # maskableは切り落とされるぶん小さく
+
 FONT_CANDIDATES = [
     "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
@@ -65,31 +76,28 @@ def load_font(size: int) -> ImageFont.FreeTypeFont:
 
 
 def draw_icon(size: int, glyph_ratio: float) -> Image.Image:
-    """
-    一辺sizeの不透明な正方形に、中央へGLYPHを描く。
-    glyph_ratio は「文字の高さ / 画像の一辺」の目安。maskableだけ小さくする。
-    """
-    img = Image.new("RGB", (size, size), BG_COLOR)
-    draw = ImageDraw.Draw(img)
-    font = load_font(int(size * glyph_ratio))
-    # anchor="mm" は「文字の水平中央・垂直中央」を指定座標に合わせる指定。
-    # フォントごとにベースラインの位置が違うので、自前でbboxから補正するより素直で崩れにくい。
-    draw.text((size / 2, size / 2), GLYPH, font=font, fill=FG_COLOR, anchor="mm")
+    """一辺sizeの不透明な正方形に、赤地・黒の斜め・白い文字を描く。"""
+    img = Image.new("RGB", (size, size), RED)
+    d = ImageDraw.Draw(img)
+    # 左辺のDIAG_Yの高さから右下の角へ引いた三角形
+    d.polygon([(0, size), (0, int(size * DIAG_Y)), (size, size)], fill=BLACK)
+    # anchor="mm" は文字の水平・垂直中央を指定座標に合わせる指定。
+    # フォントごとのベースラインの違いを自前で補正するより崩れにくい。
+    d.text((size / 2, int(size * GLYPH_Y)), GLYPH,
+           font=load_font(int(size * glyph_ratio)), fill=WHITE, anchor="mm")
     return img
 
 
 def write_svg() -> None:
-    """
-    フォールバック用のSVG(ベクタ対応ブラウザ向け)。PNGと同じ色・同じ字で作り直す。
-    以前は手書きのファイルだったので、BG_COLORを変えてもここだけ古い色が残っていた。
-    """
+    """PNGと同じ図案のSVG。タブのファビコンの初期値になる。"""
+    S = 192
     svg = (
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">\n'
-        f'  <rect width="192" height="192" rx="42" fill="{BG_COLOR}"/>\n'
-        '  <text x="96" y="96" text-anchor="middle" dominant-baseline="central"\n'
-        '        font-family="-apple-system,BlinkMacSystemFont,\'Hiragino Kaku Gothic ProN\','
-        '\'Noto Sans JP\',sans-serif"\n'
-        f'        font-size="112" font-weight="700" fill="{FG_COLOR}">{GLYPH}</text>\n'
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {S} {S}" width="{S}" height="{S}">\n'
+        f'  <rect width="{S}" height="{S}" fill="{RED}"/>\n'
+        f'  <path d="M0 {S} L0 {int(S * DIAG_Y)} L{S} {S} Z" fill="{BLACK}"/>\n'
+        f'  <text x="{S // 2}" y="{int(S * GLYPH_Y)}" text-anchor="middle" dominant-baseline="central"\n'
+        f'        font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif"\n'
+        f'        font-size="{int(S * GLYPH_SIZE)}" font-weight="700" fill="{WHITE}">{GLYPH}</text>\n'
         '</svg>\n'
     )
     out = ICONS_DIR / "icon.svg"
@@ -101,18 +109,16 @@ def main() -> None:
     ICONS_DIR.mkdir(parents=True, exist_ok=True)
     write_svg()
     targets = [
-        ("icon-180.png", 180, 0.62),
-        ("icon-192.png", 192, 0.62),
-        ("icon-512.png", 512, 0.62),
-        # maskableは端末が最大20%を切り落とす。文字を安全域(中央80%)に収めるため小さく描く。
-        ("icon-maskable-512.png", 512, 0.44),
+        ("icon-180.png", 180, GLYPH_SIZE),
+        ("icon-192.png", 192, GLYPH_SIZE),
+        ("icon-512.png", 512, GLYPH_SIZE),
+        ("icon-maskable-512.png", 512, GLYPH_SIZE_MASKABLE),
     ]
     for name, size, ratio in targets:
-        img = draw_icon(size, ratio)
         out = ICONS_DIR / name
-        img.save(out, format="PNG", optimize=True)
+        draw_icon(size, ratio).save(out, format="PNG", optimize=True)
         print(f"[info] 生成: icons/{name} ({size}x{size}, {out.stat().st_size:,} bytes)")
-    print("\n[info] アイコンの生成完了。manifest.webmanifest と index.html の参照を更新すること")
+    print("\n[info] アイコンの生成完了。色を変えた場合は manifest と index.html の theme-color も直すこと")
 
 
 if __name__ == "__main__":
