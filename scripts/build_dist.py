@@ -48,6 +48,10 @@ COPY_DIRS = ["icons", "data/masters", "data/processed", "data/history"]
 # (ics_state.jsonはSEQUENCE永続化用の内部状態で、リポジトリにはコミットするがdist配信には不要なため)。
 COPY_DIRS_EXCLUDE: dict[str, set[str]] = {"data/history": {"ics_state.json"}}
 
+# 第30弾: index.html に埋めてあるビルド版数のプレースホルダ。
+# 分割して書いてあるのは、この行自身が置換対象にならないようにするため。
+PLACEHOLDER = "__DEPLOY" + "_VERSION__"
+
 
 def clean_dist() -> None:
     if DIST_DIR.exists():
@@ -114,6 +118,22 @@ def write_deploy_version() -> None:
     version = out.stdout.strip()
     (DIST_DIR / "deploy-version.txt").write_text(version, encoding="utf-8")
     print(f"[info] デプロイバージョンを記録: {version}")
+
+    # 第30弾: 同じ値を dist/index.html にも焼き込む。
+    # 書き換えるのはコピー後の dist/ の方だけで、ソースの index.html は触らない
+    # (ソースを書き換えるとビルドのたびにgitの差分が出てしまう)。
+    # アプリ側はこの定数と deploy-version.txt を比べ、食い違えば
+    # 「ブラウザが古いHTMLを掴んでいる」と判断して再読み込みを促す。
+    dist_index = DIST_DIR / "index.html"
+    if not dist_index.exists():
+        return
+    html = dist_index.read_text(encoding="utf-8")
+    if PLACEHOLDER not in html:
+        print(f"[warn] dist/index.html に {PLACEHOLDER} が無い。更新検知が働かなくなるので確認すること",
+              file=sys.stderr)
+        return
+    dist_index.write_text(html.replace(PLACEHOLDER, version), encoding="utf-8")
+    print(f"[info] dist/index.html にバージョンを焼き込み: {version}")
 
 
 def check_calendar_generated() -> None:

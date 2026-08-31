@@ -551,6 +551,23 @@
     margin:6px 0 0; padding:8px 12px; border-radius:10px; background:rgba(0,0,0,.28);
     color:var(--accent-ink); font-size:12px; font-weight:600; text-align:center;
   }
+  /* 第30弾: 新しいデプロイを検知したときのバナー。トーストと違って自分では消えない。
+     3.5秒で消えると、見逃した利用者が古い画面のまま使い続けることになるため。
+     消えないからこそ、トースト(.ondemand-toast)のような position:absolute の重ね置きにはしない。
+     出しっぱなしのオーバーレイはタブバーを覆い隠してしまう(実機確認で判明)。
+     ヘッダーの中に普通に流し込んで、その間だけヘッダーが1行ぶん高くなるようにする。 */
+  .update-banner{
+    margin:6px 0 0; padding:6px 12px; border-radius:10px; background:rgba(0,0,0,.34);
+    color:var(--accent-ink); font-size:12px; font-weight:600;
+    display:flex; gap:10px; align-items:center; justify-content:center;
+  }
+  /* display:flex は [hidden] のUAスタイル(display:none)より詳細度が高いので、
+     これが無いと hidden を付けても出っぱなしになる。消し忘れ厳禁。 */
+  .update-banner[hidden]{display:none}
+  .update-banner button{
+    padding:0 14px; border-radius:999px; border:1px solid currentColor;
+    background:transparent; color:inherit; font-size:12px; font-weight:700;
+  }
   .ondemand-popover{
     position:absolute; top:100%; left:calc(12px + env(safe-area-inset-left)); right:calc(12px + env(safe-area-inset-right)); z-index:20;
     margin:6px 0 0; padding:12px 14px; border-radius:var(--radius); background:var(--card); color:var(--ink);
@@ -676,6 +693,7 @@
      下限だけ決め、中身はflexで中央に置く。既に44pxを超えている#tabbar/a.btnは対象外。 */
   .seg-toggle button, .stats-subtabs button, .chart-series-tabs button,
   .cal-league-filter button, .ec-rounds button, .chart-chip,
+  .update-banner button,
   .btn-secondary, .cal-loadmore{
     min-height:44px; display:inline-flex; align-items:center; justify-content:center;
   }
@@ -724,6 +742,10 @@
     </div>
   </div>
   <div id="ondemandToast" class="ondemand-toast" hidden></div>
+  <div id="updateBanner" class="update-banner" role="status" hidden>
+    <span>新しいバージョンがあります</span>
+    <button type="button" data-app-reload>再読み込み</button>
+  </div>
   <div id="ondemandPopover" class="ondemand-popover" hidden></div>
   <div class="header-row2">
     <div id="modeToggle" class="mode-toggle" role="group" aria-label="表示モード">
@@ -771,6 +793,15 @@ const ALL_TABS = [
   { id: "predict", label: "予想" },
   { id: "cup", label: "天皇杯" },
 ];
+
+/* 第30弾: ビルド時に scripts/build_dist.py が dist/index.html の中だけを置換する。
+   ソースの index.html にはプレースホルダのまま残るので、ローカルで直接開いたときは
+   置換前の文字列と一致し、更新バナーは出ない。
+   dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
+   「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
+   (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
+const APP_BUILD_VERSION = "__DEPLOY_VERSION__";
+const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
   masters: {}, cache: {}, idTeam: null, league: null,
@@ -1357,6 +1388,39 @@ async function ensureTabData(league, tabId) {
 
 /* ---------- 起動 ---------- */
 
+/* ---------- 第30弾: 配信されている版と、いま動いているHTMLの版を比べる ---------- */
+
+/* build_dist.py が dist/index.html に版数を焼き込んでいない = ローカルで直接開いている。
+   その場合は比較しても意味がないので、更新検知そのものを止める。 */
+function isBuiltCopy() {
+  return APP_BUILD_VERSION !== APP_BUILD_VERSION_PLACEHOLDER;
+}
+/* latest は deploy-version.txt の中身。取れなかった(null)ときは古いと判断しない。 */
+function isStaleBuild(latest) {
+  return !!(isBuiltCopy() && latest && latest !== APP_BUILD_VERSION);
+}
+function updateDeployBadge() {
+  const badge = document.getElementById("deployBadge");
+  if (!badge) return;
+  const v = state.deployVersion, t = state.deployTime;
+  const text = [v ? "v" + v : "", t || ""].filter(Boolean).join(" ・ ");
+  badge.textContent = text + (isStaleBuild(v) ? " ⚠" : "");
+}
+function showUpdateBanner() {
+  const el = document.getElementById("updateBanner");
+  if (el) el.hidden = false;
+}
+/* 自動リロードはしない。試合を見ながら操作している最中に画面が飛ぶ方が困る。
+   定期ポーリングも足さない。可視復帰のたびに数十バイトのテキストを1回取るだけで足りる。 */
+async function checkForNewDeploy() {
+  if (!isBuiltCopy()) return;
+  const latest = await getTextOptional("deploy-version.txt");
+  if (!latest) return;
+  state.deployVersion = latest;
+  updateDeployBadge();
+  if (isStaleBuild(latest)) showUpdateBanner();
+}
+
 async function init() {
   const app = document.getElementById("app");
   try {
@@ -1379,8 +1443,8 @@ async function init() {
   Promise.all([getTextOptional("deploy-time.txt"), getTextOptional("deploy-version.txt")]).then(([t, v]) => {
     state.deployTime = t;
     state.deployVersion = v;
-    const badge = document.getElementById("deployBadge");
-    if (badge) badge.textContent = [v ? "v" + v : "", t || ""].filter(Boolean).join(" ・ ");
+    updateDeployBadge();
+    if (isStaleBuild(v)) showUpdateBanner(); // 第30弾: 起動した時点で既に古いこともある
   });
 
   applyRouteFromHash();
@@ -1432,6 +1496,12 @@ async function init() {
   // イベント委譲: クラブ名クリックでの切替(data-idteam)とレーダーの頂点タップ(ツールチップ)を1つのリスナーで拾う。
   // 行ごと/要素ごとにリスナーを張らないこと。
   document.addEventListener("click", ev => {
+    // 第30弾: 更新バナーの「再読み込み」。HTML自体を取り直すのが目的なのでlocation.reload()。
+    if (ev.target.closest("[data-app-reload]")) {
+      location.reload();
+      return;
+    }
+
     const ondemandBtn = ev.target.closest("[data-ondemand-update]");
     if (ondemandBtn) {
       runOndemandUpdate();
@@ -1622,6 +1692,8 @@ async function init() {
       stopLivePolling();
     } else {
       evaluateLiveSchedule();
+      maybeRefreshStaticOnVisible(); // 第30弾: 静的JSONも見直す(5分の間引きつき)
+      checkForNewDeploy();           // 第30弾: 新しい版が出ていないか確認する
     }
   });
   // 起動直後(試合中にアプリを開いた場合)の判定。
@@ -3731,18 +3803,51 @@ function ondemandOutcomeMessage(attemptedLeagues, succeededLeagues, changedCount
    開き直すまで反映されなかった)。TheSportsDBのオンデマンド取得(このすぐ下のrunOndemandUpdate
    本体。クールダウン対象)とは別に、こちらは自前の静的JSONで回数制限の心配が無いので、
    ⟳ボタンを押すたび(クールダウン中でも)無条件で再取得しなおす。 */
-async function refreshStaticMatchData() {
+/* 第30弾: 静的JSONのキャッシュを全部捨てる。
+   第15弾では3ファイル(calendar/matches/matchEvents)だけを対象にしたが、
+   順位表・優勝確率・スタッツ・クラブ情報・ニュース・天皇杯は ensure* の
+   「一度読んだら二度と読まない」ガードに阻まれ、⟳を押しても変わらないままだった
+   (アプリを完全に閉じて開き直すまで反映されない)。
+   自前の静的JSONは回数制限が無いので、⟳のたびに全部読み直してよい。
+
+   state.masters は触らない(ビルドし直さないと変わらない)。
+   state.ondemand も触らない(ondemandActiveCacheForLeague が generatedAtJst の比較で自動的に捨てる)。 */
+function clearStaticCaches() {
+  state.cache = {};   // leagueCache()経由のmatches/standings/simulation/stats/impact/history/rankHistory/matchEvents
   state.calendar = undefined;
-  for (const lg of Object.keys(LEAGUES)) {
-    leagueCache(lg).matchEvents = undefined;
-    leagueCache(lg).matches = undefined;
-  }
+  state.clubExtra = undefined;
+  state.news = undefined;
+  state.emperorsCup = undefined;
+  state.emperorsCupEvents = undefined;
+}
+
+/* 第30弾: 可視復帰での再取得(maybeRefreshStaticOnVisible)を間引くための下限。
+   タブを行き来するだけで毎回読み直すと、club_extra.json(1.3MB)やnews.json(3.0MB)まで
+   取りに行くことになり通信量が跳ねる。バッチ(4時間おき)とlive_watch(5分おき)のうち
+   短い方に合わせて5分にしてある。 */
+const STATIC_REFRESH_MIN_INTERVAL_MS = 5 * 60 * 1000;
+let lastStaticRefreshAt = 0;
+
+async function refreshStaticMatchData() {
+  lastStaticRefreshAt = Date.now();
+  clearStaticCaches();
+  // いま開いているタブに要るぶんは renderActiveTab() -> ensureTabData() が自分で取り直す。
+  // ここで先読みするのは、どのタブに居ても日程の得点速報が最新になるようにするため。
   await Promise.all([
     ensureCalendar(),
     ...Object.keys(LEAGUES).map(lg => ensureMatchEvents(lg)),
     ...Object.keys(LEAGUES).map(lg => ensureMatches(lg)),
   ]);
-  renderActiveTab();
+  await renderActiveTab();
+}
+
+/* 第30弾: バックグラウンドから戻ってきたときの再取得。
+   ホーム画面に追加したPWAは実質「閉じない」ので、これが無いと⟳を押さないかぎり
+   初回ロード時のデータのまま何日も表示され続ける。 */
+function maybeRefreshStaticOnVisible() {
+  if (Date.now() - lastStaticRefreshAt < STATIC_REFRESH_MIN_INTERVAL_MS) return;
+  // 失敗しても投げない。ここで例外を出すとライブポーリングの再開まで巻き込む。
+  refreshStaticMatchData().catch(() => {});
 }
 async function runOndemandUpdate(opts) {
   const ignoreCooldown = !!(opts && opts.ignoreCooldown);
