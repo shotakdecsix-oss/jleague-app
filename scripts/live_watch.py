@@ -75,8 +75,10 @@ def heartbeat(live_count: int) -> None:
     """
     try:
         TMP_DIR.mkdir(parents=True, exist_ok=True)
+        # 中身はASCIIだけにする。Windowsで `type` すると CP932 として読まれるので、
+        # UTF-8の日本語を書くと化けて読めなくなる(生存確認用のファイルなので確実に読めることを優先)。
         HEARTBEAT_PATH.write_text(
-            f"{datetime.now(JST):%Y-%m-%d %H:%M:%S} JST  進行中の試合={live_count}件\n",
+            f"{datetime.now(JST):%Y-%m-%d %H:%M:%S} JST  live={live_count}\n",
             encoding="utf-8",
         )
     except Exception:
@@ -161,8 +163,17 @@ def release_lock() -> None:
 
 
 def run(cmd: list[str], timeout: int = 600) -> subprocess.CompletedProcess:
-    """python本体は sys.executable を使う(PATHのpythonが別のものを指していても壊れないように)。"""
-    return subprocess.run(cmd, cwd=BASE_DIR, capture_output=True, text=True, timeout=timeout)
+    """
+    python本体は sys.executable を使う(PATHのpythonが別のものを指していても壊れないように)。
+
+    encoding/errors を明示するのが重要。text=True だけだとWindowsでは CP932 でデコードされるが、
+    live_watch.bat が PYTHONIOENCODING=utf-8 を設定しているので子プロセスはUTF-8で書いてくる。
+    食い違うとデコードに失敗し、stdoutがNoneのまま返ってきて
+    "AttributeError: 'NoneType' object has no attribute 'strip'" で落ちる(2026-08-30に発生)。
+    errors="replace" は、gitがCP932で出力する場合に備えた保険。
+    """
+    return subprocess.run(cmd, cwd=BASE_DIR, capture_output=True,
+                          encoding="utf-8", errors="replace", timeout=timeout)
 
 
 def git(*args: str, timeout: int = 120) -> subprocess.CompletedProcess:
@@ -173,9 +184,121 @@ def has_meaningful_changes() -> bool:
     """得点/カード/交代に実質的な変化があるか。終了コード0なら「あり」(workflowと同じ判定)。"""
     files = [str(PROCESSED_DIR / f"{lg}_match_events.json") for lg in LEAGUES]
     r = run([sys.executable, str(BASE_DIR / "scripts" / "git_diff_match_events.py"), *files])
-    if r.stdout.strip():
+    if (r.stdout or '').strip():
         log(r.stdout.strip()[:500])
     return r.returncode == 0
+
+
+def merge_events(mine: dict, theirs: dict) -> dict:
+    """同じ試合の詳細を2つ受け取り、情報量の多い方を採用して1つにまとめる。
+
+    「新しい方を採る」ではなく「多い方を採る」のが肝。2026-08-30に、3分新しいというだけで
+    ローカル側を採用した結果、向こうにしか無かったハイライト動画26件を消してしまった。
+    新しい≠情報が多い。
+    """
+    out = dict(theirs)
+    for key, ev in mine.items():
+        base = theirs.get(key)
+        if base is None:
+            out[key] = ev  # 向こうに無い試合はそのまま足す
+            continue
+        merged = dict(base)
+        # 得点/カード/交代は件数の多い方。速報中は増えていくだけで減ることはない
+        for field in ("goals", "cards", "subs"):
+            a, b = ev.get(field), base.get(field)
+            if isinstance(a, list) and len(a) > len(b or []):
+                merged[field] = a
+        # 出場メンバーは中身が入っている方
+        if not merged.get("lineups") and ev.get("lineups"):
+            merged["lineups"] = ev["lineups"]
+        # 動画IDは「片方にしか無い」なら有る方を採る。ここが26件を消した所
+        for field in ("highlightVideoId", "daznVideoId"):
+            if not merged.get(field) and ev.get(field):
+                merged[field] = ev[field]
+        # 検索の試行回数は多い方。巻き戻すと無駄な再検索でYouTube APIの枠を食う
+        if (ev.get("daznSearchAttempts") or 0) > (merged.get("daznSearchAttempts") or 0):
+            merged["daznSearchAttempts"] = ev.get("daznSearchAttempts")
+            merged["daznLastSearchedAtJst"] = ev.get("daznLastSearchedAtJst")
+        out[key] = merged
+    return out
+
+
+def _video_count(events: dict) -> int:
+    return sum(1 for e in events.values() if e.get("highlightVideoId") or e.get("daznVideoId"))
+
+
+def recover_from_stuck_rebase() -> bool:
+    """pull --rebase が3回とも失敗したときの最後の手段。origin/main に合わせ直す。
+
+    なぜ要るか(2026-08-31に判明):
+        8/30の夜から10回連続でpushできなくなっていた。dist/ の生成物(.icsのDTSTAMPなど)が
+        Actions側の「データ更新」コミットとぶつかり、rebaseが毎回同じコミットで止まっていた。
+        --abort して次回に賭ける作りなので、次回も同じ所で止まる = 永久に詰まる。
+        さらに悪いことに、pullが通らないので data/processed/*_matches.json が古いまま凍りつき、
+        前日の試合を「まだ終わっていない(status=NS)」と誤認して、
+        試合終了後にしか走らないハイライト動画の検索まで止まっていた。
+        push詰まりが、静かにデータの中身まで壊す。だから自動で抜け出せるようにする。
+
+    やること:
+        手元のコミットを捨てて origin/main に合わせ直し、捨てる前の match_events.json だけを
+        情報量の多い方で拾い直して1コミットにまとめる。dist/ は build_dist.py で作り直せるので
+        取っておく必要がない。
+
+    安全弁:
+        このスクリプトの管轄外(index.html など)に未コミットの変更が残っている間は何もしない。
+        編集中に reset --hard を撃つと、その作業ごと消えてしまう。
+    """
+    leftover = [ln for ln in (git("status", "--porcelain").stdout or "").splitlines() if ln.strip()]
+    if leftover:
+        log("[error] pushできず。手元に未コミットの変更があるので自動回復は見送る: "
+            + ", ".join(leftover)[:200])
+        return False
+
+    if git("fetch", "origin", "main", timeout=180).returncode != 0:
+        log("[error] fetchできなかった。回復は次回に持ち越す")
+        return False
+
+    mine = {}
+    for lg in LEAGUES:
+        path = PROCESSED_DIR / f"{lg}_match_events.json"
+        try:
+            mine[lg] = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as exc:  # 読めないなら触らない方が安全
+            log(f"[error] {path.name} を読めなかったので回復を中止: {exc}")
+            return False
+
+    log("[warn] rebaseが詰まっている。origin/main に合わせ直す(手元のコミットは捨てる)")
+    if git("reset", "--hard", "origin/main", timeout=180).returncode != 0:
+        log("[error] reset --hard に失敗した")
+        return False
+
+    for lg in LEAGUES:
+        path = PROCESSED_DIR / f"{lg}_match_events.json"
+        theirs = json.loads(path.read_text(encoding="utf-8"))
+        before = _video_count(theirs.get("events", {}))
+        theirs["events"] = merge_events(mine[lg].get("events", {}), theirs.get("events", {}))
+        after = _video_count(theirs["events"])
+        path.write_text(json.dumps(theirs, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        log(f"[info] {lg}: 試合{len(theirs['events'])}件に統合(動画あり {before}件 -> {after}件)")
+
+    if run([sys.executable, str(BASE_DIR / "scripts" / "build_dist.py")]).returncode != 0:
+        log("[error] 回復中の build_dist に失敗した")
+        return False
+
+    git("add", "-A", "data/processed", "dist", "data/history")
+    if git("diff", "--cached", "--quiet").returncode == 0:
+        log("回復完了。origin/main との差は無くなったので押すものは無い")
+        return True
+    stamp = f"{datetime.now(JST):%Y-%m-%d %H:%M}"
+    if git("commit", "-m", f"auto: 試合詳細速報更新(ローカル・再構成) {stamp} JST").returncode != 0:
+        log("[error] 回復後のcommitに失敗した")
+        return False
+    r = git("push", "origin", "main", timeout=180)
+    if r.returncode == 0:
+        log("回復してpushできた")
+        return True
+    log(f"[error] 回復後もpushできなかった: {((r.stderr or '') + (r.stdout or '')).strip()[:300]}")
+    return False
 
 
 def commit_and_push() -> bool:
@@ -191,7 +314,7 @@ def commit_and_push() -> bool:
         return True
     r = git("commit", "-m", f"auto: 試合詳細速報更新(ローカル) {stamp} JST")
     if r.returncode != 0:
-        log(f"[error] commit失敗: {r.stderr.strip()[:300]}")
+        log(f"[error] commit失敗: {(r.stderr or '').strip()[:300]}")
         return False
     # Actions(update.yml)や手元の作業とpushが競合する前提で、必ずrebaseしてから押す。
     # 失敗の中身を必ずログに残すこと。理由が出ないと、通信の問題なのか作業ツリーの問題なのか
@@ -203,7 +326,7 @@ def commit_and_push() -> bool:
         # --autostash なら自動で退避して rebase 後に戻すので、編集中でも巻き込まない。
         r = git("pull", "--rebase", "--autostash", "origin", "main", timeout=180)
         if r.returncode != 0:
-            log(f"[warn] pull失敗 ({i}/3): {(r.stderr or r.stdout).strip()[:300]}")
+            log(f"[warn] pull失敗 ({i}/3): {((r.stderr or '') + (r.stdout or '')).strip()[:300]}")
             # コンフリクトでrebaseが中断したまま残ると、次回以降の実行が全部失敗し続ける。
             # 5分おきに走るスクリプトなので、途中状態を残さず必ず元に戻す
             # (取り込めなかった変更は手元のコミットとして残るので、次回また試される)。
@@ -213,11 +336,11 @@ def commit_and_push() -> bool:
             if r.returncode == 0:
                 log(f"push成功 (試行{i}回目)")
                 return True
-            log(f"[warn] push失敗 ({i}/3): {(r.stderr or r.stdout).strip()[:300]}")
+            log(f"[warn] push失敗 ({i}/3): {((r.stderr or '') + (r.stdout or '')).strip()[:300]}")
         if i < 3:
             time.sleep(5)  # 競合の解消を待つ。即座に3回叩いても意味がない
-    log("[error] pushできなかった。次回の実行で再試行される")
-    return False
+    # 3回とも駄目だった。--abort して次回に賭けるだけだと、同じ所で止まり続けて永久に詰まる。
+    return recover_from_stuck_rebase()
 
 
 def main() -> None:
@@ -247,7 +370,7 @@ def main() -> None:
             mark_idle_run(now)
         r = run([sys.executable, str(BASE_DIR / "scripts" / "fetch_match_events.py"), "--league", "all"])
         if r.returncode != 0:
-            log(f"[error] fetch_match_events 失敗: {(r.stderr or r.stdout).strip()[-500:]}")
+            log(f"[error] fetch_match_events 失敗: {((r.stderr or '') + (r.stdout or '')).strip()[-500:]}")
             return
         if not has_meaningful_changes():
             log("得点/カード/交代に変化なし。build_dist もコミットもしない")
@@ -257,7 +380,7 @@ def main() -> None:
             return
         r = run([sys.executable, str(BASE_DIR / "scripts" / "build_dist.py")])
         if r.returncode != 0:
-            log(f"[error] build_dist 失敗: {(r.stderr or r.stdout).strip()[-500:]}")
+            log(f"[error] build_dist 失敗: {((r.stderr or '') + (r.stdout or '')).strip()[-500:]}")
             return
         commit_and_push()
     finally:
