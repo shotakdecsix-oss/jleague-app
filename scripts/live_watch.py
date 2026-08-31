@@ -48,6 +48,9 @@ HEARTBEAT_PATH = TMP_DIR / "live_watch_last.txt"
 IDLE_STAMP_PATH = TMP_DIR / "live_watch_idle.txt"
 
 LEAGUES = ("j1", "j2", "j3")
+# このスクリプトが自動でコミットしてよい(=捨てても build_dist.py で作り直せる)ファイル。
+# これ以外を触っているコミットは、人が書いたコードなので自動回復で捨ててはいけない。
+GENERATED_PREFIXES = ("data/processed/", "data/history/", "dist/")
 # ライブ扱いにする時間幅。index.html の LIVE_WINDOW_MINUTES と合わせてある
 # (ハーフタイムと追加時間ぶんの余裕。延長のあるカップ戦は対象外)。
 LIVE_WINDOW = timedelta(minutes=150)
@@ -227,6 +230,48 @@ def _video_count(events: dict) -> int:
     return sum(1 for e in events.values() if e.get("highlightVideoId") or e.get("daznVideoId"))
 
 
+def local_commits_to_replay() -> list[str] | None:
+    """origin/main に無い手元のコミットのうち、生成物以外を触っているものを古い順に返す。
+
+    生成物とコードを同じコミットに混ぜているものが1つでもあれば None を返す(回復を中止する合図)。
+    そういうコミットは機械的に切り分けられないので、人が見るまで触らない方が安全。
+    """
+    r = git("rev-list", "--reverse", "origin/main..HEAD")
+    out: list[str] = []
+    for sha in (r.stdout or "").split():
+        files = (git("show", "--pretty=", "--name-only", sha).stdout or "").split()
+        gen = [f for f in files if f.startswith(GENERATED_PREFIXES)]
+        other = [f for f in files if not f.startswith(GENERATED_PREFIXES)]
+        if gen and other:
+            log(f"[error] コミット {sha[:8]} が生成物とコードを同時に含んでいる。自動回復はしない")
+            return None
+        if other:
+            out.append(sha)
+    return out
+
+
+def sync_with_origin() -> None:
+    """取得を始める前に origin/main へ追いつく(第30弾で順序を入れ替えた)。
+
+    以前は build_dist -> commit -> pull --rebase の順だった。この順だと dist/ を先にコミットして
+    しまうので、Actions側が同じ時間帯に書いた dist/ics/*.ics や dist/deploy-time.txt /
+    dist/deploy-version.txt と必ずぶつかる。どれも「中身が毎回変わる生成物」なので、
+    両者が同時に走ればコンフリクトは避けられない。実際 2026-08-30 と 08-31 の二度、
+    ここで rebase が詰まって push が半日〜1日止まった。
+
+    先に pull しておけば dist/ は origin の最新の上で作り直されるので、ぶつかりようがない。
+    ついでに data/processed/*_matches.json も最新になるため、
+    「前日の試合が status=NS のまま凍りつき、試合終了後にしか走らないハイライト動画の検索が
+    止まる」という二次被害(2026-08-31に発生)も同時に防げる。
+
+    失敗しても止めない。取得自体はできるし、後段の commit_and_push がリトライと自動回復を持つ。
+    """
+    r = git("pull", "--rebase", "--autostash", "origin", "main", timeout=180)
+    if r.returncode != 0:
+        log(f"[warn] 事前のpullに失敗(取得は続ける): {((r.stderr or '') + (r.stdout or '')).strip()[:200]}")
+        git("rebase", "--abort")
+
+
 def recover_from_stuck_rebase() -> bool:
     """pull --rebase が3回とも失敗したときの最後の手段。origin/main に合わせ直す。
 
@@ -248,10 +293,20 @@ def recover_from_stuck_rebase() -> bool:
         このスクリプトの管轄外(index.html など)に未コミットの変更が残っている間は何もしない。
         編集中に reset --hard を撃つと、その作業ごと消えてしまう。
     """
-    leftover = [ln for ln in (git("status", "--porcelain").stdout or "").splitlines() if ln.strip()]
+    # "??"(未追跡)は除く。git reset --hard は未追跡ファイルに触らないので、
+    # 置いてあっても危険が無い。ここを除外し忘れていたせいで、docs/ に指示書を1つ置いただけで
+    # 自動回復が止まり、pushが8時間止まった(2026-08-31)。安全弁は追跡中の変更にだけ効かせる。
+    leftover = [ln for ln in (git("status", "--porcelain").stdout or "").splitlines()
+                if ln.strip() and not ln.startswith("??")]
     if leftover:
-        log("[error] pushできず。手元に未コミットの変更があるので自動回復は見送る: "
+        log("[error] pushできず。追跡中のファイルに未コミットの変更があるので自動回復は見送る: "
             + ", ".join(leftover)[:200])
+        return False
+
+    # 捨ててよいのは生成物だけのコミット。コード変更(scripts/やindex.html、docs/)を含むコミットは
+    # reset --hard で消えてしまうので、いったん退避して origin の上に戻す。
+    replay = local_commits_to_replay()
+    if replay is None:
         return False
 
     if git("fetch", "origin", "main", timeout=180).returncode != 0:
@@ -271,6 +326,14 @@ def recover_from_stuck_rebase() -> bool:
     if git("reset", "--hard", "origin/main", timeout=180).returncode != 0:
         log("[error] reset --hard に失敗した")
         return False
+
+    for sha in replay:
+        r = git("cherry-pick", sha, timeout=120)
+        if r.returncode != 0:
+            git("cherry-pick", "--abort")
+            log(f"[error] コミット {sha[:8]} を origin の上に戻せなかった。回復を中止する")
+            return False
+        log(f"[info] コミット {sha[:8]} を origin の上に戻した")
 
     for lg in LEAGUES:
         path = PROCESSED_DIR / f"{lg}_match_events.json"
@@ -368,6 +431,7 @@ def main() -> None:
         else:
             log("進行中の試合なし。1時間ごとの拾い直し(ハイライト動画・得点の訂正)")
             mark_idle_run(now)
+        sync_with_origin()  # 第30弾: 取得の前に origin へ追いつく(dist/のコンフリクトを構造的に無くす)
         r = run([sys.executable, str(BASE_DIR / "scripts" / "fetch_match_events.py"), "--league", "all"])
         if r.returncode != 0:
             log(f"[error] fetch_match_events 失敗: {((r.stderr or '') + (r.stdout or '')).strip()[-500:]}")
