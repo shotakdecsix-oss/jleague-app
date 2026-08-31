@@ -394,6 +394,47 @@ if [ "$pushed" != "1" ]; then
 fi
 ```
 
+### 4-2. 同じ順序の問題がワークフローにもある（必ず一緒に直すこと）
+
+`update.yml` も `match_events.yml` も、順序が **build_dist → commit → pull --rebase → push**
+になっている。この順だと `dist/` を**先にコミットしてしまう**ので、
+ローカルの `live_watch.py` が同じ時間帯に書いた `dist/ics/*.ics` と
+`dist/deploy-time.txt` / `dist/deploy-version.txt` と必ずぶつかる。
+
+- `deploy-time.txt` は**ビルドのたびに**中身が変わる（時刻）
+- `deploy-version.txt` は**コミットのたびに**中身が変わる（ハッシュ）
+- `.ics` は `DTSTAMP` が毎回変わる
+
+どれも「両者が独立に書いたら必ず食い違う生成物」なので、
+**同時に走ればコンフリクトは構造的に避けられない**。
+2026-08-30 と 08-31 に push が半日〜1日止まったのは、どちらもこれが原因だった。
+
+直し方は順序の入れ替えだけ。**すべての fetch が終わった後、`build_dist` の直前に
+`git pull --rebase` を挟む**:
+
+```yaml
+      # 第30弾: build_distの「前」にoriginへ追いつく。
+      # distを先にコミットしてから rebase すると、ローカルPC(live_watch.py)が書いた
+      # dist/ics/*.ics や dist/deploy-{time,version}.txt と必ずぶつかる。
+      # 先に追いつけば dist は origin の最新の上で作り直されるので、ぶつかりようがない。
+      - name: Sync with origin
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git stash push -u -- data/processed data/history || true
+          git pull --rebase origin main
+          git stash pop || true
+
+      - name: build_dist
+        if: steps.changes.outputs.changed == 'true'
+        run: python scripts/build_dist.py
+```
+
+`ローカル側の `scripts/live_watch.py` には 2026-08-31 に同じ修正を入れてある
+（`sync_with_origin()`。取得の前に `git pull --rebase --autostash` する）。
+**片方だけ直しても意味が薄い。両方を同じ弾で入れること。**
+
 ### あわせて直す（1行）
 
 `.github/workflows/match_events.yml` 91行:
