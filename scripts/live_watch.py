@@ -364,6 +364,12 @@ def recover_from_stuck_rebase() -> bool:
     return False
 
 
+def unpushed_count() -> int:
+    """origin/main に無い手元のコミット数。事前の pull で origin/main は最新になっている前提。"""
+    out = (git("rev-list", "--count", "origin/main..HEAD").stdout or "").strip()
+    return int(out) if out.isdigit() else 0
+
+
 def commit_and_push() -> bool:
     stamp = f"{datetime.now(JST):%Y-%m-%d %H:%M}"
     # data/history も必ず含める。build_dist.py は build_ics 経由で
@@ -373,12 +379,19 @@ def commit_and_push() -> bool:
     # Actionsは毎回クリーンなcheckoutなので表面化しない、ローカル実行に固有の落とし穴。
     git("add", "-A", "data/processed", "dist", "data/history")
     if git("diff", "--cached", "--quiet").returncode == 0:
-        log("ステージに何も無い。コミットはしない")
-        return True
-    r = git("commit", "-m", f"auto: 試合詳細速報更新(ローカル) {stamp} JST")
-    if r.returncode != 0:
-        log(f"[error] commit失敗: {(r.stderr or '').strip()[:300]}")
-        return False
+        # 第30弾: ステージが空でも、前回押せずに残ったコミットがあることがある。
+        # ここで素通りすると、データに変化の無い日が続くかぎり永久に押されない
+        # (2026-08-31、手で直したコミットが宙に浮いた)。
+        ahead = unpushed_count()
+        if ahead == 0:
+            log("ステージに何も無い。コミットはしない")
+            return True
+        log(f"新しい変更は無いが、未pushのコミットが{ahead}件ある。押すところまでやる")
+    else:
+        r = git("commit", "-m", f"auto: 試合詳細速報更新(ローカル) {stamp} JST")
+        if r.returncode != 0:
+            log(f"[error] commit失敗: {(r.stderr or '').strip()[:300]}")
+            return False
     # Actions(update.yml)や手元の作業とpushが競合する前提で、必ずrebaseしてから押す。
     # 失敗の中身を必ずログに残すこと。理由が出ないと、通信の問題なのか作業ツリーの問題なのか
     # 切り分けられない(実際それで一度詰まった)。
@@ -437,7 +450,12 @@ def main() -> None:
             log(f"[error] fetch_match_events 失敗: {((r.stderr or '') + (r.stdout or '')).strip()[-500:]}")
             return
         if not has_meaningful_changes():
-            log("得点/カード/交代に変化なし。build_dist もコミットもしない")
+            # 変化が無くても、押し損ねたコミットが残っているなら押しておく(第30弾)。
+            if unpushed_count() > 0:
+                log("得点/カード/交代に変化なし。ただし未pushのコミットがあるので押す")
+                commit_and_push()
+            else:
+                log("得点/カード/交代に変化なし。build_dist もコミットもしない")
             return
         if dry_run:
             log("--dry-run なのでここで終了(変化は検出済み)")
