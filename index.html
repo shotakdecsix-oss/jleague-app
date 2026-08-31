@@ -133,11 +133,18 @@
     padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right);
   }
   #tabbar button{
-    flex:1; border:none; background:none; padding:12px 4px 10px;
+    flex:1; border:none; background:none; padding:12px 3px 10px;
     font-size:12px; font-weight:700; color:var(--accent-sub-ink); opacity:.7;
     font-family:inherit; cursor:pointer;
     border-bottom:3px solid transparent;
   }
+  /* 第32弾でタブが7個になった。390px幅だと1つあたり約56pxしか無く、12pxのままでは
+     「スタッツ」「ニュース」が2行に折り返して他のタブと高さが揃わなくなる。
+     タブを減らすかスクロールさせるかではなく、狭い端末で文字を1段落とす方を選んだ
+     (全部のタブが常に見えている方が、この画面では迷わない)。
+     幅を変えて確認済み: 320 / 360 / 390 / 430px のいずれでも1行に収まる。 */
+  @media (max-width:420px){ #tabbar button{font-size:11px} }
+  @media (max-width:344px){ #tabbar button{font-size:10px; padding-left:2px; padding-right:2px} }
   /* 選択中のタブは下線だけでなく面もわずかに持ち上げる。半透明の向き(白/黒)はタブバーの
      地色に載る文字色と揃えてあるので、明るい2ndカラーでも消えない。 */
   #tabbar button.active{opacity:1; border-bottom-color:var(--accent-sub-ink); background:var(--on-sub-soft)}
@@ -402,6 +409,25 @@
     padding:6px 10px; border-radius:999px; cursor:pointer; font-family:inherit;
   }
   .chart-chip.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  /* 第32弾: マイニュース */
+  .mynews-form{display:flex; gap:8px; align-items:stretch; margin:0 0 10px}
+  .mynews-form input{flex:1; min-width:0}
+  .mynews-form button{flex:none; padding:0 16px; min-height:44px; border-radius:var(--radius);
+    border:none; background:var(--accent); color:var(--accent-ink); font-family:inherit; font-size:13px; font-weight:700}
+  .mynews-chips{display:flex; flex-wrap:wrap; gap:6px}
+  .mynews-chip{display:inline-flex; align-items:center; gap:6px; padding:0 4px 0 10px; min-height:36px;
+    border:1px solid var(--line); border-radius:999px; background:var(--surface-1); font-size:12px; font-weight:700}
+  .mynews-chip .mynews-count{color:var(--sub); font-weight:700; font-variant-numeric:tabular-nums}
+  .mynews-chip .mynews-count.zero{opacity:.6}
+  /* ✕は見た目26pxのまま、当たり判定だけ広げる(ヘッダーのボタンと同じ考え方)。 */
+  .mynews-chip button{position:relative; width:26px; height:26px; border:none; border-radius:50%;
+    background:none; color:var(--sub); font-family:inherit; font-size:13px; line-height:1; cursor:pointer}
+  .mynews-chip button::after{content:""; position:absolute; top:50%; left:50%; width:44px; height:44px; transform:translate(-50%,-50%)}
+  /* 見出しの中でヒットした語。クラブ色(--accent/--accent-sub)を地色に使うと、
+     ダークモードでカードの地色との差が1.26:1しか無く、ほとんど見えなかった(実測)。
+     文字色と地色をそのまま入れ替える。--ink と --card は必ず対になっているので、
+     ライトでもダークでも、どのクラブ色でも確実に浮き上がる。 */
+  .news-item mark{background:var(--ink); color:var(--card); border-radius:3px; padding:0 3px; font-weight:800}
   .chart-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch}
   .chart-scroll svg{display:block}
   .chart-axis-label{font-size:9px; fill:var(--sub)}
@@ -784,6 +810,10 @@ const TABS = [
   { id: "stats", label: "スタッツ" },
   { id: "players", label: "選手" },
   { id: "news", label: "ニュース" },
+  /* 第32弾: マイニュース。タブバーはflexで等分するので、7個目を足すと1つあたり約56pxしか無い。
+     「マイニュース」は12pxフォントで72px要って収まらないため、ラベルは2文字にしてある
+     (中の見出しは「マイニュース」)。 */
+  { id: "mynews", label: "注目" },
 ];
 /* 全体モード(J1〜J3横断)のタブ。クラブモードのTABSとはidが被るもの("schedule"/"standings")もあるが、
    state.activeTab(クラブ)とstate.allTab(全体)を別フィールドで持つことで衝突しない設計にしてある。 */
@@ -807,6 +837,7 @@ const state = {
   masters: {}, cache: {}, idTeam: null, league: null,
   teamsById: {}, // 第14弾: 全リーグ横断のidTeam->チーム情報(color等)。init()でmasters読み込み後に構築する
   news: undefined, clubExtra: undefined, // undefined=未取得, null=取得試行済みでデータ無し
+  myNewsKeywords: null,   // 第32弾: マイニュースのキーワード配列。nullなら初回にlocalStorageから読む
   emperorsCup: undefined, // 第23弾: 天皇杯(data/processed/emperors_cup.json)。undefined=未取得, null=データ無し
   cupRound: null,         // 天皇杯タブで表示中のラウンド名。nullなら初回描画時に決める
   emperorsCupEvents: undefined, // 第23弾フェーズ2: 天皇杯の試合詳細(emperors_cup_events.json)
@@ -1362,6 +1393,12 @@ function findCupEvents(matchNumber) {
   return (d && d.events) ? (d.events[String(matchNumber)] || null) : null;
 }
 async function ensureTabData(league, tabId) {
+  if (tabId === "mynews") {
+    // 第32弾: マイニュースはクラブ横断なので、全クラブぶんのニュース2ファイルだけ要る
+    await ensureNews();
+    await ensureClubExtra();
+    return;
+  }
   if (tabId === "home") {
     await ensureMatches(league);
     await ensureSimulation(league);
@@ -1493,9 +1530,37 @@ async function init() {
     renderActiveTab();
   });
 
+  // 第32弾: マイニュースの入力欄はEnterでも追加できるようにする(スマホの「完了」キー)。
+  // formにしないのは、Enterでページごとsubmit(=リロード)されるのを避けるため。
+  document.addEventListener("keydown", ev => {
+    if (ev.key !== "Enter" || !ev.target || ev.target.id !== "myNewsInput") return;
+    ev.preventDefault();
+    addMyNewsKeyword(ev.target.value);
+    ev.target.value = "";
+    renderActiveTab();
+  });
+
   // イベント委譲: クラブ名クリックでの切替(data-idteam)とレーダーの頂点タップ(ツールチップ)を1つのリスナーで拾う。
   // 行ごと/要素ごとにリスナーを張らないこと。
   document.addEventListener("click", ev => {
+    // 第32弾: マイニュースのキーワード追加/削除。
+    // data-mynews-add に値があればそれを(候補チップ)、無ければ入力欄の中身を足す。
+    const myAdd = ev.target.closest("[data-mynews-add]");
+    if (myAdd) {
+      const input = document.getElementById("myNewsInput");
+      const word = myAdd.dataset.mynewsAdd || (input ? input.value : "");
+      addMyNewsKeyword(word);
+      if (input) input.value = "";
+      renderActiveTab();
+      return;
+    }
+    const myDel = ev.target.closest("[data-mynews-remove]");
+    if (myDel) {
+      removeMyNewsKeywordAt(Number(myDel.dataset.mynewsRemove));
+      renderActiveTab();
+      return;
+    }
+
     // 第30弾: 更新バナーの「再読み込み」。HTML自体を取り直すのが目的なのでlocation.reload()。
     if (ev.target.closest("[data-app-reload]")) {
       location.reload();
@@ -1795,6 +1860,8 @@ async function renderActiveTab() {
     html = renderStatsTab(cache.stats, team) + renderProbabilityChart(cache.history, all, team, master, league);
   } else if (state.activeTab === "players") {
     html = renderLeaders(state.clubExtra, team) + renderPlayers(state.clubExtra, team) + renderSeasonalPerformances(state.clubExtra, team);
+  } else if (state.activeTab === "mynews") {
+    html = renderMyNewsTab();
   } else if (state.activeTab === "news") {
     const newsHtml = renderNews(state.news, state.clubExtra, team, league);
     html = newsHtml || '<section><h2>ニュース</h2><div class="card"><p class="muted" style="margin:0">関連ニュースが見つかりませんでした。</p></div></section>';
@@ -4671,6 +4738,204 @@ function renderSeasonalPerformances(clubExtra, team) {
      - google:   Google News(watchlist記載クラブのみ。news.json)
    OB選手(卒業生)は公式サイトに情報が無いため、引き続きGoogle News RSS(news.json.obPlayers)を使う。 */
 
+/* ---------- 第32弾: マイニュース(キーワードでニュース見出しを横断検索) ----------
+
+   仕組みは端末の中だけで完結する。キーワードはlocalStorageに置き、検索対象は
+   アプリが既に読み込んでいる news.json(60クラブ×100件) と club_extra.json の公式ニュース。
+   バッチもサーバーも一切触らないので、追加した瞬間に結果が出る。
+
+   限界も正直に書いておく: 持っているのは見出しだけで本文は無い。実測(2026-08-31)では
+   Jリーグの登録選手2,240人のうち、見出しに名前が出ているのは434人(19.4%)だった。
+   話題になっていない選手は当たらない。そのキーワード専用にGoogle Newsを引きたい場合は
+   data/config/watchlist.json の obPlayers に足してバッチを回す(サーバー側の別機能)。 */
+
+const MY_NEWS_KEY = "jleague-app.myNewsKeywords";
+const MY_NEWS_MAX_KEYWORDS = 20;
+const MY_NEWS_MAX_ITEMS = 100;   // 一覧に出す上限。これを超えた分は件数だけ知らせる
+const MY_NEWS_SUGGESTIONS = ["移籍", "新加入", "負傷", "監督"];
+
+/* localStorageが使えない環境でも落ちないようにする(既存のloadFav/saveFavと同じ流儀) */
+function loadMyNewsKeywords() {
+  try {
+    const raw = localStorage.getItem(MY_NEWS_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr.filter(x => typeof x === "string" && x.trim()) : [];
+  } catch (e) { return []; }
+}
+function saveMyNewsKeywords(list) {
+  try { localStorage.setItem(MY_NEWS_KEY, JSON.stringify(list)); } catch (e) { /* 無視 */ }
+}
+function myNewsKeywords() {
+  if (state.myNewsKeywords === null) state.myNewsKeywords = loadMyNewsKeywords();
+  return state.myNewsKeywords;
+}
+function addMyNewsKeyword(word) {
+  const w = String(word || "").trim();
+  if (!w) return;
+  const list = myNewsKeywords();
+  // 正規化して比べる。「久保建英」と「久保 建英」を二重に持たせない
+  const n = normalizeForSearch(w);
+  if (list.some(x => normalizeForSearch(x) === n)) return;
+  if (list.length >= MY_NEWS_MAX_KEYWORDS) return;
+  list.push(w);
+  saveMyNewsKeywords(list);
+}
+function removeMyNewsKeywordAt(i) {
+  const list = myNewsKeywords();
+  if (i < 0 || i >= list.length) return;
+  list.splice(i, 1);
+  saveMyNewsKeywords(list);
+}
+
+/* 全角/半角・大文字小文字・空白のゆれを吸収する。
+   NFKCが「ＦＣ東京」->「FC東京」、「ｶﾀｰﾚ」->「カターレ」をまとめて片付けてくれる。
+   空白を落とすのは、見出し側が「久保 建英」でキーワードが「久保建英」でも当てたいため。 */
+function normalizeForSearch(str) {
+  return String(str || "").normalize("NFKC").toLowerCase().replace(/\s+/g, "");
+}
+
+/* ニュース全件を1本の配列にする。newsItemHtml() が公式記事のURLを組み立てるのに
+   navicode(リーグ)を要るので、どのクラブ由来かをここで持たせておく。 */
+function allNewsEntries(news, clubExtra) {
+  const out = [];
+  const teams = (news && news.teams) || {};
+  for (const idTeam of Object.keys(teams)) {
+    const found = findTeam(idTeam);
+    const lg = found ? found.league : state.league;
+    for (const item of teams[idTeam] || []) out.push({ item: item, league: lg });
+  }
+  const clubs = (clubExtra && clubExtra.clubs) || {};
+  for (const idTeam of Object.keys(clubs)) {
+    const found = findTeam(idTeam);
+    const lg = found ? found.league : state.league;
+    for (const item of (clubs[idTeam].news || [])) {
+      out.push({ item: Object.assign({ sourceType: "official" }, item), league: lg });
+    }
+  }
+  return out;
+}
+
+/* 同じ記事が複数クラブの一覧に入っていることがある(対戦相手の名前が入った試合レポートなど)。
+   linkかidで一意にして、最初の1件だけ残す。 */
+function searchMyNews(entries, keywords) {
+  const norm = keywords.map(k => ({ raw: k, n: normalizeForSearch(k) })).filter(k => k.n);
+  const counts = {};
+  for (const k of keywords) counts[k] = 0;
+  if (!norm.length) return { hits: [], counts: counts, scanned: entries.length };
+
+  const seen = new Set();
+  const hits = [];
+  for (const e of entries) {
+    const title = normalizeForSearch(e.item.title);
+    const matched = norm.filter(k => title.indexOf(k.n) >= 0);
+    if (!matched.length) continue;
+    const key = e.item.link || e.item.id || e.item.title;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    for (const k of matched) counts[k.raw]++;
+    hits.push({ item: e.item, league: e.league, matched: matched.map(k => k.raw) });
+  }
+  hits.sort((a, b) => (b.item.publishedJst || "").localeCompare(a.item.publishedJst || ""));
+  return { hits: hits, counts: counts, scanned: entries.length };
+}
+
+/* 見出しの中の一致部分を <mark> で囲む。
+   エスケープ済みのHTMLに対して置換すると &amp; のような実体参照の中を壊しうるので、
+   素のタイトル上で位置を出し、切り出した断片それぞれをesc()してから組み立てる。
+   NFKCで正規化して当てているため、素のタイトル上には位置が無いこともある
+   (「ＦＣ東京」に「FC東京」で当たった場合など)。そのときは強調しないだけで一覧からは外さない。 */
+function highlightedTitleHtml(title, keywords) {
+  const raw = String(title || "");
+  if (!keywords || !keywords.length) return esc(raw);
+  const lower = raw.toLowerCase();
+  const spans = [];
+  for (const kw of keywords) {
+    const k = String(kw || "").toLowerCase();
+    if (!k) continue;
+    let i = lower.indexOf(k);
+    while (i >= 0) { spans.push([i, i + k.length]); i = lower.indexOf(k, i + k.length); }
+  }
+  if (!spans.length) return esc(raw);
+  spans.sort((a, b) => a[0] - b[0]);
+  const merged = [];
+  for (const sp of spans) {
+    const last = merged[merged.length - 1];
+    if (last && sp[0] <= last[1]) last[1] = Math.max(last[1], sp[1]);
+    else merged.push([sp[0], sp[1]]);
+  }
+  let out = "", pos = 0;
+  for (const m of merged) {
+    out += esc(raw.slice(pos, m[0])) + '<mark>' + esc(raw.slice(m[0], m[1])) + '</mark>';
+    pos = m[1];
+  }
+  return out + esc(raw.slice(pos));
+}
+
+function myNewsChipsHtml(keywords, counts) {
+  return keywords.map((kw, i) => {
+    const n = counts[kw] || 0;
+    return '<span class="mynews-chip">' + esc(kw) +
+      '<span class="mynews-count' + (n ? '' : ' zero') + '">' + n + '</span>' +
+      '<button type="button" data-mynews-remove="' + i + '" aria-label="' + esc(kw) + ' を削除">✕</button>' +
+    '</span>';
+  }).join("");
+}
+
+function renderMyNewsTab() {
+  const keywords = myNewsKeywords();
+  const entries = allNewsEntries(state.news, state.clubExtra);
+  const res = searchMyNews(entries, keywords);
+
+  const form =
+    '<div class="mynews-form">' +
+      '<input type="text" id="myNewsInput" placeholder="選手名・キーワード" maxlength="40" ' +
+        'autocomplete="off" enterkeyhint="done" aria-label="追加するキーワード">' +
+      '<button type="button" data-mynews-add>追加</button>' +
+    '</div>';
+
+  let manage;
+  if (!keywords.length) {
+    manage = form +
+      '<p class="muted" style="margin:0 0 8px">キーワードを登録すると、集めてある' +
+        res.scanned.toLocaleString() + '件のニュース見出しから、一致するものを新しい順に並べます。</p>' +
+      '<div class="mynews-chips">' +
+        MY_NEWS_SUGGESTIONS.map(w =>
+          '<button type="button" class="chart-chip" data-mynews-add="' + esc(w) + '">＋ ' + esc(w) + '</button>').join("") +
+      '</div>';
+  } else {
+    const zeros = keywords.filter(k => !res.counts[k]);
+    manage = form + '<div class="mynews-chips">' + myNewsChipsHtml(keywords, res.counts) + '</div>' +
+      // 0件のキーワードは消し忘れではなく「いま話題が無いだけ」。理由を書いておかないと壊れて見える。
+      (zeros.length
+        ? '<p class="muted" style="margin:8px 0 0">' + esc(zeros.join("・")) +
+          ' はいまの見出しに出ていません。話題になれば自動で並びます。</p>' : '') +
+      (keywords.length >= MY_NEWS_MAX_KEYWORDS
+        ? '<p class="muted" style="margin:8px 0 0">キーワードは' + MY_NEWS_MAX_KEYWORDS + '個までです。</p>' : '');
+  }
+
+  let listHtml;
+  if (!keywords.length) {
+    listHtml = "";
+  } else if (!res.hits.length) {
+    listHtml = '<section><h2>ヒットした記事</h2><div class="card">' +
+      '<p class="muted" style="margin:0">一致する見出しがありませんでした。' +
+      '持っているのは60クラブぶんのニュースの見出しだけなので、いま話題になっていない選手は当たらないことがあります。</p>' +
+      '</div></section>';
+  } else {
+    const shown = res.hits.slice(0, MY_NEWS_MAX_ITEMS);
+    const rest = res.hits.length - shown.length;
+    listHtml = '<section><h2>ヒットした記事(' + res.hits.length + '件)</h2><div class="card">' +
+      '<ul class="news-list">' +
+        shown.map(h => newsItemHtml(h.item, h.league, h.matched)).join("") +
+      '</ul>' +
+      (rest > 0 ? '<p class="muted" style="margin:10px 0 0">新しい順に' + MY_NEWS_MAX_ITEMS +
+        '件まで表示しています(他' + rest + '件)。</p>' : '') +
+    '</div></section>';
+  }
+
+  return '<section><h2>マイニュース</h2><div class="card">' + manage + '</div></section>' + listHtml;
+}
+
 function rssNewsItemHtml(item) {
   return '<li class="news-item">' +
     '<div class="news-item-body">' +
@@ -4687,7 +4952,9 @@ const NEWS_SOURCE_LABEL = { official: "Jリーグ公式", soccerdigest: "サッ�
    imageUrlが無いニュースはサムネイル枠自体を出さない(グレーのプレースホルダは置かない)。
    元サイトのURLが変わって読み込みに失敗した場合は onerror で要素ごと消し、リンク切れアイコンを出さない。
    第14弾: サッカーダイジェストWeb(soccerdigest)もimageUrlを持つので、公式と同様にサムネイルを出す。 */
-function newsItemHtml(item, league) {
+/* keywords を渡すと、見出しの中の一致部分を <mark> で囲む(第32弾のマイニュース用)。
+   渡さなければ従来どおり esc() したそのままの見出しになる。 */
+function newsItemHtml(item, league, keywords) {
   const isOfficial = item.sourceType === "official";
   const url = isOfficial
     ? "https://www.jleague.jp/news/article/" + encodeURIComponent(item.id) + "/?navicode=" + esc(league)
@@ -4699,7 +4966,7 @@ function newsItemHtml(item, league) {
   return '<li class="news-item">' +
     thumb +
     '<div class="news-item-body">' +
-      '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(item.title) + '</a>' +
+      '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + highlightedTitleHtml(item.title, keywords) + '</a>' +
       '<div class="news-meta">' + (item.publishedJst ? esc(fmtDate(item.publishedJst, false)) : "") +
         (sourceLabel ? ' ・ ' + esc(sourceLabel) : '') + '</div>' +
     '</div>' +
