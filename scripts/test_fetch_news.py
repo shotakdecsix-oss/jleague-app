@@ -182,13 +182,17 @@ def test_feed_items_classified_by_team_name() -> None:
         {"title": "湘南ベルマーレ、新加入選手を発表", "link": "https://feed.example.com/1", "publishedJst": "2026-08-10T10:00:00+09:00", "description": ""},
         {"title": "無関係な記事", "link": "https://feed.example.com/2", "publishedJst": "2026-08-10T09:00:00+09:00", "description": "サッカーとは関係ない話題"},
     ]
-    classified = classify_feed_items(items, ALL_TEAMS, "テスト媒体")
+    classified, unmatched = classify_feed_items(items, ALL_TEAMS, "テスト媒体")
     assert "137715" in classified, "「湘南ベルマーレ」はjaと完全一致するので拾えるはず"
     assert len(classified["137715"]) == 1
     assert classified["137715"][0]["source"] == "テスト媒体"
     assert classified["137715"][0]["sourceType"] == "feed"
     assert sum(len(v) for v in classified.values()) == 1, "無関係な記事はどのクラブにもヒットしないはず"
-    print("OK: フィード記事はタイトルのクラブ名(ja/aliasesJa)でクラブに振り分けられる")
+    # 第33弾: 当たらなかった記事は捨てずに返す
+    assert len(unmatched) == len(items) - 1, unmatched
+    assert all(u["sourceType"] == "feed" and u["source"] == "テスト媒体" for u in unmatched)
+    print("OK: フィード記事はタイトルのクラブ名(ja/aliasesJa)でクラブに振り分けられ、"
+          "当たらなかった記事はunmatchedとして返る")
 
 
 def test_feed_item_can_match_multiple_teams() -> None:
@@ -196,9 +200,48 @@ def test_feed_item_can_match_multiple_teams() -> None:
     items = [
         {"title": "柏レイソルから北海道コンサドーレ札幌へ、FW〇〇が完全移籍", "link": "https://feed.example.com/3", "publishedJst": "2026-08-10T10:00:00+09:00", "description": ""},
     ]
-    classified = classify_feed_items(items, ALL_TEAMS, "テスト媒体")
+    classified, unmatched = classify_feed_items(items, ALL_TEAMS, "テスト媒体")
     assert "999901" in classified and "137706" in classified, classified
+    assert unmatched == [], "クラブに当たった記事はunmatchedに入らないはず"
     print("OK: 複数クラブがタイトルに含まれる記事は両方に振り分けられる")
+
+
+def test_merge_with_existing_accumulates_world() -> None:
+    """第33弾: world(クラブに紐づかない記事)も teams と同じように蓄積・重複除去・掃除される。"""
+    cutoff = "2026-08-01T00:00:00+09:00"
+    existing = {"teams": {}, "obPlayers": {}, "world": [
+        {"title": "古い海外記事", "link": "https://x.example.com/old", "publishedJst": "2026-07-01T00:00:00+09:00"},
+        {"title": "残る海外記事", "link": "https://x.example.com/keep", "publishedJst": "2026-08-20T00:00:00+09:00"},
+    ]}
+    fresh = {"meta": {}, "teams": {}, "obPlayers": {}, "world": [
+        {"title": "残る海外記事", "link": "https://x.example.com/keep", "publishedJst": "2026-08-20T00:00:00+09:00"},
+        {"title": "新しい海外記事", "link": "https://x.example.com/new", "publishedJst": "2026-08-31T00:00:00+09:00"},
+    ]}
+    out = merge_with_existing(existing, fresh, cutoff)
+    titles = [w["title"] for w in out["world"]]
+    assert titles == ["新しい海外記事", "残る海外記事"], titles   # 新しい順
+    assert "古い海外記事" not in titles, "cutoffより古い記事は掃除されるはず"
+    assert out["meta"]["newItems"] == 1, out["meta"]      # 重複した1件は新規に数えない
+    assert out["meta"]["totalItems"] == 2, out["meta"]
+    print("OK: worldもcutoff掃除・重複除去・新着カウントの対象になる")
+
+
+def test_overseas_feed_items_go_to_world() -> None:
+    """第33弾: Jクラブ名が入っていない海外記事は捨てずにunmatchedへ回す。
+
+    これが無いと「クラブから海外移籍した選手の動向」が一切集まらない
+    (サッカーキングのフィードは大半がこの形)。
+    """
+    items = [
+        {"title": "菅原由勢、カリアリへレンタル移籍の可能性浮上　買取OP付きでセリエA挑戦か",
+         "link": "https://feed.example.com/w1", "publishedJst": "2026-08-31T10:00:00+09:00", "description": ""},
+        {"title": "湘南ベルマーレ、次節のメンバーを発表",
+         "link": "https://feed.example.com/w2", "publishedJst": "2026-08-31T11:00:00+09:00", "description": ""},
+    ]
+    classified, unmatched = classify_feed_items(items, ALL_TEAMS, "サッカーキング")
+    assert [u["title"] for u in unmatched] == [items[0]["title"]], unmatched
+    assert list(classified) == ["137715"], classified
+    print("OK: Jクラブ名の無い海外記事はunmatched(world行き)、クラブ名のある記事はクラブ別に入る")
 
 
 # 第14弾: サッカーダイジェストWeb(soccerdigestweb.com)の記事一覧ページ(クラブ別タグページ)。
@@ -487,6 +530,8 @@ def main() -> None:
         test_fetch_failure_skips_only_that_query,
         test_feed_items_classified_by_team_name,
         test_feed_item_can_match_multiple_teams,
+        test_overseas_feed_items_go_to_world,
+        test_merge_with_existing_accumulates_world,
         test_parse_soccerdigest_entries_extracts_title_link_date_image,
         test_parse_soccerdigest_entries_tolerates_missing_date_and_image,
         test_parse_soccerdigest_entries_returns_empty_on_unrecognized_markup,

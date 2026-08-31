@@ -3,9 +3,13 @@
 
 情報源は4種類:
   1. Google News RSS  -- クラブ名(ja + aliasesJa)とOB選手名で個別に検索する(sourceType: "google")
-  2. リーグ全体のRSSフィード(ゲキサカ・サッカーキング) -- 1回取得して、記事のタイトル+概要に
-     クラブ名(ja/aliasesJaのみ。英語aliasesとshortは使わない)が含まれるかで、該当クラブに振り分ける
-     (sourceType: "feed")
+  2. リーグ全体のRSSフィード(ゲキサカ国内・ゲキサカ海外・サッカーキング) -- 1回取得して、
+     記事のタイトル+概要にクラブ名(ja/aliasesJaのみ。英語aliasesとshortは使わない)が
+     含まれるかで、該当クラブに振り分ける(sourceType: "feed")。
+     第33弾: どのクラブにも当たらなかった記事は捨てずに news.json の "world" に貯める。
+     サッカーキングのフィードは実測(2026-08-31)で直近8件が8件とも海外サッカーで、
+     Jリーグから海外へ出た選手の動向がそこに入っていたのに、クラブ名が無いという理由だけで
+     全部落ちていた。アプリのマイニュース(キーワード検索)がこの箱も対象にする。
   3. サッカーダイジェストWeb(soccerdigestweb.com) -- 第14弾で追加。RSS配信が無いため、クラブ別の
      記事一覧ページ(https://www.soccerdigestweb.com/tag_list/tag_search=1&tag_id=<tag_id>)を
      直接HTML取得して.entryブロックを正規表現で抜き出す(sourceType: "soccerdigest")。
@@ -72,6 +76,10 @@ MASTER_FILES = {
 RSS_URL_TMPL = "https://news.google.com/rss/search?q={q}&hl=ja&gl=JP&ceid=JP:ja"
 MAX_ITEMS = 20
 MAX_ITEMS_PER_TEAM = 100
+# 第33弾: クラブに紐づかない記事(海外サッカーなど)を貯める枠の上限。
+# クラブ別と違って全キーワードで共有する1本の箱なので、多めに持たせる。
+# 1件およそ300バイトなので、400件でも120KB程度しか増えない。
+MAX_ITEMS_WORLD = 400
 NEWS_MAX_AGE_DAYS = 60
 SLEEP_BETWEEN_QUERIES = 2.0
 TIMEOUT = 15.0
@@ -84,6 +92,10 @@ _KATAKANA_ONLY = re.compile(r"^[ァ-ヶー]+$")
 #   soccer-king: User-agent:* は /js/ /nk- /movie のみ disallow。Crawl-delay: 10 が指定されている
 FEED_SOURCES = [
     {"name": "ゲキサカ", "url": "https://web.gekisaka.jp/feed?category=domestic"},
+    # 第33弾: 海外サッカー専用フィード。category=foreign で
+    # 「ゲキサカ[講談社] › 海外サッカー」が返る(2026-08-31に実物で確認)。
+    # 海外移籍した元Jリーグの選手を追うのが目的。
+    {"name": "ゲキサカ(海外)", "url": "https://web.gekisaka.jp/feed?category=foreign"},
     {"name": "サッカーキング", "url": "https://www.soccer-king.jp/feed"},
 ]
 FEED_CRAWL_DELAY = {"サッカーキング": 10.0}  # robots.txtのCrawl-delayに合わせる(既定はSLEEP_BETWEEN_QUERIES)
@@ -344,23 +356,39 @@ def load_soccerdigest_tags(log=print) -> dict[str, str]:
     return data.get("tags", {})
 
 
-def classify_feed_items(items: list[dict], all_teams: list[dict], source_name: str) -> dict[str, list[dict]]:
+def classify_feed_items(
+    items: list[dict], all_teams: list[dict], source_name: str
+) -> tuple[dict[str, list[dict]], list[dict]]:
     """
     リーグ全体フィードの記事を、タイトル+概要にクラブ名(ja/aliases)が含まれるかでクラブへ振り分ける。
-    1本の記事が複数クラブにヒットしてもよい(移籍記事など)。どのクラブにもヒットしない記事は捨てる。
+    1本の記事が複数クラブにヒットしてもよい(移籍記事など)。
+
+    戻り値は (クラブ別, どのクラブにもヒットしなかった記事) の組。
+
+    第33弾まで、ヒットしなかった記事はその場で捨てていた。ところが調べてみると
+    サッカーキングのフィードは直近8件が8件とも海外サッカーで(2026-08-31に実物で確認)、
+    菅原由勢のカリアリ移籍や高井幸大のシント=トロイデン移籍といった、まさに
+    「Jリーグから海外へ出た選手の動向」がそこに入っていた。Jクラブ名が本文に無いという
+    理由だけで全部落ちていたことになる。捨てずに返し、マイニュースの検索対象に加える。
     """
     by_team: dict[str, list[dict]] = {}
+    unmatched: list[dict] = []
     for item in items:
         text = (item.get("title") or "") + " " + (item.get("description") or "")
-        for team in match_teams_in_text(text, all_teams):
-            by_team.setdefault(team["idTeam"], []).append({
-                "title": item["title"],
-                "link": item["link"],
-                "publishedJst": item["publishedJst"],
-                "source": source_name,
-                "sourceType": "feed",
-            })
-    return by_team
+        entry = {
+            "title": item["title"],
+            "link": item["link"],
+            "publishedJst": item["publishedJst"],
+            "source": source_name,
+            "sourceType": "feed",
+        }
+        teams = match_teams_in_text(text, all_teams)
+        if not teams:
+            unmatched.append(entry)
+            continue
+        for team in teams:
+            by_team.setdefault(team["idTeam"], []).append(dict(entry))
+    return by_team, unmatched
 
 
 def build_news(
@@ -386,14 +414,17 @@ def build_news(
     query_count = 0
 
     # 1. リーグ全体フィード(全クラブが対象。watchlistは関係ない)
+    world_out: list[dict] = []
     for feed in FEED_SOURCES:
         try:
             items = fetch_feed_fn(feed["url"])
-            classified = classify_feed_items(items, all_teams, feed["name"])
+            classified, unmatched = classify_feed_items(items, all_teams, feed["name"])
             hit_count = sum(len(v) for v in classified.values())
             for tid, arts in classified.items():
                 per_team[tid].extend(arts)
-            log(f"[info] {feed['name']}: {len(items)}件取得、{hit_count}件をクラブに割り当て")
+            world_out.extend(unmatched)   # 第33弾: クラブに紐づかない記事(海外など)
+            log(f"[info] {feed['name']}: {len(items)}件取得、{hit_count}件をクラブに割り当て、"
+                f"{len(unmatched)}件をworldへ")
         except Exception as e:  # noqa: BLE001
             log(f"[warn] {feed['name']}の取得に失敗: {e}", file=sys.stderr)
             failed.append(f"feed:{feed['name']}")
@@ -471,6 +502,9 @@ def build_news(
         },
         "teams": teams_out,
         "obPlayers": ob_players_out,
+        # 第33弾: どのクラブにも紐づかなかったフィード記事(海外サッカーなど)。
+        # クラブ別と違って1本のリストで持つ(アプリ側はキーワード検索にだけ使う)。
+        "world": dedupe_news_items(world_out),
     }
 
 
@@ -516,7 +550,14 @@ def merge_with_existing(existing: dict, fresh: dict, cutoff_iso: str) -> dict:
             merged_ob[name] = merged
         new_items_total += new_count
 
-    total_items = sum(len(v) for v in merged_teams.values()) + sum(len(v) for v in merged_ob.values())
+    merged_world, world_new = accumulate_items(
+        existing.get("world", []), fresh.get("world", []), MAX_ITEMS_WORLD, cutoff_iso
+    )
+    new_items_total += world_new
+
+    total_items = (sum(len(v) for v in merged_teams.values())
+                   + sum(len(v) for v in merged_ob.values())
+                   + len(merged_world))
 
     return {
         "meta": {
@@ -526,6 +567,7 @@ def merge_with_existing(existing: dict, fresh: dict, cutoff_iso: str) -> dict:
         },
         "teams": merged_teams,
         "obPlayers": merged_ob,
+        "world": merged_world,
     }
 
 

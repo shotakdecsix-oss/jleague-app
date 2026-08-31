@@ -4812,30 +4812,54 @@ function allNewsEntries(news, clubExtra) {
       out.push({ item: Object.assign({ sourceType: "official" }, item), league: lg });
     }
   }
+  /* 第33弾: どのJクラブにも紐づかなかったフィード記事(海外サッカーなど)。
+     海外移籍した元Jリーグの選手を追うのはここに入る。リーグを持たないが、
+     sourceTypeが"feed"でlinkをそのまま使うため newsItemHtml() は league を見ない。 */
+  for (const item of (news && news.world) || []) {
+    out.push({ item: item, league: state.league });
+  }
   return out;
 }
 
-/* 同じ記事が複数クラブの一覧に入っていることがある(対戦相手の名前が入った試合レポートなど)。
-   linkかidで一意にして、最初の1件だけ残す。 */
+/* 重複判定のキー。Google News経由の記事は「見出し - 媒体名」の形で来るが、同じ記事が
+   複数の媒体に配信されるとURLもタイトルも違うため、fetch_news.py側の重複除去
+   (URL正規化・タイトル完全一致)をすり抜ける。実測では「守田、坂元が初出場 サッカー」が
+   甲府/山口宇部/相模原町田/水戸の各経済新聞ぶん4件並んだ。
+   末尾の「 - 媒体名」を落としたものをキーにして畳む。表示するタイトルは元のまま。
+   媒体名は30文字までとし、区切りの前後に空白がある場合だけ落とす(見出しの中の
+   ハイフンを誤って切らないため)。 */
+function newsDedupeKey(item) {
+  const raw = String(item.title || "").replace(/\s[-–—]\s[^-–—]{1,30}$/, "");
+  return normalizeForSearch(raw) || item.link || item.id || "";
+}
+
+/* 同じ記事が複数クラブの一覧に入っていることもある(対戦相手の名前が入った試合レポートなど)。
+   先に新しい順へ並べてから畳むので、残るのは常に一番新しい1件。
+   キーワードごとの件数も畳んだ後の数で数える(チップの数字と一覧の件数を一致させる)。 */
 function searchMyNews(entries, keywords) {
   const norm = keywords.map(k => ({ raw: k, n: normalizeForSearch(k) })).filter(k => k.n);
   const counts = {};
   for (const k of keywords) counts[k] = 0;
   if (!norm.length) return { hits: [], counts: counts, scanned: entries.length };
 
-  const seen = new Set();
-  const hits = [];
+  const matched = [];
   for (const e of entries) {
     const title = normalizeForSearch(e.item.title);
-    const matched = norm.filter(k => title.indexOf(k.n) >= 0);
-    if (!matched.length) continue;
-    const key = e.item.link || e.item.id || e.item.title;
+    const hitKeys = norm.filter(k => title.indexOf(k.n) >= 0);
+    if (!hitKeys.length) continue;
+    matched.push({ item: e.item, league: e.league, matched: hitKeys.map(k => k.raw) });
+  }
+  matched.sort((a, b) => (b.item.publishedJst || "").localeCompare(a.item.publishedJst || ""));
+
+  const seen = new Set();
+  const hits = [];
+  for (const m of matched) {
+    const key = newsDedupeKey(m.item);
     if (seen.has(key)) continue;
     seen.add(key);
-    for (const k of matched) counts[k.raw]++;
-    hits.push({ item: e.item, league: e.league, matched: matched.map(k => k.raw) });
+    for (const k of m.matched) counts[k]++;
+    hits.push(m);
   }
-  hits.sort((a, b) => (b.item.publishedJst || "").localeCompare(a.item.publishedJst || ""));
   return { hits: hits, counts: counts, scanned: entries.length };
 }
 
@@ -4897,7 +4921,8 @@ function renderMyNewsTab() {
   if (!keywords.length) {
     manage = form +
       '<p class="muted" style="margin:0 0 8px">キーワードを登録すると、集めてある' +
-        res.scanned.toLocaleString() + '件のニュース見出しから、一致するものを新しい順に並べます。</p>' +
+        res.scanned.toLocaleString() + '件のニュース見出し(Jリーグ60クラブ＋海外サッカー)から、' +
+        '一致するものを新しい順に並べます。</p>' +
       '<div class="mynews-chips">' +
         MY_NEWS_SUGGESTIONS.map(w =>
           '<button type="button" class="chart-chip" data-mynews-add="' + esc(w) + '">＋ ' + esc(w) + '</button>').join("") +
@@ -4919,7 +4944,8 @@ function renderMyNewsTab() {
   } else if (!res.hits.length) {
     listHtml = '<section><h2>ヒットした記事</h2><div class="card">' +
       '<p class="muted" style="margin:0">一致する見出しがありませんでした。' +
-      '持っているのは60クラブぶんのニュースの見出しだけなので、いま話題になっていない選手は当たらないことがあります。</p>' +
+      '見ているのは60クラブぶんのニュースと海外サッカーの見出しだけなので、' +
+      'いま話題になっていない選手は当たらないことがあります。</p>' +
       '</div></section>';
   } else {
     const shown = res.hits.slice(0, MY_NEWS_MAX_ITEMS);
