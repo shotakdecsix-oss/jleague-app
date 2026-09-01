@@ -78,8 +78,11 @@ MAX_ITEMS = 20
 MAX_ITEMS_PER_TEAM = 100
 # 第33弾: クラブに紐づかない記事(海外サッカーなど)を貯める枠の上限。
 # クラブ別と違って全キーワードで共有する1本の箱なので、多めに持たせる。
-# 1件およそ300バイトなので、400件でも120KB程度しか増えない。
-MAX_ITEMS_WORLD = 400
+# 1件およそ300バイトなので、600件でも180KB程度しか増えない。
+# 第34弾で backfill_world_news.py により過去1ヶ月ぶん(実測で約270件)を入れたので、
+# 400のままだとフィードの新着に押し出されて数日で消えてしまう。600に上げた。
+# この値を変えるときは backfill_world_news.MAX_WORLD_ITEMS も揃えること。
+MAX_ITEMS_WORLD = 600
 NEWS_MAX_AGE_DAYS = 60
 SLEEP_BETWEEN_QUERIES = 2.0
 TIMEOUT = 15.0
