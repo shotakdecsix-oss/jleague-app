@@ -176,8 +176,11 @@ def find_highlight_video_id(chunks: dict[str, str]) -> str | None:
 # 日程一覧ページ(/match/{league}/): 「新しいコードのhref」直後に来る2つのチーム名(data-media=pc)を
 # home/awayとして拾う。同じコードのhrefが1試合につき複数回(mobile版リンク等で)出現するので、
 # 呼び出し側の状態機械でコードが変わった時だけ新しい試合として扱う。
+# 第36弾: leaguecup(ルヴァンカップ)を追加。個別試合ページのURLがJ1〜J3とまったく同じ形
+# (/match/leaguecup/2026/090201/)で、日程一覧も /match/leaguecup/ にある。
+# 得点者・カード・交代・出場メンバー・ハイライト動画のパーサはそのまま使える。
 SCHEDULE_TOKEN_RE = re.compile(
-    r'"href":"/match/(?P<league>j1|j2|j3|j1j2|j2j3)/(?P<year>\d{4})/(?P<code>\d{6})"'
+    r'"href":"/match/(?P<league>j1|j2|j3|j1j2|j2j3|leaguecup)/(?P<year>\d{4})/(?P<code>\d{6})"'
     r'|m-schedule__team-name","ref":"\$undefined","data-media":"pc","children":"(?P<name>[^"]+)"'
 )
 
