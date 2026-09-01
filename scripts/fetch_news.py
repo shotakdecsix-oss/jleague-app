@@ -50,6 +50,7 @@ import html as html_lib
 import json
 import re
 import sys
+import unicodedata
 import time
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
@@ -153,9 +154,23 @@ def normalize_url(url: str) -> str:
     return urlunsplit((parts.scheme, parts.netloc, parts.path.rstrip("/"), urlencode(kept), ""))
 
 
+# 第35弾: Google News経由の見出しは「本文の見出し - 媒体名」の形で来る。同じ記事が何十媒体にも
+# 配信されるとURLもタイトルも違うので、URL正規化とタイトル完全一致だけではすり抜ける。
+# 実測(2026-09-01): Google News由来5,747件のうち1,960件(34%)が媒体名違いの重複だった。
+# 「天皇杯2回戦はいつ?試合日程・テレビ放送/ネット配信予定」が21回、リーグ日程表が15回ずつ入っていた。
+# 末尾の「 - 媒体名」を落とした見出しも重複キーにする。媒体名は30文字までとし、
+# 区切りの前後に空白がある場合だけ落とす(見出しの中のハイフンを誤って切らないため)。
+_SOURCE_SUFFIX_RE = re.compile(r"\s[-–—]\s[^-–—]{1,30}$")
+
+
+def title_dedupe_key(title: str) -> str:
+    """重複判定用に見出しを正規化する。表示にはこの値を使わない(元のタイトルをそのまま出す)。"""
+    return unicodedata.normalize("NFKC", _SOURCE_SUFFIX_RE.sub("", str(title or ""))).strip().lower()
+
+
 def dedupe_news_items(items: list[dict]) -> list[dict]:
     """
-    URL正規化が一致、またはタイトル完全一致のものを重複とみなして落とす。
+    URL正規化が一致、またはタイトルが一致(媒体名を落として比較)するものを重複とみなして落とす。
     先に出てきたものを残すので、呼び出し側は残したい優先順(=優先度の高い順)に並べて渡すこと。
     """
     seen_urls: set[str] = set()
@@ -163,7 +178,7 @@ def dedupe_news_items(items: list[dict]) -> list[dict]:
     out: list[dict] = []
     for item in items:
         url_key = normalize_url(item.get("link", ""))
-        title_key = (item.get("title") or "").strip()
+        title_key = title_dedupe_key(item.get("title", ""))
         if (url_key and url_key in seen_urls) or (title_key and title_key in seen_titles):
             continue
         if url_key:
@@ -182,11 +197,26 @@ def _priority_key(item: dict) -> tuple[int, int]:
 
 
 def merge_and_dedupe(items: list[dict], max_items: int = MAX_ITEMS_PER_TEAM) -> list[dict]:
-    """優先順位順で重複排除し、publishedJstの新しい順に並べ替えて上限件数に絞る。"""
+    """優先順位順で重複排除し、publishedJstの新しい順に並べ替えて上限件数に絞る。
+
+    第35弾: 上限を素直に「新しい順にmax_items件」で切ると、量で圧倒するGoogle Newsが枠を
+    埋め尽くし、低頻度だが質の高い経路(公式サイト/サッカーダイジェスト/ゲキサカ)が押し出される。
+    実測(2026-09-01): 全60クラブが100件で満杯になり、保持できていたのは直近1週間ぶんだけ。
+    サッカーダイジェストを1クラブから40クラブに広げても、600件取って17件しか残らなかった。
+
+    そこでGoogle News以外を先に確保し、残った枠をGoogle Newsで埋める。
+    Google News以外は1クラブあたり多くても数十件なので、枠を圧迫する心配はない
+    (仮に非googleだけでmax_itemsを超えた場合も、新しい順に切られるので破綻しない)。
+    """
     ordered_for_dedupe = sorted(items, key=_priority_key)
     deduped = dedupe_news_items(ordered_for_dedupe)
     deduped.sort(key=lambda it: it.get("publishedJst") or "", reverse=True)
-    return deduped[:max_items]
+
+    curated = [it for it in deduped if it.get("sourceType") != "google"]
+    google = [it for it in deduped if it.get("sourceType") == "google"]
+    kept = curated[:max_items] + google[: max(0, max_items - len(curated))]
+    kept.sort(key=lambda it: it.get("publishedJst") or "", reverse=True)
+    return kept
 
 
 def _item_identity(item: dict) -> str:

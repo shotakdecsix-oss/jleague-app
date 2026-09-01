@@ -435,6 +435,57 @@ def test_dedupe_by_exact_title_match_different_url() -> None:
     print("OK: タイトル完全一致はURLが違っても重複とみなす")
 
 
+def test_dedupe_collapses_same_headline_from_different_outlets() -> None:
+    """第35弾: 「見出し - 媒体名」の媒体名違いを同一記事として畳む。
+
+    実測(2026-09-01)ではGoogle News由来の34%がこの形の重複で、クラブごとの100件枠を
+    食い潰していた。ただし見出し本体が違うものまで畳んではいけない。
+    """
+    items = [
+        {"title": "守田、坂元が初出場 サッカー - 甲府経済新聞", "link": "https://a.example/1",
+         "publishedJst": "2026-08-30T10:00:00+09:00", "sourceType": "google"},
+        {"title": "守田、坂元が初出場 サッカー - 水戸経済新聞", "link": "https://b.example/2",
+         "publishedJst": "2026-08-30T10:00:00+09:00", "sourceType": "google"},
+        {"title": "Ｊ１第4節 湘南vs仙台 - Yahoo!ニュース", "link": "https://c.example/3",
+         "publishedJst": "2026-08-30T10:00:00+09:00", "sourceType": "google"},
+        {"title": "Ｊ１第5節 湘南vs仙台 - Yahoo!ニュース", "link": "https://d.example/4",
+         "publishedJst": "2026-08-30T10:00:00+09:00", "sourceType": "google"},
+    ]
+    out = dedupe_news_items(items)
+    titles = [i["title"] for i in out]
+    assert len(out) == 3, titles
+    assert "守田、坂元が初出場 サッカー - 甲府経済新聞" in titles, "先に来た方を残すはず"
+    assert "守田、坂元が初出場 サッカー - 水戸経済新聞" not in titles
+    assert "Ｊ１第4節 湘南vs仙台 - Yahoo!ニュース" in titles and "Ｊ１第5節 湘南vs仙台 - Yahoo!ニュース" in titles, \
+        "見出し本体が違うものは畳んではいけない"
+    print("OK: 媒体名違いの同一見出しは畳み、見出し本体が違うものは残す")
+
+
+def test_merge_and_dedupe_reserves_slots_for_non_google() -> None:
+    """第35弾: Google News以外は件数上限で押し出されない。
+
+    Google Newsは量で圧倒するので、素直に「新しい順に上限件数」で切ると
+    公式サイトやサッカーダイジェストの記事が枠から溢れる(実測で600件中17件しか残らなかった)。
+    """
+    google = [{"title": f"google記事{i}", "link": f"https://g.example/{i}",
+               "publishedJst": f"2026-08-31T{i:02d}:00:00+09:00", "sourceType": "google"}
+              for i in range(10)]
+    curated = [
+        {"title": "公式の古い記事", "link": "https://o.example/1",
+         "publishedJst": "2026-08-01T10:00:00+09:00", "sourceType": "official"},
+        {"title": "ダイジェストの古い記事", "link": "https://s.example/1",
+         "publishedJst": "2026-08-02T10:00:00+09:00", "sourceType": "soccerdigest"},
+    ]
+    out = merge_and_dedupe(google + curated, max_items=5)
+    assert len(out) == 5, out
+    types = [i["sourceType"] for i in out]
+    assert "official" in types and "soccerdigest" in types, f"google以外が残るはず: {types}"
+    assert types.count("google") == 3, f"残り枠だけgoogleが入るはず: {types}"
+    dates = [i.get("publishedJst") for i in out]
+    assert dates == sorted(dates, reverse=True), f"最終的な並びは新しい順: {dates}"
+    print("OK: Google News以外に枠を確保し、残りをGoogle Newsで埋め、新しい順に並べる")
+
+
 def test_merge_and_dedupe_caps_and_sorts_by_recency() -> None:
     """件数上限に絞り、publishedJstの新しい順に並ぶこと。"""
     items = [
@@ -545,6 +596,8 @@ def main() -> None:
         test_normalize_url_strips_utm_params,
         test_dedupe_prefers_higher_priority_source,
         test_dedupe_by_exact_title_match_different_url,
+        test_dedupe_collapses_same_headline_from_different_outlets,
+        test_merge_and_dedupe_reserves_slots_for_non_google,
         test_merge_and_dedupe_caps_and_sorts_by_recency,
         test_accumulate_items_merges_new_into_existing,
         test_accumulate_items_drops_items_older_than_cutoff,
