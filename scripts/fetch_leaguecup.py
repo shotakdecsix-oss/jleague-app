@@ -162,6 +162,16 @@ def parse_index(text: str, master: dict[str, dict]) -> list[dict]:
     return out
 
 
+def _rounds_in_order(matches: list[dict]) -> list[str]:
+    """出てきたラウンド名を、日付順(=大会の進行順)で重複なく並べる。"""
+    out: list[str] = []
+    for m in matches:
+        r = m.get("round")
+        if r and r not in out:
+            out.append(r)
+    return out
+
+
 def merge(existing: list[dict], fresh: list[dict]) -> list[dict]:
     """試合コードで一意にして、今回見えたものを優先する(ラウンドが進んでも過去を失わない)。"""
     by_code = {m["code"]: m for m in existing}
@@ -210,12 +220,14 @@ def main() -> None:
             "finishedCount": sum(1 for m in merged if m.get("finished")),
             "clubMatchedCount": sum(1 for m in merged
                                     if m["home"]["idTeam"] and m["away"]["idTeam"]),
-            "roundsSeen": sorted({m["round"] for m in merged if m.get("round")}),
         },
+        # 天皇杯(emperors_cup.json)と同じ形にしておく。アプリ側のラウンド切替タブが共用できる。
+        # 日付順に初めて出てきた順で並べる(大会の進行順になる)。
+        "rounds": _rounds_in_order(merged),
         "matches": merged,
     }
     print(f"[info] 累計 {len(merged)}試合 (今回 新規/更新 {len(fresh)}件) "
-          f"ラウンド: {out['meta']['roundsSeen']}")
+          f"ラウンド: {out['rounds']}")
     if args.dry_run:
         print("[info] --dry-run なので書き込まない")
         return

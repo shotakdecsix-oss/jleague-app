@@ -115,12 +115,39 @@ def load_all_teams() -> list[dict]:
     return all_teams
 
 
+# 第36弾: ルヴァンカップ。J1〜J3とは日程データの出どころが違う
+# (TheSportsDBにリーグが無いので fetch_leaguecup.py が jleague.jp から作る)。
+# 代わりに試合コードを最初から持っているので、日程一覧ページからのコード解決が要らない。
+LEAGUECUP = "leaguecup"
+
+
 def load_matches(league: str) -> list[dict]:
+    if league == LEAGUECUP:
+        path = PROCESSED_DIR / "leaguecup.json"
+        if not path.exists():
+            return []
+        data = json.loads(path.read_text(encoding="utf-8"))
+        # 以降の処理はidEventで回るので、試合コードをそのままidEventとして使う
+        # (J1〜J3のidEventはTheSportsDB由来の数値、こちらは6桁コード。混ざることはない)。
+        return [dict(m, idEvent=m["code"]) for m in data.get("matches", []) if m.get("code")]
     path = PROCESSED_DIR / f"{league}_matches.json"
     if not path.exists():
         return []
     data = json.loads(path.read_text(encoding="utf-8"))
     return data.get("matches", [])
+
+
+def leaguecup_resolved(candidates: list[dict]) -> dict[str, dict]:
+    """ルヴァンは試合コードが既に分かっているので、対戦カード照合を通さず直接組み立てる。"""
+    out: dict[str, dict] = {}
+    for m in candidates:
+        code, year = m["code"], m.get("year") or str(datetime.now(JST).year)
+        base = f"https://www.jleague.jp/match/{LEAGUECUP}/{year}/{code}/"
+        out[m["idEvent"]] = {
+            "league": LEAGUECUP, "year": year, "code": code,
+            "url": base + "livetxt/", "baseUrl": base, "reviewUrl": base + "review/",
+        }
+    return out
 
 
 def load_existing_events(league: str) -> dict:
@@ -472,7 +499,10 @@ def process_league(league: str, all_teams: list[dict], now: datetime) -> None:
         write_events(league, events, meta)
         return
 
-    resolved, unresolved = resolve_codes(league, candidates, all_teams)
+    if league == LEAGUECUP:
+        resolved, unresolved = leaguecup_resolved(candidates), []
+    else:
+        resolved, unresolved = resolve_codes(league, candidates, all_teams)
     for id_event in unresolved:
         meta["failed"].append({"idEvent": id_event, "reason": "code_not_found"})
 
@@ -490,10 +520,10 @@ def process_league(league: str, all_teams: list[dict], now: datetime) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="jleague.jp試合詳細(得点/カード/交代)取得バッチ")
-    parser.add_argument("--league", choices=["j1", "j2", "j3", "all"], required=True)
+    parser.add_argument("--league", choices=["j1", "j2", "j3", LEAGUECUP, "all"], required=True)
     args = parser.parse_args()
 
-    target_leagues = ["j1", "j2", "j3"] if args.league == "all" else [args.league]
+    target_leagues = ["j1", "j2", "j3", LEAGUECUP] if args.league == "all" else [args.league]
     all_teams = load_all_teams()
     now = datetime.now(JST)
 

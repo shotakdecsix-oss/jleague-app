@@ -48,6 +48,12 @@ HEARTBEAT_PATH = TMP_DIR / "live_watch_last.txt"
 IDLE_STAMP_PATH = TMP_DIR / "live_watch_idle.txt"
 
 LEAGUES = ("j1", "j2", "j3")
+# 第36弾: ルヴァンカップ。fetch_match_events.py --league all がこれも取りに行くようになったので、
+# 変化の判定にも含める。含めないと「得点/カード/交代に変化なし」と誤判定して、
+# 取得はできているのにコミットされない(=画面に出ない)。
+# live_matches() の方には入れていない。日程の持ち方が違う(leaguecup.json)ためで、
+# 1時間ごとの拾い直しで取れる。試合中の5分間隔で追いたくなったら別途対応する。
+EVENT_LEAGUES = LEAGUES + ("leaguecup",)
 # このスクリプトが自動でコミットしてよい(=捨てても build_dist.py で作り直せる)ファイル。
 # これ以外を触っているコミットは、人が書いたコードなので自動回復で捨ててはいけない。
 GENERATED_PREFIXES = ("data/processed/", "data/history/", "dist/")
@@ -185,7 +191,8 @@ def git(*args: str, timeout: int = 120) -> subprocess.CompletedProcess:
 
 def has_meaningful_changes() -> bool:
     """得点/カード/交代に実質的な変化があるか。終了コード0なら「あり」(workflowと同じ判定)。"""
-    files = [str(PROCESSED_DIR / f"{lg}_match_events.json") for lg in LEAGUES]
+    files = [str(PROCESSED_DIR / f"{lg}_match_events.json") for lg in EVENT_LEAGUES
+             if (PROCESSED_DIR / f"{lg}_match_events.json").exists()]
     r = run([sys.executable, str(BASE_DIR / "scripts" / "git_diff_match_events.py"), *files])
     if (r.stdout or '').strip():
         log(r.stdout.strip()[:500])

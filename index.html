@@ -484,7 +484,10 @@
   .cal-score{font-weight:700; font-variant-numeric:tabular-nums; text-align:center; white-space:nowrap; display:inline-flex; align-items:center; gap:4px}
   .cal-round{font-size:9px; color:var(--sub); text-align:right}
   /* 第23弾: 天皇杯(出典はJFA)。既存の.cal-*とはグリッドの列構成が違うので別クラスにしてある */
+  /* 第36弾: 見出しの直後に置く前提の -4px だったが、大会切替(.seg-toggle)を挟むように
+     なって切替ボタンと詰まって見えた。セグメントの直後に来る場合だけ上を空ける。 */
   .ec-comp{font-size:11px; color:var(--sub); margin:-4px 2px 8px}
+  .seg-toggle + .ec-comp{margin-top:8px}
   .ec-sub{font-size:12px; font-weight:700; margin:0 0 8px; color:var(--sub)}
   .ec-row{padding:9px 0; border-bottom:1px solid var(--line)}
   .ec-row-wrap:last-child .ec-row{border-bottom:none}
@@ -821,7 +824,7 @@ const ALL_TABS = [
   { id: "schedule", label: "日程" },
   { id: "standings", label: "順位" },
   { id: "predict", label: "予想" },
-  { id: "cup", label: "天皇杯" },
+  { id: "cup", label: "カップ" },   /* 第36弾: 天皇杯とルヴァンを切り替えるので総称にした */
 ];
 
 /* 第30弾: ビルド時に scripts/build_dist.py が dist/index.html の中だけを置換する。
@@ -839,7 +842,10 @@ const state = {
   news: undefined, clubExtra: undefined, // undefined=未取得, null=取得試行済みでデータ無し
   myNewsKeywords: null,   // 第32弾: マイニュースのキーワード配列。nullなら初回にlocalStorageから読む
   emperorsCup: undefined, // 第23弾: 天皇杯(data/processed/emperors_cup.json)。undefined=未取得, null=データ無し
-  cupRound: null,         // 天皇杯タブで表示中のラウンド名。nullなら初回描画時に決める
+  cupRound: null,         // カップタブで表示中のラウンド名。nullなら初回描画時に決める
+  cupKind: "emperors",    // 第36弾: カップタブで見ている大会("emperors"=天皇杯 / "leaguecup"=ルヴァン)
+  leagueCup: undefined,       // leaguecup.json。undefined=未取得, null=データ無し
+  leagueCupEvents: undefined, // leaguecup_match_events.json(得点者/カード/交代/メンバー/動画)
   emperorsCupEvents: undefined, // 第23弾フェーズ2: 天皇杯の試合詳細(emperors_cup_events.json)
   activeTab: "home",
   statsGroup: "model", // スタッツタブのレーダー切替(既定は「モデル」)
@@ -1364,6 +1370,8 @@ async function ensureAllTabData(tabId, league) {
   } else if (tabId === "cup") {
     await ensureEmperorsCup(); // 第23弾: 天皇杯はリーグ非依存(1ファイルに全試合が入っている)
     await ensureEmperorsCupEvents(); // フェーズ2: 試合詳細ドリルダウン用
+    await ensureLeagueCup();         // 第36弾: ルヴァンカップ
+    await ensureLeagueCupEvents();
   }
 }
 async function ensureClubExtra() {
@@ -1388,6 +1396,21 @@ async function ensureEmperorsCupEvents() {
   if (state.emperorsCupEvents === undefined) state.emperorsCupEvents = await getJsonOptional("data/processed/emperors_cup_events.json");
   return state.emperorsCupEvents;
 }
+/* 第36弾: ルヴァンカップ。日程・結果は fetch_leaguecup.py、試合詳細は fetch_match_events.py
+   (J1〜J3と同じ形式)。天皇杯と違って出どころがJFAではなくjleague.jpなので別ファイルになる。 */
+async function ensureLeagueCup() {
+  if (state.leagueCup === undefined) state.leagueCup = await getJsonOptional("data/processed/leaguecup.json");
+  return state.leagueCup;
+}
+async function ensureLeagueCupEvents() {
+  if (state.leagueCupEvents === undefined) state.leagueCupEvents = await getJsonOptional("data/processed/leaguecup_match_events.json");
+  return state.leagueCupEvents;
+}
+function findLeagueCupEvents(code) {
+  const d = state.leagueCupEvents;
+  return (d && d.events) ? (d.events[String(code)] || null) : null;
+}
+
 function findCupEvents(matchNumber) {
   const d = state.emperorsCupEvents;
   return (d && d.events) ? (d.events[String(matchNumber)] || null) : null;
@@ -1618,6 +1641,16 @@ async function init() {
 
     // 第23弾: 天皇杯のラウンド切替。data-idteam(クラブ切替)より先に見る必要はないが、
     // 行タップ系(data-eventsrow)より前に置いて誤爆を避ける。
+    // 第36弾: カップの大会切替。ラウンドは大会ごとに違うので選び直させる
+    const cupKindBtn = ev.target.closest("[data-cupkind]");
+    if (cupKindBtn) {
+      state.cupKind = cupKindBtn.dataset.cupkind;
+      state.cupRound = null;
+      state.eventsOpen = null;
+      renderActiveTab();
+      return;
+    }
+
     const cupRoundBtn = ev.target.closest("[data-cupround]");
     if (cupRoundBtn) {
       state.cupRound = cupRoundBtn.dataset.cupround;
@@ -1922,10 +1955,10 @@ async function renderAllModeActiveTab() {
     html = renderAllStandings(state.allLeague, standingsForDisplay, found, provisional, cache.rankHistory);
     genMeta = cache.standings && cache.standings.meta;
   } else if (state.allTab === "cup") {
-    // 天皇杯だけ出典がJFA(TheSportsDBでもjleague.jpでもない)なのでフッタの表記を差し替える
-    html = renderEmperorsCup(state.emperorsCup, found);
-    genMeta = state.emperorsCup && state.emperorsCup.meta;
-    source = "JFA";
+    // カップは出典がリーグ戦と違う(天皇杯=JFA、ルヴァン=Jリーグ公式)のでフッタの表記を差し替える
+    html = renderCup(found);
+    genMeta = cupKind().data() && cupKind().data().meta;
+    source = cupKind().source;
   } else {
     const cache = leagueCache(state.allLeague);
     html = renderAllPredict(state.allLeague, cache.simulation, found);
@@ -2110,17 +2143,51 @@ function cupWhenText(m) {
   return "日程未定";
 }
 
-function cupRowHtml(m, ownIdTeam, showRound) {
+/* 第36弾: 天皇杯とルヴァンで、試合の識別子・試合詳細の出どころ・詳細パネルの描き方が違う。
+   行の見た目は同じなので、その3点だけ差し替えられるようにした。
+     天皇杯 : JFAの試合ページ由来 (matchNumber / emperorsCupEvents / renderCupEventsPanel)
+     ルヴァン: jleague.jp由来でJ1〜J3と同じ形 (code / leagueCupEvents / renderMatchEventsPanel) */
+const CUP_KINDS = {
+  emperors: {
+    label: "天皇杯",
+    source: "JFA",
+    data: () => state.emperorsCup,
+    idOf: m => m.matchNumber,
+    eventsOf: m => findCupEvents(m.matchNumber),
+    /* 得点者は日程データ側(m.scorers)に入っている */
+    goalCountOf: m => ((m.scorers && m.scorers.home) || []).length + ((m.scorers && m.scorers.away) || []).length,
+    hasDetail: ev => !!(cupHasLineups(ev) || (ev.cards || []).length || (ev.subs || []).length || ev.videoId),
+    videoOf: ev => ev && ev.videoId,
+    panel: (ev, m, ownIdTeam) => renderCupEventsPanel(ev, m, ownIdTeam),
+  },
+  leaguecup: {
+    label: "ルヴァン",
+    source: "Jリーグ公式",
+    data: () => state.leagueCup,
+    idOf: m => m.code,
+    eventsOf: m => findLeagueCupEvents(m.code),
+    /* 得点者は試合詳細側(ev.goals)にしか無い。日程ページはスコアまでしか持たない */
+    goalCountOf: () => 0,
+    hasDetail: ev => !!((ev.goals || []).length || (ev.cards || []).length || (ev.subs || []).length
+      || (ev.lineups && Object.keys(ev.lineups).length) || ev.highlightVideoId || ev.daznVideoId),
+    videoOf: ev => ev && (ev.highlightVideoId || ev.daznVideoId),
+    panel: (ev, m, ownIdTeam) => renderMatchEventsPanel(
+      ev, m.home.idTeam, m.home.name, m.away.idTeam, m.away.name, ownIdTeam),
+  },
+};
+function cupKind() { return CUP_KINDS[state.cupKind] || CUP_KINDS.emperors; }
+
+function cupRowHtml(m, ownIdTeam, showRound, kind) {
+  kind = kind || CUP_KINDS.emperors;
   const involvesMe = !!(ownIdTeam && (m.home.idTeam === ownIdTeam || m.away.idTeam === ownIdTeam));
   const venue = m.venueFull || m.venue;
   // フェーズ2: 詳細(メンバー/交代/カード/動画)か得点者が1件でもあれば、行タップで展開できるようにする
-  const ev = findCupEvents(m.matchNumber);
-  const goalCount = ((m.scorers && m.scorers.home) || []).length + ((m.scorers && m.scorers.away) || []).length;
-  const hasEvents = !!(ev && (cupHasLineups(ev) || (ev.cards || []).length || (ev.subs || []).length || ev.videoId)) || goalCount > 0;
-  const eventsKey = "cup:" + m.matchNumber;
+  const ev = kind.eventsOf(m);
+  const hasEvents = !!(ev && kind.hasDetail(ev)) || kind.goalCountOf(m) > 0;
+  const eventsKey = "cup:" + state.cupKind + ":" + kind.idOf(m);
   const isOpen = hasEvents && state.eventsOpen === eventsKey;
   const expandHtml = hasEvents ? '<span class="events-toggle' + (isOpen ? " open" : "") + '">▸</span>' : "";
-  const videoMarkHtml = (ev && ev.videoId) ? '<span class="video-mark" title="JFATVの動画あり">🎥</span>' : "";
+  const videoMarkHtml = kind.videoOf(ev) ? '<span class="video-mark" title="ハイライト動画あり">🎥</span>' : "";
   const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' : "";
   return '<div class="ec-row-wrap">' +
     '<div class="ec-row' + (involvesMe ? " me" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
@@ -2135,7 +2202,7 @@ function cupRowHtml(m, ownIdTeam, showRound) {
       '</div>' +
       (venue ? '<div class="ec-venue">' + esc(venue) + '</div>' : "") +
       cupScorersHtml(m) +
-    '</div>' + (isOpen ? renderCupEventsPanel(ev, m, ownIdTeam) : "") +
+    '</div>' + (isOpen ? kind.panel(ev, m, ownIdTeam) : "") +
   '</div>';
 }
 
@@ -2146,10 +2213,22 @@ function renderCupRoundTabs(rounds, active) {
   ).join("") + '</div>';
 }
 
-function renderEmperorsCup(data, found) {
+/* 第36弾: 大会切替(天皇杯/ルヴァン)。既存の .seg-toggle をそのまま流用する。 */
+function renderCupKindSegment() {
+  return '<div class="seg-toggle">' + Object.keys(CUP_KINDS).map(k =>
+    '<button type="button" class="' + (k === state.cupKind ? "active" : "") + '" data-cupkind="' + k + '">' +
+      esc(CUP_KINDS[k].label) + '</button>'
+  ).join("") + '</div>';
+}
+
+/* 天皇杯とルヴァンで共通。中身の違いは CUP_KINDS に寄せてある。 */
+function renderCup(found) {
+  const kind = cupKind();
+  const data = kind.data();
+  const header = '<section><h2>' + esc(kind.label) + '</h2>' + renderCupKindSegment();
   if (!data || !data.matches || !data.matches.length) {
-    return '<section><h2>天皇杯</h2><div class="card"><p class="muted" style="margin:0">' +
-      '天皇杯のデータがまだありません。</p></div></section>';
+    return header + '<div class="card"><p class="muted" style="margin:0">' +
+      esc(kind.label) + 'のデータがまだありません。</p></div></section>';
   }
 
   const ownId = found ? found.team.idTeam : null;
@@ -2159,16 +2238,16 @@ function renderEmperorsCup(data, found) {
 
   const mine = ownId ? data.matches.filter(m => m.home.idTeam === ownId || m.away.idTeam === ownId) : [];
   const mineHtml = mine.length
-    ? '<div class="card"><h3 class="ec-sub">' + esc(found.team.ja) + 'の天皇杯</h3>' +
-        mine.map(m => cupRowHtml(m, ownId, true)).join("") + '</div>'
+    ? '<div class="card"><h3 class="ec-sub">' + esc(found.team.ja) + 'の' + esc(kind.label) + '</h3>' +
+        mine.map(m => cupRowHtml(m, ownId, true, kind)).join("") + '</div>'
     : "";
 
   const list = data.matches.filter(m => m.round === state.cupRound);
   const listHtml = list.length
-    ? list.map(m => cupRowHtml(m, ownId, false)).join("")
+    ? list.map(m => cupRowHtml(m, ownId, false, kind)).join("")
     : '<p class="muted" style="margin:0">このラウンドの試合がありません。</p>';
 
-  return '<section><h2>天皇杯</h2>' +
+  return header +
     '<p class="ec-comp">' + esc((data.meta && data.meta.competitionName) || "") + '</p>' +
     mineHtml +
     '<div class="card">' + renderCupRoundTabs(rounds, state.cupRound) + listHtml + '</div>' +
@@ -3886,6 +3965,8 @@ function clearStaticCaches() {
   state.news = undefined;
   state.emperorsCup = undefined;
   state.emperorsCupEvents = undefined;
+  state.leagueCup = undefined;
+  state.leagueCupEvents = undefined;
 }
 
 /* 第30弾: 可視復帰での再取得(maybeRefreshStaticOnVisible)を間引くための下限。
