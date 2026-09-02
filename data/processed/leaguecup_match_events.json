@@ -1,25 +1,29 @@
 {
   "meta": {
     "league": "leaguecup",
-    "generatedAtJst": "2026-09-02T19:00:06+09:00",
+    "generatedAtJst": "2026-09-02T19:10:06+09:00",
     "windowHours": 36,
     "candidateCount": 15,
-    "fetchedCount": 14,
-    "failed": [
-      {
-        "idEvent": "090203",
-        "reason": "fetch_failed",
-        "url": "https://www.jleague.jp/match/leaguecup/2026/090203/livetxt/"
-      }
-    ],
-    "eventCount": 14
+    "fetchedCount": 15,
+    "failed": [],
+    "eventCount": 15
   },
   "events": {
     "090201": {
       "code": "090201",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090201/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:03:33+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-09-02T19:12:20+09:00",
+      "goals": [
+        {
+          "minute": "11",
+          "club": "栃木シティ",
+          "player": "バスケス バイロン",
+          "position": "FW 11",
+          "scoreAfter": "0-1",
+          "idTeam": "150222",
+          "playerId": "1636311"
+        }
+      ],
       "cards": [],
       "subs": [],
       "highlightVideoId": null,
@@ -266,7 +270,7 @@
     "090202": {
       "code": "090202",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090202/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:03:38+09:00",
+      "fetchedAtJst": "2026-09-02T19:12:23+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -459,8 +463,18 @@
     "090204": {
       "code": "090204",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090204/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:04:14+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-09-02T19:12:30+09:00",
+      "goals": [
+        {
+          "minute": "7",
+          "club": "テゲバジャーロ宮崎",
+          "player": "小林 俊瑛",
+          "position": "FW 20",
+          "scoreAfter": "1-0",
+          "idTeam": "141254",
+          "playerId": "1641586"
+        }
+      ],
       "cards": [],
       "subs": [],
       "highlightVideoId": null,
@@ -707,8 +721,18 @@
     "090205": {
       "code": "090205",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090205/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:04:24+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-09-02T19:12:33+09:00",
+      "goals": [
+        {
+          "minute": "1",
+          "club": "横浜ＦＣ",
+          "player": "ジョアン パウロ",
+          "position": "FW 10",
+          "scoreAfter": "0-1",
+          "idTeam": "137720",
+          "playerId": "1647902"
+        }
+      ],
       "cards": [],
       "subs": [],
       "highlightVideoId": null,
@@ -949,7 +973,7 @@
     "090206": {
       "code": "090206",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090206/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:04:38+09:00",
+      "fetchedAtJst": "2026-09-02T19:12:37+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -1197,7 +1221,7 @@
     "090207": {
       "code": "090207",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090207/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:04:45+09:00",
+      "fetchedAtJst": "2026-09-02T19:12:40+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -1445,7 +1469,7 @@
     "090208": {
       "code": "090208",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090208/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:05:01+09:00",
+      "fetchedAtJst": "2026-09-02T19:12:44+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -1687,7 +1711,7 @@
     "090209": {
       "code": "090209",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090209/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:05:10+09:00",
+      "fetchedAtJst": "2026-09-02T19:12:47+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -1935,9 +1959,29 @@
     "090210": {
       "code": "090210",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090210/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:05:17+09:00",
-      "goals": [],
-      "cards": [],
+      "fetchedAtJst": "2026-09-02T19:12:51+09:00",
+      "goals": [
+        {
+          "minute": "35",
+          "club": "ジュビロ磐田",
+          "player": "渡邉 りょう",
+          "position": "FW 9",
+          "scoreAfter": "0-1",
+          "idTeam": "139887",
+          "playerId": "1624402"
+        }
+      ],
+      "cards": [
+        {
+          "minute": "38",
+          "type": "yellow",
+          "player": "神戸 康輔",
+          "position": "MF 8",
+          "club": "ＳＣ相模原",
+          "idTeam": "140510",
+          "playerId": "1635530"
+        }
+      ],
       "subs": [],
       "highlightVideoId": null,
       "daznVideoId": null,
@@ -2183,8 +2227,18 @@
     "090211": {
       "code": "090211",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090211/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:05:31+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-09-02T19:12:54+09:00",
+      "goals": [
+        {
+          "minute": "6",
+          "club": "ＦＣ大阪",
+          "player": "長野 星輝",
+          "position": "FW 78",
+          "scoreAfter": "1-0",
+          "idTeam": "147070",
+          "playerId": "1632386"
+        }
+      ],
       "cards": [],
       "subs": [],
       "highlightVideoId": null,
@@ -2431,7 +2485,7 @@
     "090212": {
       "code": "090212",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090212/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:05:57+09:00",
+      "fetchedAtJst": "2026-09-02T19:12:58+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -2679,7 +2733,7 @@
     "090213": {
       "code": "090213",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090213/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:06:06+09:00",
+      "fetchedAtJst": "2026-09-02T19:13:01+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -2921,8 +2975,18 @@
     "090214": {
       "code": "090214",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090214/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:06:15+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-09-02T19:13:05+09:00",
+      "goals": [
+        {
+          "minute": "2",
+          "club": "ガイナーレ鳥取",
+          "player": "藤田 一途",
+          "position": "MF 2",
+          "scoreAfter": "1-0",
+          "idTeam": "141247",
+          "playerId": "1607215"
+        }
+      ],
       "cards": [],
       "subs": [],
       "highlightVideoId": null,
@@ -3169,7 +3233,7 @@
     "090215": {
       "code": "090215",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090215/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:06:22+09:00",
+      "fetchedAtJst": "2026-09-02T19:13:08+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -3402,6 +3466,254 @@
               "id": "1645935",
               "name": "西村 真祈",
               "number": "52",
+              "position": "FW"
+            }
+          ]
+        }
+      }
+    },
+    "090203": {
+      "code": "090203",
+      "url": "https://www.jleague.jp/match/leaguecup/2026/090203/livetxt/",
+      "fetchedAtJst": "2026-09-02T19:12:27+09:00",
+      "goals": [],
+      "cards": [],
+      "subs": [],
+      "highlightVideoId": null,
+      "daznVideoId": null,
+      "daznSearchAttempts": 0,
+      "daznLastSearchedAtJst": null,
+      "lineups": {
+        "home": {
+          "idTeam": "139902",
+          "formation": "3-4-2-1",
+          "players": [
+            {
+              "id": 1401475,
+              "name": "後藤 大輝",
+              "number": "50"
+            },
+            {
+              "id": 1629923,
+              "name": "松本 大輔",
+              "number": "55"
+            },
+            {
+              "id": 1401470,
+              "name": "畑尾 大翔",
+              "number": "3"
+            },
+            {
+              "id": 1631755,
+              "name": "寺阪 尚悟",
+              "number": "19"
+            },
+            {
+              "id": 1635563,
+              "name": "宮崎 海冬",
+              "number": "29"
+            },
+            {
+              "id": 1647161,
+              "name": "土佐 陸翼",
+              "number": "7"
+            },
+            {
+              "id": 1650533,
+              "name": "村田 迅",
+              "number": "26"
+            },
+            {
+              "id": 1503697,
+              "name": "毛利 駿也",
+              "number": "16"
+            },
+            {
+              "id": 1635543,
+              "name": "榊原 杏太",
+              "number": "23"
+            },
+            {
+              "id": 700759,
+              "name": "杉浦 恭平",
+              "number": "11"
+            },
+            {
+              "id": 1300102,
+              "name": "パトリック",
+              "number": "10"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1101578",
+              "name": "白井 裕人",
+              "number": "1",
+              "position": "GK"
+            },
+            {
+              "id": "1642077",
+              "name": "鈴木 遼",
+              "number": "28",
+              "position": "DF"
+            },
+            {
+              "id": "1401517",
+              "name": "庄司 朋乃也",
+              "number": "39",
+              "position": "DF"
+            },
+            {
+              "id": "1635338",
+              "name": "櫻井 風我",
+              "number": "71",
+              "position": "DF"
+            },
+            {
+              "id": "1650532",
+              "name": "四宮 悠成",
+              "number": "14",
+              "position": "MF"
+            },
+            {
+              "id": "1643197",
+              "name": "望月 耕平",
+              "number": "24",
+              "position": "MF"
+            },
+            {
+              "id": "1609244",
+              "name": "川上 竜",
+              "number": "40",
+              "position": "MF"
+            },
+            {
+              "id": "1637017",
+              "name": "白輪地 敬大",
+              "number": "13",
+              "position": "FW"
+            },
+            {
+              "id": "1631739",
+              "name": "大澤 朋也",
+              "number": "18",
+              "position": "FW"
+            }
+          ]
+        },
+        "away": {
+          "idTeam": "141249",
+          "formation": "4-2-3-1",
+          "players": [
+            {
+              "id": 1624380,
+              "name": "伊藤 元太",
+              "number": "18"
+            },
+            {
+              "id": 1645980,
+              "name": "竹内 悠力",
+              "number": "24"
+            },
+            {
+              "id": 1641570,
+              "name": "丸山 大和",
+              "number": "29"
+            },
+            {
+              "id": 1633011,
+              "name": "孫 大河",
+              "number": "3"
+            },
+            {
+              "id": 1604175,
+              "name": "菊地 健太",
+              "number": "15"
+            },
+            {
+              "id": 1636257,
+              "name": "佐藤 璃樹",
+              "number": "25"
+            },
+            {
+              "id": 1627434,
+              "name": "山田 貴文",
+              "number": "7"
+            },
+            {
+              "id": 1655863,
+              "name": "久保 恵音",
+              "number": "36"
+            },
+            {
+              "id": 1657452,
+              "name": "アレクサンダル パロチェヴィッチ",
+              "number": "26"
+            },
+            {
+              "id": 1600185,
+              "name": "森 晃太",
+              "number": "8"
+            },
+            {
+              "id": 1647899,
+              "name": "ウェズレイ タンキ",
+              "number": "11"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1655864",
+              "name": "山田 陽介",
+              "number": "21",
+              "position": "GK"
+            },
+            {
+              "id": "1650800",
+              "name": "イ ヨンジュン",
+              "number": "23",
+              "position": "DF"
+            },
+            {
+              "id": "1658287",
+              "name": "萩原 慶",
+              "number": "28",
+              "position": "DF"
+            },
+            {
+              "id": "1656000",
+              "name": "ガブリエル ゴメス",
+              "number": "99",
+              "position": "DF"
+            },
+            {
+              "id": "900646",
+              "name": "駒井 善成",
+              "number": "14",
+              "position": "MF"
+            },
+            {
+              "id": "1630218",
+              "name": "持井 響太",
+              "number": "17",
+              "position": "MF"
+            },
+            {
+              "id": "1636847",
+              "name": "馬越 晃",
+              "number": "38",
+              "position": "MF"
+            },
+            {
+              "id": "1657638",
+              "name": "中井 卓大 ピピ",
+              "number": "80",
+              "position": "MF"
+            },
+            {
+              "id": "1644462",
+              "name": "古山 兼悟",
+              "number": "19",
               "position": "FW"
             }
           ]
