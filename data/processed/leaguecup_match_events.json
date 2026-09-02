@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "leaguecup",
-    "generatedAtJst": "2026-09-02T19:30:26+09:00",
+    "generatedAtJst": "2026-09-02T19:35:04+09:00",
     "windowHours": 36,
     "candidateCount": 15,
     "fetchedCount": 15,
@@ -12,7 +12,7 @@
     "090201": {
       "code": "090201",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090201/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:31:35+09:00",
+      "fetchedAtJst": "2026-09-02T19:37:04+09:00",
       "goals": [
         {
           "minute": "11",
@@ -270,7 +270,7 @@
     "090202": {
       "code": "090202",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090202/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:31:38+09:00",
+      "fetchedAtJst": "2026-09-02T19:37:16+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -463,7 +463,7 @@
     "090204": {
       "code": "090204",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090204/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:31:45+09:00",
+      "fetchedAtJst": "2026-09-02T19:37:34+09:00",
       "goals": [
         {
           "minute": "21",
@@ -721,8 +721,27 @@
     "090205": {
       "code": "090205",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090205/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:31:48+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-09-02T19:37:44+09:00",
+      "goals": [
+        {
+          "minute": "29",
+          "club": "横浜ＦＣ",
+          "player": "アダイウトン",
+          "position": "FW 90",
+          "scoreAfter": "0-2",
+          "idTeam": "137720",
+          "playerId": "1500544"
+        },
+        {
+          "minute": "1",
+          "club": "横浜ＦＣ",
+          "player": "ジョアン パウロ",
+          "position": "FW 10",
+          "scoreAfter": "0-1",
+          "idTeam": "137720",
+          "playerId": "1647902"
+        }
+      ],
       "cards": [
         {
           "minute": "14",
@@ -973,9 +992,19 @@
     "090206": {
       "code": "090206",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090206/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:31:52+09:00",
+      "fetchedAtJst": "2026-09-02T19:37:54+09:00",
       "goals": [],
-      "cards": [],
+      "cards": [
+        {
+          "minute": "33",
+          "type": "yellow",
+          "player": "平瀬 大",
+          "position": "DF 40",
+          "club": "ＦＣ岐阜",
+          "idTeam": "139904",
+          "playerId": "1618869"
+        }
+      ],
       "subs": [],
       "highlightVideoId": null,
       "daznVideoId": null,
@@ -1221,7 +1250,7 @@
     "090207": {
       "code": "090207",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090207/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:31:55+09:00",
+      "fetchedAtJst": "2026-09-02T19:38:04+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -1469,7 +1498,7 @@
     "090208": {
       "code": "090208",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090208/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:31:58+09:00",
+      "fetchedAtJst": "2026-09-02T19:38:10+09:00",
       "goals": [],
       "cards": [
         {
@@ -1482,7 +1511,27 @@
           "playerId": "1000646"
         }
       ],
-      "subs": [],
+      "subs": [
+        {
+          "minute": "27",
+          "club": "ギラヴァンツ北九州",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 8",
+              "name": "吉長 真優",
+              "playerId": "1629476"
+            },
+            {
+              "variant": "out",
+              "position": "MF 21",
+              "name": "遠藤 貴成",
+              "playerId": "1637019"
+            }
+          ],
+          "idTeam": "139885"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -1721,7 +1770,7 @@
     "090209": {
       "code": "090209",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090209/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:32:02+09:00",
+      "fetchedAtJst": "2026-09-02T19:38:20+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -1969,7 +2018,7 @@
     "090210": {
       "code": "090210",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090210/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:32:05+09:00",
+      "fetchedAtJst": "2026-09-02T19:38:28+09:00",
       "goals": [
         {
           "minute": "48",
@@ -2010,7 +2059,40 @@
           "playerId": "1635530"
         }
       ],
-      "subs": [],
+      "subs": [
+        {
+          "minute": "45",
+          "club": "ジュビロ磐田",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 66",
+              "name": "増田 大空",
+              "playerId": "1651643"
+            }
+          ],
+          "idTeam": "139887"
+        },
+        {
+          "minute": "45",
+          "club": "ジュビロ磐田",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 19",
+              "name": "野澤 零温",
+              "playerId": "1627742"
+            },
+            {
+              "variant": "out",
+              "position": "MF 17",
+              "name": "西岡 健斗",
+              "playerId": "1652423"
+            }
+          ],
+          "idTeam": "139887"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -2255,7 +2337,7 @@
     "090211": {
       "code": "090211",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090211/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:32:09+09:00",
+      "fetchedAtJst": "2026-09-02T19:38:37+09:00",
       "goals": [
         {
           "minute": "6",
@@ -2267,7 +2349,17 @@
           "playerId": "1632386"
         }
       ],
-      "cards": [],
+      "cards": [
+        {
+          "minute": "33",
+          "type": "yellow",
+          "player": "舘野 俊祐",
+          "position": "DF 6",
+          "club": "ＦＣ大阪",
+          "idTeam": "147070",
+          "playerId": "1200051"
+        }
+      ],
       "subs": [],
       "highlightVideoId": null,
       "daznVideoId": null,
@@ -2513,14 +2605,23 @@
     "090212": {
       "code": "090212",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090212/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:32:12+09:00",
+      "fetchedAtJst": "2026-09-02T19:38:47+09:00",
       "goals": [
+        {
+          "minute": "30",
+          "club": "サガン鳥栖",
+          "player": "パク ホミン",
+          "position": "FW 19",
+          "scoreAfter": "1-1",
+          "idTeam": "137712",
+          "playerId": "1657451"
+        },
         {
           "minute": "12",
           "club": "奈良クラブ",
           "player": "戸水 利紀",
           "position": "MF 21",
-          "scoreAfter": "1-0",
+          "scoreAfter": null,
           "idTeam": "147069",
           "playerId": "1650524"
         }
@@ -2771,7 +2872,7 @@
     "090213": {
       "code": "090213",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090213/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:32:15+09:00",
+      "fetchedAtJst": "2026-09-02T19:38:58+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -3013,7 +3114,7 @@
     "090214": {
       "code": "090214",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090214/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:32:19+09:00",
+      "fetchedAtJst": "2026-09-02T19:39:26+09:00",
       "goals": [
         {
           "minute": "2",
@@ -3179,14 +3280,14 @@
               "number": "46"
             },
             {
-              "id": 1646958,
-              "name": "エドワード 真秀",
-              "number": "47"
-            },
-            {
               "id": 1657559,
               "name": "日隠 ナシュ 大士",
               "number": "29"
+            },
+            {
+              "id": 1646958,
+              "name": "エドワード 真秀",
+              "number": "47"
             },
             {
               "id": 1000648,
@@ -3271,7 +3372,7 @@
     "090215": {
       "code": "090215",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090215/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:32:22+09:00",
+      "fetchedAtJst": "2026-09-02T19:39:36+09:00",
       "goals": [
         {
           "minute": "10",
@@ -3533,8 +3634,18 @@
     "090203": {
       "code": "090203",
       "url": "https://www.jleague.jp/match/leaguecup/2026/090203/livetxt/",
-      "fetchedAtJst": "2026-09-02T19:31:41+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-09-02T19:37:28+09:00",
+      "goals": [
+        {
+          "minute": "29",
+          "club": "ツエーゲン金沢",
+          "player": "杉浦 恭平",
+          "position": "FW 11",
+          "scoreAfter": "1-0",
+          "idTeam": "139902",
+          "playerId": "700759"
+        }
+      ],
       "cards": [],
       "subs": [
         {
@@ -3546,6 +3657,12 @@
               "position": "MF 14",
               "name": "駒井 善成",
               "playerId": "900646"
+            },
+            {
+              "variant": "out",
+              "position": "MF 25",
+              "name": "佐藤 璃樹",
+              "playerId": "1636257"
             }
           ],
           "idTeam": "141249"
