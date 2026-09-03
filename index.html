@@ -1823,7 +1823,7 @@ async function init() {
     if (eventsRowBtn) {
       const key = eventsRowBtn.dataset.eventsrow;
       state.eventsOpen = (state.eventsOpen === key) ? null : key;
-      renderActiveTab();
+      rerenderKeepingRowAnchor(key);
       return;
     }
 
@@ -1992,6 +1992,40 @@ const LOADING_HTML =
 /* 第37弾: #app を丸ごと差し替えるとフォーカスが body に飛ぶ。マイニュースは
    キーワードを続けて登録する画面なので、入力欄のフォーカスとカーソル位置を復元する
    (iOSでは復元しないとソフトキーボードが毎回閉じる)。 */
+/* 第38弾: 行をタップして詳細を開いたとき、その行が画面上の同じ位置に留まるようにする。
+
+   #app を innerHTML で丸ごと差し替えているため、開いた直後にスクロール位置が動いて
+   「開いた試合の一番下」に飛んでしまっていた。ノードが全部作り直されるので、
+   ブラウザのスクロールアンカリングが効かない(どのノードを基準にすればよいか分からない)。
+
+   差し替えの前にその行の画面上の位置(viewportからの距離)を控えておき、
+   差し替え後に同じ行を探して、その位置へ戻るぶんだけスクロールし直す。
+   詳細パネルは行の下に開くので、行の上端を固定すれば「開いた試合の頭」が見えたままになる。 */
+function findEventsRow(key) {
+  for (const el of document.querySelectorAll("[data-eventsrow]")) {
+    if (el.dataset.eventsrow === key) return el;
+  }
+  return null;
+}
+
+async function rerenderKeepingRowAnchor(key) {
+  await rerenderKeepingAnchor(() => findEventsRow(key));
+}
+
+/* find は「差し替えの前後で同じものを指す要素」を返す関数。
+   カレンダーの「さらに前を見る」でも、先頭に14日ぶんの行が差し込まれて見ていた日付が
+   飛んでいたので、同じ仕掛けで位置を戻す。 */
+async function rerenderKeepingAnchor(find) {
+  const before = find();
+  const topBefore = before ? before.getBoundingClientRect().top : null;
+  await renderActiveTab();
+  if (topBefore == null) return;
+  const after = find();
+  if (!after) return;
+  const delta = after.getBoundingClientRect().top - topBefore;
+  if (delta) window.scrollBy(0, delta);
+}
+
 async function rerenderKeepingMyNewsFocus() {
   await renderActiveTab();
   const input = document.getElementById("myNewsInput");
@@ -2737,13 +2771,31 @@ function calMatchRowHtml(m, ownIdTeam) {
 }
 
 function scrollCalendarToAnchor() {
-  const el = document.getElementById("calAnchor");
+  const el = document.querySelector("[data-calanchor]");
   if (el) el.scrollIntoView({ block: "start" });
 }
 function extendCalendarRange(direction) {
+  /* 第38弾: 「さらに前を見る」は先頭に14日ぶんの行を差し込むので、そのままだと
+     scrollY が数値のまま保たれて見ていた日付とは無関係な位置に飛んでいた。
+     いま画面の一番上に見えている日付ブロックを基準にして、その位置へ戻す。 */
+  const anchorId = topVisibleCalDayId();
   if (direction === "before") state.calDaysBefore += CAL_WINDOW_STEP_DAYS;
   else state.calDaysAfter += CAL_WINDOW_STEP_DAYS;
-  renderActiveTab();
+  if (anchorId) rerenderKeepingAnchor(() => document.getElementById(anchorId));
+  else renderActiveTab();
+}
+
+/* 画面内にいちばん近い(上端が0以上で最小の)日付ブロックのidを返す。
+   1つも該当しなければ最後の1つ(画面より上に流れ切っている場合)。 */
+function topVisibleCalDayId() {
+  let best = null, bestTop = Infinity, last = null;
+  for (const el of document.querySelectorAll(".cal-day")) {
+    last = el;
+    const top = el.getBoundingClientRect().top;
+    if (top >= 0 && top < bestTop) { bestTop = top; best = el; }
+  }
+  const el = best || last;
+  return el ? el.id || null : null;
 }
 
 function renderAllSchedule(calendar, found) {
@@ -2779,7 +2831,9 @@ function renderAllSchedule(calendar, found) {
 
   const daysHtml = buckets.map(b => {
     const rowsHtml = b.matches.map(m => calMatchRowHtml(m, ownIdTeam)).join("");
-    return '<div class="cal-day"' + (b.date === anchor ? ' id="calAnchor"' : '') + '>' +
+    /* 第38弾: 日付ごとのidを振る。「さらに前を見る」で先頭に行が差し込まれても、
+       いま見ていた日付を基準に位置を戻せるようにするため。 */
+    return '<div class="cal-day" id="' + esc("calDay-" + b.date) + '"' + (b.date === anchor ? ' data-calanchor="1"' : '') + '>' +
       '<h3 class="cal-day-title">' + esc(fmtDateOnly(b.date)) + '</h3>' + rowsHtml +
     '</div>';
   }).join("");
