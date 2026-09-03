@@ -183,8 +183,24 @@
     border-radius:var(--radius) var(--radius) 0 0;
     background:linear-gradient(90deg, var(--bar-a, var(--accent)) 0%, var(--bar-b, var(--accent-sub)) 100%);
   }
+  /* 第37弾: 触ったときの反応。transitionが7箇所しか無く、タブもアコーディオンも
+     瞬間的に切り替わっていた。動きが苦手な人のために prefers-reduced-motion では全部止める。 */
+  @media (prefers-reduced-motion: no-preference){
+    #tabbar button{transition:border-bottom-color .18s ease, opacity .18s ease, background-color .18s ease}
+    .card, .ec-row, .sched-row, .cal-row, .r-row, .predict-row{transition:background-color .15s ease, transform .12s ease}
+    .card:active, .ec-row:active, .sched-row:active, .cal-row:active, .r-row:active, .predict-row:active{transform:scale(.995)}
+    .events-toggle{transition:transform .18s ease}
+    .seg-toggle button, .chart-chip, .mynews-chip{transition:background-color .15s ease, color .15s ease, border-color .15s ease}
+    .events-panel{animation:panelIn .18s ease}
+    @keyframes panelIn{from{opacity:0; transform:translateY(-4px)} to{opacity:1; transform:none}}
+  }
   .muted{color:var(--sub)}
   .small{font-size:12px}
+  /* 第37弾: 数字の字形。スコア・順位・勝点・時刻は桁が揃わないと表として読みにくいので
+     等幅数字にする。日本語はウェイト差が出にくいぶん、階層はサイズと色で作る。 */
+  .num{font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1}
+  .num-xl{font-variant-numeric:tabular-nums; font-size:34px; font-weight:800; letter-spacing:-.02em; line-height:1.1}
+  .num-lg{font-variant-numeric:tabular-nums; font-size:22px; font-weight:700; letter-spacing:-.01em}
 
   /* 次戦 */
   .next-meta{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--sub); margin-bottom:10px}
@@ -194,7 +210,7 @@
   }
   .tag.home{background:var(--accent); color:var(--accent-ink)}
   .tag.away{background:var(--surface-2); color:var(--sub)}
-  .next-date{font-size:22px; font-weight:700; letter-spacing:.01em}
+  .next-date{font-variant-numeric:tabular-nums; font-size:34px; font-weight:800; letter-spacing:-.02em; line-height:1.15}
   .next-opp{font-size:17px; font-weight:600; margin-top:4px}
   .next-venue{font-size:13px; color:var(--sub); margin-top:6px}
 
@@ -216,6 +232,26 @@
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
   .vs-side.me .vs-name{font-weight:800}
+  /* 第37弾: 「次の試合」だけは他のカードと違う扱いにする。ホーム画面でいちばん見たい情報が
+     他と同じ大きさ・同じ地色で並んでいて、主役になっていなかった。
+     クラブ色をごく薄く敷き、上端にクラブ2色の細い帯を置く(--bar-a/--bar-b は既存)。 */
+  .card-hero{
+    position:relative; overflow:hidden; padding-top:20px;
+    /* 地はJSが作る(--hero-bg)。color-mix は環境によって効かないので、
+       このアプリの流儀どおり mixHex で計算した値を渡す。 */
+    background:linear-gradient(180deg, var(--hero-bg, var(--card)) 0%, var(--card) 62%);
+  }
+  .card-hero::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, var(--bar-a), var(--bar-b));
+  }
+  .card-hero .crest{width:64px; height:64px; font-size:22px}
+  .card-hero .vs-kick{font-size:38px}
+  .card-hero .vs-name{font-size:14px}
+  .vs-countdown{
+    margin-top:6px; font-size:11px; font-weight:700; letter-spacing:.04em;
+    color:var(--accent-on-light);
+  }
   .vs-mid{flex:none; text-align:center; padding-top:6px}
   /* カード内で一番大きい数字。ここが画面の主役になる。 */
   .vs-kick{font-size:30px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1.05; letter-spacing:-.01em}
@@ -293,8 +329,17 @@
   tr.me td.club{box-shadow:inset 3px 0 0 var(--me-accent,var(--accent))}
   .zone{display:inline-block; width:5px; height:18px; border-radius:3px; vertical-align:-4px; margin-right:6px}
   .diff{font-size:10px; color:var(--diff-ink); margin-left:3px; font-weight:600}
-  .form-row{display:flex; gap:3px}
-  .form-row .pill{width:16px; height:16px; line-height:16px; font-size:9px; border-radius:4px}
+  /* 第37弾: 直近5試合。20行×5個=100個の彩度の高い色面が、順位や勝点より目立ってしまい
+     表の主役が入れ替わっていた。面積を落として(16px角->14px角)不透明度で沈める。
+     W/D/Lの文字は小さくしても必ず残すこと。色だけの符号化にすると、色覚特性のある人には
+     勝敗が読めなくなる(赤と緑は最も見分けにくい組み合わせ)。 */
+  .form-row{display:flex; gap:3px; align-items:center}
+  .form-row .pill{
+    width:14px; height:14px; line-height:14px; border-radius:4px;
+    font-size:8px; opacity:.62;
+  }
+  /* 自クラブの行だけは通常の濃さに戻す(自分の調子は一目で見たい) */
+  tr.me .form-row .pill{opacity:1}
   .legend{display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; font-size:11px; color:var(--sub)}
   .legend span{display:flex; align-items:center; gap:5px}
   .sw{width:10px; height:10px; border-radius:3px; display:inline-block}
@@ -341,9 +386,21 @@
   ul.news-list li.news-item:last-child{border-bottom:none}
   .news-thumb{width:72px; height:72px; flex:none; border-radius:8px; object-fit:cover; background:var(--surface-2)}
   .news-item-body{min-width:0; flex:1}
-  .news-item a{color:var(--ink); text-decoration:none; font-size:14px; font-weight:600; display:block}
+  /* 第37弾: 見出しが3行に折り返してテキストの壁になっていた。2行で打ち切り、
+     出典と日付は小さく1行にまとめる。全文はリンク先で読めるので、一覧では走査性を優先する。 */
+  .news-item a{
+    color:var(--ink); text-decoration:none; font-size:14px; font-weight:600; display:block;
+    display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden;
+  }
   .news-item a:hover{text-decoration:underline}
-  .news-meta{font-size:11px; color:var(--sub); margin-top:3px}
+  .news-meta{font-size:11px; color:var(--sub); margin-top:4px; display:flex; gap:6px; align-items:center}
+  /* 出典は補助情報。走査に効くのは日付なので、日付を先に置いて出典は控えめにする
+     (クラブのニュースタブでは毎行「◯◯公式サイト」が並ぶため、目立たせると邪魔になる)。 */
+  .news-src{
+    display:inline-block; min-width:0; max-width:9em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    padding:1px 6px; border-radius:4px; background:var(--surface-1); color:var(--sub);
+    font-weight:600; font-size:10px; opacity:.85;
+  }
   .news-ob{margin-top:16px; padding-top:14px; border-top:1px solid var(--line)}
   .news-ob-name{font-size:13px; font-weight:700; margin:0 0 6px}
 
@@ -715,6 +772,12 @@
     opacity:.6;
   }
   /* iOS/Androidの既定のタップ時グレー矩形は、上の指定と二重にちらつくので消す */
+  /* 第37弾: role="button" tabindex="0" を付けた要素にもフォーカスリングを出す。
+     従来は button/select/a/summary にしか当たっておらず、行やクラブ名は
+     フォーカスできても「いまどこにいるか」が見えなかった。 */
+  [role="button"][tabindex]:focus-visible{
+    outline:2px solid var(--focus); outline-offset:2px; border-radius:6px;
+  }
   button, a, .predict-row, .sched-row, .cal-row, .ec-row, .team-link{
     -webkit-tap-highlight-color:transparent;
   }
@@ -767,7 +830,8 @@
         aria-label="データの基準時刻を見る" title="データの基準時刻を見る">i</button>
       <button type="button" id="themeToggleBtn" class="theme-toggle-btn"
         aria-label="暗い表示に切り替え" title="表示テーマを切り替え"></button>
-      <div id="deployBadge" class="deploy-badge"></div>
+      <!-- 第37弾: バージョン/デプロイ時刻はヘッダーから外し、iのポップオーバーへ移した。
+           1行に ⟳/i/テーマ/版数/日時 が詰まってアプリ名が「Jリー…」と切れていたため。 -->
     </div>
   </div>
   <!-- 第37弾: 取得結果を伝える唯一の手段なので、支援技術にも届くようにする(#updateBannerと揃える) -->
@@ -1091,6 +1155,9 @@ function applyTheme(team) {
   root.setProperty("--accent-on-light", accentOnSurface(rawC, cardHex));
   // 順位表で勝点の長さを示す帯。文字が読める濃さに留める(カード面とクラブ色の間)。
   root.setProperty("--pts-tint", mixHex(rawC, cardHex, dark ? 0.15 : 0.13));
+  /* 第37弾: 「次の試合」のヒーローカードの地。カード色にクラブ色をごく薄く混ぜる。
+     濃くすると結局「クラブ色のベタ塗り」に戻ってしまうので、気配が残る程度に留める。 */
+  root.setProperty("--hero-bg", mixHex(rawC, cardHex, dark ? 0.10 : 0.07));
 
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute("content", c);
@@ -1397,6 +1464,12 @@ async function ensureMatchEvents(league) {
    直近の結果の3箇所にコピーされていて、しかもカップ戦側(CUP_KINDS)だけ条件が違っていた。
    コピー側は lineups の「存在」しか見ていなかったため、lineups が {} の試合で
    「▸が付くのに開くと中身が空」の行が出ていた。中身まで見るカップ戦側の条件に揃える。 */
+/* 第37弾: タップで開く行とクラブ名リンクは div/span のままなので、キーボードから触れなかった。
+   要素の構造を変えるとレイアウトが崩れるため、role と tabindex だけ足して、
+   Enter/Space は keydown ハンドラで click に合流させる。 */
+const ROW_A11Y_ATTR = ' role="button" tabindex="0"';
+const LINK_A11Y_ATTR = ' role="button" tabindex="0"';
+
 function hasMatchEventDetail(ev) {
   if (!ev) return false;
   return !!((ev.goals || []).length || (ev.cards || []).length || (ev.subs || []).length
@@ -1511,12 +1584,10 @@ function isBuiltCopy() {
 function isStaleBuild(latest) {
   return !!(isBuiltCopy() && latest && latest !== APP_BUILD_VERSION);
 }
+/* 第37弾: 表示先はヘッダーのバッジからiのポップオーバーに移った。
+   開いていないときは何もしない(次に開いたときに最新の値で組み立て直される)。 */
 function updateDeployBadge() {
-  const badge = document.getElementById("deployBadge");
-  if (!badge) return;
-  const v = state.deployVersion, t = state.deployTime;
-  const text = [v ? "v" + v : "", t || ""].filter(Boolean).join(" ・ ");
-  badge.textContent = text + (isStaleBuild(v) ? " ⚠" : "");
+  updateOndemandPopoverInPlace();
 }
 function showUpdateBanner() {
   const el = document.getElementById("updateBanner");
@@ -1612,7 +1683,18 @@ async function init() {
     ev.preventDefault();
     addMyNewsKeyword(ev.target.value);
     ev.target.value = "";
-    renderActiveTab();
+    rerenderKeepingMyNewsFocus();
+  });
+
+  /* 第37弾: Enter/Spaceで行の詳細を開けるようにする。
+     行は div のままなので(レイアウトを崩さないため)、tabindex と role は描画側で付け、
+     キー操作はここで click と同じ経路に合流させる。 */
+  document.addEventListener("keydown", ev => {
+    if (ev.key !== "Enter" && ev.key !== " ") return;
+    const row = ev.target && ev.target.closest && ev.target.closest("[data-eventsrow],[data-predictrow],[data-idteam]");
+    if (!row) return;
+    ev.preventDefault();
+    row.click();
   });
 
   // イベント委譲: クラブ名クリックでの切替(data-idteam)とレーダーの頂点タップ(ツールチップ)を1つのリスナーで拾う。
@@ -1626,13 +1708,13 @@ async function init() {
       const word = myAdd.dataset.mynewsAdd || (input ? input.value : "");
       addMyNewsKeyword(word);
       if (input) input.value = "";
-      renderActiveTab();
+      rerenderKeepingMyNewsFocus();
       return;
     }
     const myDel = ev.target.closest("[data-mynews-remove]");
     if (myDel) {
       removeMyNewsKeywordAt(Number(myDel.dataset.mynewsRemove));
-      renderActiveTab();
+      rerenderKeepingMyNewsFocus();
       return;
     }
 
@@ -1906,6 +1988,15 @@ const LOADING_HTML =
   '<div class="skeleton-line"></div><div class="skeleton-line"></div>' +
   '<div class="skeleton-line"></div><div class="skeleton-line"></div>' +
   '</div></section>';
+
+/* 第37弾: #app を丸ごと差し替えるとフォーカスが body に飛ぶ。マイニュースは
+   キーワードを続けて登録する画面なので、入力欄のフォーカスとカーソル位置を復元する
+   (iOSでは復元しないとソフトキーボードが毎回閉じる)。 */
+async function rerenderKeepingMyNewsFocus() {
+  await renderActiveTab();
+  const input = document.getElementById("myNewsInput");
+  if (input) { input.focus(); try { input.setSelectionRange(input.value.length, input.value.length); } catch (e) { /* 無視 */ } }
+}
 
 async function renderActiveTab() {
   if (state.viewMode === "all") {
@@ -2250,7 +2341,10 @@ function cupRowHtml(m, ownIdTeam, showRound, kind) {
   const isOpen = hasEvents && state.eventsOpen === eventsKey;
   const expandHtml = hasEvents ? '<span class="events-toggle' + (isOpen ? " open" : "") + '">▸</span>' : "";
   const videoMarkHtml = kind.videoOf(ev) ? '<span class="video-mark" title="ハイライト動画あり">🎥</span>' : "";
-  const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' : "";
+  const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' + ROW_A11Y_ATTR +
+    /* 開閉状態は eventsKey から直に見る。展開フラグの変数名が箇所ごとに違う(isOpen/isEventsOpen)うえ、
+       宣言順も揃っていないため、そこに依存しない形にする。 */
+    (state.eventsOpen === eventsKey ? ' aria-expanded="true"' : ' aria-expanded="false"') : "";
   return '<div class="ec-row-wrap">' +
     '<div class="ec-row' + (involvesMe ? " me" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
       '<div class="ec-when">' +
@@ -2270,7 +2364,7 @@ function cupRowHtml(m, ownIdTeam, showRound, kind) {
 
 function renderCupRoundTabs(rounds, active) {
   return '<div class="ec-rounds">' + rounds.map(r =>
-    '<button type="button" class="' + (r === active ? "active" : "") + '" data-cupround="' + esc(r) + '">' +
+    '<button type="button" class="' + (r === active ? "active" : "") + '" aria-current="' + (r === active) + '" data-cupround="' + esc(r) + '">' +
       esc(r) + '</button>'
   ).join("") + '</div>';
 }
@@ -2278,7 +2372,7 @@ function renderCupRoundTabs(rounds, active) {
 /* 第36弾: 大会切替(天皇杯/ルヴァン)。既存の .seg-toggle をそのまま流用する。 */
 function renderCupKindSegment() {
   return '<div class="seg-toggle">' + Object.keys(CUP_KINDS).map(k =>
-    '<button type="button" class="' + (k === state.cupKind ? "active" : "") + '" data-cupkind="' + k + '">' +
+    '<button type="button" class="' + (k === state.cupKind ? "active" : "") + '" aria-current="' + (k === state.cupKind) + '" data-cupkind="' + k + '">' +
       esc(CUP_KINDS[k].label) + '</button>'
   ).join("") + '</div>';
 }
@@ -2319,7 +2413,7 @@ function renderCup(found) {
 /* リーグ切替(J1/J2/J3)。全体モードの順位・予想タブで共用する。既存の.seg-toggleを流用する。 */
 function renderLeagueSegment(activeLeague) {
   return '<div class="seg-toggle">' + Object.keys(LEAGUES).map(lg =>
-    '<button type="button" class="' + (lg === activeLeague ? "active" : "") + '" data-allleague="' + lg + '">' +
+    '<button type="button" class="' + (lg === activeLeague ? "active" : "") + '" aria-current="' + (lg === activeLeague) + '" data-allleague="' + lg + '">' +
       esc(LEAGUES[lg].name) + '</button>'
   ).join("") + '</div>';
 }
@@ -2347,7 +2441,7 @@ function renderAllStandings(league, standings, found, provisional, rankHistory) 
       '<td class="rank">' + r.rank + rankDeltaHtml(rankHistory, r.idTeam, provisional) + '</td>' +
       '<td class="club">' +
         (z ? '<span class="zone" style="background:' + z.color + '"></span>' : '<span class="zone" style="background:transparent"></span>') +
-        '<span class="team-link" data-idteam="' + esc(r.idTeam) + '">' + teamSwatchHtml(r.idTeam) + esc(r.short || r.ja) + '</span>' +
+        '<span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(r.idTeam) + '">' + teamSwatchHtml(r.idTeam) + esc(r.short || r.ja) + '</span>' +
       '</td>' +
       '<td>' + r.played + (r.playedDiff ? '<span class="diff">-' + r.playedDiff + '</span>' : '') + '</td>' +
       '<td>' + r.win + '</td><td>' + r.draw + '</td><td>' + r.loss + '</td>' +
@@ -2446,7 +2540,7 @@ function renderAllPredict(league, simulation, found) {
     const masterTeam = masterTeamsById[t.idTeam] || {};
     const isMe = t.idTeam === ownIdTeam;
     const isOpen = state.predictOpen === t.idTeam;
-    let rowHtml = '<div class="predict-row' + (isMe ? " me" : "") + '" data-predictrow="' + esc(t.idTeam) + '">' +
+    let rowHtml = '<div class="predict-row' + (isMe ? " me" : "") + '" data-predictrow="' + esc(t.idTeam) + '"' + ROW_A11Y_ATTR + '>' +
       '<div class="predict-rk">' + (i + 1) + '</div>' +
       '<div class="predict-nm">' + esc(t.short) + '</div>' +
       predictRowTrackHtml(t, masterTeam.color, rules, n) +
@@ -2622,7 +2716,10 @@ function calMatchRowHtml(m, ownIdTeam) {
   // 第15弾: DAZN/公式のハイライト動画が既に埋め込み済みの試合には🎥マークを付ける
   const hasVideo = !!(evDetail && (evDetail.daznVideoId || evDetail.highlightVideoId));
   const videoMarkHtml = hasVideo ? '<span class="video-mark" title="ハイライト動画あり">🎥</span>' : "";
-  const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' : "";
+  const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' + ROW_A11Y_ATTR +
+    /* 開閉状態は eventsKey から直に見る。展開フラグの変数名が箇所ごとに違う(isOpen/isEventsOpen)うえ、
+       宣言順も揃っていないため、そこに依存しない形にする。 */
+    (state.eventsOpen === eventsKey ? ' aria-expanded="true"' : ' aria-expanded="false"') : "";
   const panelHtml = isEventsOpen
     ? renderMatchEventsPanel(evDetail, m.h[0], m.h[1], m.a[0], m.a[1], ownIdTeam)
     : "";
@@ -2631,9 +2728,9 @@ function calMatchRowHtml(m, ownIdTeam) {
     '<div class="cal-row' + (involvesMe ? " me" : "") + (live || derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
       '<span class="league-badge ' + esc(m.l) + '">' + esc(m.l.toUpperCase()) + '</span>' +
       '<span class="cal-time">' + esc(timeLabel) + '</span>' +
-      '<span class="cal-team"><span class="team-link" data-idteam="' + esc(m.h[0]) + '">' + teamSwatchHtml(m.h[0]) + esc(m.h[1]) + '</span></span>' +
+      '<span class="cal-team"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.h[0]) + '">' + teamSwatchHtml(m.h[0]) + esc(m.h[1]) + '</span></span>' +
       '<span class="cal-score">' + esc(scoreLabel) + pillHtml + dotHtml + '</span>' +
-      '<span class="cal-team away"><span class="team-link" data-idteam="' + esc(m.a[0]) + '">' + teamSwatchHtml(m.a[0]) + esc(m.a[1]) + '</span></span>' +
+      '<span class="cal-team away"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.a[0]) + '">' + teamSwatchHtml(m.a[0]) + esc(m.a[1]) + '</span></span>' +
       '<span class="cal-round">' + (m.r ? "第" + esc(m.r) + "節" : "") + '</span>' + videoMarkHtml + expandHtml +
     '</div>' + panelHtml +
   '</div>';
@@ -2723,13 +2820,15 @@ function renderNext(mine, team, venues) {
         teamCrestHtml(side.idTeam) +
         (isMe
           ? '<span class="vs-name">' + name + '</span>'
-          : '<span class="vs-name team-link" data-idteam="' + esc(side.idTeam) + '">' + name + '</span>') +
+          : '<span class="vs-name team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(side.idTeam) + '">' + name + '</span>') +
       '</div>';
     };
+    const countdown = m.kickoffTbd ? null : kickoffCountdown(m.kickoffJst);
     const midHtml = m.kickoffTbd
       ? '<div class="vs-kick tbd">未定</div>'
       : '<div class="vs-kick">' + esc(timeOnly(m.kickoffJst)) + '</div>' +
-        '<div class="vs-date">' + esc(fmtDateOnly(dateOnly(m.kickoffJst))) + '</div>';
+        '<div class="vs-date">' + esc(fmtDateOnly(dateOnly(m.kickoffJst))) + '</div>' +
+        (countdown ? '<div class="vs-countdown">' + esc(countdown) + '</div>' : "");
     body =
       '<div class="next-meta">' +
         '<span class="tag ' + (isHome ? "home" : "away") + '">' + (isHome ? "ホーム" : "アウェイ") + '</span>' +
@@ -2743,7 +2842,19 @@ function renderNext(mine, team, venues) {
       (venue ? '<div class="vs-venue">' + esc(venue.ja) + '</div>' : "") +
       (m.kickoffTbd ? '<div class="vs-note">※ 延期などで日程が確定していません</div>' : "");
   }
-  return '<section><h2>次の試合</h2><div class="card">' + body + '</div></section>';
+  return '<section><h2>次の試合</h2><div class="card card-hero">' + body + '</div></section>';
+}
+
+/* 第37弾: キックオフまでの残り。ホーム画面でいちばん見たい情報なので言葉で出す。
+   分単位まで出すと1分ごとに古くなるので、粒度は「日/時間/まもなく」に留める。 */
+function kickoffCountdown(kickoffJst) {
+  if (!kickoffJst) return null;
+  const ms = new Date(kickoffJst).getTime() - Date.now();
+  if (!isFinite(ms) || ms < 0) return null;
+  const hours = Math.floor(ms / 3600000);
+  if (hours >= 24) return "あと" + Math.floor(hours / 24) + "日";
+  if (hours >= 1) return "あと" + hours + "時間";
+  return "まもなく";
 }
 
 function renderResults(mine, team, league) {
@@ -2771,7 +2882,10 @@ function renderResults(mine, team, league) {
       // 第15弾: DAZN/公式のハイライト動画が既に埋め込み済みの試合には🎥マークを付ける
       const hasVideo = !!(ev && (ev.daznVideoId || ev.highlightVideoId));
       const videoMarkHtml = hasVideo ? '<span class="video-mark" title="ハイライト動画あり">🎥</span>' : "";
-      const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' : "";
+      const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' + ROW_A11Y_ATTR +
+    /* 開閉状態は eventsKey から直に見る。展開フラグの変数名が箇所ごとに違う(isOpen/isEventsOpen)うえ、
+       宣言順も揃っていないため、そこに依存しない形にする。 */
+    (state.eventsOpen === eventsKey ? ' aria-expanded="true"' : ' aria-expanded="false"') : "";
       const panelHtml = isOpen
         ? renderMatchEventsPanel(ev, m.home.idTeam, m.home.short || m.home.ja, m.away.idTeam, m.away.short || m.away.ja, team.idTeam)
         : "";
@@ -2780,7 +2894,7 @@ function renderResults(mine, team, league) {
         '<div class="r-row' + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
           '<span class="r-date">' + esc(fmtDate(m.kickoffJst, false)) + '</span>' +
           '<span class="r-ha">' + (isHome ? "H" : "A") + '</span>' +
-          '<span class="r-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></span>' +
+          '<span class="r-opp"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></span>' +
           '<span class="r-score">' + me.score + ' - ' + opp.score + dot + '</span>' +
           '<span class="pill ' + mark + '">' + mark + '</span>' + videoMarkHtml + expandHtml +
         '</div>' + panelHtml +
@@ -3018,7 +3132,10 @@ function scheduleRowHtml(m, team, mode, provisional, league) {
   // 第15弾: DAZN/公式のハイライト動画が既に埋め込み済みの試合には🎥マークを付ける
   const hasVideo = !!(ev && (ev.daznVideoId || ev.highlightVideoId));
   const videoMarkHtml = hasVideo ? '<span class="video-mark" title="ハイライト動画あり">🎥</span>' : "";
-  const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' : "";
+  const attrHtml = hasEvents ? ' data-eventsrow="' + esc(eventsKey) + '"' + ROW_A11Y_ATTR +
+    /* 開閉状態は eventsKey から直に見る。展開フラグの変数名が箇所ごとに違う(isOpen/isEventsOpen)うえ、
+       宣言順も揃っていないため、そこに依存しない形にする。 */
+    (state.eventsOpen === eventsKey ? ' aria-expanded="true"' : ' aria-expanded="false"') : "";
   const panelHtml = isOpen
     ? renderMatchEventsPanel(ev, m.home.idTeam, m.home.short || m.home.ja, m.away.idTeam, m.away.short || m.away.ja, team.idTeam)
     : "";
@@ -3028,16 +3145,16 @@ function scheduleRowHtml(m, team, mode, provisional, league) {
     return '<div class="sched-row-wrap">' +
       '<div class="sched-row' + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
         '<span class="sched-ha">' + (isHome ? "H" : "A") + '</span>' +
-        '<span class="sched-opp"><span class="team-link" data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></span>' +
+        '<span class="sched-opp"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></span>' +
         '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' + videoMarkHtml + expandHtml +
       '</div>' + panelHtml +
     '</div>';
   }
   return '<div class="sched-row-wrap">' +
     '<div class="sched-row all' + (involvesMe ? " me" : "") + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
-      '<span class="sched-team"><span class="team-link" data-idteam="' + esc(m.home.idTeam) + '">' + teamSwatchHtml(m.home.idTeam) + esc(m.home.short || m.home.ja) + '</span></span>' +
+      '<span class="sched-team"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.home.idTeam) + '">' + teamSwatchHtml(m.home.idTeam) + esc(m.home.short || m.home.ja) + '</span></span>' +
       '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' +
-      '<span class="sched-team away"><span class="team-link" data-idteam="' + esc(m.away.idTeam) + '">' + teamSwatchHtml(m.away.idTeam) + esc(m.away.short || m.away.ja) + '</span></span>' + videoMarkHtml + expandHtml +
+      '<span class="sched-team away"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.away.idTeam) + '">' + teamSwatchHtml(m.away.idTeam) + esc(m.away.short || m.away.ja) + '</span></span>' + videoMarkHtml + expandHtml +
     '</div>' + panelHtml +
   '</div>';
 }
@@ -3163,7 +3280,7 @@ function renderStandings(standings, team, master, provisional, rankHistory, leag
       '<td class="rank">' + r.rank + rankDeltaHtml(rankHistory, r.idTeam, provisional) + '</td>' +
       '<td class="club">' +
         (z ? '<span class="zone" style="background:' + z.color + '"></span>' : '<span class="zone" style="background:transparent"></span>') +
-        '<span class="team-link" data-idteam="' + esc(r.idTeam) + '">' + teamSwatchHtml(r.idTeam) + esc(r.short || r.ja) + '</span>' +
+        '<span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(r.idTeam) + '">' + teamSwatchHtml(r.idTeam) + esc(r.short || r.ja) + '</span>' +
       '</td>' +
       '<td>' + r.played + (r.playedDiff ? '<span class="diff">-' + r.playedDiff + '</span>' : '') + '</td>' +
       '<td>' + r.win + '</td><td>' + r.draw + '</td><td>' + r.loss + '</td>' +
@@ -3956,6 +4073,12 @@ function ondemandPopoverInnerHtml() {
     ? '<button type="button" class="linklike" data-ghtoken="clear">解除</button>'
     : '<button type="button" class="linklike" data-ghtoken="open">設定</button>';
   rows.push(ondemandPopoverRowHtml("速報の自動取得", esc(autoLabel) + " " + autoBtn));
+  /* 第37弾: ヘッダーから移してきたデバッグ表示。ここなら幅を気にせず出せる。 */
+  const stale = isStaleBuild(state.deployVersion);
+  rows.push(ondemandPopoverRowHtml("アプリの版",
+    (state.deployVersion ? esc("v" + state.deployVersion) : "－") +
+    (state.deployTime ? ' <span class="muted">' + esc(state.deployTime) + '</span>' : "") +
+    (stale ? ' <span title="新しい版があります" style="color:var(--warn-ink)">⚠</span>' : "")));
 
   /* トークンの入力欄。開いているときだけ出す。type=passwordにしているのは肩越しに
      読まれないようにするためで、font-size:16pxはiOSのフォーカス時ズーム対策(第24弾)。 */
@@ -5147,8 +5270,10 @@ function rssNewsItemHtml(item) {
   return '<li class="news-item">' +
     '<div class="news-item-body">' +
       '<a href="' + esc(item.link) + '" target="_blank" rel="noopener">' + esc(item.title) + '</a>' +
-      '<div class="news-meta">' + (item.publishedJst ? esc(fmtDate(item.publishedJst, false)) : "") +
-        (item.source ? ' ・ ' + esc(item.source) : '') + '</div>' +
+      '<div class="news-meta">' +
+        (item.publishedJst ? '<span class="num">' + esc(fmtDate(item.publishedJst, false)) + '</span>' : '') +
+        (item.source ? '<span class="news-src">' + esc(item.source) + '</span>' : '') +
+      '</div>' +
     '</div>' +
   '</li>';
 }
@@ -5174,8 +5299,10 @@ function newsItemHtml(item, league, keywords) {
     thumb +
     '<div class="news-item-body">' +
       '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + highlightedTitleHtml(item.title, keywords) + '</a>' +
-      '<div class="news-meta">' + (item.publishedJst ? esc(fmtDate(item.publishedJst, false)) : "") +
-        (sourceLabel ? ' ・ ' + esc(sourceLabel) : '') + '</div>' +
+      '<div class="news-meta">' +
+        (item.publishedJst ? '<span class="num">' + esc(fmtDate(item.publishedJst, false)) + '</span>' : '') +
+        (sourceLabel ? '<span class="news-src">' + esc(sourceLabel) + '</span>' : '') +
+      '</div>' +
     '</div>' +
   '</li>';
 }
