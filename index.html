@@ -770,7 +770,8 @@
       <div id="deployBadge" class="deploy-badge"></div>
     </div>
   </div>
-  <div id="ondemandToast" class="ondemand-toast" hidden></div>
+  <!-- 第37弾: 取得結果を伝える唯一の手段なので、支援技術にも届くようにする(#updateBannerと揃える) -->
+  <div id="ondemandToast" class="ondemand-toast" role="status" aria-live="polite" hidden></div>
   <div id="updateBanner" class="update-banner" role="status" hidden>
     <span>新しいバージョンがあります</span>
     <button type="button" data-app-reload>再読み込み</button>
@@ -851,6 +852,11 @@ const state = {
   statsGroup: "model", // スタッツタブのレーダー切替(既定は「モデル」)
   scheduleMode: "mine", // 日程タブ: "mine"=自クラブのみ(既定) / "all"=リーグ全体
   scheduleRound: null,   // 日程タブ: 表示中の節。nullなら初回表示時に直近の節を計算する
+  schedNeedsScroll: false, // 第37弾: 日程タブを開いた/節を選び直した直後だけtrue。
+                           // 描画のたびにスクロールを奪わないための1回きりのフラグ
+  ghTokenFormOpen: false,  // 第31弾のトークン入力欄が開いているか(宣言が漏れていたので追加)
+  ghTokenInvalid: false,   // 直近のworkflow_dispatchが401/403で弾かれたか
+  eventsDispatchedAt: null, // 直近でworkflow_dispatchを投げた時刻(ms)。連投防止用
   deployTime: undefined, // デプロイ時刻(deploy-time.txt)。undefined=未取得、null=取得失敗(表示しない)
   deployVersion: undefined, // デプロイバージョン=直近gitコミットの短縮ハッシュ(deploy-version.txt)
   chartLeague: null,  // 確率推移グラフが最後に描画されたリーグ。変わったらchartClubs/chartSeriesをリセットする
@@ -1032,9 +1038,17 @@ function applyTheme(team) {
   const root = document.documentElement.style;
   root.setProperty("--accent", c);
   root.setProperty("--accent-sub", sub);
-  /* ページの地。ヘッダーと同じ色にすると、ダークでは縦に長い面がクラブ色で埋まって
-     目が疲れる。ヘッダーには色を残しつつ、地はもう一段沈める(ライトでは同色のまま)。 */
-  const pageBg = dark ? mixHex(rawC, DARK_MIX_BASE, 0.20) : c;
+  /* 第37弾: ページの地はクラブ色を使わない。
+     以前はライトでクラブ色そのもの、ダークでも2割混ぜた色を地にしていたが、
+     画面でいちばん強い色を地に使い切ってしまうため
+       - 白いカードが「浮く」のではなく「貼り付いて」見える
+       - レーダー・確率バー・W/Lバッジなど中身の色が全部、地の色と喧嘩する
+       - 「ここが重要」と示すための色の余力が残らない
+     という状態だった。地はニュートラルに戻し、クラブ色はヘッダー・タブバー・
+     選択状態・自クラブ行(--me-bg)にだけ使う。クラブ色をごく薄く(4%)混ぜて、
+     どのクラブを見ているかの気配だけは地にも残す。 */
+  const neutralBg = dark ? "#12151a" : "#f4f5f7";
+  const pageBg = mixHex(rawC, neutralBg, 0.04);
   root.setProperty("--page-bg", pageBg);
   root.setProperty("--page-ink", pickInk(pageBg));
   /* カード上端の帯。ダークではクラブ色がそのままだと沈んで見えないので持ち上げる。 */
@@ -1132,8 +1146,24 @@ function saveFav(id) {
   try { localStorage.setItem(STORE_KEY, id); } catch (e) { /* 無視 */ }
 }
 
+/* 第37弾: "no-store" から "no-cache" にした。どちらも毎回サーバへ問い合わせる点は同じだが、
+   "no-store" は 304 Not Modified による条件付きリクエストまで禁止するため、
+   中身が1バイトも変わっていなくても毎回フルダウンロードになっていた。
+   club_extra.json は1.34MB、news.json は約3.0MB あり、可視復帰1回で数MBを取り直していた。
+   "no-cache" なら鮮度は同じまま、変わっていないファイルは304の数百バイトで済む。 */
+const JSON_FETCH_OPTS = { cache: "no-cache" };
+
+/* 第37弾: ISO日付文字列("2026-08-07T19:25:00+09:00")の比較。固定長ASCIIで辞書順=時刻順が
+   保証されているので、ICUの照合(localeCompare)を通す必要がない。試合中は effectiveMatches が
+   60秒ごとに3リーグ分のソートを走らせるため、ここは素の比較で十分かつ大幅に速い。
+   クラブ名の並べ替えは日本語照合が要るので localeCompare(b, "ja") のまま残してある。 */
+function cmpIso(a, b) { return a < b ? -1 : a > b ? 1 : 0; }
+function byKickoffAsc(a, b) { return cmpIso(a.kickoffJst || "9999", b.kickoffJst || "9999"); }
+function byKickoffDesc(a, b) { return cmpIso(b.kickoffJst || "", a.kickoffJst || ""); }
+function byPublishedDesc(a, b) { return cmpIso(b.publishedJst || "", a.publishedJst || ""); }
+
 async function getJson(path) {
-  const res = await fetch(path, { cache: "no-store" });
+  const res = await fetch(path, JSON_FETCH_OPTS);
   if (!res.ok) throw new Error(path + " が読めません (HTTP " + res.status + ")");
   return res.json();
 }
@@ -1141,7 +1171,7 @@ async function getJson(path) {
    (該当セクションを出さないだけ)。 */
 async function getJsonOptional(path) {
   try {
-    const res = await fetch(path, { cache: "no-store" });
+    const res = await fetch(path, JSON_FETCH_OPTS);
     if (!res.ok) return null;
     return await res.json();
   } catch (e) {
@@ -1151,7 +1181,7 @@ async function getJsonOptional(path) {
 /* デプロイ時刻の鮮度表示用(build_dist.pyが生成)。無くてもアプリは落とさない。 */
 async function getTextOptional(path) {
   try {
-    const res = await fetch(path, { cache: "no-store" });
+    const res = await fetch(path, JSON_FETCH_OPTS);
     if (!res.ok) return null;
     return (await res.text()).trim();
   } catch (e) {
@@ -1241,7 +1271,18 @@ function currentHashPath() {
 }
 function syncHash() {
   const path = currentHashPath();
-  if (location.hash.replace("#", "") !== path) location.hash = path;
+  if (location.hash.replace("#", "") === path) return;
+  /* 第37弾: location.hash への代入は hashchange を発火させ、そのリスナが
+     renderActiveTab() を呼ぶ。呼び出し元(setActiveTab/setAllTab/setViewMode)は自分でも
+     renderActiveTab() を呼ぶので、タブを1回押すたびに描画が必ず2回走っていた
+     (Playwrightで実測。全体モード日程では1,140試合の走査とソートも2回)。
+     replaceState なら hashchange は発火しない。ハッシュは「いま開いている画面」の
+     記録としてだけ使い、戻る/進むは従来どおり hashchange 側で処理する。 */
+  try {
+    history.replaceState(null, "", "#" + path);
+  } catch (e) {
+    location.hash = path;  // file:// など replaceState が使えない場合の保険
+  }
 }
 /* localStorageが使えない環境でも落ちないようにする(既存のloadFav/saveFavと同じ流儀) */
 function loadViewMode() {
@@ -1266,6 +1307,7 @@ function applyRouteFromHash() {
 function setActiveTab(tabId) {
   if (!TABS.some(t => t.id === tabId)) tabId = "home";
   state.activeTab = tabId;
+  state.schedNeedsScroll = (tabId === "schedule");  // 第37弾: 開いた直後の1回だけ節へ寄せる
   state.eventsOpen = null; // タブを切り替えたら開きっぱなしの試合詳細をリセットする(第13弾)
   syncHash();
   updateTabBarActive();
@@ -1351,6 +1393,16 @@ async function ensureMatchEvents(league) {
   if (c.matchEvents === undefined) c.matchEvents = await getJsonOptional("data/processed/" + league + "_match_events.json");
   return c.matchEvents;
 }
+/* 第37弾: 「行をタップして開く価値があるか」の判定。同じ意味の式が日程・カレンダー・
+   直近の結果の3箇所にコピーされていて、しかもカップ戦側(CUP_KINDS)だけ条件が違っていた。
+   コピー側は lineups の「存在」しか見ていなかったため、lineups が {} の試合で
+   「▸が付くのに開くと中身が空」の行が出ていた。中身まで見るカップ戦側の条件に揃える。 */
+function hasMatchEventDetail(ev) {
+  if (!ev) return false;
+  return !!((ev.goals || []).length || (ev.cards || []).length || (ev.subs || []).length
+    || (ev.lineups && Object.keys(ev.lineups).length) || ev.highlightVideoId || ev.daznVideoId);
+}
+
 function findMatchEvents(league, idEvent) {
   const c = state.cache[league];
   return (c && c.matchEvents && c.matchEvents.events) ? (c.matchEvents.events[String(idEvent)] || null) : null;
@@ -1780,6 +1832,7 @@ async function init() {
   document.addEventListener("change", ev => {
     if (ev.target && ev.target.id === "roundJump") {
       state.scheduleRound = Number(ev.target.value);
+      state.schedNeedsScroll = true;   // 第37弾: 利用者が選んだときだけスクロールする
       renderActiveTab();
     }
   });
@@ -1866,12 +1919,18 @@ async function renderActiveTab() {
   const app = document.getElementById("app");
   app.innerHTML = LOADING_HTML;
 
+  /* 第37弾: 以前は ensureTabData だけを包んでいたため、描画側で例外が出ると
+     app.innerHTML が LOADING_HTML のまま固まり、エラーも出ずリロード以外に復帰手段が
+     無かった。データ取得と描画をまとめて包む。 */
   try {
     await ensureTabData(league, state.activeTab);
+    renderActiveTabBody(league, team, master, app);
   } catch (e) {
-    app.innerHTML = '<div class="err">' + esc(e.message) + '</div>';
-    return;
+    app.innerHTML = '<div class="err">' + esc((e && e.message) || "描画に失敗しました") + '</div>';
   }
+}
+
+function renderActiveTabBody(league, team, master, app) {
 
   const cache = leagueCache(league);
   const venues = master.venues || {};
@@ -1912,7 +1971,11 @@ async function renderActiveTab() {
   }
   app.innerHTML = html;
 
-  if (state.activeTab === "schedule" && state.scheduleRound != null) {
+  /* 第37弾: 「日程タブである」だけを条件にしていたため、試合中に liveTick が60秒ごとに
+     再描画するたび、選択中の節の先頭へ引き戻されていた。全体モード日程の calNeedsScroll と
+     同じく「1回だけ立てるフラグ」に揃える。 */
+  if (state.activeTab === "schedule" && state.scheduleRound != null && state.schedNeedsScroll) {
+    state.schedNeedsScroll = false;
     const target = document.getElementById("round-" + state.scheduleRound);
     if (target) target.scrollIntoView({ block: "start" });
   }
@@ -2168,8 +2231,7 @@ const CUP_KINDS = {
     eventsOf: m => findLeagueCupEvents(m.code),
     /* 得点者は試合詳細側(ev.goals)にしか無い。日程ページはスコアまでしか持たない */
     goalCountOf: () => 0,
-    hasDetail: ev => !!((ev.goals || []).length || (ev.cards || []).length || (ev.subs || []).length
-      || (ev.lineups && Object.keys(ev.lineups).length) || ev.highlightVideoId || ev.daznVideoId),
+    hasDetail: hasMatchEventDetail,
     videoOf: ev => ev && (ev.highlightVideoId || ev.daznVideoId),
     panel: (ev, m, ownIdTeam) => renderMatchEventsPanel(
       ev, m.home.idTeam, m.home.name, m.away.idTeam, m.away.name, ownIdTeam),
@@ -2440,9 +2502,19 @@ function addDaysToDateStr(dateStr, days) {
 }
 /* 「今日」をJSTの日付文字列で得る。new Date().getDate()等は端末TZに引きずられる既知のバグ元
    (fmtDateの既存注意書きと同じ理由)なので使わず、Intl.DateTimeFormatにtimeZoneを明示して求める。 */
+/* 第37弾: フォーマッタはモジュールスコープで1つだけ作って使い回す。
+   timeZone付きの生成はICUのタイムゾーンデータ読み込みを伴い、毎回作ると重い。
+   選手タブは1人ごとに ageFromBirthday -> todayDateStrJst を呼ぶので、
+   1クラブ約40人ぶん毎回コンストラクトしていた。 */
+const JST_DATE_FMT = new Intl.DateTimeFormat("sv-SE", {
+  timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit",
+});
+const JST_DATETIME_FMT = new Intl.DateTimeFormat("sv-SE", {
+  timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit",
+  hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+});
 function todayDateStrJst() {
-  const fmt = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" });
-  return fmt.format(new Date());
+  return JST_DATE_FMT.format(new Date());
 }
 function fmtDateOnly(dateStr) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateStr || "");
@@ -2510,7 +2582,7 @@ function calMatchRowHtml(m, ownIdTeam) {
 
   // 第13弾: 得点/カード/交代が1件以上ある試合だけ、行をタップしてドリルダウンできるようにする。
   const evDetail = findMatchEvents(m.l, m.e);
-  const hasEvents = !!(evDetail && (evDetail.lineups || evDetail.highlightVideoId || evDetail.daznVideoId || (evDetail.goals || []).length + (evDetail.cards || []).length + (evDetail.subs || []).length > 0));
+  const hasEvents = hasMatchEventDetail(evDetail);
   // TheSportsDB側がキックオフ後もまだ未消化のまま(liveでもfinishedでもない)なら、
   // jleague.jpの得点イベントから暫定スコアを作る(derivedScoreFromEvents参照)。
   const derived = (!live && !finished) ? derivedScoreFromEvents(evDetail, m.h[0], m.a[0]) : null;
@@ -2632,7 +2704,7 @@ function renderNext(mine, team, venues) {
   const upcoming = mine
     .filter(m => !m.finished)
     .filter(m => m.kickoffTbd || new Date(m.kickoffJst).getTime() >= now)
-    .sort((a, b) => (a.kickoffJst || "9999").localeCompare(b.kickoffJst || "9999"));
+    .sort(byKickoffAsc);
   const m = upcoming[0];
 
   let body;
@@ -2676,7 +2748,7 @@ function renderNext(mine, team, venues) {
 
 function renderResults(mine, team, league) {
   const done = mine.filter(m => m.finished)
-    .sort((a, b) => (b.kickoffJst || "").localeCompare(a.kickoffJst || ""))
+    .sort(byKickoffDesc)
     .slice(0, 5);
 
   let body;
@@ -2692,7 +2764,7 @@ function renderResults(mine, team, league) {
 
       // 第14弾: 日程/カレンダータブと同じく、直近の結果もタップしてドリルダウンできるようにする
       const ev = league ? findMatchEvents(league, m.idEvent) : null;
-      const hasEvents = !!(ev && (ev.lineups || ev.highlightVideoId || ev.daznVideoId || (ev.goals || []).length + (ev.cards || []).length + (ev.subs || []).length > 0));
+      const hasEvents = hasMatchEventDetail(ev);
       const eventsKey = league + ":" + m.idEvent;
       const isOpen = hasEvents && state.eventsOpen === eventsKey;
       const expandHtml = hasEvents ? '<span class="events-toggle' + (isOpen ? " open" : "") + '">▸</span>' : "";
@@ -2903,7 +2975,7 @@ function scheduleRowHtml(m, team, mode, provisional, league) {
   // 第13弾: 得点/カード/交代が1件以上ある試合だけ、行をタップしてドリルダウンできるようにする
   // (試合前で何も無い試合はタップしても意味が無いので出さない)。
   const ev = league ? findMatchEvents(league, m.idEvent) : null;
-  const hasEvents = !!(ev && (ev.lineups || ev.highlightVideoId || ev.daznVideoId || (ev.goals || []).length + (ev.cards || []).length + (ev.subs || []).length > 0));
+  const hasEvents = hasMatchEventDetail(ev);
   // TheSportsDB側がキックオフ後もまだ未消化のままだと、finishedが立たずずっと「日時」表示のままに
   // なってしまう。jleague.jpの得点イベントから暫定スコアを作れる場合はそちらを使う(derivedScoreFromEvents参照)。
   const derived = !m.finished ? derivedScoreFromEvents(ev, m.home.idTeam, m.away.idTeam) : null;
@@ -3432,7 +3504,7 @@ function mergeMatches(existing, incoming) {
     const prev = byId.get(m.idEvent);
     byId.set(m.idEvent, prev ? Object.assign({}, prev, m) : m);
   }
-  return [...byId.values()].sort((a, b) => (a.kickoffJst || "9999").localeCompare(b.kickoffJst || "9999"));
+  return [...byId.values()].sort(byKickoffAsc);
 }
 
 /* 3章: 暫定順位表。scripts/standings.pyの「当該チーム間比較(全ペア消化済みのときだけ順序をつける)」は
@@ -3447,7 +3519,7 @@ function computeProvisionalTable(matches, master) {
   }
   const finished = (matches || []).filter(m => m.finished)
     .slice()
-    .sort((a, b) => (a.kickoffJst || "").localeCompare(b.kickoffJst || ""));
+    .sort(byKickoffAsc);
 
   for (const m of finished) {
     const h = rec[m.home.idTeam], a = rec[m.away.idTeam];
@@ -3632,6 +3704,8 @@ function pickLiveCandidates(matchesByLeague, now) {
    {"events":null}(=世界のどこにも進行中の試合が無い)はエラーではないので空配列を返す(5章の解釈)。 */
 async function fetchLiveScores() {
   try {
+    /* ここだけ "no-store" のまま。進行中のスコアは常に最新が要る一方でレスポンスは小さく、
+       304での節約より鮮度が優先される(第37弾で自前JSONを"no-cache"に変えたときの例外)。 */
     const res = await fetch("https://www.thesportsdb.com/api/v1/json/" + ONDEMAND_API_KEY + "/livescore.php?s=Soccer", { cache: "no-store" });
     if (!res.ok) return null;
     const json = await res.json();
@@ -3750,12 +3824,8 @@ function ondemandCompactBasisHtml(league, generatedAtJst) {
 /* ---------- 改訂2・6章: ヘッダのUI(更新ボタン・トースト・ポップオーバー) ---------- */
 
 function nowJstIso() {
-  const fmt = new Intl.DateTimeFormat("sv-SE", {
-    timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit",
-    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
-  });
   const parts = {};
-  for (const p of fmt.formatToParts(new Date())) parts[p.type] = p.value;
+  for (const p of JST_DATETIME_FMT.formatToParts(new Date())) parts[p.type] = p.value;
   return parts.year + "-" + parts.month + "-" + parts.day + "T" + parts.hour + ":" + parts.minute + ":" + parts.second + "+09:00";
 }
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
@@ -3958,7 +4028,10 @@ function ondemandOutcomeMessage(attemptedLeagues, succeededLeagues, changedCount
 
    state.masters は触らない(ビルドし直さないと変わらない)。
    state.ondemand も触らない(ondemandActiveCacheForLeague が generatedAtJst の比較で自動的に捨てる)。 */
-function clearStaticCaches() {
+/* 第37弾: 可視復帰のたびに捨てると通信量が跳ねるファイル。
+   club_extra.json(1.34MB)と news.json(3.0MB)は試合結果と無関係で、バッチの更新頻度も低い。
+   ⟳ボタンを押したときだけ捨てる(deep=true)。 */
+function clearStaticCaches(deep) {
   state.cache = {};   // leagueCache()経由のmatches/standings/simulation/stats/impact/history/rankHistory/matchEvents
   state.calendar = undefined;
   state.clubExtra = undefined;
@@ -3967,6 +4040,14 @@ function clearStaticCaches() {
   state.emperorsCupEvents = undefined;
   state.leagueCup = undefined;
   state.leagueCupEvents = undefined;
+  /* 第37弾: カレンダーの基準日もここで戻す。戻す場所が無かったため、土曜の夜に開いた
+     PWAを日曜の昼に開き直すと「今日」へのスクロールが土曜のブロックへ飛んでいた。 */
+  state.calAnchorDate = null;
+  if (deep) {
+    state.clubExtra = undefined;
+    state.news = undefined;
+    myNewsEntriesCache = null;
+  }
 }
 
 /* 第30弾: 可視復帰での再取得(maybeRefreshStaticOnVisible)を間引くための下限。
@@ -3976,9 +4057,9 @@ function clearStaticCaches() {
 const STATIC_REFRESH_MIN_INTERVAL_MS = 5 * 60 * 1000;
 let lastStaticRefreshAt = 0;
 
-async function refreshStaticMatchData() {
+async function refreshStaticMatchData(deep) {
   lastStaticRefreshAt = Date.now();
-  clearStaticCaches();
+  clearStaticCaches(deep);
   // いま開いているタブに要るぶんは renderActiveTab() -> ensureTabData() が自分で取り直す。
   // ここで先読みするのは、どのタブに居ても日程の得点速報が最新になるようにするため。
   await Promise.all([
@@ -3995,7 +4076,8 @@ async function refreshStaticMatchData() {
 function maybeRefreshStaticOnVisible() {
   if (Date.now() - lastStaticRefreshAt < STATIC_REFRESH_MIN_INTERVAL_MS) return;
   // 失敗しても投げない。ここで例外を出すとライブポーリングの再開まで巻き込む。
-  refreshStaticMatchData().catch(() => {});
+  // 復帰時は浅い更新(clubExtra/newsは据え置き)。全部取り直したいときは⟳を押してもらう。
+  refreshStaticMatchData(false).catch(() => {});
 }
 async function runOndemandUpdate(opts) {
   const ignoreCooldown = !!(opts && opts.ignoreCooldown);
@@ -4115,6 +4197,13 @@ async function liveTick() {
       renderActiveTab();
     }
     state.liveAutoFetchDone = false; // 次の試合が候補に入ってきたときのためにリセットしておく
+    /* 第37弾: 通算回数もここで戻す。LIVE_MAX_TOTAL_FETCHES は「1試合帯での暴走」を
+       止めるための上限なので、候補が0件になった=試合が途切れた時点で役目は終わっている。
+       戻す場所が無かったため、土曜に昼と夜の試合を追うだけで通算200回に達し、
+       以後アプリを完全に開き直すまでライブスコアが二度と出なくなっていた
+       (PWAは実質閉じないので数日単位で効いてしまう)。 */
+    state.liveTotalFetches = 0;
+    state.liveStopped = false;
     return false;
   }
 
@@ -4402,7 +4491,7 @@ function renderRadarForGroup(stats, team, groupDef) {
     '<p class="radar-limit-note">各軸はリーグ内順位を外周(1位)〜中心(最下位)に置き換えたものです。面積の大小に意味はありません。' +
     '軸の並び順によって形が変わるため、クラブ間の比較は形ではなく各軸の順位で行ってください。</p>';
 
-  return '<div class="radar-wrap">' + svg + '</div><div id="radarTooltip"></div>' + limitNote;
+  return '<div class="radar-wrap">' + svg + '</div><div id="radarTooltip" role="status" aria-live="polite"></div>' + limitNote;
 }
 
 function renderStatsTab(stats, team) {
@@ -4877,7 +4966,16 @@ function normalizeForSearch(str) {
 
 /* ニュース全件を1本の配列にする。newsItemHtml() が公式記事のURLを組み立てるのに
    navicode(リーグ)を要るので、どのクラブ由来かをここで持たせておく。 */
+/* 第37弾: 正規化済みの見出しを1度だけ作って使い回す。
+   検索対象は約6,360件(60クラブ×100件 + 公式360件 + world)あり、描画のたびに全件へ
+   NFKC正規化をかけていた。試合中は liveTick が60秒ごとに再描画するので特に効く。
+   state.news / state.clubExtra が入れ替わったら clearStaticCaches が null に戻す。 */
+let myNewsEntriesCache = null;
+
 function allNewsEntries(news, clubExtra) {
+  if (myNewsEntriesCache && myNewsEntriesCache.news === news && myNewsEntriesCache.clubExtra === clubExtra) {
+    return myNewsEntriesCache.entries;
+  }
   const out = [];
   const teams = (news && news.teams) || {};
   for (const idTeam of Object.keys(teams)) {
@@ -4899,6 +4997,8 @@ function allNewsEntries(news, clubExtra) {
   for (const item of (news && news.world) || []) {
     out.push({ item: item, league: state.league });
   }
+  for (const e of out) e.normTitle = normalizeForSearch(e.item.title);
+  myNewsEntriesCache = { news: news, clubExtra: clubExtra, entries: out };
   return out;
 }
 
@@ -4925,12 +5025,12 @@ function searchMyNews(entries, keywords) {
 
   const matched = [];
   for (const e of entries) {
-    const title = normalizeForSearch(e.item.title);
+    const title = e.normTitle !== undefined ? e.normTitle : normalizeForSearch(e.item.title);
     const hitKeys = norm.filter(k => title.indexOf(k.n) >= 0);
     if (!hitKeys.length) continue;
     matched.push({ item: e.item, league: e.league, matched: hitKeys.map(k => k.raw) });
   }
-  matched.sort((a, b) => (b.item.publishedJst || "").localeCompare(a.item.publishedJst || ""));
+  matched.sort((a, b) => byPublishedDesc(a.item, b.item));
 
   const seen = new Set();
   const hits = [];
@@ -5086,7 +5186,7 @@ function renderNews(news, clubExtra, team, league) {
   const teamNewsItems = (news && news.teams && news.teams[team.idTeam]) || [];
   // 公式+ゲキサカ+サッカーキング+Google Newsをまとめて新しい順に1本の一覧にする
   const combined = officialItems.concat(teamNewsItems)
-    .sort((a, b) => (b.publishedJst || "").localeCompare(a.publishedJst || ""));
+    .sort(byPublishedDesc);
 
   const obPlayers = (news && news.obPlayers) || {};
   const obNames = Object.keys(obPlayers).filter(name => (obPlayers[name] || []).length);
