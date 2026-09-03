@@ -579,7 +579,9 @@
 
   /* 全体モード: 予想タブ(B案: 帯+タップ詳細) */
   .predict-legend{display:flex; flex-wrap:wrap; gap:10px; font-size:11px; color:var(--sub); margin-bottom:10px}
-  .predict-row{display:grid; grid-template-columns:20px 44px 1fr 32px; align-items:center; gap:8px; padding:5px 0; cursor:pointer}
+  /* 第38弾: 約26pxで隣の行を誤タップしやすかった(20行が連続する画面なので特に)。
+     情報密度を落としたくないので、行を厚くするのは最小限に留める。 */
+  .predict-row{display:grid; grid-template-columns:20px 44px 1fr 32px; align-items:center; gap:8px; padding:8px 0; cursor:pointer}
   .predict-row.me{background:var(--me-bg,#eaf6ef); margin:0 -6px; padding-left:6px; padding-right:6px; border-radius:6px}
   .predict-rk{font-size:11px; color:var(--sub); text-align:right; font-variant-numeric:tabular-nums}
   .predict-nm{font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
@@ -827,7 +829,8 @@
       <button type="button" id="ondemandHeaderBtn" class="ondemand-header-btn" data-ondemand-update
         aria-label="J1〜J3の最新結果を取得" title="J1〜J3の最新結果を取得">⟳ --:--</button>
       <button type="button" id="ondemandInfoBtn" class="ondemand-info-btn" data-ondemand-info
-        aria-label="データの基準時刻を見る" title="データの基準時刻を見る">i</button>
+        aria-label="データの基準時刻を見る" title="データの基準時刻を見る"
+      aria-expanded="false" aria-controls="ondemandPopover">i</button>
       <button type="button" id="themeToggleBtn" class="theme-toggle-btn"
         aria-label="暗い表示に切り替え" title="表示テーマを切り替え"></button>
       <!-- 第37弾: バージョン/デプロイ時刻はヘッダーから外し、iのポップオーバーへ移した。
@@ -898,7 +901,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "7955f90";
+const APP_BUILD_VERSION = "c1a2a7b";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -1411,10 +1414,21 @@ function setViewMode(mode) {
 function leagueCache(league) {
   return state.cache[league] || (state.cache[league] = {});
 }
+/* 第38弾: 取得中のPromiseそのものを持たせる。
+   従来は「await の前に leagueCache の参照を捕まえ、await 明けにそこへ代入する」形だったため、
+   await 中に clearStaticCaches() が state.cache を差し替えると、捨てられたオブジェクトへ
+   結果を書き込んで消えていた(可視復帰時に evaluateLiveSchedule と
+   maybeRefreshStaticOnVisible が同時に走ると起きる)。二重ダウンロードも同時に防げる。
+   キャッシュのクリアは delete で行い、オブジェクトの参照は保つ(下の clearStaticCaches 参照)。 */
 async function ensureMatches(league) {
   const c = leagueCache(league);
-  if (!c.matches) c.matches = await getJson("data/processed/" + league + "_matches.json");
-  return c.matches;
+  if (c.matches) return c.matches;
+  if (!c._matchesP) {
+    c._matchesP = getJson("data/processed/" + league + "_matches.json")
+      .then(j => { c.matches = j; return j; })
+      .catch(e => { delete c._matchesP; throw e; });
+  }
+  return c._matchesP;
 }
 async function ensureStandings(league) {
   const c = leagueCache(league);
@@ -1612,7 +1626,9 @@ async function init() {
     leagueKeys.forEach((k, i) => { state.masters[k] = masterList[i]; });
     // 第14弾: チームカラー装飾用に、全リーグ横断のidTeam->チーム情報を1つにまとめておく
     for (const key of Object.keys(LEAGUES)) {
-      for (const t of state.masters[key].teams) state.teamsById[t.idTeam] = t;
+      /* 第38弾: リーグも一緒に持たせる。findTeam が 3リーグ×20クラブを毎回線形走査していて、
+         allNewsEntries ではクラブ数ぶんループ内から呼ばれていた。 */
+      for (const t of state.masters[key].teams) state.teamsById[t.idTeam] = Object.assign({ league: key }, t);
     }
   } catch (e) {
     app.innerHTML = '<div class="err"><b>データを読み込めませんでした。</b><br>' + esc(e.message) +
@@ -1689,6 +1705,17 @@ async function init() {
   /* 第37弾: Enter/Spaceで行の詳細を開けるようにする。
      行は div のままなので(レイアウトを崩さないため)、tabindex と role は描画側で付け、
      キー操作はここで click と同じ経路に合流させる。 */
+  /* 第38弾: Escでポップオーバーを閉じ、フォーカスをiボタンへ戻す。
+     中にトークン入力欄があるので、閉じる手段がキーボードから無いのは困る。 */
+  document.addEventListener("keydown", ev => {
+    if (ev.key !== "Escape" || !state.ondemandPopoverOpen) return;
+    state.ondemandPopoverOpen = false;
+    const btn = document.getElementById("ondemandInfoBtn");
+    if (btn) btn.setAttribute("aria-expanded", "false");
+    updateOndemandPopoverInPlace();
+    if (btn) btn.focus();
+  });
+
   document.addEventListener("keydown", ev => {
     if (ev.key !== "Enter" && ev.key !== " ") return;
     const row = ev.target && ev.target.closest && ev.target.closest("[data-eventsrow],[data-predictrow],[data-idteam]");
@@ -1823,7 +1850,7 @@ async function init() {
     if (eventsRowBtn) {
       const key = eventsRowBtn.dataset.eventsrow;
       state.eventsOpen = (state.eventsOpen === key) ? null : key;
-      renderActiveTab();
+      rerenderKeepingRowAnchor(key);
       return;
     }
 
@@ -1937,11 +1964,8 @@ async function init() {
 }
 
 function findTeam(idTeam) {
-  for (const key of Object.keys(LEAGUES)) {
-    const t = state.masters[key].teams.find(x => x.idTeam === idTeam);
-    if (t) return { league: key, team: t };
-  }
-  return null;
+  const t = state.teamsById && state.teamsById[idTeam];
+  return t ? { league: t.league, team: t } : null;
 }
 function findFavoriteTeam() {
   for (const key of Object.keys(LEAGUES)) {
@@ -1992,6 +2016,40 @@ const LOADING_HTML =
 /* 第37弾: #app を丸ごと差し替えるとフォーカスが body に飛ぶ。マイニュースは
    キーワードを続けて登録する画面なので、入力欄のフォーカスとカーソル位置を復元する
    (iOSでは復元しないとソフトキーボードが毎回閉じる)。 */
+/* 第38弾: 行をタップして詳細を開いたとき、その行が画面上の同じ位置に留まるようにする。
+
+   #app を innerHTML で丸ごと差し替えているため、開いた直後にスクロール位置が動いて
+   「開いた試合の一番下」に飛んでしまっていた。ノードが全部作り直されるので、
+   ブラウザのスクロールアンカリングが効かない(どのノードを基準にすればよいか分からない)。
+
+   差し替えの前にその行の画面上の位置(viewportからの距離)を控えておき、
+   差し替え後に同じ行を探して、その位置へ戻るぶんだけスクロールし直す。
+   詳細パネルは行の下に開くので、行の上端を固定すれば「開いた試合の頭」が見えたままになる。 */
+function findEventsRow(key) {
+  for (const el of document.querySelectorAll("[data-eventsrow]")) {
+    if (el.dataset.eventsrow === key) return el;
+  }
+  return null;
+}
+
+async function rerenderKeepingRowAnchor(key) {
+  await rerenderKeepingAnchor(() => findEventsRow(key));
+}
+
+/* find は「差し替えの前後で同じものを指す要素」を返す関数。
+   カレンダーの「さらに前を見る」でも、先頭に14日ぶんの行が差し込まれて見ていた日付が
+   飛んでいたので、同じ仕掛けで位置を戻す。 */
+async function rerenderKeepingAnchor(find) {
+  const before = find();
+  const topBefore = before ? before.getBoundingClientRect().top : null;
+  await renderActiveTab();
+  if (topBefore == null) return;
+  const after = find();
+  if (!after) return;
+  const delta = after.getBoundingClientRect().top - topBefore;
+  if (delta) window.scrollBy(0, delta);
+}
+
 async function rerenderKeepingMyNewsFocus() {
   await renderActiveTab();
   const input = document.getElementById("myNewsInput");
@@ -2418,35 +2476,37 @@ function renderLeagueSegment(activeLeague) {
   ).join("") + '</div>';
 }
 
-function renderAllStandings(league, standings, found, provisional, rankHistory) {
-  const master = state.masters[league];
-  const segHtml = renderLeagueSegment(league);
-  const heading = (master.meta && master.meta.leagueNameJa) || LEAGUES[league].name;
+/* 暫定順位の注記。全体モードとクラブモードに一字一句コピーされていたので定数にした。 */
+const PROVISIONAL_NOTE = "※ アプリから取得した最新結果を反映した暫定順位です(当該チーム間の比較までは行っていないため、公式の順位とは並びが異なることがあります)。";
 
-  if (!standings) {
-    return '<section><h2>順位（全体）</h2><div class="card">' + segHtml +
-      '<p class="muted" style="margin:10px 0 0">' + esc(heading) + 'の順位データがまだありません。</p></div></section>';
-  }
-
+/* 第38弾: 順位表は全体モードとクラブモードで2実装に分裂していた。列構成・凡例・「暫定」バッジ・
+   注記文まで同一で、勝点バーはクラブモード側にだけ実装されていた。全体モード側には
+   「maxPoints を計算したのに一度も使わない」死にコードが残っていた(移植の途中で止まった痕跡)。
+   次に列を1つ足す人がどちらを直すべきか判断できないので、1本にまとめて差分だけ opts で渡す。 */
+function standingsSectionHtml(standings, master, opts) {
   const rules = master.promotionRules;
   const zones = resolveZones(rules);
-  const ownIdTeam = found ? found.team.idTeam : null;
-
+  const ownIdTeam = opts.ownIdTeam || null;
+  const provisional = !!opts.provisional;
+  const rankHistory = opts.rankHistory;
   // 勝点バーの基準。首位の勝点を100%にする(0除算を避けるため下限1)
   const maxPoints = Math.max(1, ...standings.table.map(r => r.points || 0));
+
   const rows = standings.table.map(r => {
     const z = zoneColor(r.rank, rules);
     const form = (r.recent5 || []).map(x => '<span class="pill ' + x + '">' + x + '</span>').join("");
-    return '<tr class="' + (r.idTeam === ownIdTeam ? "me" : "") + '">' +
-      '<td class="rank">' + r.rank + rankDeltaHtml(rankHistory, r.idTeam, provisional) + '</td>' +
+    const ptsPct = Math.round((r.points || 0) / maxPoints * 100);
+    return '<tr class="' + (r.idTeam === ownIdTeam ? "me" : "") + '"' +
+      ' style="background:linear-gradient(90deg, var(--pts-tint) ' + ptsPct + '%, transparent ' + ptsPct + '%)">' +
+      '<td class="rank num">' + r.rank + rankDeltaHtml(rankHistory, r.idTeam, provisional) + '</td>' +
       '<td class="club">' +
         (z ? '<span class="zone" style="background:' + z.color + '"></span>' : '<span class="zone" style="background:transparent"></span>') +
         '<span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(r.idTeam) + '">' + teamSwatchHtml(r.idTeam) + esc(r.short || r.ja) + '</span>' +
       '</td>' +
-      '<td>' + r.played + (r.playedDiff ? '<span class="diff">-' + r.playedDiff + '</span>' : '') + '</td>' +
-      '<td>' + r.win + '</td><td>' + r.draw + '</td><td>' + r.loss + '</td>' +
-      '<td>' + (r.gd > 0 ? "+" : "") + r.gd + '</td>' +
-      '<td><b>' + r.points + '</b></td>' +
+      '<td class="num">' + r.played + (r.playedDiff ? '<span class="diff">-' + r.playedDiff + '</span>' : '') + '</td>' +
+      '<td class="num">' + r.win + '</td><td class="num">' + r.draw + '</td><td class="num">' + r.loss + '</td>' +
+      '<td class="num">' + (r.gd > 0 ? "+" : "") + r.gd + '</td>' +
+      '<td class="num"><b>' + r.points + '</b></td>' +
       '<td class="form"><span class="form-row">' + form + '</span></td>' +
     '</tr>';
   }).join("");
@@ -2454,19 +2514,33 @@ function renderAllStandings(league, standings, found, provisional, rankHistory) 
   const legend = zones.map(z => '<span><i class="sw" style="background:' + z.color + '"></i>' + esc(z.label) + '</span>');
   legend.push('<span><b style="color:var(--diff-ink)">-1</b> は消化試合が1つ少ないことを示します</span>');
   const badgeHtml = provisional ? '<span class="provisional-badge">暫定</span>' : "";
-  const provisionalNoteHtml = provisional
-    ? '<p class="ondemand-basis">※ アプリから取得した最新結果を反映した暫定順位です(当該チーム間の比較までは行っていないため、公式の順位とは並びが異なることがあります)。</p>'
-    : "";
+  const provisionalNoteHtml = provisional ? '<p class="ondemand-basis">' + PROVISIONAL_NOTE + '</p>' : "";
 
-  return '<section><h2>' + esc(heading) + ' 順位' + badgeHtml + '</h2><div class="card">' +
-    segHtml +
+  return '<section><h2>' + esc(opts.heading) + badgeHtml + '</h2><div class="card">' +
+    (opts.aboveTableHtml || "") +
     '<table><thead><tr>' +
       '<th class="rank">#</th><th class="club">クラブ</th><th>試</th><th>勝</th><th>分</th><th>負</th><th>差</th><th>点</th>' +
       '<th class="form">直近</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>' +
     '<div class="legend">' + legend.join("") + '</div>' +
     provisionalNoteHtml +
-  '</div></section>' + renderRankHistoryChart(rankHistory, master, ownIdTeam, league);
+  '</div></section>' + renderRankHistoryChart(rankHistory, master, ownIdTeam, opts.league);
+}
+
+function renderAllStandings(league, standings, found, provisional, rankHistory) {
+  const master = state.masters[league];
+  const segHtml = renderLeagueSegment(league);
+  const heading = (master.meta && master.meta.leagueNameJa) || LEAGUES[league].name;
+  if (!standings) {
+    return '<section><h2>順位（全体）</h2><div class="card">' + segHtml +
+      '<p class="muted" style="margin:10px 0 0">' + esc(heading) + 'の順位データがまだありません。</p></div></section>';
+  }
+  return standingsSectionHtml(standings, master, {
+    heading: heading + " 順位",
+    aboveTableHtml: segHtml,
+    ownIdTeam: found ? found.team.idTeam : null,
+    provisional: provisional, rankHistory: rankHistory, league: league,
+  });
 }
 
 /* 予想タブ(B案: P10〜P90の帯+タップで詳細)。横軸は常に1位〜クラブ数位に固定、左が1位。
@@ -2621,6 +2695,10 @@ function fmtDateOnly(dateStr) {
 /* 日付でグルーピングする。calendar.matchesは既にkickoffJst昇順(null末尾)でソート済みなので、
    フロント側では並べ替えず、連続する同日付をまとめるだけでよい。
    各日付ブロック内では、kickoffTbd(b:true、時刻未定)の試合を末尾にまとめる。 */
+/* 第38弾: groupCalendarMatches の結果。キーは calendar オブジェクトの同一性 +
+   リーグフィルタ。calendar が入れ替われば(=バッチが更新されれば)自然に作り直される。 */
+let calGroupCache = null;
+
 function groupCalendarMatches(matches) {
   const dated = [];
   const undated = [];
@@ -2737,13 +2815,31 @@ function calMatchRowHtml(m, ownIdTeam) {
 }
 
 function scrollCalendarToAnchor() {
-  const el = document.getElementById("calAnchor");
+  const el = document.querySelector("[data-calanchor]");
   if (el) el.scrollIntoView({ block: "start" });
 }
 function extendCalendarRange(direction) {
+  /* 第38弾: 「さらに前を見る」は先頭に14日ぶんの行を差し込むので、そのままだと
+     scrollY が数値のまま保たれて見ていた日付とは無関係な位置に飛んでいた。
+     いま画面の一番上に見えている日付ブロックを基準にして、その位置へ戻す。 */
+  const anchorId = topVisibleCalDayId();
   if (direction === "before") state.calDaysBefore += CAL_WINDOW_STEP_DAYS;
   else state.calDaysAfter += CAL_WINDOW_STEP_DAYS;
-  renderActiveTab();
+  if (anchorId) rerenderKeepingAnchor(() => document.getElementById(anchorId));
+  else renderActiveTab();
+}
+
+/* 画面内にいちばん近い(上端が0以上で最小の)日付ブロックのidを返す。
+   1つも該当しなければ最後の1つ(画面より上に流れ切っている場合)。 */
+function topVisibleCalDayId() {
+  let best = null, bestTop = Infinity, last = null;
+  for (const el of document.querySelectorAll(".cal-day")) {
+    last = el;
+    const top = el.getBoundingClientRect().top;
+    if (top >= 0 && top < bestTop) { bestTop = top; best = el; }
+  }
+  const el = best || last;
+  return el ? el.id || null : null;
 }
 
 function renderAllSchedule(calendar, found) {
@@ -2766,7 +2862,14 @@ function renderAllSchedule(calendar, found) {
       '<p class="muted" style="margin:10px 0 0">選択中のリーグに試合がありません。フィルタを見直してください。</p></div></section>';
   }
 
-  const { dated, undated } = groupCalendarMatches(filtered);
+  /* 第38弾: calendar.matches は1,140試合あり、描画のたびに全件を走査+日付ごとにソートして
+     いた。実際にDOM化するのは前後14日ぶんだけなので、フィルタが変わらないかぎり作り直さない
+     (試合中は liveTick が60秒ごとに再描画するので特に効く)。 */
+  const groupKey = calendar + "|" + JSON.stringify(state.calLeagueFilter);
+  if (!calGroupCache || calGroupCache.key !== groupKey) {
+    calGroupCache = { key: groupKey, value: groupCalendarMatches(filtered) };
+  }
+  const { dated, undated } = calGroupCache.value;
   if (state.calAnchorDate == null) state.calAnchorDate = computeCalendarAnchorDate(dated);
   const anchor = state.calAnchorDate;
 
@@ -2779,7 +2882,9 @@ function renderAllSchedule(calendar, found) {
 
   const daysHtml = buckets.map(b => {
     const rowsHtml = b.matches.map(m => calMatchRowHtml(m, ownIdTeam)).join("");
-    return '<div class="cal-day"' + (b.date === anchor ? ' id="calAnchor"' : '') + '>' +
+    /* 第38弾: 日付ごとのidを振る。「さらに前を見る」で先頭に行が差し込まれても、
+       いま見ていた日付を基準に位置を戻せるようにするため。 */
+    return '<div class="cal-day" id="' + esc("calDay-" + b.date) + '"' + (b.date === anchor ? ' data-calanchor="1"' : '') + '>' +
       '<h3 class="cal-day-title">' + esc(fmtDateOnly(b.date)) + '</h3>' + rowsHtml +
     '</div>';
   }).join("");
@@ -2915,12 +3020,15 @@ function groupMatchesByRound(matches) {
 }
 
 /* maxPlayed(消化済みの最終節)の次の節。誰も消化していなければ第1節。 */
-function computeCurrentRound(allMatches) {
+function computeCurrentRound(allMatches, rules) {
   let maxRound = 0;
   for (const m of allMatches) {
     if (m.finished && m.round > maxRound) maxRound = m.round;
   }
-  return Math.min(maxRound + 1, 38) || 1;
+  /* 第38弾: 節数はマスタ(promotionRules.totalRounds)が持っているので、そこから取る。
+     従来の "|| 1" は Math.min の結果が必ず1以上なので到達しない死文だった。 */
+  const total = (rules && rules.totalRounds) || 38;
+  return Math.max(1, Math.min(maxRound + 1, total));
 }
 
 /* 第13弾: 得点/カード/交代の分表記("45+2"等)を昇順ソートするためのキーに変換する。 */
@@ -3180,7 +3288,10 @@ function renderScheduleTab(matchesData, team, league) {
   if (!matchesData) return icsHtml + '<section><h2>日程</h2><div class="card"><p class="muted" style="margin:0">日程データがまだありません。</p></div></section>';
   const all = matchesData.matches || [];
 
-  if (state.scheduleRound == null) state.scheduleRound = computeCurrentRound(all);
+  if (state.scheduleRound == null) {
+    const master = state.masters[league];
+    state.scheduleRound = computeCurrentRound(all, master && master.promotionRules);
+  }
   const mode = state.scheduleMode || "mine";
 
   const rounds = groupMatchesByRound(all);
@@ -3267,44 +3378,18 @@ function probRingHtml(value, color) {
   '</svg>';
 }
 function renderStandings(standings, team, master, provisional, rankHistory, league) {
-  const rules = master.promotionRules;
-  const zones = resolveZones(rules);
-  // 勝点バーの基準。首位の勝点を100%にする(0除算を避けるため下限1)
-  const maxPoints = Math.max(1, ...standings.table.map(r => r.points || 0));
-  const rows = standings.table.map(r => {
-    const z = zoneColor(r.rank, rules);
-    const form = (r.recent5 || []).map(x => '<span class="pill ' + x + '">' + x + '</span>').join("");
-    const ptsPct = Math.round((r.points || 0) / maxPoints * 100);
-    return '<tr class="' + (r.idTeam === team.idTeam ? "me" : "") + '"' +
-      ' style="background:linear-gradient(90deg, var(--pts-tint) ' + ptsPct + '%, transparent ' + ptsPct + '%)">' +
-      '<td class="rank">' + r.rank + rankDeltaHtml(rankHistory, r.idTeam, provisional) + '</td>' +
-      '<td class="club">' +
-        (z ? '<span class="zone" style="background:' + z.color + '"></span>' : '<span class="zone" style="background:transparent"></span>') +
-        '<span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(r.idTeam) + '">' + teamSwatchHtml(r.idTeam) + esc(r.short || r.ja) + '</span>' +
-      '</td>' +
-      '<td>' + r.played + (r.playedDiff ? '<span class="diff">-' + r.playedDiff + '</span>' : '') + '</td>' +
-      '<td>' + r.win + '</td><td>' + r.draw + '</td><td>' + r.loss + '</td>' +
-      '<td>' + (r.gd > 0 ? "+" : "") + r.gd + '</td>' +
-      '<td><b>' + r.points + '</b></td>' +
-      '<td class="form"><span class="form-row">' + form + '</span></td>' +
-    '</tr>';
-  }).join("");
-
-  const legend = zones.map(z => '<span><i class="sw" style="background:' + z.color + '"></i>' + esc(z.label) + '</span>');
-  legend.push('<span><b style="color:var(--diff-ink)">-1</b> は消化試合が1つ少ないことを示します</span>');
-  const badgeHtml = provisional ? '<span class="provisional-badge">暫定</span>' : "";
-  const provisionalNoteHtml = provisional
-    ? '<p class="ondemand-basis">※ アプリから取得した最新結果を反映した暫定順位です(当該チーム間の比較までは行っていないため、公式の順位とは並びが異なることがあります)。</p>'
-    : "";
-
-  return '<section><h2>' + esc(master.meta.leagueNameJa || "順位表") + badgeHtml + '</h2><div class="card">' +
-    '<table><thead><tr>' +
-      '<th class="rank">#</th><th class="club">クラブ</th><th>試</th><th>勝</th><th>分</th><th>負</th><th>差</th><th>点</th>' +
-      '<th class="form">直近</th>' +
-    '</tr></thead><tbody>' + rows + '</tbody></table>' +
-    '<div class="legend">' + legend.join("") + '</div>' +
-    provisionalNoteHtml +
-  '</div></section>' + renderRankHistoryChart(rankHistory, master, team.idTeam, league);
+  /* 第38弾: 全体モード側にだけあった「データが無い」ガードをこちらにも付けた。
+     従来は standings が undefined だと standings.table で TypeError になり、描画が途中で死んでいた
+     (可視復帰時にキャッシュが入れ替わると実際に起こりうる)。 */
+  if (!standings) {
+    return '<section><h2>順位</h2><div class="card">' +
+      '<p class="muted" style="margin:0">順位データがまだありません。</p></div></section>';
+  }
+  return standingsSectionHtml(standings, master, {
+    heading: (master.meta && master.meta.leagueNameJa) || "順位表",
+    ownIdTeam: team.idTeam,
+    provisional: provisional, rankHistory: rankHistory, league: league,
+  });
 }
 
 /* リーグ全体の消化試合数(simulation.meta.basedOnMatches)は、クラブごとの消化試合数とは違う数字なので
@@ -4109,6 +4194,9 @@ function updateOndemandPopoverInPlace() {
    (ニュースタブを一度も開いていない場合、state.newsはundefinedのまま=「－」表示になるため)。 */
 async function toggleOndemandPopover() {
   state.ondemandPopoverOpen = !state.ondemandPopoverOpen;
+  /* 第38弾: 開閉していることが支援技術に伝わっていなかった。 */
+  const btn = document.getElementById("ondemandInfoBtn");
+  if (btn) btn.setAttribute("aria-expanded", String(state.ondemandPopoverOpen));
   if (state.ondemandPopoverOpen && state.news === undefined) {
     await ensureNews();
   }
@@ -4155,7 +4243,11 @@ function ondemandOutcomeMessage(attemptedLeagues, succeededLeagues, changedCount
    club_extra.json(1.34MB)と news.json(3.0MB)は試合結果と無関係で、バッチの更新頻度も低い。
    ⟳ボタンを押したときだけ捨てる(deep=true)。 */
 function clearStaticCaches(deep) {
-  state.cache = {};   // leagueCache()経由のmatches/standings/simulation/stats/impact/history/rankHistory/matchEvents
+  /* 第38弾: state.cache を差し替えると、取得中の ensure* が捨てられたオブジェクトへ
+     書き込んでしまう。参照は保ったままキーを消す。 */
+  for (const lg of Object.keys(state.cache)) {
+    for (const k of Object.keys(state.cache[lg])) delete state.cache[lg][k];
+  }   // leagueCache()経由のmatches/standings/simulation/stats/impact/history/rankHistory/matchEvents
   state.calendar = undefined;
   state.clubExtra = undefined;
   state.news = undefined;
@@ -4166,6 +4258,7 @@ function clearStaticCaches(deep) {
   /* 第37弾: カレンダーの基準日もここで戻す。戻す場所が無かったため、土曜の夜に開いた
      PWAを日曜の昼に開き直すと「今日」へのスクロールが土曜のブロックへ飛んでいた。 */
   state.calAnchorDate = null;
+  calGroupCache = null;
   if (deep) {
     state.clubExtra = undefined;
     state.news = undefined;
@@ -4548,7 +4641,9 @@ function renderRadarForGroup(stats, team, groupDef) {
   const angleStep = 360 / n;
 
   const color = team.color || "#0b6b3a";
-  const light = luminance(color) > 0.5;
+  /* 第38弾: 固定しきい値(luminance>0.5)は中間輝度のクラブ色で誤判定するため、
+     コントラスト比で選ぶ pickInk に置き換えた(第29弾で他は全部そうした)。 */
+  const light = pickInk(color) === INK_ON_LIGHT;
   // クラブカラーが明るいと2pxの線・マーカーが白背景に埋もれるため、暗い派生色を使う
   const strokeColor = light ? darken(color, 0.55) : color;
   const fillColor = toRgba(color, 0.18);
@@ -4614,7 +4709,10 @@ function renderRadarForGroup(stats, team, groupDef) {
     '<p class="radar-limit-note">各軸はリーグ内順位を外周(1位)〜中心(最下位)に置き換えたものです。面積の大小に意味はありません。' +
     '軸の並び順によって形が変わるため、クラブ間の比較は形ではなく各軸の順位で行ってください。</p>';
 
-  return '<div class="radar-wrap">' + svg + '</div><div id="radarTooltip" role="status" aria-live="polite"></div>' + limitNote;
+  /* 第38弾: レーダーは軸名と「3位/20」を <text> で出すだけなので、読み上げると文脈のない
+     断片が延々と流れる。同じ内容は直後の表(renderStatsGroupTable)が正しく提供しているので、
+     図の方は支援技術から隠す。 */
+  return '<div class="radar-wrap" aria-hidden="true">' + svg + '</div><div id="radarTooltip" role="status" aria-live="polite"></div>' + limitNote;
 }
 
 function renderStatsTab(stats, team) {
@@ -4969,6 +5067,12 @@ function fmtBirthday(iso) {
   return (+m[1]) + "/" + (+m[2]) + "/" + (+m[3]);
 }
 
+function uniformNoSortKey(v) {
+  if (v === null || v === undefined || v === "") return 999;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 999;
+}
+
 function renderPlayers(clubExtra, team) {
   const c = clubExtra && clubExtra.clubs && clubExtra.clubs[team.idTeam];
   if (!c || !c.players || !c.players.length) {
@@ -4980,7 +5084,10 @@ function renderPlayers(clubExtra, team) {
   const sorted = [...c.players].sort((a, b) => {
     const pa = POSITION_ORDER[a.position] ?? 9, pb = POSITION_ORDER[b.position] ?? 9;
     if (pa !== pb) return pa - pb;
-    return (+a.uniformNo || 999) - (+b.uniformNo || 999);
+    /* 第38弾: "0" は +"0" === 0 が falsy なので 999 扱いで末尾に飛んでいた。
+       ただし Number(null) も Number("") も 0 になるので、まず「値が無い」を弾いてから
+       数値にする(意図は「数値なら数値順、無ければ末尾」)。 */
+    return uniformNoSortKey(a.uniformNo) - uniformNoSortKey(b.uniformNo);
   });
 
   const rows = sorted.map(p => {
