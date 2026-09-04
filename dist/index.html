@@ -291,6 +291,9 @@
      見た目を詰めたい場合はpaddingで調整する。 */
   .schedule-controls select{width:auto; flex:1; min-width:110px; padding:8px 10px; font-size:16px; font-weight:600}
   .sched-round{margin-top:18px; scroll-margin-top:90px}
+  /* 第28弾: 順位表を自分の周辺に絞ったとき、飛んでいる箇所に入れる行。
+     入れないと「7位の次が17位」に見えて誤読される。 */
+  .st-gap td{text-align:center; color:var(--muted); padding:2px 0; letter-spacing:.3em}
   /* 第27弾: Android Chromeの標準の引っ張って更新を止める(自前の実装と二重に走るため)。
      横方向は指定しない(.chart-scrollなどの横スクロールに影響させないため)。 */
   body{overscroll-behavior-y:contain}
@@ -918,7 +921,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "1c44d7c";
+const APP_BUILD_VERSION = "66b5c0f";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -935,6 +938,7 @@ const state = {
   emperorsCup: undefined, // 第23弾: 天皇杯(data/processed/emperors_cup.json)。undefined=未取得, null=データ無し
   cupRound: null,         // カップタブで表示中のラウンド名。nullなら初回描画時に決める
   currentRoundForJump: null, // 第27弾: 日程タブ「今節へ」のスクロール先(描画時に控える)
+  standingsScope: null,      // 第28弾: 順位表の表示範囲("all"/"near")。nullなら初回にlocalStorageから読む
   cupKind: "emperors",    // 第36弾: カップタブで見ている大会("emperors"=天皇杯 / "leaguecup"=ルヴァン)
   leagueCup: undefined,       // leaguecup.json。undefined=未取得, null=データ無し
   leagueCupEvents: undefined, // leaguecup_match_events.json(得点者/カード/交代/メンバー/動画)
@@ -1720,6 +1724,7 @@ async function ensureTabData(league, tabId) {
     await ensureMatches(league);
     await ensureSimulation(league);
     await ensureImpact(league);
+    await ensureStandings(league); // 第28弾: 序盤に出す順位ミニ表。gzip後で数KBなので追加コストはほぼ無い
     await ensureMatchEvents(league); // 第13弾: 自クラブの進行中判定(derivedScoreFromEvents)に必要
   } else if (tabId === "schedule") {
     await ensureMatches(league); // 全380試合が既に入っているので追加取得は不要
@@ -2064,6 +2069,15 @@ async function init() {
       return;
     }
 
+    // 第28弾: 順位表の表示範囲(全体 / 自分の周辺)
+    const stScopeBtn = ev.target.closest("[data-stscope]");
+    if (stScopeBtn) {
+      state.standingsScope = stScopeBtn.dataset.stscope;
+      saveStandingsScope(state.standingsScope);
+      renderActiveTab();
+      return;
+    }
+
     const seriesBtn = ev.target.closest("[data-chartseries]");
     if (seriesBtn) {
       state.chartSeries = seriesBtn.dataset.chartseries;
@@ -2312,7 +2326,25 @@ function renderActiveTabBody(league, team, master, app) {
     const nextOrLiveHtml = liveMatch
       ? renderLiveCard(liveMatch, team)
       : (derivedLive ? renderDerivedLiveCard(derivedLive.match, derivedLive.derived, team) : renderNext(mine, team, venues));
-    html = nextOrLiveHtml + renderResults(mine, team, league) +
+    /* 第28弾: シーズン序盤は、昇格/残留確率がリーグ平均に寄っていてほとんど動かない。
+       それが画面でいちばん大きい面積を占め、アプリ自身が「まだ大きく動きます」と
+       注記を添えている状態だった。注記で守るのではなく並び順で守る。
+       変えるのは early のときだけで、mid/late は従来と1ピクセルも変わらない。 */
+    const stage = seasonStage(all, master.promotionRules);
+    /* 順位タブと同じ暫定判定をここでも通す。これを省くと、オンデマンド更新の直後に
+       「順位タブは暫定順位、ホームのミニ表は更新前の順位」というちぐはぐが起きる。 */
+    const homeProvisional = hasOndemandForLeague(league);
+    const homeStandings = homeProvisional
+      ? { table: computeProvisionalTable(all, master), meta: cache.standings && cache.standings.meta }
+      : cache.standings;
+    const nearbyHtml = (stage === "early" && homeStandings)
+      ? standingsSectionHtml(homeStandings, master, {
+          heading: "順位表", ownIdTeam: team.idTeam, league: league,
+          provisional: homeProvisional,
+          focus: { idTeam: team.idTeam, around: 3 },
+        })
+      : "";
+    html = nextOrLiveHtml + renderResults(mine, team, league) + nearbyHtml +
       renderPromotion(cache.simulation, team, all, master.promotionRules, league) +
       renderImpactSection(cache.impact, team, master.promotionRules, league);
   }
@@ -2685,6 +2717,52 @@ const PROVISIONAL_NOTE = "※ アプリから取得した最新結果を反映�
    注記文まで同一で、勝点バーはクラブモード側にだけ実装されていた。全体モード側には
    「maxPoints を計算したのに一度も使わない」死にコードが残っていた(移植の途中で止まった痕跡)。
    次に列を1つ足す人がどちらを直すべきか判断できないので、1本にまとめて差分だけ opts で渡す。 */
+/* 第28弾: 自分の周辺だけに絞った行番号の配列を返す。絞れないときは null。
+
+   昇格圏・降格圏の境界にあたる行は、範囲外でも必ず残す。
+   「自分がいまどのゾーンから何ポイント離れているか」がこの表の存在理由なので、
+   そこを省くと意味が半減する。
+
+   境界の順位はハードコードせず resolveZones() の結果からだけ作る。
+   こうしておくと「J3の降格圏は出さない」という既存の判断が、ここでも自動的に守られる。 */
+function focusedRowIndices(table, ownIdTeam, around, zones) {
+  const idx = table.findIndex(r => r.idTeam === ownIdTeam);
+  if (idx < 0) return null;
+  const want = around * 2 + 1;
+  let to = Math.min(table.length, Math.max(0, idx - around) + want);
+  const from = Math.max(0, to - want);   // 端では自分の側に寄せて行数を保つ
+  const keep = new Set();
+  for (let i = from; i < to; i++) keep.add(i);
+  for (const z of zones) {
+    const edge = Math.max.apply(null, z.ranks);   // そのゾーンの最下位が境界
+    const j = table.findIndex(r => r.rank === edge);
+    if (j >= 0) keep.add(j);
+  }
+  const sorted = Array.from(keep).sort((a, b) => a - b);
+  /* 飛びが1行だけなら、その行を出してしまう。「2位 … 4位」と省略記号を挟むより、
+     3位をそのまま見せるほうが短くて読みやすい。 */
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] - sorted[i - 1] === 2) keep.add(sorted[i] - 1);
+  }
+  return Array.from(keep).sort((a, b) => a - b);
+}
+
+/* シーズンの進行度。ホームの並び順と、序盤の注記の判定に使う。
+   しきい値は「順位表がどれくらい信用できるか」の体感で決めている:
+     early = 消化20%未満。順位より次戦・直近結果のほうが情報量がある(38節なら7節あたりまで)
+     late  = 消化75%以上。残り試合が少なく、他会場の結果の重みが増す
+   totalRounds が取れないリーグでは "mid" を返して現状の並びのままにする(安全側)。 */
+function seasonStage(allMatches, rules) {
+  const total = rules && rules.totalRounds;
+  if (!total) return "mid";
+  const range = computePlayedRange(allMatches);
+  if (!range.max) return "early";
+  const ratio = range.max / total;
+  if (ratio < 0.20) return "early";
+  if (ratio >= 0.75) return "late";
+  return "mid";
+}
+
 function standingsSectionHtml(standings, master, opts) {
   const rules = master.promotionRules;
   const zones = resolveZones(rules);
@@ -2694,11 +2772,25 @@ function standingsSectionHtml(standings, master, opts) {
   // 勝点バーの基準。首位の勝点を100%にする(0除算を避けるため下限1)
   const maxPoints = Math.max(1, ...standings.table.map(r => r.points || 0));
 
-  const rows = standings.table.map(r => {
+  /* 第28弾: opts.focus があるときは自分の周辺だけに絞る。列は減らさない。
+     順位タブと同じ表がそのまま縮んで見えるほうが、別レイアウトを覚えるより読みやすく、
+     第38弾で1本にまとめた意味も保てる。 */
+  const table = standings.table;
+  let indices = table.map((_, i) => i);
+  if (opts.focus && opts.focus.idTeam) {
+    const picked = focusedRowIndices(table, opts.focus.idTeam, opts.focus.around || 3, zones);
+    if (picked) indices = picked;
+  }
+
+  const rows = indices.map((i, n) => {
+    const r = table[i];
+    // 連続していない箇所には省略行を挟む
+    const gapHtml = (n > 0 && i !== indices[n - 1] + 1)
+      ? '<tr class="st-gap"><td colspan="9">…</td></tr>' : "";
     const z = zoneColor(r.rank, rules);
     const form = (r.recent5 || []).map(x => '<span class="pill ' + x + '">' + x + '</span>').join("");
     const ptsPct = Math.round((r.points || 0) / maxPoints * 100);
-    return '<tr class="' + (r.idTeam === ownIdTeam ? "me" : "") + '"' +
+    return gapHtml + '<tr class="' + (r.idTeam === ownIdTeam ? "me" : "") + '"' +
       ' style="background:linear-gradient(90deg, var(--pts-tint) ' + ptsPct + '%, transparent ' + ptsPct + '%)">' +
       '<td class="rank num">' + r.rank + rankDeltaHtml(rankHistory, r.idTeam, provisional) + '</td>' +
       '<td class="club">' +
@@ -3630,6 +3722,18 @@ function probRingHtml(value, color) {
       'transform="rotate(-90 32 32)"/>' : "") +
   '</svg>';
 }
+/* 第28弾: 順位表の表示範囲。既定は「全体」。今まで全体しか無かったので、
+   既定を変えると「順位表が壊れた」と受け取られる。
+   localStorageが使えない環境でも落ちないようにする(既存のloadFav/saveFavと同じ流儀)。 */
+const STANDINGS_SCOPE_KEY = "jleague-app.standingsScope";
+function loadStandingsScope() {
+  try { return localStorage.getItem(STANDINGS_SCOPE_KEY) === "near" ? "near" : "all"; }
+  catch (e) { return "all"; }
+}
+function saveStandingsScope(v) {
+  try { localStorage.setItem(STANDINGS_SCOPE_KEY, v); } catch (e) { /* 無視 */ }
+}
+
 function renderStandings(standings, team, master, provisional, rankHistory, league) {
   /* 第38弾: 全体モード側にだけあった「データが無い」ガードをこちらにも付けた。
      従来は standings が undefined だと standings.table で TypeError になり、描画が途中で死んでいた
@@ -3638,10 +3742,21 @@ function renderStandings(standings, team, master, provisional, rankHistory, leag
     return '<section><h2>順位</h2><div class="card">' +
       '<p class="muted" style="margin:0">順位データがまだありません。</p></div></section>';
   }
+  const scope = state.standingsScope || (state.standingsScope = loadStandingsScope());
+  /* 日程タブで使っている .seg-toggle をそのまま再利用する。
+     第24弾で min-height:44px が入っているので、タップ領域も同じになる。 */
+  /* .seg-toggle は日程タブでは横並びの中に置かれるので幅が決まるが、単独で置くと
+     ブロックとして100%に広がり右側が空く。ここでは内容幅にする。 */
+  const segHtml = '<div class="seg-toggle" style="margin-bottom:12px; width:fit-content">' +
+    '<button type="button" class="' + (scope === "all" ? "active" : "") + '" data-stscope="all">全体</button>' +
+    '<button type="button" class="' + (scope === "near" ? "active" : "") + '" data-stscope="near">自分の周辺</button>' +
+  '</div>';
   return standingsSectionHtml(standings, master, {
     heading: (master.meta && master.meta.leagueNameJa) || "順位表",
     ownIdTeam: team.idTeam,
     provisional: provisional, rankHistory: rankHistory, league: league,
+    aboveTableHtml: segHtml,
+    focus: scope === "near" ? { idTeam: team.idTeam, around: 3 } : null,
   });
 }
 
@@ -3665,10 +3780,13 @@ function computePlayedRange(allMatches) {
 
 /* 消化済み試合が少ない序盤の推定である旨の注記。順位タブの予想最終順位表とも共有する部品。
    extraSentence: 「※ 第N節終了時点(...)の推定です。」の直後に足す追加の一文(無ければ空文字) */
-function simulationNoteHtml(allMatches, extraSentence) {
+function simulationNoteHtml(allMatches, extraSentence, rules) {
   const range = computePlayedRange(allMatches);
   if (range.max <= 0) return "";
-  const early = range.max < 5;
+  /* 第28弾: 序盤の判定を seasonStage() に寄せた。以前はここだけ「5節未満」という節数の
+     絶対値で、ホームの並び替えは割合で見る、という二重基準になりかけていた。
+     rules が渡らない呼び出しでは seasonStage() が "mid" を返すので、注記は控えめのままになる。 */
+  const early = seasonStage(allMatches, rules) === "early";
   const playedLabel = range.min === range.max
     ? "各クラブ" + range.max + "試合消化"
     : "各クラブ" + range.min + "〜" + range.max + "試合消化";
@@ -3703,7 +3821,7 @@ function renderPromotion(simulation, team, allMatches, rules, league) {
   const t = (simulation.teams || []).find(x => x.idTeam === team.idTeam);
   if (!t) return "";
 
-  const noteHtml = simulationNoteHtml(allMatches, "");
+  const noteHtml = simulationNoteHtml(allMatches, "", rules);
 
   const pct = x => ((x || 0) * 100).toFixed(1) + "%"; // 小数第1位までのパーセント表示に固定
   const zones = resolveZones(rules);
