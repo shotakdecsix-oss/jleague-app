@@ -46,7 +46,7 @@ import json
 import re
 import sys
 import unicodedata
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 import requests
@@ -73,6 +73,95 @@ _ROUND_RE = re.compile(r'"children":"([^"]{0,10}(?:回戦|決勝|準決勝|準�
 _DATE_RE = re.compile(r'"children":"(\d{4})/(\d{1,2})/(\d{1,2})\s*\([日月火水木金土]\)"')
 _TIME_RE = re.compile(r"^(\d{1,2}):(\d{2})$")
 _SCORE_RE = re.compile(r"^(\d{1,2})\s*[-−]\s*(\d{1,2})$")
+# 試合コードは MMDDNN(例 090201 = 9月2日の1試合目)。日付の第一の根拠にする。
+_CODE_DATE_RE = re.compile(r"^(\d{2})(\d{2})\d{2}$")
+# 得点イベントの scoreAfter("0-2")を読むため
+_SCORE_AFTER_RE = re.compile(r"^\s*(\d{1,2})\s*[-−]\s*(\d{1,2})\s*$")
+EVENTS_PATH = BASE_DIR / "data" / "processed" / "leaguecup_match_events.json"
+
+
+def _date_from_code(year: str, code: str) -> str | None:
+    """試合コード(MMDDNN)から日付を作る。
+
+    なぜ見出しではなくコードを使うか:
+        日程ページの日付見出しは、消化済みのグループで取りこぼすことがある。
+        2026-09-04 に実際に起きた: 9/2 に終わった15試合が全部 9/9 として保存され、
+        アプリ上で「6日後にキックオフ」に見えていた。
+        _last_before() は「手前の最後の見出し」を返すので、見出しを1つ取りこぼすと
+        黙って隣の日付を引き当ててしまう。コードは試合ごとに必ず付いているので、
+        こちらの方が壊れにくい。
+    """
+    m = _CODE_DATE_RE.match(code or "")
+    if not m:
+        return None
+    try:
+        return date(int(year), int(m.group(1)), int(m.group(2))).isoformat()
+    except ValueError:
+        return None  # 13月など、コードがMMDDではなかった場合
+
+
+def _final_score_from_goals(goals: list[dict]) -> dict | None:
+    """得点イベントから最終スコアを作る。
+
+    scoreAfter は「その得点の直後のスコア」で、得点は単調に増える。
+    なので home/away それぞれの最大値がそのまま最終スコアになる
+    (minute の"90+3"のような表記を解釈せずに済む)。
+    PK戦は含まない。
+    """
+    best_h = best_a = None
+    for g in goals or []:
+        m = _SCORE_AFTER_RE.match(str(g.get("scoreAfter") or ""))
+        if not m:
+            continue
+        h, a = int(m.group(1)), int(m.group(2))
+        best_h = h if best_h is None else max(best_h, h)
+        best_a = a if best_a is None else max(best_a, a)
+    if best_h is None:
+        return None
+    return {"home": best_h, "away": best_a}
+
+
+def fill_scores_from_events(matches: list[dict]) -> int:
+    """日程ページからスコアを取れなかった消化済み試合に、個別試合ページの得点から補う。
+
+    これは応急処置。2026-09-04 時点で、日程ページの消化済み試合は
+    「時刻でも N-N でもない表記」になっていて _MATCH_INFO_RE で拾えていない。
+    一方で個別試合ページ側(leaguecup_match_events.json)は正常に取れているので、
+    そちらから埋める。日程ページから正規に取れるようになったら、そちらが優先される
+    (score が入っている試合には触れない)。
+
+    今日の試合には触れない。試合中の途中経過を「終了」として保存してしまうため。
+    """
+    if not EVENTS_PATH.exists():
+        return 0
+    try:
+        events = (json.loads(EVENTS_PATH.read_text(encoding="utf-8")) or {}).get("events") or {}
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"[warn] {EVENTS_PATH.name} を読めなかった: {e}", file=sys.stderr)
+        return 0
+
+    today = datetime.now(JST).date().isoformat()
+    filled = 0
+    for m in matches:
+        if m.get("score") or not m.get("date") or m["date"] >= today:
+            continue
+        ev = events.get(m.get("code"))
+        if ev is None or ev.get("goals") is None:
+            continue
+        goals = ev["goals"]
+        sc = _final_score_from_goals(goals)
+        if sc is None:
+            if goals:
+                # 得点はあるのに scoreAfter が読めない = 想定外。推測で埋めない
+                print(f"[warn] {m['code']}: 得点{len(goals)}件あるが scoreAfter を読めなかった",
+                      file=sys.stderr)
+                continue
+            sc = {"home": 0, "away": 0}  # イベント取得済みで得点なし = 0-0
+        m["score"] = sc
+        m["finished"] = True
+        m["scoreSource"] = "events"  # 日程ページ由来ではない印
+        filled += 1
+    return filled
 
 
 def norm(s: str) -> str:
@@ -111,6 +200,7 @@ def parse_index(text: str, master: dict[str, dict]) -> list[dict]:
     links = list(_PRIMARY_LINK_RE.finditer(text))
 
     out: list[dict] = []
+    mismatches: list[tuple[str, str, str]] = []
     for i, link in enumerate(links):
         end = links[i + 1].start() if i + 1 < len(links) else link.start() + 6000
         blk = text[link.start():end]
@@ -124,7 +214,12 @@ def parse_index(text: str, master: dict[str, dict]) -> list[dict]:
 
         rnd = _last_before(rounds, link.start())
         dt = _last_before(dates, link.start())
-        date_str = f"{dt.group(1)}-{int(dt.group(2)):02d}-{int(dt.group(3)):02d}" if dt else None
+        heading_date = (f"{dt.group(1)}-{int(dt.group(2)):02d}-{int(dt.group(3)):02d}"
+                        if dt else None)
+        code_date = _date_from_code(link.group("year"), link.group("code"))
+        date_str = code_date or heading_date
+        if code_date and heading_date and code_date != heading_date:
+            mismatches.append((link.group("code"), code_date, heading_date))
 
         kickoff = None
         score = None
@@ -159,6 +254,10 @@ def parse_index(text: str, master: dict[str, dict]) -> list[dict]:
             "finished": finished,
             "matchPageUrl": f"https://www.jleague.jp/match/leaguecup/{link.group('year')}/{link.group('code')}/",
         })
+    if mismatches:
+        # コードを採用するが、見出しとずれたこと自体は見えるようにしておく
+        print(f"[warn] 日付見出しと試合コードが食い違った{len(mismatches)}件"
+              f"(コードを採用): {mismatches[:3]}", file=sys.stderr)
     return out
 
 
@@ -204,6 +303,10 @@ def main() -> None:
             print(f"[warn] 既存の{OUT_PATH.name}を読めなかった。新規として扱う: {e}", file=sys.stderr)
 
     merged = merge(existing, fresh)
+    filled = fill_scores_from_events(merged)
+    if filled:
+        print(f"[info] 日程ページからスコアを取れなかった{filled}試合に、"
+              f"得点イベントからスコアを補った")
     odd = [m["timeText"] for m in fresh
            if m["timeText"] and not (_TIME_RE.match(m["timeText"]) or _SCORE_RE.match(m["timeText"]))]
     if odd:
