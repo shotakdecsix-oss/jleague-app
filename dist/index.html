@@ -901,7 +901,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "be9a2ca";
+const APP_BUILD_VERSION = "bebe7e4";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -2018,6 +2018,26 @@ async function init() {
   // キックオフ前にアプリを開いたまま何もトリガが無い状態が続いても、時間経過でキックオフを検知できるように
   // する保険(5分おき。稼働中は何もしない=livescore.phpへは候補が生まれたときしか投げない)。
   setInterval(() => { if (!livePollTimer) evaluateLiveSchedule(); }, 5 * 60 * 1000);
+
+  /* 第25弾: Service Workerの登録。ここは init() のいちばん最後に置く。
+     登録が失敗してもアプリ本体は通常どおり動く(オフラインで開けなくなるだけ)なので、
+     データ読み込みの成否に関わらず最後に一度だけ試す。
+     file:// で開いたときやSW非対応のブラウザでは黙って何もしない。 */
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    /* updateViaCache:"none" … ブラウザのHTTPキャッシュを経由せずに sw.js を取りに行く。
+       これが無いと、CDNやブラウザが sw.js を握っている間は新しいSWが端末に届かず、
+       index.html を直しても古い画面が張り付いたままになる。 */
+    const registerSw = () => {
+      navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })
+        .catch(() => { /* 無視 */ });
+    };
+    /* load を待つのは、起動直後の通信をデータ取得に譲るため。ただし init() は await を
+       挟みながら進むので、ここに来た時点で既に load が終わっていることがある。
+       その場合 addEventListener("load") は二度と発火しない(Playwrightで実測: SWが
+       まったく登録されなかった)ので、readyState を見て直接呼ぶ。 */
+    if (document.readyState === "complete") registerSw();
+    else window.addEventListener("load", registerSw, { once: true });
+  }
 }
 
 function findTeam(idTeam) {

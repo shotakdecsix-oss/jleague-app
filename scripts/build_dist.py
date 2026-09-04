@@ -28,6 +28,7 @@ CLI:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import subprocess
@@ -173,6 +174,28 @@ def build_ics_calendars() -> None:
     print(f"[info] カレンダー(.ics)を生成: {club_count}クラブ (今回新たにCANCELLEDにしたイベント: {cancelled_count})")
 
 
+def write_service_worker() -> None:
+    """sw.js を dist/ に書き出す(第25弾)。単純コピーではなく CACHE_VERSION を置換する。
+
+    Service Worker は sw.js のバイト列が変わったときにだけ更新される。
+    プレースホルダのままにすると、index.html をいくら直してもSWは古いキャッシュを
+    配り続ける。「デプロイは成功しているのに画面が変わらない」が、今度は利用者の端末側で
+    起きることになる。
+
+    deploy-version.txt(gitの短縮ハッシュ)を使わないのは、あれが「1つ前のコミット」を
+    指すため。index.html を直しただけでまだコミットしていない状態でビルドすると値が
+    変わらず、SWが更新されない。内容ハッシュなら中身が1バイトでも変われば必ず変わる。
+    """
+    src = BASE_DIR / "sw.js"
+    if not src.exists():
+        print("[warn] sw.js が無い。オフライン対応はスキップ", file=sys.stderr)
+        return
+    version = hashlib.sha256((BASE_DIR / "index.html").read_bytes()).hexdigest()[:12]
+    text = src.read_text(encoding="utf-8").replace("__CACHE_VERSION__", version)
+    (DIST_DIR / "sw.js").write_text(text, encoding="utf-8")
+    print(f"[info] sw.js を生成: CACHE_VERSION={version}")
+
+
 def split_news() -> None:
     """data/processed/news.json を、配信用に分割して dist/ に書く(第26弾)。
 
@@ -249,6 +272,7 @@ def main() -> None:
     check_calendar_generated()
     clean_dist()
     copy_top_level_files()
+    write_service_worker()  # copy_top_level_files()と違いCACHE_VERSIONを置換するので個別に書く
     copy_dirs()
     split_news()  # clean_dist()でdistを消すので、copy_dirs()より後で呼ぶ
     write_deploy_time()
