@@ -294,6 +294,35 @@
   /* 第28弾: 順位表を自分の周辺に絞ったとき、飛んでいる箇所に入れる行。
      入れないと「7位の次が17位」に見えて誤読される。 */
   .st-gap td{text-align:center; color:var(--muted); padding:2px 0; letter-spacing:.3em}
+
+  /* 第40弾: クラブの戦力を昔のRPGのステータス画面風に出す。
+     レトロさはドット絵フォント(環境依存)ではなく、枠・等幅数字・棒グラフで出す。 */
+  .rpg{border:2px solid var(--ink); border-radius:10px; padding:14px 14px 10px; background:var(--card)}
+  .rpg-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:2px}
+  .rpg-name{font-size:17px; font-weight:800; letter-spacing:.02em}
+  .rpg-lv{margin-left:auto; font-size:13px; font-weight:700; color:var(--sub); font-variant-numeric:tabular-nums}
+  .rpg-lv b{font-size:20px; color:var(--ink); margin-left:4px}
+  .rpg-title{
+    display:inline-block; margin-bottom:12px; padding:2px 10px; border-radius:999px;
+    background:var(--accent); color:var(--accent-ink); font-size:12px; font-weight:700;
+  }
+  .rpg-gauges{display:grid; gap:8px; margin-bottom:6px}
+  .rpg-row{display:grid; grid-template-columns:64px 62px 1fr auto; align-items:center; gap:8px}
+  .rpg-key{font-size:12px; font-weight:700; color:var(--sub)}
+  .rpg-num{font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; text-align:right}
+  .rpg-track{height:12px; border-radius:3px; background:var(--line); overflow:hidden}
+  .rpg-fill{height:100%; border-radius:3px; background:var(--accent)}
+  .rpg-fill.hp{background:var(--promo)}
+  .rpg-fill.hp.warn{background:var(--po)}
+  .rpg-fill.hp.danger{background:var(--releg)}
+  .rpg-fill.mp{background:var(--po)}
+  .rpg-rank{font-size:11px; color:var(--sub); font-variant-numeric:tabular-nums; min-width:46px; text-align:right}
+  .rpg-state{font-size:11px; font-weight:700}
+  .rpg-state.danger{color:var(--releg)}
+  .rpg-sep{border:0; border-top:1px dashed var(--line); margin:12px 0 10px}
+  .rpg-recent{display:flex; gap:4px; align-items:center; margin-top:2px}
+  .rpg-foot{margin:10px 0 0; font-size:11px; color:var(--sub); line-height:1.6}
+  .rpg-foot b{color:var(--ink)}
   /* 第27弾: Android Chromeの標準の引っ張って更新を止める(自前の実装と二重に走るため)。
      横方向は指定しない(.chart-scrollなどの横スクロールに影響させないため)。 */
   body{overscroll-behavior-y:contain}
@@ -921,7 +950,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "c7de716";
+const APP_BUILD_VERSION = "7f29b56";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -1553,6 +1582,14 @@ async function ensureStats(league) {
   if (c.stats === undefined) c.stats = await getJsonOptional("data/processed/" + league + "_stats.json");
   return c.stats;
 }
+/* 第40弾: RPG風のステータス(scripts/build_rpg.py が作る)。
+   素材が stats/simulation/standings/club_extra にまたがるので、バッチ側で組み立てて
+   小さなJSONにしてある。club_extra.json(1.3MB)をスタッツタブで落とさずに済む。 */
+async function ensureRpg(league) {
+  const c = leagueCache(league);
+  if (c.rpg === undefined) c.rpg = await getJsonOptional("data/processed/" + league + "_rpg.json");
+  return c.rpg;
+}
 async function ensureHistory(league) {
   const c = leagueCache(league);
   if (c.history === undefined) c.history = await getJsonOptional("data/history/" + league + "_probability_history.json");
@@ -1735,6 +1772,7 @@ async function ensureTabData(league, tabId) {
     await ensureRankHistory(league); // 第16弾: 順位推移グラフ
   } else if (tabId === "stats") {
     await ensureStats(league);
+    await ensureRpg(league); // 第40弾: ステータス(RPG風)のサブタブ
     await ensureMatches(league); // 確率推移グラフの自クラブ試合結果マーカー用
     await ensureHistory(league);
   } else if (tabId === "players") {
@@ -4968,6 +5006,9 @@ const RADAR_GROUPS = [
   { id: "average", tabLabel: "平均", keys: ["pointsPerGame", "gaPerGame", "homePoints", "awayPoints", "form5Points"] },
   { id: "model", tabLabel: "モデル", keys: ["attackRating", "defenseRating", "xPoints", "pointsOverX", "remainingDifficulty"] },
   { id: "official", tabLabel: "公式スタッツ", keys: ["scorePg", "passCountPg", "ballRate", "distance", "sprint", "cleanSheet"] },
+  /* 第40弾: レーダーではなくRPGのステータス画面を描く。keysを持たないので、
+     renderStatsTab() 側で描き分ける。 */
+  { id: "rpg", tabLabel: "ステータス", keys: null },
 ];
 // J2/J3にはdistance/sprintが無い(公式サイトの提供指標がリーグによって違うため)。
 // データが無くても軸のラベルだけは出す必要があるので、その場合だけのフォールバック表示名。
@@ -5094,6 +5135,85 @@ function renderRadarForGroup(stats, team, groupDef) {
   return '<div class="radar-wrap" aria-hidden="true">' + svg + '</div><div id="radarTooltip" role="status" aria-live="polite"></div>' + limitNote;
 }
 
+/* 第40弾: 昔のRPGのステータス画面。
+
+   Lv = 現在の勝点
+   HP = 直近5試合の勝点を100点満点に写したもの(5連敗なら1で瀕死)
+   MP = 残りの力。最大は残り試合×3(全部勝ったときの勝点)、現在値はモデルが
+        「このあと取る」と見ている勝点。シーズンが進むほど最大MPが減っていく。
+   6つのパラメータはリーグ内で標準化した相対値(平均128)。
+   リーグごとに公式スタッツの提供指標が違うので、リーグをまたいだ比較はできない。 */
+function rpgGaugeHtml(key, now, max, cls, extraHtml) {
+  const pct = max > 0 ? Math.max(0, Math.min(100, Math.round(now / max * 100))) : 0;
+  return '<div class="rpg-row">' +
+    '<span class="rpg-key">' + esc(key) + '</span>' +
+    '<span class="rpg-num">' + now + '<span class="muted"> / ' + max + '</span></span>' +
+    '<span class="rpg-track"><span class="rpg-fill ' + cls + '" style="width:' + pct + '%"></span></span>' +
+    (extraHtml || '<span class="rpg-rank"></span>') +
+  '</div>';
+}
+
+function renderRpgStatus(rpg, team, stats) {
+  if (!rpg || !rpg.teams) {
+    return '<p class="muted" style="margin:0">ステータスのデータがまだありません。' +
+      '(次回のバッチで作られます)</p>';
+  }
+  const t = rpg.teams.find(x => x.idTeam === team.idTeam);
+  if (!t) return '<p class="muted" style="margin:0">このクラブのステータスが見つかりません。</p>';
+
+  const clubCount = (rpg.meta && rpg.meta.clubCount) || rpg.teams.length;
+  const hp = t.hp || {}, mp = t.mp || {};
+  const hpCls = hp.now <= 25 ? "hp danger" : (hp.now <= 50 ? "hp warn" : "hp");
+  const stateCls = hp.now <= 25 ? "rpg-state danger" : "rpg-state";
+  const recentHtml = (hp.recent || []).length
+    ? '<span class="rpg-recent">' + hp.recent.map(x => '<span class="pill ' + x + '">' + x + '</span>').join("") + '</span>'
+    : "";
+
+  const paramRows = (rpg.params || []).map(p => {
+    const v = (t.params || {})[p.key];
+    if (!v) return "";
+    const pct = Math.max(2, Math.min(100, Math.round(v.value / 255 * 100)));
+    return '<div class="rpg-row">' +
+      '<span class="rpg-key">' + esc(p.label) + '</span>' +
+      '<span class="rpg-num">' + v.value + '</span>' +
+      '<span class="rpg-track"><span class="rpg-fill" style="width:' + pct + '%"></span></span>' +
+      '<span class="rpg-rank">' + v.rank + '位 / ' + clubCount + '</span>' +
+    '</div>';
+  }).join("");
+
+  /* MPの内訳。ユーザーが知りたいのは「予想順位に対して、いまどこにいるか」なので
+     期待勝点と順位を数字で添える。 */
+  const rankLine = (mp.currentRank && mp.expectedRank != null)
+    ? '現在 <b>' + mp.currentRank + '位</b>、シーズン終了時の予想は <b>' +
+      (Math.round(mp.expectedRank * 10) / 10) + '位</b>' +
+      (mp.expectedPoints != null ? '(予想勝点 ' + Math.round(mp.expectedPoints) + ')' : "") + '。'
+    : "";
+  const srcLine = (rpg.meta && rpg.meta.powerSource === "physique")
+    ? 'このリーグは公式スタッツに空中戦・インターセプトが無いため、ちからは平均身長と体重、すばやさはスプリント回数から作っています。'
+    : 'このリーグは公式スタッツに走行距離・スプリントが無いため、ちからは空中戦勝利と体格、すばやさはインターセプトから作っています。';
+
+  return '<div class="rpg">' +
+    '<div class="rpg-head">' +
+      '<span class="rpg-name">' + esc(team.ja || team.short) + '</span>' +
+      '<span class="rpg-lv">Lv<b>' + t.level + '</b></span>' +
+    '</div>' +
+    '<span class="rpg-title">' + esc(t.title) + '</span>' +
+    '<div class="rpg-gauges">' +
+      rpgGaugeHtml("HP", hp.now, hp.max, hpCls,
+        '<span class="' + stateCls + '">' + esc(hp.state || "") + '</span>') +
+      rpgGaugeHtml("MP", mp.now, mp.max, "mp", '<span class="rpg-rank"></span>') +
+    '</div>' +
+    recentHtml +
+    '<hr class="rpg-sep">' +
+    '<div class="rpg-gauges">' + paramRows + '</div>' +
+    '<p class="rpg-foot">' +
+      'Lv は勝点。HP は直近5試合の成績。MP は「このあと取れると見込まれる勝点 / 残り試合を全勝したときの勝点」で、シーズンが進むほど上限が減ります。' +
+      (rankLine ? '<br>' + rankLine : "") +
+      '<br>各パラメータはリーグ内での相対値(平均128、1〜255)です。' + srcLine +
+    '</p>' +
+  '</div>';
+}
+
 function renderStatsTab(stats, team) {
   if (!stats) {
     return '<section><h2>スタッツ</h2><div class="card"><p class="muted" style="margin:0">スタッツデータがまだありません。</p></div></section>';
@@ -5109,6 +5229,12 @@ function renderStatsTab(stats, team) {
   const subtabHtml = '<div class="stats-subtabs">' + RADAR_GROUPS.map(g =>
     '<button type="button" class="' + (g.id === activeGroup.id ? "active" : "") + '" data-statsgroup="' + g.id + '">' + esc(g.tabLabel) + '</button>'
   ).join("") + '</div>';
+
+  /* 第40弾: ステータスだけはレーダーではなくRPG風の画面を描く */
+  if (activeGroup.id === "rpg") {
+    return '<section><h2>スタッツ</h2><div class="card">' + subtabHtml +
+      renderRpgStatus(leagueCache(state.league).rpg, team, stats) + '</div></section>';
+  }
 
   const radarHtml = renderRadarForGroup(stats, team, activeGroup);
   const tableHtml = renderStatsGroupTable(stats, team, activeGroup);

@@ -1,0 +1,1266 @@
+{
+  "meta": {
+    "league": "j2",
+    "season": "2026-2027",
+    "generatedAtJst": "2026-09-05T02:09:12+09:00",
+    "basedOnMatches": 40,
+    "clubCount": 20,
+    "powerSource": "airBattle",
+    "speedSource": "intercept",
+    "scale": {
+      "center": 128,
+      "spread": 40,
+      "min": 1,
+      "max": 255
+    },
+    "note": "各パラメータはリーグ内で標準化した相対値です(平均128)。公式スタッツの提供指標がリーグごとに違うため、リーグをまたいだ比較はできません。"
+  },
+  "params": [
+    {
+      "key": "attack",
+      "label": "こうげき"
+    },
+    {
+      "key": "defense",
+      "label": "ぼうぎょ"
+    },
+    {
+      "key": "magic",
+      "label": "まほう"
+    },
+    {
+      "key": "power",
+      "label": "ちから"
+    },
+    {
+      "key": "speed",
+      "label": "すばやさ"
+    },
+    {
+      "key": "luck",
+      "label": "うんのよさ"
+    }
+  ],
+  "teams": [
+    {
+      "idTeam": "137715",
+      "ja": "湘南ベルマーレ",
+      "short": "湘南",
+      "level": 8,
+      "hp": {
+        "now": 67,
+        "max": 100,
+        "recent": [
+          "D",
+          "D",
+          "W",
+          "W"
+        ],
+        "state": "元気"
+      },
+      "mp": {
+        "now": 53,
+        "max": 102,
+        "expectedPoints": 61.3,
+        "currentRank": 5,
+        "expectedRank": 6.32
+      },
+      "params": {
+        "attack": {
+          "value": 101,
+          "rank": 13,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 191,
+          "rank": 2,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 84,
+          "rank": 18,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 142,
+          "rank": 5,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 100,
+          "rank": 17,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 202,
+          "rank": 1,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "パラディン",
+      "topParams": [
+        "defense",
+        "power"
+      ]
+    },
+    {
+      "idTeam": "137706",
+      "ja": "北海道コンサドーレ札幌",
+      "short": "札幌",
+      "level": 3,
+      "hp": {
+        "now": 25,
+        "max": 100,
+        "recent": [
+          "L",
+          "L",
+          "L",
+          "W"
+        ],
+        "state": "手負い"
+      },
+      "mp": {
+        "now": 42,
+        "max": 102,
+        "expectedPoints": 44.8,
+        "currentRank": 17,
+        "expectedRank": 14.96
+      },
+      "params": {
+        "attack": {
+          "value": 119,
+          "rank": 11,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 97,
+          "rank": 17,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 175,
+          "rank": 3,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 116,
+          "rank": 13,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 118,
+          "rank": 11,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 89,
+          "rank": 16,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "まけんし",
+      "topParams": [
+        "magic",
+        "attack"
+      ]
+    },
+    {
+      "idTeam": "137711",
+      "ja": "大分トリニータ",
+      "short": "大分",
+      "level": 4,
+      "hp": {
+        "now": 33,
+        "max": 100,
+        "recent": [
+          "L",
+          "W",
+          "D",
+          "L"
+        ],
+        "state": "手負い"
+      },
+      "mp": {
+        "now": 49,
+        "max": 102,
+        "expectedPoints": 53.0,
+        "currentRank": 13,
+        "expectedRank": 10.6
+      },
+      "params": {
+        "attack": {
+          "value": 101,
+          "rank": 13,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 152,
+          "rank": 5,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 148,
+          "rank": 6,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 134,
+          "rank": 7,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 148,
+          "rank": 7,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 88,
+          "rank": 18,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "けんじゃ",
+      "topParams": [
+        "defense",
+        "magic"
+      ]
+    },
+    {
+      "idTeam": "137712",
+      "ja": "サガン鳥栖",
+      "short": "鳥栖",
+      "level": 5,
+      "hp": {
+        "now": 42,
+        "max": 100,
+        "recent": [
+          "D",
+          "L",
+          "D",
+          "W"
+        ],
+        "state": "手負い"
+      },
+      "mp": {
+        "now": 47,
+        "max": 102,
+        "expectedPoints": 52.0,
+        "currentRank": 12,
+        "expectedRank": 11.22
+      },
+      "params": {
+        "attack": {
+          "value": 119,
+          "rank": 11,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 144,
+          "rank": 6,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 143,
+          "rank": 7,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 92,
+          "rank": 20,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 113,
+          "rank": 13,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 111,
+          "rank": 11,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "けんじゃ",
+      "topParams": [
+        "defense",
+        "magic"
+      ]
+    },
+    {
+      "idTeam": "137718",
+      "ja": "ベガルタ仙台",
+      "short": "仙台",
+      "level": 7,
+      "hp": {
+        "now": 58,
+        "max": 100,
+        "recent": [
+          "W",
+          "W",
+          "D",
+          "L"
+        ],
+        "state": "元気"
+      },
+      "mp": {
+        "now": 52,
+        "max": 102,
+        "expectedPoints": 58.5,
+        "currentRank": 6,
+        "expectedRank": 7.71
+      },
+      "params": {
+        "attack": {
+          "value": 135,
+          "rank": 7,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 155,
+          "rank": 3,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 106,
+          "rank": 16,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 152,
+          "rank": 3,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 151,
+          "rank": 6,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 145,
+          "rank": 8,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "パラディン",
+      "topParams": [
+        "defense",
+        "power"
+      ]
+    },
+    {
+      "idTeam": "137720",
+      "ja": "横浜FC",
+      "short": "横浜FC",
+      "level": 7,
+      "hp": {
+        "now": 58,
+        "max": 100,
+        "recent": [
+          "D",
+          "L",
+          "W",
+          "W"
+        ],
+        "state": "元気"
+      },
+      "mp": {
+        "now": 50,
+        "max": 102,
+        "expectedPoints": 56.6,
+        "currentRank": 8,
+        "expectedRank": 8.78
+      },
+      "params": {
+        "attack": {
+          "value": 135,
+          "rank": 7,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 131,
+          "rank": 10,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 155,
+          "rank": 4,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 100,
+          "rank": 17,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 164,
+          "rank": 3,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 153,
+          "rank": 6,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "まほうつかい",
+      "topParams": [
+        "speed",
+        "magic"
+      ]
+    },
+    {
+      "idTeam": "139881",
+      "ja": "アルビレックス新潟",
+      "short": "新潟",
+      "level": 9,
+      "hp": {
+        "now": 75,
+        "max": 100,
+        "recent": [
+          "W",
+          "W",
+          "W",
+          "L"
+        ],
+        "state": "元気"
+      },
+      "mp": {
+        "now": 52,
+        "max": 102,
+        "expectedPoints": 60.6,
+        "currentRank": 4,
+        "expectedRank": 6.65
+      },
+      "params": {
+        "attack": {
+          "value": 135,
+          "rank": 7,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 141,
+          "rank": 8,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 99,
+          "rank": 17,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 114,
+          "rank": 14,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 142,
+          "rank": 8,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 188,
+          "rank": 2,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "ガーディアン",
+      "topParams": [
+        "speed",
+        "defense"
+      ]
+    },
+    {
+      "idTeam": "139887",
+      "ja": "ジュビロ磐田",
+      "short": "磐田",
+      "level": 7,
+      "hp": {
+        "now": 58,
+        "max": 100,
+        "recent": [
+          "W",
+          "W",
+          "L",
+          "D"
+        ],
+        "state": "元気"
+      },
+      "mp": {
+        "now": 50,
+        "max": 102,
+        "expectedPoints": 56.5,
+        "currentRank": 7,
+        "expectedRank": 8.78
+      },
+      "params": {
+        "attack": {
+          "value": 153,
+          "rank": 5,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 106,
+          "rank": 16,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 132,
+          "rank": 10,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 100,
+          "rank": 17,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 113,
+          "rank": 13,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 152,
+          "rank": 7,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "まけんし",
+      "topParams": [
+        "attack",
+        "magic"
+      ]
+    },
+    {
+      "idTeam": "139892",
+      "ja": "モンテディオ山形",
+      "short": "山形",
+      "level": 9,
+      "hp": {
+        "now": 75,
+        "max": 100,
+        "recent": [
+          "W",
+          "W",
+          "L",
+          "W"
+        ],
+        "state": "元気"
+      },
+      "mp": {
+        "now": 60,
+        "max": 102,
+        "expectedPoints": 69.1,
+        "currentRank": 2,
+        "expectedRank": 2.97
+      },
+      "params": {
+        "attack": {
+          "value": 153,
+          "rank": 5,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 201,
+          "rank": 1,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 124,
+          "rank": 11,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 127,
+          "rank": 8,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 155,
+          "rank": 5,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 160,
+          "rank": 5,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "ガーディアン",
+      "topParams": [
+        "defense",
+        "speed"
+      ]
+    },
+    {
+      "idTeam": "139893",
+      "ja": "RB大宮アルディージャ",
+      "short": "大宮",
+      "level": 10,
+      "hp": {
+        "now": 83,
+        "max": 100,
+        "recent": [
+          "D",
+          "W",
+          "W",
+          "W"
+        ],
+        "state": "絶好調"
+      },
+      "mp": {
+        "now": 57,
+        "max": 102,
+        "expectedPoints": 66.7,
+        "currentRank": 1,
+        "expectedRank": 3.81
+      },
+      "params": {
+        "attack": {
+          "value": 204,
+          "rank": 1,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 131,
+          "rank": 10,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 118,
+          "rank": 12,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 152,
+          "rank": 3,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 125,
+          "rank": 10,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 185,
+          "rank": 3,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "せんし",
+      "topParams": [
+        "attack",
+        "power"
+      ]
+    },
+    {
+      "idTeam": "139898",
+      "ja": "徳島ヴォルティス",
+      "short": "徳島",
+      "level": 4,
+      "hp": {
+        "now": 33,
+        "max": 100,
+        "recent": [
+          "W",
+          "L",
+          "D",
+          "L"
+        ],
+        "state": "手負い"
+      },
+      "mp": {
+        "now": 42,
+        "max": 102,
+        "expectedPoints": 46.4,
+        "currentRank": 15,
+        "expectedRank": 14.2
+      },
+      "params": {
+        "attack": {
+          "value": 66,
+          "rank": 20,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 155,
+          "rank": 3,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 135,
+          "rank": 9,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 120,
+          "rank": 12,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 166,
+          "rank": 2,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 108,
+          "rank": 12,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "ガーディアン",
+      "topParams": [
+        "speed",
+        "defense"
+      ]
+    },
+    {
+      "idTeam": "139900",
+      "ja": "ヴァンフォーレ甲府",
+      "short": "甲府",
+      "level": 4,
+      "hp": {
+        "now": 33,
+        "max": 100,
+        "recent": [
+          "W",
+          "L",
+          "D",
+          "L"
+        ],
+        "state": "手負い"
+      },
+      "mp": {
+        "now": 39,
+        "max": 102,
+        "expectedPoints": 42.6,
+        "currentRank": 16,
+        "expectedRank": 16.03
+      },
+      "params": {
+        "attack": {
+          "value": 85,
+          "rank": 16,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 96,
+          "rank": 18,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 116,
+          "rank": 13,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 123,
+          "rank": 10,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 157,
+          "rank": 4,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 104,
+          "rank": 13,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "ぶとうか",
+      "topParams": [
+        "speed",
+        "power"
+      ]
+    },
+    {
+      "idTeam": "140509",
+      "ja": "ブラウブリッツ秋田",
+      "short": "秋田",
+      "level": 4,
+      "hp": {
+        "now": 33,
+        "max": 100,
+        "recent": [
+          "L",
+          "W",
+          "L",
+          "D"
+        ],
+        "state": "手負い"
+      },
+      "mp": {
+        "now": 43,
+        "max": 102,
+        "expectedPoints": 46.8,
+        "currentRank": 14,
+        "expectedRank": 13.97
+      },
+      "params": {
+        "attack": {
+          "value": 101,
+          "rank": 13,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 120,
+          "rank": 13,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 42,
+          "rank": 20,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 199,
+          "rank": 1,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 84,
+          "rank": 20,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 102,
+          "rank": 14,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "パラディン",
+      "topParams": [
+        "power",
+        "defense"
+      ]
+    },
+    {
+      "idTeam": "141245",
+      "ja": "藤枝MYFC",
+      "short": "藤枝",
+      "level": 9,
+      "hp": {
+        "now": 75,
+        "max": 100,
+        "recent": [
+          "W",
+          "L",
+          "W",
+          "W"
+        ],
+        "state": "元気"
+      },
+      "mp": {
+        "now": 56,
+        "max": 102,
+        "expectedPoints": 64.8,
+        "currentRank": 3,
+        "expectedRank": 4.63
+      },
+      "params": {
+        "attack": {
+          "value": 170,
+          "rank": 4,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 141,
+          "rank": 8,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 75,
+          "rank": 19,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 124,
+          "rank": 9,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 118,
+          "rank": 11,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 182,
+          "rank": 4,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "ゆうしゃ",
+      "topParams": [
+        "attack",
+        "defense"
+      ]
+    },
+    {
+      "idTeam": "141249",
+      "ja": "FC今治",
+      "short": "今治",
+      "level": 0,
+      "hp": {
+        "now": 1,
+        "max": 100,
+        "recent": [
+          "L",
+          "L",
+          "L",
+          "L"
+        ],
+        "state": "瀕死"
+      },
+      "mp": {
+        "now": 32,
+        "max": 102,
+        "expectedPoints": 32.2,
+        "currentRank": 20,
+        "expectedRank": 19.26
+      },
+      "params": {
+        "attack": {
+          "value": 85,
+          "rank": 16,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 41,
+          "rank": 20,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 149,
+          "rank": 5,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 112,
+          "rank": 15,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 180,
+          "rank": 1,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 68,
+          "rank": 20,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "まほうつかい",
+      "topParams": [
+        "speed",
+        "magic"
+      ]
+    },
+    {
+      "idTeam": "141251",
+      "ja": "カターレ富山",
+      "short": "富山",
+      "level": 6,
+      "hp": {
+        "now": 50,
+        "max": 100,
+        "recent": [
+          "L",
+          "W",
+          "W",
+          "L"
+        ],
+        "state": "元気"
+      },
+      "mp": {
+        "now": 56,
+        "max": 102,
+        "expectedPoints": 62.5,
+        "currentRank": 9,
+        "expectedRank": 5.56
+      },
+      "params": {
+        "attack": {
+          "value": 204,
+          "rank": 1,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 144,
+          "rank": 6,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 222,
+          "rank": 1,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 99,
+          "rank": 19,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 91,
+          "rank": 18,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 101,
+          "rank": 15,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "まけんし",
+      "topParams": [
+        "magic",
+        "attack"
+      ]
+    },
+    {
+      "idTeam": "141254",
+      "ja": "テゲバジャーロ宮崎",
+      "short": "宮崎",
+      "level": 2,
+      "hp": {
+        "now": 17,
+        "max": 100,
+        "recent": [
+          "L",
+          "D",
+          "D",
+          "L"
+        ],
+        "state": "瀕死"
+      },
+      "mp": {
+        "now": 41,
+        "max": 102,
+        "expectedPoints": 42.8,
+        "currentRank": 19,
+        "expectedRank": 15.83
+      },
+      "params": {
+        "attack": {
+          "value": 85,
+          "rank": 16,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 120,
+          "rank": 13,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 180,
+          "rank": 2,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 122,
+          "rank": 11,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 112,
+          "rank": 15,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 72,
+          "rank": 19,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "まどうへい",
+      "topParams": [
+        "magic",
+        "power"
+      ]
+    },
+    {
+      "idTeam": "141255",
+      "ja": "ヴァンラーレ八戸",
+      "short": "八戸",
+      "level": 6,
+      "hp": {
+        "now": 50,
+        "max": 100,
+        "recent": [
+          "W",
+          "L",
+          "L",
+          "W"
+        ],
+        "state": "元気"
+      },
+      "mp": {
+        "now": 38,
+        "max": 102,
+        "expectedPoints": 44.2,
+        "currentRank": 11,
+        "expectedRank": 15.34
+      },
+      "params": {
+        "attack": {
+          "value": 85,
+          "rank": 16,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 123,
+          "rank": 12,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 112,
+          "rank": 14,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 137,
+          "rank": 6,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 103,
+          "rank": 16,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 138,
+          "rank": 9,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "パラディン",
+      "topParams": [
+        "power",
+        "defense"
+      ]
+    },
+    {
+      "idTeam": "144685",
+      "ja": "いわきFC",
+      "short": "いわき",
+      "level": 3,
+      "hp": {
+        "now": 25,
+        "max": 100,
+        "recent": [
+          "L",
+          "L",
+          "L",
+          "W"
+        ],
+        "state": "手負い"
+      },
+      "mp": {
+        "now": 39,
+        "max": 102,
+        "expectedPoints": 41.8,
+        "currentRank": 18,
+        "expectedRank": 16.37
+      },
+      "params": {
+        "attack": {
+          "value": 135,
+          "rank": 7,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 52,
+          "rank": 19,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 136,
+          "rank": 8,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 192,
+          "rank": 2,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 130,
+          "rank": 9,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 89,
+          "rank": 16,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "まどうへい",
+      "topParams": [
+        "power",
+        "magic"
+      ]
+    },
+    {
+      "idTeam": "150222",
+      "ja": "栃木シティ",
+      "short": "栃木C",
+      "level": 6,
+      "hp": {
+        "now": 50,
+        "max": 100,
+        "recent": [
+          "L",
+          "W",
+          "W",
+          "L"
+        ],
+        "state": "元気"
+      },
+      "mp": {
+        "now": 54,
+        "max": 102,
+        "expectedPoints": 59.7,
+        "currentRank": 10,
+        "expectedRank": 7.0
+      },
+      "params": {
+        "attack": {
+          "value": 188,
+          "rank": 3,
+          "label": "こうげき"
+        },
+        "defense": {
+          "value": 120,
+          "rank": 13,
+          "label": "ぼうぎょ"
+        },
+        "magic": {
+          "value": 109,
+          "rank": 15,
+          "label": "まほう"
+        },
+        "power": {
+          "value": 104,
+          "rank": 16,
+          "label": "ちから"
+        },
+        "speed": {
+          "value": 90,
+          "rank": 19,
+          "label": "すばやさ"
+        },
+        "luck": {
+          "value": 124,
+          "rank": 10,
+          "label": "うんのよさ"
+        }
+      },
+      "title": "ゆうしゃ",
+      "topParams": [
+        "attack",
+        "defense"
+      ]
+    }
+  ]
+}
