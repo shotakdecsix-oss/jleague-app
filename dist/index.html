@@ -291,6 +291,23 @@
      見た目を詰めたい場合はpaddingで調整する。 */
   .schedule-controls select{width:auto; flex:1; min-width:110px; padding:8px 10px; font-size:16px; font-weight:600}
   .sched-round{margin-top:18px; scroll-margin-top:90px}
+  /* 第27弾: Android Chromeの標準の引っ張って更新を止める(自前の実装と二重に走るため)。
+     横方向は指定しない(.chart-scrollなどの横スクロールに影響させないため)。 */
+  body{overscroll-behavior-y:contain}
+  /* 引っ張っている最中に上から出る帯。高さはJSから指を追って指定する。 */
+  .ptr-hint{
+    position:fixed; top:0; left:0; right:0; z-index:30;
+    display:flex; align-items:center; justify-content:center;
+    height:0; overflow:hidden;
+    background:var(--accent); color:var(--accent-ink);
+    font-size:12px; font-weight:700; pointer-events:none;
+  }
+  .events-share{margin-top:12px; display:flex; justify-content:flex-end}
+  .events-share button{
+    min-height:36px; padding:0 14px; border-radius:8px;
+    border:1px solid var(--line); background:var(--card); color:var(--ink);
+    font-size:12px; font-weight:700;
+  }
   .sched-round:first-child{margin-top:0}
   .sched-round-title{font-size:11px; font-weight:700; color:var(--sub); margin:0 0 6px 2px}
   .sched-row{
@@ -901,7 +918,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "bebe7e4";
+const APP_BUILD_VERSION = "1c44d7c";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -917,6 +934,7 @@ const state = {
   myNewsKeywords: null,   // 第32弾: マイニュースのキーワード配列。nullなら初回にlocalStorageから読む
   emperorsCup: undefined, // 第23弾: 天皇杯(data/processed/emperors_cup.json)。undefined=未取得, null=データ無し
   cupRound: null,         // カップタブで表示中のラウンド名。nullなら初回描画時に決める
+  currentRoundForJump: null, // 第27弾: 日程タブ「今節へ」のスクロール先(描画時に控える)
   cupKind: "emperors",    // 第36弾: カップタブで見ている大会("emperors"=天皇杯 / "leaguecup"=ルヴァン)
   leagueCup: undefined,       // leaguecup.json。undefined=未取得, null=データ無し
   leagueCupEvents: undefined, // leaguecup_match_events.json(得点者/カード/交代/メンバー/動画)
@@ -1301,6 +1319,86 @@ function renderTabButtons() {
     '<button type="button" data-tab="' + t.id + '" aria-current="false">' + esc(t.label) + '</button>'
   ).join("");
 }
+/* 左右スワイプでの隣タブ移動(第27弾)。
+   preventDefault() は呼ばない(呼ぶと縦スクロールまで止まる)。よってリスナーはpassiveでよい。
+   #app は renderActiveTab() のたびに中身が入れ替わるので、document に付けて委譲する。 */
+const SWIPE_MIN_X = 60;    // これ未満の移動は「押しただけ」とみなす
+const SWIPE_RATIO = 1.5;   // 横 > 縦 * この倍率 でなければ縦スクロールの一部とみなす
+const SWIPE_MAX_MS = 600;  // ゆっくりした指の移動はスクロールの意図とみなして無視する
+
+function bindSwipeNavigation() {
+  let sx = 0, sy = 0, st = 0, active = false;
+
+  document.addEventListener("touchstart", ev => {
+    if (ev.touches.length !== 1) { active = false; return; }
+    /* 横スクロールを持つ要素の上から始まったスワイプは、その要素のものとして扱う。
+       .chart-scroll(確率推移グラフ)と .ec-rounds(カップのラウンド切替)が該当する。 */
+    if (ev.target.closest && ev.target.closest(".chart-scroll, .ec-rounds")) { active = false; return; }
+    const t = ev.touches[0];
+    sx = t.clientX; sy = t.clientY; st = Date.now(); active = true;
+  }, { passive: true });
+
+  document.addEventListener("touchend", ev => {
+    if (!active) return;
+    active = false;
+    const t = ev.changedTouches && ev.changedTouches[0];
+    if (!t) return;
+    const dx = t.clientX - sx, dy = t.clientY - sy;
+    if (Date.now() - st > SWIPE_MAX_MS) return;
+    if (Math.abs(dx) < SWIPE_MIN_X) return;
+    if (Math.abs(dx) < Math.abs(dy) * SWIPE_RATIO) return;
+
+    const list = currentTabList();
+    const idx = list.findIndex(t2 => t2.id === currentActiveTabId());
+    if (idx < 0) return;
+    const next = idx + (dx < 0 ? 1 : -1);          // 左へ払う = 次のタブ
+    if (next < 0 || next >= list.length) return;   // 端では何もしない(循環させない)
+    if (state.viewMode === "all") setAllTab(list[next].id);
+    else setActiveTab(list[next].id);
+  }, { passive: true });
+}
+
+/* 引っ張って更新(第27弾)。既存のオンデマンド更新にスマホ標準の入り口を足すだけで、
+   更新の中身・クールダウン(60秒)・結果表示は runOndemandUpdate / showOndemandToast のまま。
+   ignoreCooldown は渡さない(連打対策は既存のガードに任せる)。
+
+   iOSのゴムのような跳ね返りでは scrollY が負にならないので、
+   「scrollY が0のときに下へ引いた距離」で判定する。 */
+const PTR_TRIGGER_PX = 70;  // これ以上引いたら発火
+const PTR_MAX_PX = 110;     // 帯の見た目の上限
+
+function bindPullToRefresh() {
+  const hint = document.createElement("div");
+  hint.className = "ptr-hint";
+  document.body.appendChild(hint);
+
+  let sy = 0, pulling = false, dist = 0;
+
+  document.addEventListener("touchstart", ev => {
+    // 一番上まで戻っているときだけ受け付ける(途中から引くと縦スクロールと区別できない)
+    pulling = window.scrollY <= 0 && ev.touches.length === 1;
+    if (pulling) sy = ev.touches[0].clientY;
+    dist = 0;
+  }, { passive: true });
+
+  document.addEventListener("touchmove", ev => {
+    if (!pulling) return;
+    dist = ev.touches[0].clientY - sy;
+    if (dist <= 0) { hint.style.height = "0"; return; }
+    // 引くほど重くなる感触にする(指の移動量をそのまま高さにすると軽すぎて誤爆する)
+    hint.style.height = Math.min(PTR_MAX_PX, dist * 0.5) + "px";
+    hint.textContent = dist >= PTR_TRIGGER_PX ? "指を離して更新" : "引っ張って更新";
+  }, { passive: true });
+
+  document.addEventListener("touchend", () => {
+    if (!pulling) return;
+    pulling = false;
+    hint.style.height = "0";
+    if (dist >= PTR_TRIGGER_PX) runOndemandUpdate({});
+    dist = 0;
+  }, { passive: true });
+}
+
 function bindTabBarEvents() {
   const bar = document.getElementById("tabbar");
   bar.addEventListener("click", ev => {
@@ -1898,6 +1996,23 @@ async function init() {
       }
     }
 
+    // 第27弾: 結果の共有。行タップ(ドリルダウンの開閉)より先に処理して抜ける
+    const shareBtn = ev.target.closest("[data-share]");
+    if (shareBtn) {
+      ev.stopPropagation();
+      shareMatchText(shareBtn.dataset.share);
+      return;
+    }
+
+    // 第27弾: 日程タブの「今節へ」。全体モードのカレンダーには基準日への自動スクロールが
+    // あるのに、クラブモードでは毎回自分で節を合わせる必要があった。
+    if (ev.target.closest("[data-jumpcurrent]")) {
+      const r = state.currentRoundForJump;
+      const el = r ? document.getElementById("round-" + r) : null;
+      if (el) el.scrollIntoView({ block: "start" });  // .sched-round に scroll-margin-top:90px 済み
+      return;
+    }
+
     // 外部リンク(公式記録PDF等)を踏んだときは、行タップとして扱わない
     // (新しいタブが開くのと同時にドリルダウンが開閉すると挙動が分かりにくいため)。
     if (ev.target.closest("a[href]")) return;
@@ -2038,6 +2153,12 @@ async function init() {
     if (document.readyState === "complete") registerSw();
     else window.addEventListener("load", registerSw, { once: true });
   }
+
+  /* 第27弾: スマホの操作。どちらも document に1回だけ付ける(#appは毎回作り直されるため)。
+     スワイプは「横 > 縦×1.5」、引っ張って更新は「一番上から下向き」を条件にするので、
+     同じ touchstart を見ていても同時には成立しない。 */
+  bindSwipeNavigation();
+  bindPullToRefresh();
 }
 
 function findTeam(idTeam) {
@@ -3227,6 +3348,41 @@ function renderHighlightVideosHtml(ev) {
   }
   return merged.map(x => renderHighlightVideoHtml(x.id, x.labels.join(" / "))).join("");
 }
+/* 第27弾: 共有。URLは含めない。このアプリは noindex / robots.txt で「URLを共有しない」
+   前提で作られており、選手データも非公開前提のため。共有するのは、その場で読める
+   試合結果のテキストだけ。 */
+const CAN_SHARE = !!(navigator.share || (navigator.clipboard && navigator.clipboard.writeText));
+
+function matchShareText(ev, homeName, awayName) {
+  const goals = (ev && ev.goals) || [];
+  let h = null, a = null;
+  for (const g of goals) {
+    // scoreAfter は「その得点の直後のスコア」。得点は単調に増えるので最大値が最終スコア
+    const m = /^\s*(\d{1,2})\s*[-−]\s*(\d{1,2})\s*$/.exec(String(g.scoreAfter || ""));
+    if (!m) continue;
+    h = h === null ? +m[1] : Math.max(h, +m[1]);
+    a = a === null ? +m[2] : Math.max(a, +m[2]);
+  }
+  const head = h === null ? homeName + " vs " + awayName
+                          : homeName + " " + h + "-" + a + " " + awayName;
+  const lines = goals.slice()
+    .sort((x, y) => (parseInt(x.minute, 10) || 0) - (parseInt(y.minute, 10) || 0))
+    .map(g => "⚽ " + (g.minute ? g.minute + "' " : "") + (g.player || ""))
+    .filter(t => t.trim() !== "⚽");
+  return lines.length ? head + "\n" + lines.join("\n") : head;
+}
+
+function shareMatchText(text) {
+  if (navigator.share) {
+    // 利用者がキャンセルしただけのこともあるので、失敗は黙って捨てる
+    navigator.share({ text: text }).catch(() => { /* 無視 */ });
+  } else if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showOndemandToast("コピーしました", true))
+      .catch(() => { /* 無視 */ });
+  }
+}
+
 function renderMatchEventsPanel(ev, homeId, homeName, awayId, awayName, ownIdTeam) {
   if (!ev) return "";
   const videoHtml = renderHighlightVideosHtml(ev);
@@ -3268,7 +3424,15 @@ function renderMatchEventsPanel(ev, homeId, homeName, awayId, awayName, ownIdTea
         '</li>';
       }).join("") + '</ul>'
     : '<p class="muted" style="margin:8px 0 0">得点/カード/交代はまだありません。</p>';
-  return '<div class="events-panel">' + videoHtml + lineupsHtml + listHtml + '</div>';
+  /* 共有ボタンはここ(試合詳細パネルの末尾)にだけ置く。ホーム・順位・日程それぞれに
+     散らすと画面がボタンだらけになる。共有手段が無い環境ではボタン自体を出さない。
+     data属性に入れる改行は &#10; にする(生の改行は属性値の正規化で空白になるため)。 */
+  const shareHtml = (CAN_SHARE && items.length)
+    ? '<div class="events-share"><button type="button" data-share="' +
+      esc(matchShareText(ev, homeName, awayName)).replace(/\n/g, "&#10;") +
+      '">結果を共有</button></div>'
+    : "";
+  return '<div class="events-panel">' + videoHtml + lineupsHtml + listHtml + shareHtml + '</div>';
 }
 
 function scheduleRowHtml(m, team, mode, provisional, league) {
@@ -3369,10 +3533,11 @@ function renderScheduleTab(matchesData, team, league) {
   if (!matchesData) return icsHtml + '<section><h2>日程</h2><div class="card"><p class="muted" style="margin:0">日程データがまだありません。</p></div></section>';
   const all = matchesData.matches || [];
 
-  if (state.scheduleRound == null) {
-    const master = state.masters[league];
-    state.scheduleRound = computeCurrentRound(all, master && master.promotionRules);
-  }
+  const masterForRound = state.masters[league];
+  const currentRound = computeCurrentRound(all, masterForRound && masterForRound.promotionRules);
+  if (state.scheduleRound == null) state.scheduleRound = currentRound;
+  // 第27弾:「今節へ」のスクロール先。クリック時に再計算せずに済むよう描画時に控えておく
+  state.currentRoundForJump = currentRound;
   const mode = state.scheduleMode || "mine";
 
   const rounds = groupMatchesByRound(all);
@@ -3382,6 +3547,13 @@ function renderScheduleTab(matchesData, team, league) {
     '<button type="button" class="' + (mode === "mine" ? "active" : "") + '" data-schedulemode="mine">自クラブのみ</button>' +
     '<button type="button" class="' + (mode === "all" ? "active" : "") + '" data-schedulemode="all">リーグ全体</button>' +
   '</div>';
+
+  /* 第27弾: 新しいクラスは作らず .seg-toggle でラップする。.seg-toggle button には
+     第24弾で min-height:44px が入っているので、隣のトグルと同じ見た目・同じタップ領域になる。
+     単独ボタンなので .active は付けない。 */
+  const jumpHtml = (currentRound && rounds[currentRound])
+    ? '<div class="seg-toggle"><button type="button" data-jumpcurrent>今節へ</button></div>'
+    : "";
 
   const selectHtml = '<select id="roundJump" aria-label="節を選ぶ">' +
     roundNumbers.map(r => '<option value="' + r + '"' + (r === state.scheduleRound ? " selected" : "") + '>第' + r + '節</option>').join("") +
@@ -3398,7 +3570,7 @@ function renderScheduleTab(matchesData, team, league) {
   }).join("");
 
   return icsHtml + '<section><h2>日程</h2><div class="card">' +
-    '<div class="schedule-controls">' + toggleHtml + selectHtml + '</div>' +
+    '<div class="schedule-controls">' + toggleHtml + jumpHtml + selectHtml + '</div>' +
     '<div id="scheduleList">' + blocksHtml + '</div>' +
   '</div></section>';
 }
