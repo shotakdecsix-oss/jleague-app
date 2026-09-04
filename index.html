@@ -908,6 +908,12 @@ const state = {
   masters: {}, cache: {}, idTeam: null, league: null,
   teamsById: {}, // 第14弾: 全リーグ横断のidTeam->チーム情報(color等)。init()でmasters読み込み後に構築する
   news: undefined, clubExtra: undefined, // undefined=未取得, null=取得試行済みでデータ無し
+  /* 第26弾: ニュースはクラブ別に分割配信されている。
+     newsCache … idTeam -> 分割ファイルの中身。クラブを切り替えても取り直さない
+     newsAll   … マイニュース用の全件(news_all.json)。マイニュースを開くまで取りに行かない
+     newsOb    … OB選手ニュース(全クラブ共通)
+     newsWhole … 分割前の news.json。ローカル開発でのフォールバック用 */
+  newsCache: null, newsAll: undefined, newsOb: undefined, newsWhole: undefined,
   myNewsKeywords: null,   // 第32弾: マイニュースのキーワード配列。nullなら初回にlocalStorageから読む
   emperorsCup: undefined, // 第23弾: 天皇杯(data/processed/emperors_cup.json)。undefined=未取得, null=データ無し
   cupRound: null,         // カップタブで表示中のラウンド名。nullなら初回描画時に決める
@@ -1517,9 +1523,60 @@ async function ensureClubExtra() {
   if (state.clubExtra === undefined) state.clubExtra = await getJsonOptional("data/processed/club_extra.json");
   return state.clubExtra;
 }
+/* 第26弾: ニュースはクラブ別に分割配信されている(dist/data/processed/news/<idTeam>.json)。
+   表示中のクラブのぶんだけ取りに行き、renderNews() が期待する形
+   ({meta, teams:{idTeam:[...]}, obPlayers}) に組み直して返す。renderNews() 側は無変更。
+
+   分割前は60クラブ+海外の全記事が1本(gzip後 約1MB)で、ニュースタブを開くたびに
+   その全部を落として1クラブぶんしか使っていなかった。
+
+   ローカル開発ではリポジトリ直下でサーバーを立てる運用があり、そこには
+   data/processed/news/ が無い(分割は dist を作るときだけ行うため)。
+   分割ファイルを引けなかったときは元の news.json にフォールバックする。 */
 async function ensureNews() {
-  if (state.news === undefined) state.news = await getJsonOptional("data/processed/news.json");
+  const found = findTeam(state.idTeam);
+  const idTeam = found ? found.team.idTeam : null;
+  const cache = state.newsCache || (state.newsCache = {});
+
+  if (idTeam && cache[idTeam] === undefined) {
+    cache[idTeam] = await getJsonOptional("data/processed/news/" + idTeam + ".json");
+  }
+  if (state.newsOb === undefined) {
+    state.newsOb = await getJsonOptional("data/processed/news_ob.json");
+  }
+
+  const one = idTeam ? cache[idTeam] : null;
+  if (one) {
+    state.news = {
+      meta: one.meta || null,
+      teams: { [idTeam]: one.items || [] },
+      obPlayers: (state.newsOb && state.newsOb.obPlayers) || {},
+    };
+    return state.news;
+  }
+
+  if (state.newsWhole === undefined) {
+    state.newsWhole = await getJsonOptional("data/processed/news.json");
+  }
+  state.news = state.newsWhole;
   return state.news;
+}
+
+/* 第26弾: マイニュースはキーワードで全クラブ+海外記事を横断検索するので、ここだけ全件が要る。
+   検索に要るのは link と title で、この2つで容量の7割を占めるため削っても効かない。
+   なので「マイニュースを開いた人だけが全件を払う」形にしてある。
+   マイニュースを使わなければ、このファイルは一度も取りに行かれない。 */
+async function ensureNewsAll() {
+  if (state.newsAll !== undefined) return state.newsAll;
+  state.newsAll = await getJsonOptional("data/processed/news_all.json");
+  if (!state.newsAll) {
+    // ローカル開発(分割前)へのフォールバック
+    if (state.newsWhole === undefined) {
+      state.newsWhole = await getJsonOptional("data/processed/news.json");
+    }
+    state.newsAll = state.newsWhole;
+  }
+  return state.newsAll;
 }
 /* 第23弾: 天皇杯。scripts/fetch_emperors_cup.py が生成する1ファイル(リーグ横断なのでstate直下)。
    ワークフローが動く前は404でも構わない(getJsonOptionalなのでnullになり、タブに「データがまだ
@@ -1556,8 +1613,8 @@ function findCupEvents(matchNumber) {
 }
 async function ensureTabData(league, tabId) {
   if (tabId === "mynews") {
-    // 第32弾: マイニュースはクラブ横断なので、全クラブぶんのニュース2ファイルだけ要る
-    await ensureNews();
+    // 第32弾: マイニュースはクラブ横断。第26弾でニュースを分割したので、ここだけ全件を取る
+    await ensureNewsAll();
     await ensureClubExtra();
     return;
   }
@@ -2350,7 +2407,11 @@ function cupScorersHtml(m) {
 }
 
 function cupWhenText(m) {
-  if (!m.kickoffTbd) return fmtDate(m.kickoffJst, true);
+  if (!m.kickoffTbd && m.kickoffJst) return fmtDate(m.kickoffJst, true);
+  /* 第39弾: 終わった試合はキックオフ時刻を持たない。日程ページが試合前は時刻、試合後は
+     結果に変わるので、消化後は時刻が取れなくなるため。日付は分かっているのでそこだけ出す。
+     済んだ試合に「時刻未定」は合わないので、その注記は付けない。 */
+  if (!m.kickoffTbd && m.date) return fmtDate(m.date + "T00:00", false);
   if (m.date) return fmtDate(m.date + "T00:00", false) + " 時刻未定";
   return "日程未定";
 }
@@ -4144,7 +4205,9 @@ function ondemandPopoverInnerHtml() {
       simTime ? esc(fmtDate(simTime, true)) + "（次回のバッチで更新）" : "－"));
   }
 
-  const newsTime = state.news && state.news.meta && state.news.meta.generatedAtJst;
+  /* 第26弾: ニュースタブを開けば state.news、マイニュースだけなら state.newsAll に meta が入る */
+  const newsSrc = (state.news && state.news.meta) ? state.news : state.newsAll;
+  const newsTime = newsSrc && newsSrc.meta && newsSrc.meta.generatedAtJst;
   rows.push(ondemandPopoverRowHtml("ニュース", newsTime ? esc(fmtDate(newsTime, true)) : "－"));
 
   // 第31弾: 得点者データの鮮度と、アプリからの自動取得の設定
@@ -4259,6 +4322,12 @@ function clearStaticCaches(deep) {
      PWAを日曜の昼に開き直すと「今日」へのスクロールが土曜のブロックへ飛んでいた。 */
   state.calAnchorDate = null;
   calGroupCache = null;
+  // 第26弾: ニュースの置き場が増えたので、ここも一緒に戻す(古い記事が残らないように)
+  state.newsCache = null;
+  state.newsAll = undefined;
+  state.newsOb = undefined;
+  state.newsWhole = undefined;
+  myNewsEntriesCache = null;
   if (deep) {
     state.clubExtra = undefined;
     state.news = undefined;
@@ -5318,7 +5387,7 @@ function myNewsChipsHtml(keywords, counts) {
 
 function renderMyNewsTab() {
   const keywords = myNewsKeywords();
-  const entries = allNewsEntries(state.news, state.clubExtra);
+  const entries = allNewsEntries(state.newsAll, state.clubExtra);
   const res = searchMyNews(entries, keywords);
 
   const form =

@@ -28,6 +28,7 @@ CLI:
 
 from __future__ import annotations
 
+import json
 import shutil
 import subprocess
 import sys
@@ -46,7 +47,12 @@ COPY_DIRS = ["icons", "data/masters", "data/processed", "data/history"]
 
 # フロントが直接使わない内部状態ファイルは、data/history/をコピーする際にだけ除外する
 # (ics_state.jsonはSEQUENCE永続化用の内部状態で、リポジトリにはコミットするがdist配信には不要なため)。
-COPY_DIRS_EXCLUDE: dict[str, set[str]] = {"data/history": {"ics_state.json"}}
+COPY_DIRS_EXCLUDE: dict[str, set[str]] = {
+    "data/history": {"ics_state.json"},
+    # news.json は丸ごと配信すると gzip後でも約1MB ある。split_news() がクラブ別に
+    # 分割して出し直すので、元のファイルは dist に置かない(第26弾)。
+    "data/processed": {"news.json"},
+}
 
 # 第30弾: index.html に埋めてあるビルド版数のプレースホルダ。
 # 分割して書いてあるのは、この行自身が置換対象にならないようにするため。
@@ -167,6 +173,64 @@ def build_ics_calendars() -> None:
     print(f"[info] カレンダー(.ics)を生成: {club_count}クラブ (今回新たにCANCELLEDにしたイベント: {cancelled_count})")
 
 
+def split_news() -> None:
+    """data/processed/news.json を、配信用に分割して dist/ に書く(第26弾)。
+
+    ソース側は1ファイルのまま変えない。fetch_news.py の累積マージがそこに依存しているので、
+    分割は配信物を作る段階だけで行う。
+
+    出力:
+        dist/data/processed/news/<idTeam>.json  {"meta":..., "items":[...]}  ニュースタブ用
+        dist/data/processed/news_ob.json        {"meta":..., "obPlayers":{...}}
+        dist/data/processed/news_all.json       元のnews.json全体(インデント無し) マイニュース用
+
+    なぜ news_all.json も要るか:
+        指示書(第26弾)を書いた時点ではクラブ別だけで足りたが、その後に足したマイニュース
+        (第32弾)がキーワードで全クラブ+海外記事を横断検索するため、全件が必要になった。
+        検索に要るのは link と title で、これだけで全体の7割を占めるので削っても効かない
+        (実測: 全件 gzip 986KB、link/titleを外すと検索も表示もできない)。
+        そこで「ニュースタブは1クラブぶん、マイニュースを開いた人だけ全件」に分ける。
+        マイニュースを使わない人は news_all.json を一度も取りに行かない。
+
+    ニュースが1件も無いクラブのファイルも空配列で必ず書く。書かないとブラウザ側が404を引き、
+    「取得に失敗したのか、記事が無いのか」を区別できなくなる。
+    """
+    src = BASE_DIR / "data" / "processed" / "news.json"
+    if not src.exists():
+        print("[warn] data/processed/news.json が無い。ニュースの分割はスキップ", file=sys.stderr)
+        return
+    try:
+        data = json.loads(src.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"[error] news.json を読めない: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    meta = data.get("meta", {})
+    teams = data.get("teams", {}) or {}
+    proc_dir = DIST_DIR / "data" / "processed"
+    out_dir = proc_dir / "news"
+    # copy_dirs() は is_file() のものしかコピーしないので、サブディレクトリは自分で作る
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    total = 0
+    for id_team, items in teams.items():
+        items = items or []
+        total += len(items)
+        (out_dir / f"{id_team}.json").write_text(
+            json.dumps({"meta": meta, "items": items}, ensure_ascii=False) + "\n",
+            encoding="utf-8")
+
+    (proc_dir / "news_ob.json").write_text(
+        json.dumps({"meta": meta, "obPlayers": data.get("obPlayers", {}) or {}},
+                   ensure_ascii=False) + "\n", encoding="utf-8")
+    # 配信用はインデントを付けない(改行とインデントぶんがそのまま通信量になる)
+    (proc_dir / "news_all.json").write_text(
+        json.dumps(data, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    print(f"[info] ニュースを分割: {len(teams)}クラブ / 記事{total}件"
+          f" (+ news_all.json {(proc_dir / 'news_all.json').stat().st_size / 1024:.0f}KB)")
+
+
 def report_size() -> None:
     files = [f for f in DIST_DIR.rglob("*") if f.is_file()]
     total_bytes = sum(f.stat().st_size for f in files)
@@ -186,6 +250,7 @@ def main() -> None:
     clean_dist()
     copy_top_level_files()
     copy_dirs()
+    split_news()  # clean_dist()でdistを消すので、copy_dirs()より後で呼ぶ
     write_deploy_time()
     write_deploy_version()
     build_ics_calendars()
