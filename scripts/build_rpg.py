@@ -54,6 +54,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from time_utils import JST  # noqa: E402
 
 PROCESSED_DIR = BASE_DIR / "data" / "processed"
+CONFIG_DIR = BASE_DIR / "data" / "config"
 MASTERS_DIR = BASE_DIR / "data" / "masters"
 MASTER_FILES = {
     "j1": MASTERS_DIR / "j1_teams_2026-27.json",
@@ -201,6 +202,8 @@ def build_league(league: str, today: date) -> dict | None:
         print(f"[warn] {league}: stats が無いのでスキップ", file=sys.stderr)
         return None
     sim = load_json(PROCESSED_DIR / f"{league}_simulation.json") or {}
+    # 画面はひらがなと数字で組むので、クラブ名も読みで出す(data/config/club_kana.json)
+    kana = (load_json(CONFIG_DIR / "club_kana.json") or {}).get("kana") or {}
     standings = load_json(PROCESSED_DIR / f"{league}_standings.json") or {}
     extra = (load_json(PROCESSED_DIR / "club_extra.json") or {}).get("clubs") or {}
     master = load_json(MASTER_FILES[league]) or {}
@@ -287,6 +290,8 @@ def build_league(league: str, today: date) -> dict | None:
 
         out_teams.append({
             "idTeam": idt, "ja": t.get("ja"), "short": t.get("short"),
+            # 読みが無いクラブは略称のまま出す(画面が空になるよりは漢字のほうがまし)
+            "kana": kana.get(idt) or t.get("short"),
             "level": points,
             "hp": {"now": hp_now, "max": HP_MAX, "recent": row.get("recent5") or [],
                    "state": hp_state(hp_now)},

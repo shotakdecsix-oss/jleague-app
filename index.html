@@ -5316,7 +5316,7 @@ function renderRpgStatus(rpg, team, stats) {
       '</span>' +
       '<span class="rpg-id">' +
         '<span class="rpg-head">' +
-          '<span class="rpg-name">' + esc(team.ja || team.short) + '</span>' +
+          '<span class="rpg-name">' + esc(t.kana || team.short || team.ja) + '</span>' +
           '<span class="rpg-lv">Lv<b>' + t.level + '</b></span>' +
         '</span>' +
         '<span class="rpg-title">' + esc(t.title) + '</span>' +
