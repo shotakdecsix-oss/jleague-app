@@ -84,17 +84,18 @@ TITLES = {
     frozenset(("attack", "defense")): "ゆうしゃ",
     frozenset(("attack", "magic")): "まけんし",
     frozenset(("attack", "power")): "せんし",
-    frozenset(("attack", "speed")): "しっぷうのつるぎ",
+    frozenset(("attack", "speed")): "はやてのつるぎ",
     frozenset(("defense", "magic")): "けんじゃ",
-    frozenset(("defense", "power")): "パラディン",
-    frozenset(("defense", "speed")): "ガーディアン",
-    frozenset(("magic", "power")): "まどうへい",
+    frozenset(("defense", "power")): "せいきし",
+    frozenset(("defense", "speed")): "まもりびと",
+    frozenset(("magic", "power")): "まどうし",
     frozenset(("magic", "speed")): "まほうつかい",
     frozenset(("power", "speed")): "ぶとうか",
 }
 
-# HPの状態。境界値そのものを含む方の並び順で上から判定する
-HP_STATES = [(80, "絶好調"), (50, "元気"), (25, "手負い"), (0, "瀕死")]
+# HPの状態。境界値そのものを含む方の並び順で上から判定する。
+# 画面はひらがなと数字だけで組む(昔のゲームの見た目に寄せる)ので、ここもひらがなにしてある。
+HP_STATES = [(80, "げんき"), (50, "ふつう"), (25, "ておい"), (0, "ひんし")]
 
 
 def hp_state(hp: int) -> str:

@@ -297,16 +297,24 @@
 
   /* 第40弾: クラブの戦力を昔のRPGのステータス画面風に出す。
      レトロさはドット絵フォント(環境依存)ではなく、枠・等幅数字・棒グラフで出す。 */
-  .rpg{border:2px solid var(--ink); border-radius:10px; padding:14px 14px 10px; background:var(--card)}
-  .rpg-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:2px}
-  .rpg-name{font-size:17px; font-weight:800; letter-spacing:.02em}
-  .rpg-lv{margin-left:auto; font-size:13px; font-weight:700; color:var(--sub); font-variant-numeric:tabular-nums}
+  .rpg{border:2px solid var(--ink); border-radius:10px; padding:14px; background:var(--card)}
+  /* 第41弾: 上段はドット絵と名前。ドット絵は暗い輪郭で描くので、クラブ色が暗いときに
+     地に沈まないよう、必ず一段明るい下地の上に置く。 */
+  .rpg-top{display:flex; gap:12px; align-items:flex-start; margin-bottom:10px}
+  .rpg-sprite-wrap{
+    flex:none; padding:4px; border-radius:8px; background:var(--surface-1);
+    border:1px solid var(--line); line-height:0;
+  }
+  .rpg-id{min-width:0; flex:1; display:flex; flex-direction:column; align-items:flex-start; gap:6px}
+  .rpg-head{display:grid; grid-template-columns:1fr auto; align-items:baseline; gap:8px; width:100%}
+  .rpg-name{font-size:16px; font-weight:800; letter-spacing:.02em; line-height:1.25}
+  .rpg-lv{font-size:13px; font-weight:700; color:var(--sub); font-variant-numeric:tabular-nums; white-space:nowrap}
   .rpg-lv b{font-size:20px; color:var(--ink); margin-left:4px}
   .rpg-title{
-    display:inline-block; margin-bottom:12px; padding:2px 10px; border-radius:999px;
+    display:inline-block; padding:2px 10px; border-radius:999px;
     background:var(--accent); color:var(--accent-ink); font-size:12px; font-weight:700;
   }
-  .rpg-gauges{display:grid; gap:8px; margin-bottom:6px}
+  .rpg-gauges{display:grid; gap:8px; margin:0}
   .rpg-row{display:grid; grid-template-columns:72px 52px 1fr 52px; align-items:center; gap:8px}
   .rpg-key{font-size:12px; font-weight:700; color:var(--sub)}
   .rpg-num{font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; text-align:right}
@@ -326,11 +334,11 @@
   .rpg-rank{font-size:11px; color:var(--sub); font-variant-numeric:tabular-nums; text-align:right}
   .rpg-state{font-size:11px; font-weight:700; text-align:right}
   .rpg-state.danger{color:var(--releg)}
-  .rpg-rankline{margin:8px 0 0; font-size:12px; color:var(--sub)}
+  .rpg-rankline{margin:0; font-size:12px; color:var(--sub)}
   .rpg-rankline b{color:var(--ink); font-size:14px; font-variant-numeric:tabular-nums}
   .rpg-sep{border:0; border-top:1px dashed var(--line); margin:12px 0 10px}
-  .rpg-recent{display:flex; gap:4px; align-items:center; margin-top:2px}
-  .rpg-foot{margin:10px 0 0; font-size:11px; color:var(--sub); line-height:1.6}
+  .rpg-recent{display:flex; gap:4px; align-items:center; margin-top:0}
+  .rpg-foot{margin:12px 2px 0; font-size:11px; color:var(--sub); line-height:1.6}
   .rpg-foot b{color:var(--ink)}
   /* 第27弾: Android Chromeの標準の引っ張って更新を止める(自前の実装と二重に走るため)。
      横方向は指定しない(.chart-scrollなどの横スクロールに影響させないため)。 */
@@ -5145,6 +5153,103 @@ function renderRadarForGroup(stats, team, groupDef) {
   return '<div class="radar-wrap" aria-hidden="true">' + svg + '</div><div id="radarTooltip" role="status" aria-live="polite"></div>' + limitNote;
 }
 
+/* 第41弾: ドット絵のキャラクター。
+
+   スーパーファミコン期のRPGのフィールドキャラの様式(2頭身、正面向き、太い輪郭)を
+   借りている。特定の作品のキャラを写したものではない。
+
+   左半分(11列)だけ持って、中心列(x=10)を軸に鏡像にして21列にする。こうすると
+   左右対称が壊れようがない(手で全幅を書くと必ずどこかで1列ずれる)。
+   称号ごとの装備は上に重ねるレイヤーで、こちらは左右非対称なので全幅で書く。
+
+   色は c(クラブの1stカラー)と d(2ndカラーを少し暗くしたもの)だけを差し替える。
+   肌・髪・輪郭・金属は固定にしてあり、どのクラブでも人物として読めるようにしている。 */
+const SPRITE_W = 21;
+const SPRITE_HALF = [
+  "...........", "........ooo", "......oohhh", ".....ohhhhh", "....ohhhhhh",
+  "....ohhssss", "....ohsssss", "....ohseess", "....ohsssss", ".....osssss",
+  "......oSSSS", ".....occccc", "....occcccc", "...oscccccc", "...oscccccc",
+  "....occcccc", "....odddddd", "....odddddd", ".....odddo.", ".....oddo..",
+  "....ooooo..", "...........",
+];
+/* 装備。キーは行番号(疎)。'.' は「下のドットをそのまま残す」。 */
+const SPRITE_GEAR = {
+  sword: { 7: ".................om", 8: ".................omM", 9: ".................omM",
+           10: ".................omM", 11: ".................omM", 12: "................ommmo",
+           13: ".................oyo", 14: ".................oyo", 15: ".................ooo" },
+  shield: { 11: "..ooo", 12: ".omMmo", 13: ".omMmo", 14: ".omMmo", 15: ".omMmo", 16: "..ooo" },
+  /* ツバは額の高さ(6行目)まで。7行目は目の行なので、そこまで下ろすと顔が隠れる。 */
+  hat: { 0: ".........ooo", 1: "........occco", 2: "........occco", 3: ".......occccco",
+         4: "......occccccco", 5: ".....occccccccco",
+         6: "...ooooooooooooooo" },
+  staff: { 6: ".................owo", 7: "................owwwo", 8: ".................owo",
+           9: ".................oMo", 10: ".................oMo", 11: ".................oMo",
+           12: ".................oMo", 13: ".................oMo", 14: ".................oMo",
+           15: ".................oMo" },
+  band: { 5: "....ooooooooooooo", 6: "....occccccccccco" },
+};
+/* 称号ごとの装備。称号は build_rpg.py が上位2パラメータから決める。 */
+const TITLE_GEAR = {
+  "ゆうしゃ": ["sword", "shield"],
+  "まけんし": ["hat", "sword"],
+  "せんし": ["sword"],
+  "はやてのつるぎ": ["band", "sword"],
+  "けんじゃ": ["shield", "staff"],
+  "せいきし": ["shield"],
+  "まもりびと": ["band", "shield"],
+  "まどうし": ["hat"],
+  "まほうつかい": ["hat", "staff"],
+  "ぶとうか": ["band"],
+};
+
+function spriteRows(title) {
+  const rows = SPRITE_HALF.map(r => {
+    const p = (r + "...........").slice(0, 11);
+    return p + p.slice(0, 10).split("").reverse().join("");
+  });
+  for (const gear of (TITLE_GEAR[title] || [])) {
+    const layer = SPRITE_GEAR[gear];
+    if (!layer) continue;
+    for (const key of Object.keys(layer)) {
+      const y = Number(key), src = layer[key];
+      if (!(y >= 0 && y < rows.length)) continue;
+      const cur = rows[y].split("");
+      for (let x = 0; x < src.length && x < SPRITE_W; x++) {
+        if (src[x] !== ".") cur[x] = src[x];
+      }
+      rows[y] = cur.join("");
+    }
+  }
+  return rows;
+}
+
+/* 横に続く同じ色を1つの <rect> にまとめる(1ドット1要素だと462個になる)。 */
+function spriteSvgHtml(title, color, colorSub, px) {
+  const rows = spriteRows(title);
+  const pal = {
+    o: "#2a2a35", h: "#4a3728", s: "#f4c9a0", S: "#d9a678", e: "#1a1a22",
+    m: "#ced2da", M: "#8c929e", w: "#f2f2f5", y: "#e2b640",
+    c: color || NEUTRAL_COLOR,
+    d: mixHex(colorSub || color || NEUTRAL_COLOR, "#000000", 0.28),
+  };
+  let body = "";
+  for (let y = 0; y < rows.length; y++) {
+    const row = rows[y];
+    let x = 0;
+    while (x < SPRITE_W) {
+      const ch = row[x] || ".";
+      if (!pal[ch]) { x++; continue; }
+      let n = 1;
+      while (x + n < SPRITE_W && (row[x + n] || ".") === ch) n++;
+      body += '<rect x="' + x + '" y="' + y + '" width="' + n + '" height="1" fill="' + pal[ch] + '"/>';
+      x += n;
+    }
+  }
+  return '<svg viewBox="0 0 ' + SPRITE_W + ' ' + rows.length + '"' +
+    ' width="' + (SPRITE_W * px) + '" height="' + (rows.length * px) + '"' +
+    ' shape-rendering="crispEdges" aria-hidden="true" focusable="false">' + body + '</svg>';
+}
+
 /* 第40弾: 昔のRPGのステータス画面。
 
    Lv = 現在の勝点
@@ -5173,8 +5278,9 @@ function renderRpgStatus(rpg, team, stats) {
 
   const clubCount = (rpg.meta && rpg.meta.clubCount) || rpg.teams.length;
   const hp = t.hp || {}, mp = t.mp || {};
-  const hpCls = hp.now <= 25 ? "hp danger" : (hp.now <= 50 ? "hp warn" : "hp");
-  const stateCls = hp.now <= 25 ? "rpg-state danger" : "rpg-state";
+  /* 色は状態名と揃える: ひんし=赤 / ておい=黄 / それ以上=緑 */
+  const hpCls = hp.now < 25 ? "hp danger" : (hp.now < 50 ? "hp warn" : "hp");
+  const stateCls = hp.now < 25 ? "rpg-state danger" : "rpg-state";
   const recentHtml = (hp.recent || []).length
     ? '<span class="rpg-recent">' + hp.recent.map(x => '<span class="pill ' + x + '">' + x + '</span>').join("") + '</span>'
     : "";
@@ -5187,43 +5293,51 @@ function renderRpgStatus(rpg, team, stats) {
       '<span class="rpg-key">' + esc(p.label) + '</span>' +
       '<span class="rpg-num">' + v.value + '</span>' +
       '<span class="rpg-track tick"><span class="rpg-fill" style="width:' + pct + '%"></span></span>' +
-      '<span class="rpg-rank">' + v.rank + '位 / ' + clubCount + '</span>' +
+      '<span class="rpg-rank">' + v.rank + 'い/' + clubCount + '</span>' +
     '</div>';
   }).join("");
 
   /* MPの意味は「いまどこにいて、どこへ行くと見られているか」なので、
      現在順位と予想順位はゲージのすぐ下に独立して出す(説明文に埋めると読まれない)。 */
   const rankLine = (mp.currentRank && mp.expectedRank != null)
-    ? '<p class="rpg-rankline">現在 <b>' + mp.currentRank + '位</b>' +
-      ' <span class="muted">→</span> 予想 <b>' + (Math.round(mp.expectedRank * 10) / 10) + '位</b>' +
-      (mp.expectedPoints != null ? ' <span class="muted">(予想勝点 ' + Math.round(mp.expectedPoints) + ')</span>' : "") +
-      '</p>'
+    ? '<p class="rpg-rankline">いま <b>' + mp.currentRank + 'い</b>' +
+      ' <span class="muted">→</span> よそう <b>' + Math.round(mp.expectedRank) + 'い</b></p>'
     : "";
   const srcLine = (rpg.meta && rpg.meta.powerSource === "physique")
     ? 'ちからは平均身長と体重、すばやさはスプリント回数から。'
     : 'ちからは空中戦勝利と体格、すばやさはインターセプトから。';
 
+  /* 枠の中はひらがなと数字だけにしてある(クラブ名と HP/MP/Lv を除く)。
+     説明は枠の外に出す。中に混ぜると、せっかくの見た目が説明文で埋まる。 */
   return '<div class="rpg">' +
-    '<div class="rpg-head">' +
-      '<span class="rpg-name">' + esc(team.ja || team.short) + '</span>' +
-      '<span class="rpg-lv">Lv<b>' + t.level + '</b></span>' +
+    '<div class="rpg-top">' +
+      '<span class="rpg-sprite-wrap">' +
+        spriteSvgHtml(t.title, team.color, team.colorSub, 4) +
+      '</span>' +
+      '<span class="rpg-id">' +
+        '<span class="rpg-head">' +
+          '<span class="rpg-name">' + esc(team.ja || team.short) + '</span>' +
+          '<span class="rpg-lv">Lv<b>' + t.level + '</b></span>' +
+        '</span>' +
+        '<span class="rpg-title">' + esc(t.title) + '</span>' +
+        rankLine +
+        recentHtml +
+      '</span>' +
     '</div>' +
-    '<span class="rpg-title">' + esc(t.title) + '</span>' +
     '<div class="rpg-gauges">' +
       rpgGaugeHtml("HP", hp.now, hp.max, hpCls,
         '<span class="' + stateCls + '">' + esc(hp.state || "") + '</span>') +
       rpgGaugeHtml("MP", mp.now, mp.max, "mp", '<span class="rpg-rank"></span>') +
     '</div>' +
-    recentHtml +
-    rankLine +
     '<hr class="rpg-sep">' +
     '<div class="rpg-gauges">' + paramRows + '</div>' +
-    '<p class="rpg-foot">' +
-      '<b>Lv</b> 勝点 / <b>HP</b> 直近5試合の成績 / <b>MP</b> このあと取れると見込まれる勝点(上限は残り試合を全勝したときの勝点なので、シーズンが進むほど減ります)' +
-      '<br>各パラメータはリーグ内での相対値(平均128、1〜255)。' + srcLine +
-      'リーグをまたいだ比較はできません。' +
-    '</p>' +
-  '</div>';
+  '</div>' +
+  '<p class="rpg-foot">' +
+    '<b>Lv</b> 勝点 / <b>HP</b> 直近5試合の成績 / <b>MP</b> このあと取れると見込まれる勝点' +
+    '(上限は残り試合を全勝したときの勝点なので、シーズンが進むほど減ります)' +
+    '<br>各パラメータはリーグ内での相対値(平均128、1〜255)。バーの中央の線がリーグ平均です。' +
+    srcLine + 'リーグをまたいだ比較はできません。' +
+  '</p>';
 }
 
 function renderStatsTab(stats, team) {

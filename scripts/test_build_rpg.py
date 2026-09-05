@@ -69,12 +69,15 @@ def test_recent_points_and_hp_state() -> None:
     assert recent_points(["L", "L", "L", "L", "L"]) == (0, 15)
     assert recent_points(["W", "D", "L"]) == (4, 9), "まだ5試合消化していない場合は満点も減る"
     assert recent_points([]) == (0, 0)
-    assert hp_state(100) == "絶好調"
-    assert hp_state(80) == "絶好調"
-    assert hp_state(79) == "元気"
-    assert hp_state(25) == "手負い"
-    assert hp_state(24) == "瀕死"
-    assert hp_state(1) == "瀕死"
+    # 表示はひらがなに統一してある(昔のゲームの見た目に寄せるため)
+    assert hp_state(100) == "げんき"
+    assert hp_state(80) == "げんき"
+    assert hp_state(79) == "ふつう"
+    assert hp_state(50) == "ふつう"
+    assert hp_state(49) == "ておい"
+    assert hp_state(25) == "ておい"
+    assert hp_state(24) == "ひんし"
+    assert hp_state(1) == "ひんし"
     print("OK: 直近の戦績から勝点と状態が出る")
 
 
@@ -150,8 +153,8 @@ def test_end_to_end_j2_style() -> None:
         ts = data["teams"]
         assert len(ts) == 20
         assert ts[0]["level"] == 30, "Lvは勝点そのもの"
-        assert ts[0]["hp"]["now"] == 100 and ts[0]["hp"]["state"] == "絶好調", "5連勝は満タン"
-        assert ts[19]["hp"]["now"] == 1 and ts[19]["hp"]["state"] == "瀕死", "5連敗はHP1"
+        assert ts[0]["hp"]["now"] == 100 and ts[0]["hp"]["state"] == "げんき", "5連勝は満タン"
+        assert ts[19]["hp"]["now"] == 1 and ts[19]["hp"]["state"] == "ひんし", "5連敗はHP1"
         assert ts[0]["mp"]["max"] == (38 - 10) * 3, "最大MPは残り試合×3"
         assert ts[0]["mp"]["now"] == 30, "期待勝点60 − 現在30"
         for t in ts:
@@ -191,6 +194,22 @@ def test_no_official_stats_at_all() -> None:
     print("OK: 公式スタッツが無くても落ちない")
 
 
+def test_titles_match_the_app_gear_table() -> None:
+    """称号は index.html の TITLE_GEAR にも同じ名前で並んでいる必要がある。
+
+    どちらか片方だけ直すと、その称号のキャラだけ装備なしで描かれる(例外にはならないので
+    気づきにくい)。ここで名前の集合が一致していることを見張る。
+    """
+    import re
+    html = (Path(__file__).resolve().parent.parent / "index.html").read_text(encoding="utf-8")
+    m = re.search(r"const TITLE_GEAR = \{(.*?)\n\};", html, re.S)
+    assert m, "index.html に TITLE_GEAR が見つからない"
+    in_app = set(re.findall(r'"([^"]+)":\s*\[', m.group(1)))
+    in_batch = set(mod.TITLES.values())
+    assert in_app == in_batch, f"称号がずれている: バッチのみ={in_batch - in_app} アプリのみ={in_app - in_batch}"
+    print(f"OK: 称号{len(in_batch)}種がアプリの装備表と一致している")
+
+
 def main() -> None:
     tests = [
         test_zscores,
@@ -202,6 +221,7 @@ def main() -> None:
         test_end_to_end_j2_style,
         test_end_to_end_j1_style,
         test_no_official_stats_at_all,
+        test_titles_match_the_app_gear_table,
     ]
     for t in tests:
         t()
