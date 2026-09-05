@@ -295,6 +295,64 @@
      入れないと「7位の次が17位」に見えて誤読される。 */
   .st-gap td{text-align:center; color:var(--muted); padding:2px 0; letter-spacing:.3em}
 
+  /* 第43弾: かちぬきバトル。昔のRPGの戦闘画面。 */
+  .bt{border:2px solid var(--ink); border-radius:10px; padding:10px; background:var(--card)}
+  .bt-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;
+    font-size:12px; font-weight:700; font-variant-numeric:tabular-nums}
+  .bt-wins{color:var(--ink)} .bt-best{color:var(--sub)}
+  .bt-side{display:flex; gap:10px; align-items:center; padding:4px 0}
+  .bt-foe{flex-direction:row-reverse; text-align:right}
+  /* 相手だけ左右を反転して、向かい合っているように見せる。
+     体は左右対称なので、実際に反転するのは装備(剣・盾・杖)の位置だけ。 */
+  .bt-foe .bt-sprite svg{transform:scaleX(-1)}
+  .bt-empty{min-height:88px}
+  .bt-sprite{flex:none; line-height:0; padding:2px; border-radius:8px;
+    background:var(--surface-1); border:1px solid var(--line)}
+  .bt-info{flex:1; min-width:0; display:flex; flex-direction:column; gap:4px}
+  .bt-name{font-size:14px; font-weight:800}
+  .bt-lv{margin-left:8px; font-size:11px; font-weight:700; color:var(--sub);
+    font-variant-numeric:tabular-nums}
+  .bt-gauge{display:flex; align-items:center; gap:6px}
+  .bt-tag{font-size:10px; font-weight:700; color:var(--sub); width:16px; flex:none}
+  .bt-num{font-size:11px; font-weight:700; color:var(--sub); width:34px; flex:none;
+    text-align:right; font-variant-numeric:tabular-nums}
+  .bt-track{display:block; flex:1; height:10px; border-radius:3px; background:var(--line); overflow:hidden}
+  .bt-fill{display:block; height:100%; border-radius:3px; background:var(--accent)}
+  .bt-fill.hp{background:var(--promo)}
+  .bt-fill.hp.danger{background:var(--releg)}
+  .bt-fill.mp{background:var(--po)}
+  /* 被弾。位置ではなく色を飛ばす(レイアウトを動かすと行が跳ねて読みにくい) */
+  @keyframes btHit{0%,100%{opacity:1}25%,75%{opacity:.25}}
+  .bt-hit .bt-sprite{animation:btHit .32s steps(1,end) 2}
+  .bt-msg{
+    margin:8px 0; padding:10px 12px; min-height:66px; border:1px solid var(--line);
+    border-radius:8px; background:var(--surface-1); font-size:13px; line-height:1.65;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  .bt-cmd{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .bt-cmd-wait{display:block; text-align:center; font-size:11px; padding:10px 0}
+  .bt-cmd button{
+    min-height:44px; border:1px solid var(--line); border-radius:8px;
+    background:var(--surface-1); color:var(--ink); font-size:13px; font-weight:700;
+    font-family:inherit; cursor:pointer;
+  }
+  .bt-moves{display:grid; gap:6px}
+  .bt-move{
+    display:flex; flex-direction:column; align-items:flex-start; gap:2px;
+    min-height:44px; padding:6px 10px; border:1px solid var(--line); border-radius:8px;
+    background:var(--surface-1); color:var(--ink); font-family:inherit; cursor:pointer; text-align:left;
+  }
+  .bt-move.off{opacity:.45}
+  .bt-move-name{font-size:13px; font-weight:700}
+  .bt-move-sub{font-size:10px; color:var(--sub); font-variant-numeric:tabular-nums}
+  .bt-back{align-items:center; justify-content:center}
+  .rpg-fight{
+    display:block; width:100%; min-height:44px; margin-top:12px; padding:0 14px;
+    border:2px solid var(--ink); border-radius:8px; background:var(--accent);
+    color:var(--accent-ink); font-size:14px; font-weight:800; font-family:inherit; cursor:pointer;
+  }
+  .rpg-fight-note{margin:6px 2px 0; font-size:11px; color:var(--sub)}
+
   /* 第40弾: クラブの戦力を昔のRPGのステータス画面風に出す。
      レトロさはドット絵フォント(環境依存)ではなく、枠・等幅数字・棒グラフで出す。 */
   .rpg{border:2px solid var(--ink); border-radius:10px; padding:14px; background:var(--card)}
@@ -968,7 +1026,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "6558875";
+const APP_BUILD_VERSION = "d2cb259";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -986,6 +1044,7 @@ const state = {
   cupRound: null,         // カップタブで表示中のラウンド名。nullなら初回描画時に決める
   currentRoundForJump: null, // 第27弾: 日程タブ「今節へ」のスクロール先(描画時に控える)
   standingsScope: null,      // 第28弾: 順位表の表示範囲("all"/"near")。nullなら初回にlocalStorageから読む
+  battle: null,              // 第43弾: かちぬきバトルの進行状況。nullなら戦闘していない
   cupKind: "emperors",    // 第36弾: カップタブで見ている大会("emperors"=天皇杯 / "leaguecup"=ルヴァン)
   leagueCup: undefined,       // leaguecup.json。undefined=未取得, null=データ無し
   leagueCupEvents: undefined, // leaguecup_match_events.json(得点者/カード/交代/メンバー/動画)
@@ -2057,6 +2116,21 @@ async function init() {
       }
     }
 
+    // 第43弾: かちぬきバトル
+    if (ev.target.closest("[data-rpgbattle]")) {
+      const rpg = leagueCache(state.league).rpg;
+      const found = findTeam(state.idTeam);
+      state.battle = found ? battleStart(state.league, rpg, found.team.idTeam) : null;
+      saveBattleState();
+      renderActiveTab().then(() => battleScheduleAdvance());
+      return;
+    }
+    const btMove = ev.target.closest("[data-btmove]");
+    if (btMove) { battleCommand("move", btMove.dataset.btmove); return; }
+    const btCmd = ev.target.closest("[data-btcmd]");
+    if (btCmd) { battleCommand(btCmd.dataset.btcmd); return; }
+    if (state.battle && ev.target.closest("#btMsg")) { battleAdvance(); return; }
+
     // 第27弾: 結果の共有。行タップ(ドリルダウンの開閉)より先に処理して抜ける
     const shareBtn = ev.target.closest("[data-share]");
     if (shareBtn) {
@@ -2262,6 +2336,8 @@ function buildSelect() {
 async function selectTeam(idTeam) {
   const found = findTeam(idTeam);
   if (!found) return;
+  // 第43弾: 別のクラブに切り替えたら、そのクラブの戦いは畳む
+  if (state.battle && state.battle.meId !== idTeam) { battleStopTimer(); state.battle = null; }
   state.idTeam = idTeam;
   state.league = found.league;
   applyThemeForMode();
@@ -2325,6 +2401,9 @@ async function rerenderKeepingMyNewsFocus() {
 }
 
 async function renderActiveTab() {
+  /* 第43弾: 画面を作り直すあいだ、戦闘のメッセージ送りを止める。
+     止めないと、他のタブへ移ったあとも裏でタイマーが走り続ける。 */
+  battleStopTimer();
   if (state.viewMode === "all") {
     await renderAllModeActiveTab();
     return;
@@ -2405,6 +2484,8 @@ function renderActiveTabBody(league, team, master, app) {
       renderImpactSection(cache.impact, team, master.promotionRules, league);
   }
   app.innerHTML = html;
+  /* 第43弾: 戦闘画面が出ているならメッセージ送りを動かす */
+  if (state.battle && document.getElementById("battleRoot")) battleScheduleAdvance();
 
   /* 第37弾: 「日程タブである」だけを条件にしていたため、試合中に liveTick が60秒ごとに
      再描画するたび、選択中の節の先頭へ引き戻されていた。全体モード日程の calNeedsScroll と
@@ -5331,13 +5412,481 @@ function renderRpgStatus(rpg, team, stats) {
     '</div>' +
     '<hr class="rpg-sep">' +
     '<div class="rpg-gauges">' + paramRows + '</div>' +
+    /* 第43弾: ここから、リーグの弱いクラブから順に挑むかちぬきバトルに入る */
+    '<button type="button" class="rpg-fight" data-rpgbattle>たたかう</button>' +
   '</div>' +
+  '<p class="rpg-fight-note">リーグの よわい クラブから じゅんに たたかいます。' +
+    'HPは つぎの しあいに ひきつがれ、かつたびに すこし かいふくします。' +
+    'じぶんが よわいほど さいしょから きびしい あいてに なります。</p>' +
   '<p class="rpg-foot">' +
     '<b>Lv</b> 勝点 / <b>HP</b> 直近5試合の成績 / <b>MP</b> このあと取れると見込まれる勝点' +
     '(上限は残り試合を全勝したときの勝点なので、シーズンが進むほど減ります)' +
     '<br>各パラメータはリーグ内での相対値(平均128、1〜255)。バーの中央の線がリーグ平均です。' +
     srcLine + 'リーグをまたいだ比較はできません。' +
   '</p>';
+}
+
+/* ---------- 第43弾: かちぬきバトル ----------
+
+   「つよさ」のパラメータで、クラブ同士を昔のRPGの戦闘画面で戦わせる。
+   リーグの弱いクラブから順に挑んで、何連勝できるかを競う。
+
+   数値は実データ(60クラブ)で総当たり4万戦の試算をして決めた:
+     平均9.0ターン / 中央値8 / 1〜3ターンで終わるのは8%
+     強いほうの勝率は65〜74%(番狂わせが3割弱のカードで起きる)
+
+   戦法がクラブの立ち位置で変わるのがこの遊びの芯になっている。
+   格上は命中率の高い技に寄せて手堅く削り、格下は当たりにくい大技に賭ける。
+   不利な側は分散を上げるのが最適なので、これは数学的にも正しい
+   (格下がロングボールとセットプレーに賭けるのと同じ理屈)。 */
+
+const BATTLE_TURN_LIMIT = 20;      // これを超えたらHPの残り割合が多いほうの勝ち
+/* HPに勝点(Lv)は入れない。入れると、勝点の少ないクラブが「パラメータも低い・HPも最小」と
+   二重に不利になって、かちぬきの1戦目で必ず負けるクラブが出た(実測)。
+   Lvは見た目の階級として置いておき、体力はぼうぎょから決める。
+   ぼうぎょの寄与を0.4に抑えているのは、守備の薄いクラブが「HPも少なく被弾も大きい」と
+   二重に損をしないため。守備力はダメージ計算のほうで効く。 */
+const BATTLE_HP_BASE = 430, BATTLE_HP_DEF = 0.4;
+/* 直近5試合の調子をHPに写す幅。0のクラブでも7割は残す(瀕死スタートは勝負にならない)。 */
+const BATTLE_COND_MIN = 0.7;
+const BATTLE_DMG_ATK = 0.5, BATTLE_DMG_DEF = 0.25;
+const BATTLE_CRIT_BASE = 0.02, BATTLE_CRIT_LUCK = 0.10;   // うん1で2%、255で12%
+const BATTLE_GUARD_MP = 8;         // 「まもる」で回復するMP
+const BATTLE_HEAL_HP = 0.6, BATTLE_HEAL_MP = 1 / 3;       // 勝ち抜いたときの回復割合
+
+/* hit=あたる確率 power=いりょく mp=消費 param=どのパラメータのクラブが覚えるか
+   effect: press=相手のMPを削る / trap=相手の次の命中を下げる */
+const BATTLE_MOVES = {
+  "たたかう":           { hit: 0.90, power: 1.0, mp: 0,  param: null },
+  "ミドルシュート":     { hit: 0.65, power: 1.6, mp: 10, param: "attack" },
+  "ボレーシュート":     { hit: 0.45, power: 3.0, mp: 14, param: "attack" },
+  "スルーパス":         { hit: 0.85, power: 1.2, mp: 8,  param: "magic" },
+  "セットプレー":       { hit: 0.60, power: 1.9, mp: 12, param: "magic" },
+  "ヘディング":         { hit: 0.70, power: 1.5, mp: 10, param: "power" },
+  "ロングスロー":       { hit: 0.45, power: 3.2, mp: 12, param: "power" },
+  "プレス":             { hit: 0.80, power: 1.1, mp: 8,  param: "speed", effect: "press" },
+  "カウンター":         { hit: 0.40, power: 3.6, mp: 12, param: "speed" },
+  "ショートパス":       { hit: 0.95, power: 0.8, mp: 4,  param: "defense" },
+  "オフサイドトラップ": { hit: 0.75, power: 0.8, mp: 8,  param: "defense", effect: "trap" },
+  "ミラクル":           { hit: 0.25, power: 5.5, mp: 15, param: "luck" },
+};
+const BATTLE_PARAMS = ["attack", "defense", "magic", "power", "speed"];
+
+function battleMovesOf(t) {
+  /* 覚えている技はパラメータの上位2つで決まる。うんのよさがリーグ1位のクラブだけ
+     「ミラクル」を覚える(あたらないが、当たれば一撃で持っていく)。 */
+  const top2 = BATTLE_PARAMS.slice().sort((a, b) => t.params[b].value - t.params[a].value).slice(0, 2);
+  const out = ["たたかう"];
+  for (const name of Object.keys(BATTLE_MOVES)) {
+    const m = BATTLE_MOVES[name];
+    if (m.param && top2.indexOf(m.param) >= 0) out.push(name);
+  }
+  if (t.params.luck.rank === 1) out.push("ミラクル");
+  return out;
+}
+function battleTotal(t) {
+  return BATTLE_PARAMS.reduce((s, k) => s + t.params[k].value, 0);
+}
+function battleMaxHp(t) {
+  return Math.round(BATTLE_HP_BASE + t.params.defense.value * BATTLE_HP_DEF);
+}
+/* 直近5試合の調子(0〜100)を 0.7〜1.0 の係数にする。挑む側も受ける側も同じ扱い。 */
+function battleCondOf(t) {
+  const now = Math.max(0, Math.min(100, (t.hp && t.hp.now) != null ? t.hp.now : 100));
+  return BATTLE_COND_MIN + now / 100 * (1 - BATTLE_COND_MIN);
+}
+function battleMaxMp(t) {
+  return Math.max(20, (t.mp && t.mp.max) || 20);
+}
+
+/* 相手より強いか弱いかで技の選び方を変える。ここがこの遊びの芯。 */
+function battleAiPick(me, foe, hpRatio, mp) {
+  const avail = battleMovesOf(me).filter(n => BATTLE_MOVES[n].mp <= mp);
+  if (!avail.length) return "たたかう";
+  const ratio = battleTotal(me) / Math.max(1, battleTotal(foe));
+  const desperate = hpRatio < 0.30;   // 追い込まれたら格上でも一発に賭ける
+  const weights = avail.map(n => {
+    const m = BATTLE_MOVES[n];
+    if (ratio < 0.92 || desperate) return Math.pow(m.power, 3);          // 一発狙い
+    if (ratio > 1.08) return Math.pow(m.hit, 3) * m.power;               // 手堅く
+    return m.hit * m.power;
+  });
+  let total = 0;
+  for (const w of weights) total += w;
+  let r = Math.random() * total;
+  for (let i = 0; i < avail.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return avail[i];
+  }
+  return avail[avail.length - 1];
+}
+
+/* ---- 状態 ---- */
+const BATTLE_STATE_KEY = "jleague-app.battle";
+const BATTLE_BEST_KEY = "jleague-app.battleBest";
+
+function loadBattleBest() {
+  try { return JSON.parse(localStorage.getItem(BATTLE_BEST_KEY) || "{}") || {}; }
+  catch (e) { return {}; }
+}
+function saveBattleBest(obj) {
+  try { localStorage.setItem(BATTLE_BEST_KEY, JSON.stringify(obj)); } catch (e) { /* 無視 */ }
+}
+/* 進行中のかちぬきも保存する。スマホは途中で閉じることが多いので、
+   次に開いたときに続きから戦えるほうが自然。 */
+function saveBattleState() {
+  try {
+    if (state.battle) localStorage.setItem(BATTLE_STATE_KEY, JSON.stringify(state.battle));
+    else localStorage.removeItem(BATTLE_STATE_KEY);
+  } catch (e) { /* 無視 */ }
+}
+function loadBattleState() {
+  try { return JSON.parse(localStorage.getItem(BATTLE_STATE_KEY) || "null"); }
+  catch (e) { return null; }
+}
+
+function rpgTeamById(rpg, idTeam) {
+  return ((rpg && rpg.teams) || []).find(t => t.idTeam === idTeam) || null;
+}
+
+/* 弱い順(パラメータ合計の小さい順)に並べた挑戦の順番。自分は除く。 */
+function battleQueueFor(rpg, meId) {
+  return ((rpg && rpg.teams) || [])
+    .filter(t => t.idTeam !== meId)
+    .slice()
+    .sort((a, b) => battleTotal(a) - battleTotal(b))
+    .map(t => t.idTeam);
+}
+
+function battleStart(league, rpg, meId) {
+  const me = rpgTeamById(rpg, meId);
+  if (!me) return null;
+  const queue = battleQueueFor(rpg, meId);
+  if (!queue.length) return null;
+  const b = {
+    league: league, meId: meId, wins: 0, turn: 1,
+    meHp: battleMaxHp(me), meMp: (me.mp && me.mp.now) || battleMaxMp(me),
+    meMaxHp: battleMaxHp(me), meMaxMp: battleMaxMp(me),
+    queue: queue, foeId: null,
+    foeHp: 0, foeMp: 0, foeMaxHp: 0, foeMaxMp: 0,
+    meGuard: false, foeGuard: false, meTrapped: false, foeTrapped: false,
+    log: [], phase: "log", shake: null, menu: null, over: false, cleared: false,
+  };
+  b.meHp = Math.max(1, Math.round(b.meMaxHp * battleCondOf(me)));
+  battleNextFoe(b, rpg, true);
+  return b;
+}
+
+function battleNextFoe(b, rpg, first) {
+  const foeId = b.queue.shift();
+  const foe = rpgTeamById(rpg, foeId);
+  if (!foe) { b.cleared = true; b.over = true; return; }
+  b.foeId = foeId;
+  b.foeMaxHp = battleMaxHp(foe);
+  b.foeMaxMp = battleMaxMp(foe);
+  /* 相手も調子を反映する。挑む側だけ不調を背負うと、調子の悪いクラブが
+     1戦目で必ず負けた(実測で零勝率が半分)。 */
+  b.foeHp = Math.max(1, Math.round(b.foeMaxHp * battleCondOf(foe)));
+  b.foeMp = b.foeMaxMp;
+  b.foeGuard = false; b.foeTrapped = false; b.meGuard = false; b.meTrapped = false;
+  b.turn = 1;
+  const me = rpgTeamById(rpg, b.meId);
+  const first2 = battleFirstMover(me, foe);
+  b.meFirst = first2;
+  if (first) {
+    b.log.push(me.kana + " は たたかいに いどんだ！");
+  }
+  b.log.push(foe.kana + " が あらわれた！");
+  b.phase = "log";
+}
+
+/* 先攻はすばやさが高いほう。同じなら乱数。 */
+function battleFirstMover(me, foe) {
+  const a = me.params.speed.value, c = foe.params.speed.value;
+  if (a !== c) return a > c;
+  return Math.random() < 0.5;
+}
+
+/* 1人ぶんの行動を解決して、メッセージを log に積む。 */
+function battleResolve(b, rpg, actorIsMe, moveName) {
+  const me = rpgTeamById(rpg, b.meId), foe = rpgTeamById(rpg, b.foeId);
+  const actor = actorIsMe ? me : foe;
+  const target = actorIsMe ? foe : me;
+  const m = BATTLE_MOVES[moveName] || BATTLE_MOVES["たたかう"];
+
+  if (actorIsMe) b.meMp = Math.max(0, b.meMp - m.mp);
+  else b.foeMp = Math.max(0, b.foeMp - m.mp);
+
+  b.log.push(actor.kana + " の " + moveName + "！");
+
+  /* オフサイドトラップを受けていると当たりにくい */
+  const trapped = actorIsMe ? b.meTrapped : b.foeTrapped;
+  if (actorIsMe) b.meTrapped = false; else b.foeTrapped = false;
+  const hit = m.hit * (trapped ? 0.7 : 1);
+  if (Math.random() > hit) {
+    b.log.push("しかし かわされた！");
+    return;
+  }
+
+  const crit = Math.random() < (BATTLE_CRIT_BASE + BATTLE_CRIT_LUCK * actor.params.luck.value / 255);
+  const base = actor.params.attack.value * BATTLE_DMG_ATK
+    - (crit ? 0 : target.params.defense.value * BATTLE_DMG_DEF);
+  const guard = actorIsMe ? b.foeGuard : b.meGuard;
+  let dmg = Math.max(1, Math.round(
+    base * m.power * (0.85 + Math.random() * 0.30) * (crit ? 2 : 1) * (guard ? 0.5 : 1)
+  ));
+  if (crit) b.log.push("かいしんの いちげき！");
+  if (guard) b.log.push(target.kana + " は こらえている！");
+
+  if (actorIsMe) { b.foeHp = Math.max(0, b.foeHp - dmg); b.shake = "foe"; }
+  else { b.meHp = Math.max(0, b.meHp - dmg); b.shake = "me"; }
+  b.log.push(target.kana + " に " + dmg + " の ダメージ！");
+
+  if (m.effect === "press") {
+    const lost = 10;
+    if (actorIsMe) b.foeMp = Math.max(0, b.foeMp - lost);
+    else b.meMp = Math.max(0, b.meMp - lost);
+    b.log.push(target.kana + " の MPを " + lost + " うばった！");
+  } else if (m.effect === "trap") {
+    if (actorIsMe) b.foeTrapped = true; else b.meTrapped = true;
+    b.log.push(target.kana + " は うごきを よまれた！");
+  }
+}
+
+function battleGuard(b, rpg, actorIsMe) {
+  const who = actorIsMe ? rpgTeamById(rpg, b.meId) : rpgTeamById(rpg, b.foeId);
+  if (actorIsMe) { b.meGuard = true; b.meMp = Math.min(b.meMaxMp, b.meMp + BATTLE_GUARD_MP); }
+  else { b.foeGuard = true; b.foeMp = Math.min(b.foeMaxMp, b.foeMp + BATTLE_GUARD_MP); }
+  b.log.push(who.kana + " は みを まもっている！ (MP+" + BATTLE_GUARD_MP + ")");
+}
+
+/* プレイヤーが1つコマンドを選んだ = 1ターンぶん進める。 */
+function battleTakeTurn(b, rpg, cmd, moveName) {
+  const me = rpgTeamById(rpg, b.meId), foe = rpgTeamById(rpg, b.foeId);
+  if (!me || !foe || b.over) return;
+  b.menu = null;
+  b.meGuard = false; b.foeGuard = false;   // まもるはそのターンだけ
+
+  const doMe = () => {
+    if (cmd === "guard") battleGuard(b, rpg, true);
+    else battleResolve(b, rpg, true, cmd === "move" ? moveName : "たたかう");
+  };
+  const doFoe = () => {
+    /* 相手も追い込まれたら守る。回復したMPで大技を撃ってくる。 */
+    if (b.foeHp / b.foeMaxHp < 0.35 && b.foeMp < 12 && Math.random() < 0.4) {
+      battleGuard(b, rpg, false);
+      return;
+    }
+    battleResolve(b, rpg, false, battleAiPick(foe, me, b.foeHp / b.foeMaxHp, b.foeMp));
+  };
+
+  if (b.meFirst) { doMe(); if (b.foeHp > 0) doFoe(); }
+  else { doFoe(); if (b.meHp > 0) doMe(); }
+
+  b.turn++;
+  if (b.foeHp <= 0) {
+    b.log.push(foe.kana + " を たおした！");
+    b.wins++;
+    b.pendingWin = true;
+  } else if (b.meHp <= 0) {
+    b.log.push(me.kana + " は たおれた…");
+    b.pendingLose = true;
+  } else if (b.turn > BATTLE_TURN_LIMIT) {
+    /* 膠着したら残り体力の割合で決める(試算では1%未満) */
+    b.log.push("しあいしゅうりょうの ホイッスル！");
+    if (b.meHp / b.meMaxHp >= b.foeHp / b.foeMaxHp) {
+      b.log.push(foe.kana + " に かった！");
+      b.wins++; b.pendingWin = true;
+    } else {
+      b.log.push(me.kana + " は やぶれた…");
+      b.pendingLose = true;
+    }
+  }
+  b.phase = "log";
+}
+
+/* 1勝したあとの処理。HP/MPを一部回復して次の相手へ。 */
+function battleAfterWin(b, rpg) {
+  b.pendingWin = false;
+  const me = rpgTeamById(rpg, b.meId);
+  b.log.push(me.kana + " は " + b.wins + " れんしょう！");
+  const healHp = Math.round(b.meMaxHp * BATTLE_HEAL_HP);
+  const healMp = Math.round(b.meMaxMp * BATTLE_HEAL_MP);
+  const beforeHp = b.meHp, beforeMp = b.meMp;
+  b.meHp = Math.min(b.meMaxHp, b.meHp + healHp);
+  b.meMp = Math.min(b.meMaxMp, b.meMp + healMp);
+  if (b.meHp > beforeHp || b.meMp > beforeMp) {
+    b.log.push("HPを " + (b.meHp - beforeHp) + "、MPを " + (b.meMp - beforeMp) + " かいふくした！");
+  }
+  if (!b.queue.length) {
+    b.cleared = true; b.over = true;
+    b.log.push("リーグの すべてに かった！");
+    return;
+  }
+  battleNextFoe(b, rpg, false);
+}
+
+/* ---- 描画 ---- */
+function battleBarHtml(cls, now, max) {
+  const pct = max > 0 ? Math.max(0, Math.min(100, Math.round(now / max * 100))) : 0;
+  return '<span class="bt-track"><span class="bt-fill ' + cls + '" style="width:' + pct + '%"></span></span>';
+}
+
+function battleSideHtml(t, hp, maxHp, mp, maxMp, sideCls, shake) {
+  const team = findTeam(t.idTeam);
+  const color = team ? team.team.color : null;
+  const colorSub = team ? team.team.colorSub : null;
+  const low = hp / maxHp <= 0.25;
+  return '<div class="bt-side ' + sideCls + (shake ? " bt-hit" : "") + '">' +
+    '<span class="bt-sprite">' + spriteSvgHtml(t.title, color, colorSub, 4) + '</span>' +
+    '<span class="bt-info">' +
+      '<span class="bt-name">' + esc(t.kana) + '<span class="bt-lv">Lv' + t.level + '</span></span>' +
+      '<span class="bt-gauge"><span class="bt-tag">HP</span>' +
+        battleBarHtml(low ? "hp danger" : "hp", hp, maxHp) +
+        '<span class="bt-num">' + hp + '</span></span>' +
+      (mp == null ? "" :
+        '<span class="bt-gauge"><span class="bt-tag">MP</span>' +
+        battleBarHtml("mp", mp, maxMp) +
+        '<span class="bt-num">' + mp + '</span></span>') +
+    '</span>' +
+  '</div>';
+}
+
+function battleCommandHtml(b, me) {
+  if (b.over) {
+    return '<div class="bt-cmd">' +
+      '<button type="button" data-btcmd="restart">もういちど</button>' +
+      '<button type="button" data-btcmd="quit">やめる</button>' +
+    '</div>';
+  }
+  if (b.phase !== "command") {
+    return '<div class="bt-cmd bt-cmd-wait"><span class="muted">▼ タップですすむ</span></div>';
+  }
+  if (b.menu === "moves") {
+    const moves = battleMovesOf(me).filter(n => n !== "たたかう");
+    const rows = moves.map(n => {
+      const m = BATTLE_MOVES[n];
+      const ok = m.mp <= b.meMp;
+      return '<button type="button" class="bt-move' + (ok ? "" : " off") + '"' +
+        (ok ? ' data-btmove="' + esc(n) + '"' : " disabled") + '>' +
+        '<span class="bt-move-name">' + esc(n) + '</span>' +
+        '<span class="bt-move-sub">MP' + m.mp + ' / あたる' + Math.round(m.hit * 100) + '% / いりょく' + m.power.toFixed(1) + '</span>' +
+      '</button>';
+    }).join("");
+    return '<div class="bt-moves">' + rows +
+      '<button type="button" class="bt-move bt-back" data-btcmd="back">もどる</button></div>';
+  }
+  return '<div class="bt-cmd">' +
+    '<button type="button" data-btcmd="fight">たたかう</button>' +
+    '<button type="button" data-btcmd="moves">とくぎ</button>' +
+    '<button type="button" data-btcmd="guard">まもる</button>' +
+    '<button type="button" data-btcmd="quit">にげる</button>' +
+  '</div>';
+}
+
+function battleInnerHtml(rpg) {
+  const b = state.battle;
+  if (!b) return "";
+  const me = rpgTeamById(rpg, b.meId), foe = rpgTeamById(rpg, b.foeId);
+  if (!me) return '<p class="muted" style="margin:0">データが見つかりません。</p>';
+  const best = loadBattleBest()[b.league + ":" + b.meId] || 0;
+  const shown = (b.shown || []).slice(-3);
+  const msgHtml = shown.map(x => '<div>' + esc(x) + '</div>').join("") || "<div>&nbsp;</div>";
+
+  const head = '<div class="bt-head">' +
+    '<span class="bt-wins">' + b.wins + ' れんしょう</span>' +
+    '<span class="bt-best">さいこう ' + Math.max(best, b.wins) + '</span>' +
+  '</div>';
+
+  const foeHtml = (foe && !b.cleared)
+    ? battleSideHtml(foe, b.foeHp, b.foeMaxHp, null, null, "bt-foe", b.shake === "foe")
+    : '<div class="bt-side bt-foe bt-empty"></div>';
+
+  return head + foeHtml +
+    battleSideHtml(me, b.meHp, b.meMaxHp, b.meMp, b.meMaxMp, "bt-me", b.shake === "me") +
+    '<div class="bt-msg" id="btMsg">' + msgHtml + '</div>' +
+    battleCommandHtml(b, me);
+}
+
+function updateBattleInPlace() {
+  const root = document.getElementById("battleRoot");
+  if (!root) return;
+  const rpg = leagueCache(state.league).rpg;
+  root.innerHTML = battleInnerHtml(rpg);
+  state.battle && (state.battle.shake = null);
+}
+
+/* ---- 進行 ---- */
+let battleTimer = null;
+function battleStopTimer() {
+  if (battleTimer) { clearTimeout(battleTimer); battleTimer = null; }
+}
+/* メッセージは自動で流れる。タップすれば次へ飛ばせる。 */
+function battleScheduleAdvance() {
+  battleStopTimer();
+  const b = state.battle;
+  if (!b || b.phase !== "log") return;
+  battleTimer = setTimeout(() => { battleTimer = null; battleAdvance(); }, 900);
+}
+
+function battleAdvance() {
+  const b = state.battle;
+  if (!b) return;
+  battleStopTimer();
+  const rpg = leagueCache(state.league).rpg;
+  if (b.log.length) {
+    b.shown = (b.shown || []).concat(b.log.shift()).slice(-6);
+  }
+  if (!b.log.length) {
+    if (b.pendingWin) {
+      battleAfterWin(b, rpg);
+    } else if (b.pendingLose) {
+      b.pendingLose = false;
+      b.over = true;
+      battleRecordBest(b);
+    } else if (b.over) {
+      battleRecordBest(b);
+    } else {
+      b.phase = "command";
+    }
+  }
+  saveBattleState();
+  updateBattleInPlace();
+  battleScheduleAdvance();
+}
+
+function battleRecordBest(b) {
+  const best = loadBattleBest();
+  const key = b.league + ":" + b.meId;
+  if ((best[key] || 0) < b.wins) { best[key] = b.wins; saveBattleBest(best); }
+}
+
+function battleCommand(cmd, moveName) {
+  const b = state.battle;
+  if (!b) return;
+  const rpg = leagueCache(state.league).rpg;
+  if (cmd === "quit") {
+    battleStopTimer();
+    if (!b.over) { b.over = true; battleRecordBest(b); }
+    state.battle = null;
+    saveBattleState();
+    renderActiveTab();
+    return;
+  }
+  if (cmd === "restart") {
+    battleStopTimer();
+    state.battle = battleStart(state.league, rpg, b.meId);
+    saveBattleState();
+    updateBattleInPlace();
+    battleScheduleAdvance();
+    return;
+  }
+  if (cmd === "moves") { b.menu = "moves"; updateBattleInPlace(); return; }
+  if (cmd === "back") { b.menu = null; updateBattleInPlace(); return; }
+  if (b.phase !== "command" || b.over) return;
+  battleTakeTurn(b, rpg, cmd === "move" ? "move" : cmd, moveName);
+  b.shown = [];
+  battleAdvance();
 }
 
 function renderStatsTab(stats, team) {
@@ -5358,8 +5907,19 @@ function renderStatsTab(stats, team) {
 
   /* 第40弾: ステータスだけはレーダーではなくRPG風の画面を描く */
   if (activeGroup.id === "rpg") {
-    return '<section><h2>スタッツ</h2><div class="card">' + subtabHtml +
-      renderRpgStatus(leagueCache(state.league).rpg, team, stats) + '</div></section>';
+    const rpg = leagueCache(state.league).rpg;
+    /* 第43弾: 中断したかちぬきがあれば拾い直す(スマホは途中で閉じることが多い)。
+       クラブやリーグを変えていたら別物なので拾わない。 */
+    if (!state.battle) {
+      const saved = loadBattleState();
+      if (saved && saved.league === state.league && saved.meId === team.idTeam && !saved.over) {
+        state.battle = saved;
+      }
+    }
+    const body = state.battle
+      ? '<div id="battleRoot">' + battleInnerHtml(rpg) + '</div>'
+      : renderRpgStatus(rpg, team, stats);
+    return '<section><h2>スタッツ</h2><div class="card">' + subtabHtml + body + '</div></section>';
   }
 
   const radarHtml = renderRadarForGroup(stats, team, activeGroup);
