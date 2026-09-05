@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-09-05T19:50:04+09:00",
+    "generatedAtJst": "2026-09-05T19:55:05+09:00",
     "windowHours": 36,
     "candidateCount": 9,
     "fetchedCount": 9,
@@ -9469,7 +9469,7 @@
     "2492423": {
       "code": "090509",
       "url": "https://www.jleague.jp/match/j3/2026/090509/livetxt/",
-      "fetchedAtJst": "2026-09-05T19:50:23+09:00",
+      "fetchedAtJst": "2026-09-05T19:55:25+09:00",
       "goals": [
         {
           "minute": "23",
@@ -9511,6 +9511,12 @@
               "position": "MF 18",
               "name": "半田 祥真",
               "playerId": "1658288"
+            },
+            {
+              "variant": "out",
+              "position": "FW 19",
+              "name": "閑田 隼人",
+              "playerId": "1646981"
             }
           ],
           "idTeam": "139904"
@@ -9912,7 +9918,7 @@
     "2492424": {
       "code": "090508",
       "url": "https://www.jleague.jp/match/j3/2026/090508/livetxt/",
-      "fetchedAtJst": "2026-09-05T19:50:27+09:00",
+      "fetchedAtJst": "2026-09-05T19:55:28+09:00",
       "goals": [],
       "cards": [
         {
@@ -9935,6 +9941,12 @@
               "position": "FW 99",
               "name": "ヴィニシウス ソウザ",
               "playerId": "1651465"
+            },
+            {
+              "variant": "out",
+              "position": "MF 14",
+              "name": "住田 将",
+              "playerId": "1635555"
             }
           ],
           "idTeam": "147070"
@@ -10355,7 +10367,7 @@
     "2492427": {
       "code": "090510",
       "url": "https://www.jleague.jp/match/j3/2026/090510/livetxt/",
-      "fetchedAtJst": "2026-09-05T19:50:30+09:00",
+      "fetchedAtJst": "2026-09-05T19:55:32+09:00",
       "goals": [
         {
           "minute": "75",
@@ -10406,6 +10418,19 @@
         }
       ],
       "subs": [
+        {
+          "minute": "90",
+          "club": "レイラック滋賀ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 30",
+              "name": "山口 隆希",
+              "playerId": "1657481"
+            }
+          ],
+          "idTeam": "150625"
+        },
         {
           "minute": "82",
           "club": "カマタマーレ讃岐",
@@ -10822,7 +10847,7 @@
     "2492432": {
       "code": "090507",
       "url": "https://www.jleague.jp/match/j3/2026/090507/livetxt/",
-      "fetchedAtJst": "2026-09-05T19:50:34+09:00",
+      "fetchedAtJst": "2026-09-05T19:55:35+09:00",
       "goals": [
         {
           "minute": "48",
@@ -10864,6 +10889,44 @@
         }
       ],
       "subs": [
+        {
+          "minute": null,
+          "club": "ＳＣ相模原",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 8",
+              "name": "神戸 康輔",
+              "playerId": "1635530"
+            },
+            {
+              "variant": "out",
+              "position": "MF 4",
+              "name": "島川 俊郎",
+              "playerId": "900039"
+            }
+          ],
+          "idTeam": "140510"
+        },
+        {
+          "minute": null,
+          "club": "ＳＣ相模原",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 5",
+              "name": "山内 琳太郎",
+              "playerId": "1648385"
+            },
+            {
+              "variant": "out",
+              "position": "DF 2",
+              "name": "綿引 康",
+              "playerId": "1629994"
+            }
+          ],
+          "idTeam": "140510"
+        },
         {
           "minute": "81",
           "club": "ＡＣ長野パルセイロ",
@@ -11223,7 +11286,7 @@
     "2492426": {
       "code": "090511",
       "url": "https://www.jleague.jp/match/j3/2026/090511/livetxt/",
-      "fetchedAtJst": "2026-09-05T19:50:37+09:00",
+      "fetchedAtJst": "2026-09-05T19:55:39+09:00",
       "goals": [
         {
           "minute": "44",
@@ -11491,7 +11554,7 @@
     "2492428": {
       "code": "090514",
       "url": "https://www.jleague.jp/match/j3/2026/090514/livetxt/",
-      "fetchedAtJst": "2026-09-05T19:50:41+09:00",
+      "fetchedAtJst": "2026-09-05T19:55:42+09:00",
       "goals": [
         {
           "minute": "21",
@@ -11758,23 +11821,23 @@
     "2492429": {
       "code": "090512",
       "url": "https://www.jleague.jp/match/j3/2026/090512/livetxt/",
-      "fetchedAtJst": "2026-09-05T19:50:44+09:00",
+      "fetchedAtJst": "2026-09-05T19:55:46+09:00",
       "goals": [
         {
-          "minute": "43",
-          "club": "福島ユナイテッドＦＣ",
-          "player": "岡田 優希",
-          "position": "MF 8",
-          "scoreAfter": "0-2",
-          "idTeam": "141246",
-          "playerId": "1621198"
+          "minute": "46",
+          "club": "ザスパ群馬",
+          "player": "百田 真登",
+          "position": "FW 17",
+          "scoreAfter": "1-2",
+          "idTeam": "139897",
+          "playerId": null
         },
         {
           "minute": "5",
           "club": "福島ユナイテッドＦＣ",
           "player": "鈴 直樹",
           "position": "DF 28",
-          "scoreAfter": null,
+          "scoreAfter": "0-1",
           "idTeam": "141246",
           "playerId": "1618635"
         }
@@ -11970,7 +12033,7 @@
     "2492430": {
       "code": "090515",
       "url": "https://www.jleague.jp/match/j3/2026/090515/livetxt/",
-      "fetchedAtJst": "2026-09-05T19:50:47+09:00",
+      "fetchedAtJst": "2026-09-05T19:55:49+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -12218,14 +12281,23 @@
     "2492431": {
       "code": "090513",
       "url": "https://www.jleague.jp/match/j3/2026/090513/livetxt/",
-      "fetchedAtJst": "2026-09-05T19:50:51+09:00",
+      "fetchedAtJst": "2026-09-05T19:55:52+09:00",
       "goals": [
+        {
+          "minute": "47",
+          "club": "レノファ山口ＦＣ",
+          "player": "渡邉 颯太",
+          "position": "FW 13",
+          "scoreAfter": "0-2",
+          "idTeam": "139894",
+          "playerId": "1645965"
+        },
         {
           "minute": "32",
           "club": "レノファ山口ＦＣ",
           "player": "山本 駿亮",
           "position": "FW 19",
-          "scoreAfter": "0-1",
+          "scoreAfter": null,
           "idTeam": "139894",
           "playerId": "1632224"
         }
