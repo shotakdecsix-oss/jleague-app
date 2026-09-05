@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-09-05T20:05:04+09:00",
+    "generatedAtJst": "2026-09-05T20:10:04+09:00",
     "windowHours": 36,
     "candidateCount": 9,
     "fetchedCount": 9,
@@ -9469,7 +9469,7 @@
     "2492423": {
       "code": "090509",
       "url": "https://www.jleague.jp/match/j3/2026/090509/livetxt/",
-      "fetchedAtJst": "2026-09-05T20:05:23+09:00",
+      "fetchedAtJst": "2026-09-05T20:10:24+09:00",
       "goals": [
         {
           "minute": "23",
@@ -9946,7 +9946,7 @@
     "2492424": {
       "code": "090508",
       "url": "https://www.jleague.jp/match/j3/2026/090508/livetxt/",
-      "fetchedAtJst": "2026-09-05T20:05:27+09:00",
+      "fetchedAtJst": "2026-09-05T20:10:28+09:00",
       "goals": [],
       "cards": [
         {
@@ -10395,7 +10395,7 @@
     "2492427": {
       "code": "090510",
       "url": "https://www.jleague.jp/match/j3/2026/090510/livetxt/",
-      "fetchedAtJst": "2026-09-05T20:05:30+09:00",
+      "fetchedAtJst": "2026-09-05T20:10:32+09:00",
       "goals": [
         {
           "minute": "75",
@@ -10881,7 +10881,7 @@
     "2492432": {
       "code": "090507",
       "url": "https://www.jleague.jp/match/j3/2026/090507/livetxt/",
-      "fetchedAtJst": "2026-09-05T20:05:34+09:00",
+      "fetchedAtJst": "2026-09-05T20:10:35+09:00",
       "goals": [
         {
           "minute": "48",
@@ -11339,7 +11339,7 @@
     "2492426": {
       "code": "090511",
       "url": "https://www.jleague.jp/match/j3/2026/090511/livetxt/",
-      "fetchedAtJst": "2026-09-05T20:05:37+09:00",
+      "fetchedAtJst": "2026-09-05T20:10:39+09:00",
       "goals": [
         {
           "minute": "44",
@@ -11607,7 +11607,7 @@
     "2492428": {
       "code": "090514",
       "url": "https://www.jleague.jp/match/j3/2026/090514/livetxt/",
-      "fetchedAtJst": "2026-09-05T20:05:41+09:00",
+      "fetchedAtJst": "2026-09-05T20:10:42+09:00",
       "goals": [
         {
           "minute": "21",
@@ -11907,7 +11907,7 @@
     "2492429": {
       "code": "090512",
       "url": "https://www.jleague.jp/match/j3/2026/090512/livetxt/",
-      "fetchedAtJst": "2026-09-05T20:05:44+09:00",
+      "fetchedAtJst": "2026-09-05T20:10:46+09:00",
       "goals": [
         {
           "minute": "46",
@@ -11929,7 +11929,27 @@
         }
       ],
       "cards": [],
-      "subs": [],
+      "subs": [
+        {
+          "minute": "45",
+          "club": "ザスパ群馬",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 16",
+              "name": "山原 康太郎",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "DF 52",
+              "name": "相馬 丞",
+              "playerId": null
+            }
+          ],
+          "idTeam": "139897"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -12119,7 +12139,7 @@
     "2492430": {
       "code": "090515",
       "url": "https://www.jleague.jp/match/j3/2026/090515/livetxt/",
-      "fetchedAtJst": "2026-09-05T20:05:47+09:00",
+      "fetchedAtJst": "2026-09-05T20:10:49+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -12367,8 +12387,17 @@
     "2492431": {
       "code": "090513",
       "url": "https://www.jleague.jp/match/j3/2026/090513/livetxt/",
-      "fetchedAtJst": "2026-09-05T20:05:51+09:00",
+      "fetchedAtJst": "2026-09-05T20:10:52+09:00",
       "goals": [
+        {
+          "minute": "49",
+          "club": "レノファ山口ＦＣ",
+          "player": "田邉 光平",
+          "position": "MF 17",
+          "scoreAfter": "0-3",
+          "idTeam": "139894",
+          "playerId": "1641540"
+        },
         {
           "minute": "47",
           "club": "レノファ山口ＦＣ",
@@ -12383,7 +12412,7 @@
           "club": "レノファ山口ＦＣ",
           "player": "山本 駿亮",
           "position": "FW 19",
-          "scoreAfter": null,
+          "scoreAfter": "0-1",
           "idTeam": "139894",
           "playerId": "1632224"
         }
@@ -12399,6 +12428,12 @@
               "position": "DF 20",
               "name": "ローレンス マルコ",
               "playerId": "1653468"
+            },
+            {
+              "variant": "out",
+              "position": "DF 34",
+              "name": "鄭 翔英",
+              "playerId": "1656124"
             }
           ],
           "idTeam": "141247"
