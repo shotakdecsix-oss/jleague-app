@@ -1,11 +1,17 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-09-05T18:50:03+09:00",
+    "generatedAtJst": "2026-09-05T18:55:04+09:00",
     "windowHours": 36,
     "candidateCount": 4,
-    "fetchedCount": 4,
-    "failed": [],
+    "fetchedCount": 3,
+    "failed": [
+      {
+        "idEvent": "2492432",
+        "reason": "regression_zero_events",
+        "url": "https://www.jleague.jp/match/j3/2026/090507/livetxt/"
+      }
+    ],
     "eventCount": 24
   },
   "events": {
@@ -9469,7 +9475,7 @@
     "2492423": {
       "code": "090509",
       "url": "https://www.jleague.jp/match/j3/2026/090509/livetxt/",
-      "fetchedAtJst": "2026-09-05T18:50:07+09:00",
+      "fetchedAtJst": "2026-09-05T18:55:07+09:00",
       "goals": [
         {
           "minute": "23",
@@ -9737,7 +9743,7 @@
     "2492424": {
       "code": "090508",
       "url": "https://www.jleague.jp/match/j3/2026/090508/livetxt/",
-      "fetchedAtJst": "2026-09-05T18:50:11+09:00",
+      "fetchedAtJst": "2026-09-05T18:55:11+09:00",
       "goals": [],
       "cards": [
         {
@@ -9995,7 +10001,7 @@
     "2492427": {
       "code": "090510",
       "url": "https://www.jleague.jp/match/j3/2026/090510/livetxt/",
-      "fetchedAtJst": "2026-09-05T18:50:14+09:00",
+      "fetchedAtJst": "2026-09-05T18:55:14+09:00",
       "goals": [
         {
           "minute": "40",
