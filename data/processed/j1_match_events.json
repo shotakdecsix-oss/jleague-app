@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-09-05T20:15:04+09:00",
+    "generatedAtJst": "2026-09-05T20:20:04+09:00",
     "windowHours": 36,
     "candidateCount": 1,
     "fetchedCount": 1,
@@ -14163,11 +14163,30 @@
     "2492830": {
       "code": "090501",
       "url": "https://www.jleague.jp/match/j1/2026/090501/livetxt/",
-      "fetchedAtJst": "2026-09-05T20:15:06+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-09-05T20:20:06+09:00",
+      "goals": [
+        {
+          "minute": "53",
+          "club": "アビスパ福岡",
+          "player": "師岡 柊生",
+          "position": "FW 13",
+          "scoreAfter": "1-0",
+          "idTeam": "139882",
+          "playerId": "1637049"
+        }
+      ],
       "cards": [
         {
-          "minute": null,
+          "minute": "57",
+          "type": "yellow",
+          "player": "師岡 柊生",
+          "position": "FW 13",
+          "club": "アビスパ福岡",
+          "idTeam": "139882",
+          "playerId": "1637049"
+        },
+        {
+          "minute": "50",
           "type": "yellow",
           "player": "前田 快",
           "position": "MF 55",
@@ -14185,7 +14204,27 @@
           "playerId": "1503340"
         }
       ],
-      "subs": [],
+      "subs": [
+        {
+          "minute": "54",
+          "club": "水戸ホーリーホック",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 3",
+              "name": "大崎 航詩",
+              "playerId": "1632269"
+            },
+            {
+              "variant": "out",
+              "position": "MF 20",
+              "name": "舩橋 佑",
+              "playerId": "1631701"
+            }
+          ],
+          "idTeam": "139891"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
