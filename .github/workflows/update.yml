@@ -123,6 +123,13 @@ jobs:
           python scripts/stats.py --league j2
           python scripts/stats.py --league j3
 
+      # build_rpg.pyは stats/simulation/standings/club_extra をまとめて読むので、必ずこの後。
+      # 失敗しても他のデータには影響しないので continue-on-error にする(ステータスタブが
+      # 「まだありません」になるだけ)。
+      - name: build_rpg
+        continue-on-error: true
+        run: python scripts/build_rpg.py
+
       # fetch_batch/standings/simulate/build_calendarは、試合データが実質的に変わっていなくても
       # generatedAtJst等のタイムスタンプ欄とmeta.jsonのrunsログを毎回書き直す。
       # 素朴なgit diffだとこれを「差分あり」と誤判定し、6章の「変更が無ければコミットしない」が
