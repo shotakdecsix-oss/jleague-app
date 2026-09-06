@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j2",
-    "generatedAtJst": "2026-09-06T19:15:04+09:00",
+    "generatedAtJst": "2026-09-06T19:20:04+09:00",
     "windowHours": 36,
     "candidateCount": 10,
     "fetchedCount": 10,
@@ -9384,7 +9384,7 @@
     "2551747": {
       "code": "090502",
       "url": "https://www.jleague.jp/match/j2/2026/090502/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:15:40+09:00",
+      "fetchedAtJst": "2026-09-06T19:20:40+09:00",
       "goals": [],
       "cards": [
         {
@@ -9842,7 +9842,7 @@
     "2551748": {
       "code": "090504",
       "url": "https://www.jleague.jp/match/j2/2026/090504/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:15:45+09:00",
+      "fetchedAtJst": "2026-09-06T19:20:46+09:00",
       "goals": [
         {
           "minute": "75",
@@ -10399,7 +10399,7 @@
     "2551749": {
       "code": "090506",
       "url": "https://www.jleague.jp/match/j2/2026/090506/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:15:51+09:00",
+      "fetchedAtJst": "2026-09-06T19:20:53+09:00",
       "goals": [
         {
           "minute": "67",
@@ -10857,7 +10857,7 @@
     "2551750": {
       "code": "090505",
       "url": "https://www.jleague.jp/match/j2/2026/090505/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:15:57+09:00",
+      "fetchedAtJst": "2026-09-06T19:20:59+09:00",
       "goals": [
         {
           "minute": "33",
@@ -11318,7 +11318,7 @@
     "2551751": {
       "code": "090503",
       "url": "https://www.jleague.jp/match/j2/2026/090503/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:16:05+09:00",
+      "fetchedAtJst": "2026-09-06T19:21:05+09:00",
       "goals": [
         {
           "minute": "67",
@@ -11804,7 +11804,7 @@
     "2551752": {
       "code": "090611",
       "url": "https://www.jleague.jp/match/j2/2026/090611/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:16:11+09:00",
+      "fetchedAtJst": "2026-09-06T19:21:10+09:00",
       "goals": [
         {
           "minute": "58",
@@ -12317,8 +12317,17 @@
     "2551753": {
       "code": "090613",
       "url": "https://www.jleague.jp/match/j2/2026/090613/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:16:14+09:00",
+      "fetchedAtJst": "2026-09-06T19:21:13+09:00",
       "goals": [
+        {
+          "minute": "52",
+          "club": "横浜ＦＣ",
+          "player": "村田 透馬",
+          "position": "MF 20",
+          "scoreAfter": "2-0",
+          "idTeam": "137720",
+          "playerId": "1620759"
+        },
         {
           "minute": "28",
           "club": "横浜ＦＣ",
@@ -12624,7 +12633,7 @@
     "2551754": {
       "code": "090612",
       "url": "https://www.jleague.jp/match/j2/2026/090612/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:16:18+09:00",
+      "fetchedAtJst": "2026-09-06T19:21:16+09:00",
       "goals": [],
       "cards": [
         {
@@ -12656,6 +12665,25 @@
         }
       ],
       "subs": [
+        {
+          "minute": "45",
+          "club": "ブラウブリッツ秋田",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 7",
+              "name": "水谷 拓磨",
+              "playerId": "1400296"
+            },
+            {
+              "variant": "out",
+              "position": "FW 34",
+              "name": "鈴木 翔大",
+              "playerId": "1627186"
+            }
+          ],
+          "idTeam": "140509"
+        },
         {
           "minute": "41",
           "club": "ＲＢ大宮アルディージャ",
@@ -12920,7 +12948,7 @@
     "2551755": {
       "code": "090614",
       "url": "https://www.jleague.jp/match/j2/2026/090614/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:16:21+09:00",
+      "fetchedAtJst": "2026-09-06T19:21:20+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -13168,9 +13196,19 @@
     "2551756": {
       "code": "090615",
       "url": "https://www.jleague.jp/match/j2/2026/090615/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:16:25+09:00",
+      "fetchedAtJst": "2026-09-06T19:21:23+09:00",
       "goals": [],
-      "cards": [],
+      "cards": [
+        {
+          "minute": "13",
+          "type": "yellow",
+          "player": "菊地 健太",
+          "position": "DF 15",
+          "club": "ＦＣ今治",
+          "idTeam": "141249",
+          "playerId": "1604175"
+        }
+      ],
       "subs": [],
       "highlightVideoId": null,
       "daznVideoId": null,
@@ -13296,17 +13334,12 @@
         },
         "away": {
           "idTeam": "141249",
-          "formation": "4-4-2",
+          "formation": "3-4-1-2",
           "players": [
             {
               "id": 1624398,
               "name": "立川 小太郎",
               "number": "1"
-            },
-            {
-              "id": 1604175,
-              "name": "菊地 健太",
-              "number": "15"
             },
             {
               "id": 1641570,
@@ -13322,6 +13355,11 @@
               "id": 1656000,
               "name": "ガブリエル ゴメス",
               "number": "99"
+            },
+            {
+              "id": 1604175,
+              "name": "菊地 健太",
+              "number": "15"
             },
             {
               "id": 1642029,
