@@ -130,6 +130,18 @@ jobs:
         continue-on-error: true
         run: python scripts/build_rpg.py
 
+      # 第48弾: totoの指定試合表(日本スポーツ振興センターの公示PDF)。
+      # 未公示の回はHTMLが返って即スキップされるので、毎回まわしても軽い。
+      # robots.txt(2026-09-06確認)は /sinko/ を許可している。
+      - name: fetch_toto
+        continue-on-error: true
+        run: python scripts/fetch_toto.py --latest 6
+
+      # build_totoは試合結果(fetch_batch)と指定試合(fetch_toto)の両方を読むので、必ずこの後。
+      - name: build_toto
+        continue-on-error: true
+        run: python scripts/build_toto.py
+
       # fetch_batch/standings/simulate/build_calendarは、試合データが実質的に変わっていなくても
       # generatedAtJst等のタイムスタンプ欄とmeta.jsonのrunsログを毎回書き直す。
       # 素朴なgit diffだとこれを「差分あり」と誤判定し、6章の「変更が無ければコミットしない」が

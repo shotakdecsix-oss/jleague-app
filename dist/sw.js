@@ -8,7 +8,7 @@
    置換する。ソースツリー上はプレースホルダのままなので、リポジトリ直下でサーバーを
    立てて開発するときは DevTools の "Update on reload" を有効にすること
    (そうしないと古いキャッシュが配られ続け、「直したのに変わらない」ことになる)。 */
-const CACHE_VERSION = "b4c72ccbea74";
+const CACHE_VERSION = "3c206a4ea7fc";
 const CACHE_NAME = "jleague-" + CACHE_VERSION;
 const NETWORK_TIMEOUT_MS = 3000;
 

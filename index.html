@@ -616,6 +616,46 @@
     font-size:12px; font-weight:700; padding:8px 4px; border-radius:999px; cursor:pointer; font-family:inherit;
   }
   .stats-subtabs button.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  /* 第48弾: toto予想。自分で1/0/2を選んで保存し、結果が出たら答え合わせをする */
+  .toto-head{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px}
+  .toto-head select{
+    padding:7px 26px 7px 9px; border-radius:9px; border:1px solid var(--line);
+    background:var(--card) var(--select-arrow) no-repeat right 9px center; color:var(--ink);
+    font-size:13px; font-family:inherit; -webkit-appearance:none; appearance:none;
+  }
+  .toto-badge{font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px}
+  .toto-badge.live{background:var(--live-bg); color:var(--live-ink); border:1px solid var(--live-line)}
+  .toto-badge.done{background:var(--surface-2); color:var(--sub)}
+  .toto-list{margin-top:4px}
+  .toto-row{display:grid; grid-template-columns:18px 1fr auto; gap:8px; align-items:center;
+    padding:7px 0; border-top:1px solid var(--line)}
+  .toto-row.first{border-top:0}
+  .toto-no{font-size:11px; color:var(--sub); text-align:right; font-variant-numeric:tabular-nums}
+  .toto-card{font-size:13px; min-width:0; line-height:1.35}
+  .toto-card .nm{display:inline-block; max-width:6.5em; overflow:hidden; text-overflow:ellipsis;
+    white-space:nowrap; vertical-align:bottom}
+  .toto-card .sc{font-weight:700; font-variant-numeric:tabular-nums; margin:0 4px}
+  .toto-card .dt{font-size:10px; color:var(--sub); margin-left:4px}
+  .toto-marks{display:flex; gap:4px}
+  .toto-marks button{
+    width:32px; height:32px; border-radius:8px; border:1px solid var(--line);
+    background:var(--surface-1); color:var(--sub); font-size:14px; font-weight:700;
+    cursor:pointer; padding:0; font-family:inherit;
+  }
+  .toto-marks button.on{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  .toto-marks button.res{box-shadow:inset 0 0 0 2px var(--ink)}
+  .toto-marks button.hit{background:var(--win); color:#fff; border-color:var(--win)}
+  .toto-marks button.miss{background:var(--loss); color:#fff; border-color:var(--loss)}
+  .toto-marks button:disabled{cursor:default}
+  .toto-sum{margin-top:12px; padding:11px 12px; border-radius:12px; background:var(--surface-1); font-size:13px}
+  .toto-sum b{font-size:17px; font-variant-numeric:tabular-nums}
+  .toto-note{font-size:11px; color:var(--sub); margin-top:10px; line-height:1.5}
+  .toto-actions{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap}
+  .toto-actions button{
+    border:1px solid var(--line); background:var(--surface-1); color:var(--sub);
+    font-size:12px; font-weight:700; padding:8px 14px; border-radius:999px; cursor:pointer; font-family:inherit;
+  }
+  .toto-oos{font-size:11px; color:var(--sub)}
   .stat-group{margin-top:16px}
   .stat-group:first-child{margin-top:0}
   .stat-group-title{font-size:11px; font-weight:700; color:var(--sub); margin:0 0 4px 2px}
@@ -1150,6 +1190,11 @@ const state = {
   // 第9弾: 全体ビュー(J1〜J3横断)
   viewMode: "club",   // "club"=クラブモード(既存) / "all"=全体モード
   allTab: "schedule", // 全体モードのアクティブタブ("schedule"/"standings"/"predict")
+  predictSub: "rank",     // 第48弾: 予想タブのサブタブ("rank"=順位予想 / "toto")
+  toto: undefined,        // 第48弾: data/processed/toto.json
+  totoKai: null,          // 表示中の回号。nullなら最新回
+  totoKind: "toto",       // "toto"/"minitotoA"/"minitotoB"
+  totoPicks: null,        // 自分の予想。nullなら初回にlocalStorageから読む
   allLeague: null,    // 全体モードの順位/予想タブで選択中のリーグ。nullなら初回描画時に自クラブの所属リーグにする
   calendar: undefined, // calendar.json。undefined=未取得、null=取得失敗
   calLeagueFilter: null, // 全体モード日程タブのリーグ表示フィルタ({j1:true,j2:true,j3:true})。nullなら初回にlocalStorageから復元
@@ -1735,6 +1780,13 @@ async function ensureSimulation(league) {
   if (c.simulation === undefined) c.simulation = await getJsonOptional("data/processed/" + league + "_simulation.json");
   return c.simulation;
 }
+/* 第48弾: totoの指定試合と参考予想(scripts/build_toto.py が作る)。
+   リーグ横断なのでリーグ別キャッシュではなく state に直接持つ。
+   ワークフローが動く前は404でも構わない(getJsonOptionalでnullになるだけ)。 */
+async function ensureToto() {
+  if (state.toto === undefined) state.toto = await getJsonOptional("data/processed/toto.json");
+  return state.toto;
+}
 async function ensureStats(league) {
   const c = leagueCache(league);
   if (c.stats === undefined) c.stats = await getJsonOptional("data/processed/" + league + "_stats.json");
@@ -1809,6 +1861,7 @@ async function ensureAllTabData(tabId, league) {
   } else if (tabId === "predict") {
     await ensureSimulation(league);
     await ensureMatches(league); // 第10弾: 基準時刻併記の判定(オンデマンド有効かどうか)に必要
+    await ensureToto();          // 第48弾: totoサブタブ
   } else if (tabId === "cup") {
     await ensureEmperorsCup(); // 第23弾: 天皇杯はリーグ非依存(1ファイルに全試合が入っている)
     await ensureEmperorsCupEvents(); // フェーズ2: 試合詳細ドリルダウン用
@@ -2290,6 +2343,66 @@ async function init() {
       return;
     }
 
+    /* 第48弾: 予想タブのサブタブ(順位予想 / toto) */
+    const predictSubBtn = ev.target.closest("[data-predictsub]");
+    if (predictSubBtn) {
+      state.predictSub = predictSubBtn.dataset.predictsub;
+      renderActiveTab();
+      return;
+    }
+
+    const totoKindBtn = ev.target.closest("[data-totokind]");
+    if (totoKindBtn) {
+      state.totoKind = totoKindBtn.dataset.totokind;
+      renderActiveTab();
+      return;
+    }
+
+    /* totoのマーク。同じものをもう一度押したら取り消す(選び直しやすいように)。 */
+    const totoMarkBtn = ev.target.closest("[data-totomark]");
+    if (totoMarkBtn) {
+      const rnd = totoRoundOf(state.totoKai);
+      if (!rnd) return;
+      const idxs = (rnd.kinds || {})[state.totoKind] || [];
+      const key = state.totoKai + ":" + state.totoKind;
+      const all = totoPicksAll();
+      const cur = ((all[key] || {}).m || []).slice();
+      while (cur.length < idxs.length) cur.push("");
+      const i = Number(totoMarkBtn.dataset.totoidx);
+      const v = totoMarkBtn.dataset.totomark;
+      cur[i] = (cur[i] === v) ? "" : v;
+      all[key] = { m: cur, at: new Date().toISOString() };
+      saveTotoPicks(all);
+      renderActiveTab();
+      return;
+    }
+
+    const totoFillBtn = ev.target.closest("[data-totofill]");
+    if (totoFillBtn) {
+      const rnd = totoRoundOf(state.totoKai);
+      if (!rnd) return;
+      const idxs = (rnd.kinds || {})[state.totoKind] || [];
+      const key = state.totoKai + ":" + state.totoKind;
+      const all = totoPicksAll();
+      if (totoFillBtn.dataset.totofill === "clear") {
+        delete all[key];
+      } else {
+        /* 参考予想で埋める。すでに結果が出ている試合と、自分で入れた記号は上書きしない。 */
+        const cur = ((all[key] || {}).m || []).slice();
+        all[key] = {
+          m: idxs.map((mi, i) => {
+            const row = rnd.matches[mi];
+            if (cur[i] || row.actual) return cur[i] || "";
+            return row.hint || "";
+          }),
+          at: new Date().toISOString(),
+        };
+      }
+      saveTotoPicks(all);
+      renderActiveTab();
+      return;
+    }
+
     const groupBtn = ev.target.closest("[data-statsgroup]");
     if (groupBtn) {
       state.statsGroup = groupBtn.dataset.statsgroup;
@@ -2363,6 +2476,10 @@ async function init() {
     if (ev.target && ev.target.id === "roundJump") {
       state.scheduleRound = Number(ev.target.value);
       state.schedNeedsScroll = true;   // 第37弾: 利用者が選んだときだけスクロールする
+      renderActiveTab();
+    }
+    if (ev.target && ev.target.id === "totoKaiSelect") {   // 第48弾
+      state.totoKai = Number(ev.target.value);
       renderActiveTab();
     }
   });
@@ -3120,13 +3237,186 @@ function predictDetailHtml(t, rules) {
   '</div>';
 }
 
+/* ===== 第48弾: toto予想 =====
+   自分で1/0/2を選んで保存しておき、試合が終わったら答え合わせをする。
+   指定試合は scripts/fetch_toto.py が日本スポーツ振興センターの公示PDFから取り、
+   scripts/build_toto.py が試合結果と突き合わせて data/processed/toto.json にしている。
+
+   参考予想(hint)も持っているが各行には出さない。今季の実測で的中39%
+   (「全部ホーム」の45%を下回る)と当てにならないため、
+   「参考予想で埋める」ボタンからだけ触れるようにしてある。 */
+const TOTO_KIND_LABEL = { toto: "toto", minitotoA: "mini A", minitotoB: "mini B" };
+
+/* 等級。totoは13/12/11的中で1〜3等、mini totoは全的中の1等だけ。
+   当せん金は回ごとの売上と当せん口数で決まるのでここでは扱わない。 */
+function totoGrade(kind, hits, n) {
+  if (kind === "toto") return hits === 13 ? "1等" : (hits === 12 ? "2等" : (hits === 11 ? "3等" : null));
+  return hits === n ? "1等" : null;
+}
+
+function totoRoundOf(kai) {
+  const rounds = (state.toto && state.toto.rounds) || [];
+  return rounds.find(r => r.kai === kai) || null;
+}
+
+/* 保存済みの予想のうち、結果が全部出た回の通算成績 */
+function totoRecord() {
+  const all = totoPicksAll();
+  const rounds = (state.toto && state.toto.rounds) || [];
+  let done = 0, best = -1, bestKai = null, graded = 0;
+  for (const r of rounds) {
+    for (const kind of Object.keys(r.kinds || {})) {
+      const saved = all[r.kai + ":" + kind];
+      if (!saved || !saved.m) continue;
+      const idxs = r.kinds[kind];
+      const rows = idxs.map(i => r.matches[i]);
+      if (!rows.every(m => m.actual)) continue;
+      const hits = rows.reduce((a, m, i) => a + (saved.m[i] && saved.m[i] === m.actual ? 1 : 0), 0);
+      done++;
+      if (kind === "toto" && hits > best) { best = hits; bestKai = r.kai; }
+      if (totoGrade(kind, hits, idxs.length)) graded++;
+    }
+  }
+  return { done: done, best: best, bestKai: bestKai, graded: graded };
+}
+
+function renderToto() {
+  const data = state.toto;
+  if (!data || !((data.rounds || []).length)) {
+    return '<p class="muted" style="margin:0">totoの指定試合データがまだありません。' +
+      'バッチ(scripts/fetch_toto.py)が動くと出ます。</p>';
+  }
+  const rounds = data.rounds;
+  let rnd = totoRoundOf(state.totoKai);
+  if (!rnd) { rnd = rounds[0]; state.totoKai = rnd.kai; }
+  const kinds = Object.keys(rnd.kinds || {});
+  if (!kinds.length) {
+    return '<p class="muted" style="margin:0">第' + rnd.kai + '回はこのアプリで扱えるくじがありません。</p>';
+  }
+  if (kinds.indexOf(state.totoKind) < 0) state.totoKind = kinds[0];
+  const kind = state.totoKind;
+  const idxs = rnd.kinds[kind];
+
+  const key = rnd.kai + ":" + kind;
+  const saved = (totoPicksAll()[key] || {}).m || [];
+
+  const kaiSel = '<select id="totoKaiSelect" aria-label="回を選ぶ">' + rounds.map(r =>
+    '<option value="' + r.kai + '"' + (r.kai === rnd.kai ? " selected" : "") + '>第' + r.kai + '回</option>'
+  ).join("") + '</select>';
+  /* 締切を過ぎたら記入できないようにする。あとから結果を見て書き換えられると
+     答え合わせの意味が無くなるため。deadline は最初のキックオフ(実際の発売締切より後ろ)。 */
+  const closed = !rnd.deadline || (Date.now() >= new Date(rnd.deadline).getTime());
+  const badge = !closed
+    ? '<span class="toto-badge live">受付中</span>'
+    : '<span class="toto-badge done">' + (rnd.status === "live" ? "締切" : "終了") + '</span>';
+  const dates = (rnd.dates || []).map(d => d.slice(5).replace("-", "/")).join("・");
+  const head = '<div class="toto-head">' + kaiSel + badge +
+    (dates ? '<span class="toto-oos">' + esc(dates) + '</span>' : "") + '</div>';
+
+  const kindTabs = kinds.length > 1
+    ? '<div class="stats-subtabs">' + kinds.map(k =>
+        '<button type="button" class="' + (k === kind ? "active" : "") + '" data-totokind="' + k + '">' +
+        esc(TOTO_KIND_LABEL[k] || k) + '</button>').join("") + '</div>'
+    : "";
+
+  let hits = 0, settled = 0, picked = 0, hasHint = false;
+  const rowsHtml = idxs.map(function (mi, i) {
+    const m = rnd.matches[mi];
+    const mark = saved[i] || "";
+    const act = m.actual || null;
+    if (mark) picked++;
+    if (act) settled++;
+    if (act && mark && act === mark) hits++;
+    if (m.hint) hasHint = true;
+
+    const oos = m.status === "outofscope";
+    const mid = act ? '<span class="sc">' + m.score[0] + "-" + m.score[1] + '</span>'
+                    : '<span class="sc">-</span>';
+    const dt = oos ? '<span class="dt">対象外</span>'
+                   : (m.date ? '<span class="dt">' + esc(m.date.slice(5).replace("-", "/")) + '</span>' : "");
+    const card = '<span class="toto-card"><span class="nm">' + esc(m.home) + '</span>' + mid +
+      '<span class="nm">' + esc(m.away) + '</span>' + dt + '</span>';
+
+    const btns = ["1", "0", "2"].map(function (v) {
+      let cls = "";
+      if (mark === v) cls = act ? (act === v ? "on hit" : "on miss") : "on";
+      else if (act === v) cls = "res";
+      return '<button type="button" class="' + cls + '" data-totomark="' + v + '" data-totoidx="' + i + '"' +
+        (act || closed ? " disabled" : "") + ' aria-label="' + (i + 1) + '番 ' + v + '">' + v + '</button>';
+    }).join("");
+
+    return '<div class="toto-row' + (i === 0 ? " first" : "") + '">' +
+      '<span class="toto-no">' + (i + 1) + '</span>' + card +
+      '<span class="toto-marks">' + btns + '</span></div>';
+  }).join("");
+
+  const n = idxs.length;
+  let sum;
+  if (settled) {
+    const grade = totoGrade(kind, hits, n);
+    const lowest = kind === "toto" ? 11 : n;   // 最下位の等級に必要な的中数
+    const near = (!grade && settled === n && picked) ? (lowest - hits) : 0;
+    /* 途中経過のとき、残りを全部当てても等級に届かないならその場で分かるようにする */
+    const maxPossible = hits + (n - settled);
+    const outOfRace = settled < n && picked && maxPossible < lowest;
+    sum = '<div class="toto-sum">' +
+      (settled < n ? '途中経過（' + settled + "/" + n + '試合）　' : "") +
+      '<b>' + hits + '</b> / ' + n + ' 的中' +
+      (grade ? '　<b style="color:var(--win)">' + grade + '</b>' : "") +
+      (near > 0 ? '　<span class="toto-oos">当せんまであと' + near + '</span>' : "") +
+      (outOfRace ? '　<span style="color:var(--loss);font-size:12px">残り全部当てても' + maxPossible + '（当せん圏外）</span>' : "") +
+      (picked < n ? '　<span class="toto-oos">未記入 ' + (n - picked) + '</span>' : "") + '</div>';
+  } else {
+    sum = '<div class="toto-sum">' + picked + " / " + n + ' 記入済み' +
+      (picked === n ? '　<span class="toto-oos">結果が出たら答え合わせできます</span>' : "") + '</div>';
+  }
+
+  const rec = totoRecord();
+  const recHtml = rec.done
+    ? '<div class="toto-sum">通算 ' + rec.done + '回ぶん記入済み' +
+      (rec.best >= 0 ? '　最高 <b>' + rec.best + '</b>/13（第' + rec.bestKai + '回）' : "") +
+      (rec.graded ? '　当せん ' + rec.graded + '回' : "") + '</div>'
+    : "";
+
+  /* 結果が全部出た回では「クリア」を出さない。答え合わせの記録を誤って消せてしまうため。 */
+  const actionsInner = closed ? "" :
+    ((hasHint ? '<button type="button" data-totofill="hint">参考予想で埋める</button>' : "") +
+     (picked ? '<button type="button" data-totofill="clear">クリア</button>' : ""));
+  const actions = actionsInner ? '<div class="toto-actions">' + actionsInner + '</div>' : "";
+
+  const legend = settled
+    ? '<p class="toto-note" style="margin-top:8px">' +
+      '<span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--win);vertical-align:-1px"></span> 的中　' +
+      '<span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--loss);vertical-align:-1px"></span> はずれ　' +
+      '<span style="display:inline-block;width:11px;height:11px;border-radius:3px;border:2px solid var(--ink);vertical-align:-1px"></span> 実際の結果' +
+      '</p>'
+    : "";
+
+  const note = '<p class="toto-note">' +
+    '指定試合は日本スポーツ振興センターの公示にもとづく。マークは 1=ホーム勝ち / 0=引き分け / 2=アウェイ勝ち。<br>' +
+    '記入できるのは最初のキックオフまで（実際の発売締切はそれより前）。<br>' +
+    '「参考予想」はこのアプリのポアソンモデルの本命。今季の実測では的中39%で「全部ホーム」の45%を下回っているので、あてにしないこと。<br>' +
+    'ここでの記入は購入ではない。くじの購入は19歳以上。</p>';
+
+  return head + kindTabs + '<div class="toto-list">' + rowsHtml + '</div>' + sum + recHtml + actions + legend + note;
+}
+
 function renderAllPredict(league, simulation, found) {
   const master = state.masters[league];
   const segHtml = renderLeagueSegment(league);
   const heading = (master.meta && master.meta.leagueNameJa) || LEAGUES[league].name;
 
+  /* 第48弾: 予想タブをサブタブ化。順位予想(従来)と、totoの自己予想を切り替える。 */
+  const subHtml = '<div class="stats-subtabs">' +
+    [["rank", "順位予想"], ["toto", "toto"]].map(pair =>
+      '<button type="button" class="' + (state.predictSub === pair[0] ? "active" : "") +
+      '" data-predictsub="' + pair[0] + '">' + pair[1] + '</button>').join("") + '</div>';
+  if (state.predictSub === "toto") {
+    return '<section><h2>予想（全体）</h2><div class="card">' + subHtml + renderToto() + '</div></section>';
+  }
+
   if (!simulation) {
-    return '<section><h2>予想（全体）</h2><div class="card">' + segHtml +
+    return '<section><h2>予想（全体）</h2><div class="card">' + subHtml + segHtml +
       '<p class="muted" style="margin:10px 0 0">' + esc(heading) + 'の予想データがまだありません。</p></div></section>';
   }
 
@@ -3164,7 +3454,7 @@ function renderAllPredict(league, simulation, found) {
   const axisHtml = '<div class="predict-axis"><span>1位</span><span>' + Math.round(n / 2) + '位</span><span>' + n + '位</span></div>';
   // 改訂2: 基準時刻の注記はヘッダのポップオーバーに集約したため、ここには出さない
 
-  return '<section><h2>' + esc(heading) + ' 予想順位</h2><div class="card">' +
+  return '<section><h2>' + esc(heading) + ' 予想順位</h2><div class="card">' + subHtml +
     segHtml + legendHtml + rowsHtml + axisHtml +
     '<p class="promo-note">※ 帯は10000回のシミュレーションのうち中央8割が収まる順位の範囲です。</p>' +
     '<p class="promo-note">※ 開幕直後はモデルがリーグ平均に寄るため、確率の動きは実力変化を意味しません。</p>' +
@@ -3968,6 +4258,21 @@ function probRingHtml(value, color) {
 /* 第28弾: 順位表の表示範囲。既定は「全体」。今まで全体しか無かったので、
    既定を変えると「順位表が壊れた」と受け取られる。
    localStorageが使えない環境でも落ちないようにする(既存のloadFav/saveFavと同じ流儀)。 */
+/* 第48弾: totoの自分の予想。{"1653:toto":{"m":["1","0",...],"at":"2026-09-06T.."}} の形。
+   保存するのは自分が選んだ記号だけで、試合や結果は toto.json 側にある。 */
+const TOTO_PICKS_KEY = "jleague-app.totoPicks";
+function loadTotoPicks() {
+  try { return JSON.parse(localStorage.getItem(TOTO_PICKS_KEY) || "{}") || {}; }
+  catch (e) { return {}; }
+}
+function saveTotoPicks(obj) {
+  try { localStorage.setItem(TOTO_PICKS_KEY, JSON.stringify(obj)); } catch (e) { /* 無視 */ }
+}
+function totoPicksAll() {
+  if (state.totoPicks == null) state.totoPicks = loadTotoPicks();
+  return state.totoPicks;
+}
+
 const STANDINGS_SCOPE_KEY = "jleague-app.standingsScope";
 function loadStandingsScope() {
   try { return localStorage.getItem(STANDINGS_SCOPE_KEY) === "near" ? "near" : "all"; }
