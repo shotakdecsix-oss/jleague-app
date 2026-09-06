@@ -1026,7 +1026,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "a80d993";
+const APP_BUILD_VERSION = "d38e9df";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -5541,8 +5541,11 @@ function saveBattleState() {
   } catch (e) { /* 無視 */ }
 }
 function loadBattleState() {
-  try { return JSON.parse(localStorage.getItem(BATTLE_STATE_KEY) || "null"); }
-  catch (e) { return null; }
+  try {
+    const b = JSON.parse(localStorage.getItem(BATTLE_STATE_KEY) || "null");
+    /* 第44弾で保存の形が変わった(表示用HPが増えた)。古い形は読まずに捨てる。 */
+    return (b && b.v === 2) ? b : null;
+  } catch (e) { return null; }
 }
 
 function rpgTeamById(rpg, idTeam) {
@@ -5564,15 +5567,19 @@ function battleStart(league, rpg, meId) {
   const queue = battleQueueFor(rpg, meId);
   if (!queue.length) return null;
   const b = {
+    v: 2,                       // 保存データの形。古い形は読まずに捨てる
     league: league, meId: meId, wins: 0, turn: 1,
     meHp: battleMaxHp(me), meMp: (me.mp && me.mp.now) || battleMaxMp(me),
     meMaxHp: battleMaxHp(me), meMaxMp: battleMaxMp(me),
     queue: queue, foeId: null,
     foeHp: 0, foeMp: 0, foeMaxHp: 0, foeMaxMp: 0,
     meGuard: false, foeGuard: false, meTrapped: false, foeTrapped: false,
+    /* 画面に出ているHP/MP。内部の値(meHp等)より遅れて、メッセージに合わせて動く */
+    meView: 0, meMpView: 0, foeView: 0, foeMpView: 0,
     log: [], phase: "log", shake: null, menu: null, over: false, cleared: false,
   };
   b.meHp = Math.max(1, Math.round(b.meMaxHp * battleCondOf(me)));
+  b.meView = b.meHp; b.meMpView = b.meMp;
   battleNextFoe(b, rpg, true);
   return b;
 }
@@ -5588,15 +5595,20 @@ function battleNextFoe(b, rpg, first) {
      1戦目で必ず負けた(実測で零勝率が半分)。 */
   b.foeHp = Math.max(1, Math.round(b.foeMaxHp * battleCondOf(foe)));
   b.foeMp = b.foeMaxMp;
+  /* 相手が入れ替わる瞬間はゲージも空から始める(「あらわれた！」の行で満ちる) */
+  b.foeView = 0; b.foeMpView = b.foeMaxMp;
   b.foeGuard = false; b.foeTrapped = false; b.meGuard = false; b.meTrapped = false;
   b.turn = 1;
   const me = rpgTeamById(rpg, b.meId);
   const first2 = battleFirstMover(me, foe);
   b.meFirst = first2;
   if (first) {
-    b.log.push(me.kana + " は たたかいに いどんだ！");
+    battleSay(b, me.kana + " は たたかいに いどんだ！");
   }
-  b.log.push(foe.kana + " が あらわれた！");
+  battleSay(b, foe.kana + " が あらわれた！",
+    { hp: { side: "foe", value: b.foeHp }, mp: { side: "foe", value: b.foeMp } });
+  /* どちらが先に動くかは、すばやさで決まっている。それが画面から分かるように一行出す。 */
+  battleSay(b, (first2 ? me.kana : foe.kana) + " の ほうが すばやい！");
   b.phase = "log";
 }
 
@@ -5605,6 +5617,15 @@ function battleFirstMover(me, foe) {
   const a = me.params.speed.value, c = foe.params.speed.value;
   if (a !== c) return a > c;
   return Math.random() < 0.5;
+}
+
+/* ログの1行。fx に載せた効果(HPの増減・被弾の点滅)は、その行が画面に出た瞬間に反映する。
+
+   第44弾: 以前は行動を解決した時点で HP を減らしていたので、先攻・後攻の2回ぶんの
+   ダメージが同時にゲージへ乗り、両者が一度に殴り合ったように見えていた。
+   表示用のHP(meView / foeView)を別に持ち、メッセージの再生に合わせて動かす。 */
+function battleSay(b, text, fx) {
+  b.log.push(fx ? Object.assign({ t: text }, fx) : { t: text });
 }
 
 /* 1人ぶんの行動を解決して、メッセージを log に積む。 */
@@ -5617,14 +5638,14 @@ function battleResolve(b, rpg, actorIsMe, moveName) {
   if (actorIsMe) b.meMp = Math.max(0, b.meMp - m.mp);
   else b.foeMp = Math.max(0, b.foeMp - m.mp);
 
-  b.log.push(actor.kana + " の " + moveName + "！");
+  battleSay(b, actor.kana + " の " + moveName + "！");
 
   /* オフサイドトラップを受けていると当たりにくい */
   const trapped = actorIsMe ? b.meTrapped : b.foeTrapped;
   if (actorIsMe) b.meTrapped = false; else b.foeTrapped = false;
   const hit = m.hit * (trapped ? 0.7 : 1);
   if (Math.random() > hit) {
-    b.log.push("しかし かわされた！");
+    battleSay(b, "しかし かわされた！");
     return;
   }
 
@@ -5635,21 +5656,26 @@ function battleResolve(b, rpg, actorIsMe, moveName) {
   let dmg = Math.max(1, Math.round(
     base * m.power * (0.85 + Math.random() * 0.30) * (crit ? 2 : 1) * (guard ? 0.5 : 1)
   ));
-  if (crit) b.log.push("かいしんの いちげき！");
-  if (guard) b.log.push(target.kana + " は こらえている！");
+  if (crit) battleSay(b, "かいしんの いちげき！");
+  if (guard) battleSay(b, target.kana + " は こらえている！");
 
-  if (actorIsMe) { b.foeHp = Math.max(0, b.foeHp - dmg); b.shake = "foe"; }
-  else { b.meHp = Math.max(0, b.meHp - dmg); b.shake = "me"; }
-  b.log.push(target.kana + " に " + dmg + " の ダメージ！");
+  /* 内部のHPはここで減らす(次の行動の判断に要る)が、ゲージが動くのはこの行が
+     画面に出たとき。fx にそのときの残量を持たせておく。 */
+  const side = actorIsMe ? "foe" : "me";
+  if (actorIsMe) b.foeHp = Math.max(0, b.foeHp - dmg);
+  else b.meHp = Math.max(0, b.meHp - dmg);
+  battleSay(b, target.kana + " に " + dmg + " の ダメージ！",
+    { hp: { side: side, value: actorIsMe ? b.foeHp : b.meHp }, shake: side });
 
   if (m.effect === "press") {
     const lost = 10;
     if (actorIsMe) b.foeMp = Math.max(0, b.foeMp - lost);
     else b.meMp = Math.max(0, b.meMp - lost);
-    b.log.push(target.kana + " の MPを " + lost + " うばった！");
+    battleSay(b, target.kana + " の MPを " + lost + " うばった！",
+      { mp: { side: actorIsMe ? "foe" : "me", value: actorIsMe ? b.foeMp : b.meMp } });
   } else if (m.effect === "trap") {
     if (actorIsMe) b.foeTrapped = true; else b.meTrapped = true;
-    b.log.push(target.kana + " は うごきを よまれた！");
+    battleSay(b, target.kana + " は うごきを よまれた！");
   }
 }
 
@@ -5657,7 +5683,8 @@ function battleGuard(b, rpg, actorIsMe) {
   const who = actorIsMe ? rpgTeamById(rpg, b.meId) : rpgTeamById(rpg, b.foeId);
   if (actorIsMe) { b.meGuard = true; b.meMp = Math.min(b.meMaxMp, b.meMp + BATTLE_GUARD_MP); }
   else { b.foeGuard = true; b.foeMp = Math.min(b.foeMaxMp, b.foeMp + BATTLE_GUARD_MP); }
-  b.log.push(who.kana + " は みを まもっている！ (MP+" + BATTLE_GUARD_MP + ")");
+  battleSay(b, who.kana + " は みを まもっている！ (MP+" + BATTLE_GUARD_MP + ")",
+    { mp: { side: actorIsMe ? "me" : "foe", value: actorIsMe ? b.meMp : b.foeMp } });
 }
 
 /* プレイヤーが1つコマンドを選んだ = 1ターンぶん進める。 */
@@ -5685,20 +5712,20 @@ function battleTakeTurn(b, rpg, cmd, moveName) {
 
   b.turn++;
   if (b.foeHp <= 0) {
-    b.log.push(foe.kana + " を たおした！");
+    battleSay(b, foe.kana + " を たおした！");
     b.wins++;
     b.pendingWin = true;
   } else if (b.meHp <= 0) {
-    b.log.push(me.kana + " は たおれた…");
+    battleSay(b, me.kana + " は たおれた…");
     b.pendingLose = true;
   } else if (b.turn > BATTLE_TURN_LIMIT) {
     /* 膠着したら残り体力の割合で決める(試算では1%未満) */
-    b.log.push("しあいしゅうりょうの ホイッスル！");
+    battleSay(b, "しあいしゅうりょうの ホイッスル！");
     if (b.meHp / b.meMaxHp >= b.foeHp / b.foeMaxHp) {
-      b.log.push(foe.kana + " に かった！");
+      battleSay(b, foe.kana + " に かった！");
       b.wins++; b.pendingWin = true;
     } else {
-      b.log.push(me.kana + " は やぶれた…");
+      battleSay(b, me.kana + " は やぶれた…");
       b.pendingLose = true;
     }
   }
@@ -5709,18 +5736,19 @@ function battleTakeTurn(b, rpg, cmd, moveName) {
 function battleAfterWin(b, rpg) {
   b.pendingWin = false;
   const me = rpgTeamById(rpg, b.meId);
-  b.log.push(me.kana + " は " + b.wins + " れんしょう！");
+  battleSay(b, me.kana + " は " + b.wins + " れんしょう！");
   const healHp = Math.round(b.meMaxHp * BATTLE_HEAL_HP);
   const healMp = Math.round(b.meMaxMp * BATTLE_HEAL_MP);
   const beforeHp = b.meHp, beforeMp = b.meMp;
   b.meHp = Math.min(b.meMaxHp, b.meHp + healHp);
   b.meMp = Math.min(b.meMaxMp, b.meMp + healMp);
   if (b.meHp > beforeHp || b.meMp > beforeMp) {
-    b.log.push("HPを " + (b.meHp - beforeHp) + "、MPを " + (b.meMp - beforeMp) + " かいふくした！");
+    battleSay(b, "HPを " + (b.meHp - beforeHp) + "、MPを " + (b.meMp - beforeMp) + " かいふくした！",
+      { hp: { side: "me", value: b.meHp }, mp: { side: "me", value: b.meMp } });
   }
   if (!b.queue.length) {
     b.cleared = true; b.over = true;
-    b.log.push("リーグの すべてに かった！");
+    battleSay(b, "リーグの すべてに かった！");
     return;
   }
   battleNextFoe(b, rpg, false);
@@ -5799,11 +5827,11 @@ function battleInnerHtml(rpg) {
   '</div>';
 
   const foeHtml = (foe && !b.cleared)
-    ? battleSideHtml(foe, b.foeHp, b.foeMaxHp, null, null, "bt-foe", b.shake === "foe")
+    ? battleSideHtml(foe, b.foeView, b.foeMaxHp, null, null, "bt-foe", b.shake === "foe")
     : '<div class="bt-side bt-foe bt-empty"></div>';
 
   return head + foeHtml +
-    battleSideHtml(me, b.meHp, b.meMaxHp, b.meMp, b.meMaxMp, "bt-me", b.shake === "me") +
+    battleSideHtml(me, b.meView, b.meMaxHp, b.meMpView, b.meMaxMp, "bt-me", b.shake === "me") +
     '<div class="bt-msg" id="btMsg">' + msgHtml + '</div>' +
     battleCommandHtml(b, me);
 }
@@ -5835,7 +5863,18 @@ function battleAdvance() {
   battleStopTimer();
   const rpg = leagueCache(state.league).rpg;
   if (b.log.length) {
-    b.shown = (b.shown || []).concat(b.log.shift()).slice(-6);
+    const item = b.log.shift();
+    const line = (item && typeof item === "object") ? item : { t: String(item) };
+    b.shown = (b.shown || []).concat(line.t).slice(-6);
+    /* ゲージが動くのも、被弾で点滅するのも、その行が出たこの瞬間。
+       先攻・後攻のダメージが同時に乗らないのはこのため。 */
+    if (line.hp) {
+      if (line.hp.side === "foe") b.foeView = line.hp.value; else b.meView = line.hp.value;
+    }
+    if (line.mp) {
+      if (line.mp.side === "foe") b.foeMpView = line.mp.value; else b.meMpView = line.mp.value;
+    }
+    b.shake = line.shake || null;
   }
   if (!b.log.length) {
     if (b.pendingWin) {
