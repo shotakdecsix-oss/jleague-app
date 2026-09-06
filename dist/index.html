@@ -336,6 +336,8 @@
     background:var(--surface-1); color:var(--ink); font-size:13px; font-weight:700;
     font-family:inherit; cursor:pointer;
   }
+  .bt-cmd button.off{opacity:.45}
+  .bt-cmd button.bt-wide{grid-column:span 2}
   .bt-moves{display:grid; gap:6px}
   .bt-move{
     display:flex; flex-direction:column; align-items:flex-start; gap:2px;
@@ -1104,7 +1106,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "8154420";
+const APP_BUILD_VERSION = "57ec4e8";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -5520,7 +5522,9 @@ function renderRpgStatus(rpg, team, stats) {
     '<button type="button" class="rpg-fight" data-rpgbattle>たたかう</button>' +
   '</div>' +
   '<p class="rpg-fight-note">かちぬき・ひとりと・トーナメントの 3つから えらべます。' +
-    'かちぬきと トーナメントでは HPが つぎの しあいに ひきつがれ、かつたびに すこし かいふくします。</p>' +
+    'かちぬきと トーナメントでは HPが つぎの しあいに ひきつがれ、かつたびに すこし かいふくします。' +
+    '<br>「よむ」は あいての おおぶり(いりょく2.0いじょう)だけを みきって いなします。' +
+    'ちいさく きざまれると から ぶりに なります。</p>' +
   '<p class="rpg-foot">' +
     '<b>Lv</b> 勝点 / <b>HP</b> 直近5試合の成績 / <b>MP</b> このあと取れると見込まれる勝点' +
     '(上限は残り試合を全勝したときの勝点なので、シーズンが進むほど減ります)' +
@@ -5549,34 +5553,61 @@ const BATTLE_TURN_LIMIT = 20;      // これを超えたらHPの残り割合が�
    Lvは見た目の階級として置いておき、体力はぼうぎょから決める。
    ぼうぎょの寄与を0.4に抑えているのは、守備の薄いクラブが「HPも少なく被弾も大きい」と
    二重に損をしないため。守備力はダメージ計算のほうで効く。 */
-const BATTLE_HP_BASE = 430, BATTLE_HP_DEF = 0.4;
+/* 第47弾で技の実効ダメージが上がり、1試合が8.8→6.7ターンに縮んだ。
+   ダメージ側をいじると せっかく揃えた技の均衡が崩れるので、HPで戻す。 */
+const BATTLE_HP_BASE = 580, BATTLE_HP_DEF = 0.55;
 /* 直近5試合の調子をHPに写す幅。0のクラブでも7割は残す(瀕死スタートは勝負にならない)。 */
 const BATTLE_COND_MIN = 0.7;
 const BATTLE_DMG_ATK = 0.5, BATTLE_DMG_DEF = 0.25;
 const BATTLE_CRIT_BASE = 0.02, BATTLE_CRIT_LUCK = 0.10;   // うん1で2%、255で12%
 const BATTLE_GUARD_MP = 8;         // 「まもる」で回復するMP
+/* 第47弾: 駆け引き。「よむ」を宣言したターンは攻撃しないかわりに、
+   相手が大振り(いりょく2.0以上)を撃ってきたら見切って無効にし、その流れから
+   次の一撃が強くなる。相手が小さく刻んできたら空振りで1ターン損。
+   格上のAIは、相手が追い込まれて一発を狙いはじめた頃合いにこれを使う。 */
+const BATTLE_READ_MP = 6;
+/* 見切ったら、その場で切り返す。以前は「次の一撃が強くなる」だったが、1ターン攻撃を
+   捨てる対価としては見返りが遅くて弱く、実測でも「よむ」を使うと勝率が下がっていた
+   (格上で 71.5% → 68.7%)。手応えが分かる即時の反撃に変えた。 */
+const BATTLE_READ_COUNTER = 1.8;      // 切り返しの威力(「たたかう」を1.0としたとき)
 const BATTLE_HEAL_HP = 0.6, BATTLE_HEAL_MP = 1 / 3;       // 勝ち抜いたときの回復割合
 /* トーナメントは5回勝たないと優勝できないので、回復を厚くする。
    かちぬきと同じ0.6だと、100回試して優勝が1度も出なかった(実測)。 */
 const BATTLE_HEAL_HP_TOUR = 0.85, BATTLE_HEAL_MP_TOUR = 0.6;
 const BATTLE_TOUR_SIZE = 16;      // トーナメントの出場クラブ数(自分を含む)
 
-/* hit=あたる確率 power=いりょく mp=消費 param=どのパラメータのクラブが覚えるか
+/* hit=あたる確率 power=いりょく mp=消費
+   param = どのパラメータのクラブが覚えるか。同時に、その技のダメージの元になる値でもある。
+
+   第47弾: 以前はダメージの元が全部「こうげき」だった。まほう・ちから・すばやさは
+   覚える技を変えるだけで威力に乗らず、勝率との相関が -0.11〜-0.26(つまり無意味〜逆効果)。
+   覚えている技の系統だけで平均勝率が 14%〜91% に割れていた(実測)。
+   秋田のちから199がロングスローの威力になっていなかったということなので、
+   技ごとに攻撃側のパラメータを変えた。
+
+   あわせて「あたる × いりょく」を 0.98〜1.22 の帯に収めた。以前は 0.60〜1.44 で、
+   博打技のほうが期待値でも勝っており「いちばん つよい技を撃つ」が最適解になっていた。
+   いまは期待値がほぼ同じで、選ぶのは分散(手堅く削るか、一発に賭けるか)になる。
+
    effect: press=相手のMPを削る / trap=相手の次の命中を下げる */
 const BATTLE_MOVES = {
-  "たたかう":           { hit: 0.90, power: 1.0, mp: 0,  param: null },
-  "ミドルシュート":     { hit: 0.65, power: 1.6, mp: 10, param: "attack" },
-  "ボレーシュート":     { hit: 0.45, power: 3.0, mp: 14, param: "attack" },
-  "スルーパス":         { hit: 0.85, power: 1.2, mp: 8,  param: "magic" },
-  "セットプレー":       { hit: 0.60, power: 1.9, mp: 12, param: "magic" },
-  "ヘディング":         { hit: 0.70, power: 1.5, mp: 10, param: "power" },
-  "ロングスロー":       { hit: 0.45, power: 3.2, mp: 12, param: "power" },
-  "プレス":             { hit: 0.80, power: 1.1, mp: 8,  param: "speed", effect: "press" },
-  "カウンター":         { hit: 0.40, power: 3.6, mp: 12, param: "speed" },
-  "ショートパス":       { hit: 0.95, power: 0.8, mp: 4,  param: "defense" },
-  "オフサイドトラップ": { hit: 0.75, power: 0.8, mp: 8,  param: "defense", effect: "trap" },
-  "ミラクル":           { hit: 0.25, power: 5.5, mp: 15, param: "luck" },
+  "たたかう":           { hit: 0.90, power: 1.10, mp: 0,  param: "attack",  basic: true },
+  "ミドルシュート":     { hit: 0.65, power: 1.75, mp: 10, param: "attack" },
+  "ボレーシュート":     { hit: 0.42, power: 2.80, mp: 14, param: "attack" },
+  "スルーパス":         { hit: 0.85, power: 1.30, mp: 8,  param: "magic" },
+  "セットプレー":       { hit: 0.60, power: 1.95, mp: 12, param: "magic" },
+  "ヘディング":         { hit: 0.70, power: 1.60, mp: 10, param: "power" },
+  "ロングスロー":       { hit: 0.45, power: 2.70, mp: 12, param: "power" },
+  "プレス":             { hit: 0.80, power: 1.35, mp: 8,  param: "speed", effect: "press" },
+  "カウンター":         { hit: 0.40, power: 3.00, mp: 12, param: "speed" },
+  "ショートパス":       { hit: 0.95, power: 1.05, mp: 4,  param: "defense" },
+  "オフサイドトラップ": { hit: 0.75, power: 1.30, mp: 8,  param: "defense", effect: "trap" },
+  "ミラクル":           { hit: 0.33, power: 3.60, mp: 15, param: "luck" },
 };
+/* これ以上のいりょくを「大振り」とみなす。「よむ」で見切れるのはここから上だけ。
+   1.6 にしてあるので、見切れない技(たたかう/ショートパス/スルーパス/プレス/
+   オフサイドトラップ)と見切れる技がほぼ半々になる。読み合いが成立する幅。 */
+const BATTLE_BIG_POWER = 1.6;
 const BATTLE_PARAMS = ["attack", "defense", "magic", "power", "speed"];
 
 /* 第46弾: 技ごとの見え方。
@@ -5605,6 +5636,7 @@ function battleMovesOf(t) {
   const out = ["たたかう"];
   for (const name of Object.keys(BATTLE_MOVES)) {
     const m = BATTLE_MOVES[name];
+    if (m.basic) continue;                                   // 「たたかう」は誰でも使える
     if (m.param && top2.indexOf(m.param) >= 0) out.push(name);
   }
   if (t.params.luck.rank === 1) out.push("ミラクル");
@@ -5623,6 +5655,26 @@ function battleCondOf(t) {
 }
 function battleMaxMp(t) {
   return Math.max(20, (t.mp && t.mp.max) || 20);
+}
+
+/* 相手の手を決める。技を選ぶ前に「よむ」「まもる」を検討する。
+
+   第47弾: 格上のAIは、相手が追い込まれて一発逆転を狙いはじめた頃合いに「よむ」。
+   battleAiPick は劣勢のとき大振りを選ぶので、その癖をそのまま突く形になる。
+   弱者が一発に賭ける → 強者が見切っていなす、という駆け引きがここで生まれる。 */
+function battleAiCommand(b, rpg, me, foe) {
+  const ratio = battleTotal(foe) / Math.max(1, battleTotal(me));
+  const preyCornered = b.meHp / b.meMaxHp < 0.35;   // 相手(プレイヤー)が追い込まれている
+  const canRead = b.foeMp >= BATTLE_READ_MP;
+  if (canRead && ratio > 1.05) {
+    /* 格上ほど、そして相手が崖っぷちなほど読みにいく。読み続けても刻まれるだけなので、
+       前のターンに読んだ直後は控える。 */
+    const chance = (preyCornered ? 0.55 : 0.15) * (b.foeReadLast ? 0.35 : 1);
+    if (Math.random() < chance) { b.foeReadLast = true; return "read"; }
+  }
+  b.foeReadLast = false;
+  if (b.foeHp / b.foeMaxHp < 0.35 && b.foeMp < 12 && Math.random() < 0.4) return "guard";
+  return battleAiPick(foe, me, b.foeHp / b.foeMaxHp, b.foeMp);
 }
 
 /* 相手より強いか弱いかで技の選び方を変える。ここがこの遊びの芯。 */
@@ -5729,7 +5781,7 @@ function battleAutoWinner(rpg, idA, idB) {
     mp = Math.max(0, mp - m.mp);
     if (Math.random() > m.hit) return { hp: hp, mp: mp };
     const crit = Math.random() < (BATTLE_CRIT_BASE + BATTLE_CRIT_LUCK * atk.params.luck.value / 255);
-    const base = atk.params.attack.value * BATTLE_DMG_ATK
+    const base = (atk.params[m.param] || atk.params.attack).value * BATTLE_DMG_ATK
       - (crit ? 0 : def.params.defense.value * BATTLE_DMG_DEF);
     const dmg = Math.max(1, Math.round(base * m.power * (0.85 + Math.random() * 0.30) * (crit ? 2 : 1)));
     return { hp: Math.max(0, hp - dmg), mp: mp };
@@ -5794,6 +5846,7 @@ function battleStart(league, rpg, meId, mode, foeId) {
     queue: queue, foeId: null,
     foeHp: 0, foeMp: 0, foeMaxHp: 0, foeMaxMp: 0,
     meGuard: false, foeGuard: false, meTrapped: false, foeTrapped: false,
+    meRead: false, foeRead: false, foeReadLast: false,
     /* 画面に出ているHP/MP。内部の値(meHp等)より遅れて、メッセージに合わせて動く */
     meView: 0, meMpView: 0, foeView: 0, foeMpView: 0,
     alive: [], round: 0, roundName: "", tourNext: null, champion: false,
@@ -5879,6 +5932,26 @@ function battleResolve(b, rpg, actorIsMe, moveName) {
   battleSay(b, actor.kana + " の " + moveName + "！",
     { fx: { kind: look.fx, act: look.act, dir: actorIsMe ? "up" : "down" } });
 
+  /* 相手が「よむ」を宣言していて、こちらが大振りなら見切られる。
+     刻んで撃っていれば読みは空を切る。ここが強者と弱者の駆け引きになる。 */
+  const readBy = actorIsMe ? b.foeRead : b.meRead;
+  if (readBy && m.power >= BATTLE_BIG_POWER) {
+    battleSay(b, target.kana + " は ねらいを よみきった！");
+    battleSay(b, "こうげきを いなされた！");
+    /* 見切ったその場で切り返す。ここが「よむ」を選ぶ見返り。 */
+    const back = Math.max(1, Math.round(
+      (target.params.attack.value * BATTLE_DMG_ATK - actor.params.defense.value * BATTLE_DMG_DEF)
+      * BATTLE_READ_COUNTER * (0.9 + Math.random() * 0.2)));
+    if (actorIsMe) b.meHp = Math.max(0, b.meHp - back);
+    else b.foeHp = Math.max(0, b.foeHp - back);
+    battleSay(b, target.kana + " の きりかえし！",
+      { fx: { kind: "shot", act: "rush", dir: actorIsMe ? "down" : "up" } });
+    battleSay(b, actor.kana + " に " + back + " の ダメージ！",
+      { hp: { side: actorIsMe ? "me" : "foe", value: actorIsMe ? b.meHp : b.foeHp },
+        shake: actorIsMe ? "me" : "foe" });
+    return;
+  }
+
   /* オフサイドトラップを受けていると当たりにくい */
   const trapped = actorIsMe ? b.meTrapped : b.foeTrapped;
   if (actorIsMe) b.meTrapped = false; else b.foeTrapped = false;
@@ -5889,7 +5962,10 @@ function battleResolve(b, rpg, actorIsMe, moveName) {
   }
 
   const crit = Math.random() < (BATTLE_CRIT_BASE + BATTLE_CRIT_LUCK * actor.params.luck.value / 255);
-  const base = actor.params.attack.value * BATTLE_DMG_ATK
+  /* 技ごとに、どのパラメータでぶつけるかが変わる。
+     ロングスローは ちから、スルーパスは まほう、カウンターは すばやさ。 */
+  const atkParam = (actor.params[m.param] || actor.params.attack).value;
+  const base = atkParam * BATTLE_DMG_ATK
     - (crit ? 0 : target.params.defense.value * BATTLE_DMG_DEF);
   const guard = actorIsMe ? b.foeGuard : b.meGuard;
   let dmg = Math.max(1, Math.round(
@@ -5918,6 +5994,16 @@ function battleResolve(b, rpg, actorIsMe, moveName) {
   }
 }
 
+function battleRead(b, rpg, actorIsMe) {
+  const actor = actorIsMe ? rpgTeamById(rpg, b.meId) : rpgTeamById(rpg, b.foeId);
+  if (actorIsMe) { b.meRead = true; b.meMp = Math.max(0, b.meMp - BATTLE_READ_MP); }
+  else { b.foeRead = true; b.foeMp = Math.max(0, b.foeMp - BATTLE_READ_MP); }
+  b.readWhiffMp = true;   // 空振りだったら battleTakeTurn の最後にMPを少し返す
+  battleSay(b, actor.kana + " は あいての うごきを よんでいる…",
+    { mp: { side: actorIsMe ? "me" : "foe", value: actorIsMe ? b.meMp : b.foeMp },
+      fx: { kind: null, act: "step", dir: actorIsMe ? "up" : "down" } });
+}
+
 function battleGuard(b, rpg, actorIsMe) {
   const who = actorIsMe ? rpgTeamById(rpg, b.meId) : rpgTeamById(rpg, b.foeId);
   if (actorIsMe) { b.meGuard = true; b.meMp = Math.min(b.meMaxMp, b.meMp + BATTLE_GUARD_MP); }
@@ -5933,23 +6019,34 @@ function battleTakeTurn(b, rpg, cmd, moveName) {
   if (!me || !foe || b.over) return;
   b.menu = null;
   b.meGuard = false; b.foeGuard = false;   // まもるはそのターンだけ
+  b.meRead = false; b.foeRead = false;     // よみも同じ
+
+  /* 相手の手をここで決めておく。「よむ」は宣言してから相手の攻撃を待つ性質なので、
+     行動順に関係なくターンの頭で両者の宣言を済ませないと、後攻のときに間に合わない。 */
+  const foeCmd = battleAiCommand(b, rpg, me, foe);
+
+  if (cmd === "read") battleRead(b, rpg, true);
+  if (foeCmd === "read") battleRead(b, rpg, false);
 
   const doMe = () => {
+    if (cmd === "read") return;                      // 読みに徹したターンは攻撃しない
     if (cmd === "guard") battleGuard(b, rpg, true);
     else battleResolve(b, rpg, true, cmd === "move" ? moveName : "たたかう");
   };
   const doFoe = () => {
-    /* 相手も追い込まれたら守る。回復したMPで大技を撃ってくる。 */
-    if (b.foeHp / b.foeMaxHp < 0.35 && b.foeMp < 12 && Math.random() < 0.4) {
-      battleGuard(b, rpg, false);
-      return;
-    }
-    battleResolve(b, rpg, false, battleAiPick(foe, me, b.foeHp / b.foeMaxHp, b.foeMp));
+    if (foeCmd === "read") return;
+    if (foeCmd === "guard") { battleGuard(b, rpg, false); return; }
+    battleResolve(b, rpg, false, foeCmd);
   };
 
   if (b.meFirst) { doMe(); if (b.foeHp > 0) doFoe(); }
   else { doFoe(); if (b.meHp > 0) doMe(); }
 
+  /* 読みが空を切ったら、集中していたぶんのMPを少しだけ返す。
+     1ターン攻撃を捨てているので、丸損だと誰も選ばなくなる。 */
+  if (b.meRead && !b.log.some(x => x.t && x.t.indexOf("よみきった") >= 0)) {
+    b.meMp = Math.min(b.meMaxMp, b.meMp + 4);
+  }
   b.turn++;
   if (b.foeHp <= 0) {
     battleSay(b, foe.kana + " を たおした！");
@@ -6074,11 +6171,14 @@ function battleCommandHtml(b, me) {
     return '<div class="bt-moves">' + rows +
       '<button type="button" class="bt-move bt-back" data-btcmd="back">もどる</button></div>';
   }
+  const canRead = b.meMp >= BATTLE_READ_MP;
   return '<div class="bt-cmd">' +
     '<button type="button" data-btcmd="fight">たたかう</button>' +
     '<button type="button" data-btcmd="moves">とくぎ</button>' +
+    '<button type="button"' + (canRead ? ' data-btcmd="read"' : " disabled") +
+      (canRead ? "" : ' class="off"') + '>よむ</button>' +
     '<button type="button" data-btcmd="guard">まもる</button>' +
-    '<button type="button" data-btcmd="quit">にげる</button>' +
+    '<button type="button" class="bt-wide" data-btcmd="quit">にげる</button>' +
   '</div>';
 }
 
@@ -6281,6 +6381,7 @@ function battleCommand(cmd, moveName) {
   if (cmd === "moves") { b.menu = "moves"; updateBattleInPlace(); return; }
   if (cmd === "back") { b.menu = null; updateBattleInPlace(); return; }
   if (b.phase !== "command" || b.over) return;
+  if (cmd === "read" && b.meMp < BATTLE_READ_MP) return;
   battleTakeTurn(b, rpg, cmd === "move" ? "move" : cmd, moveName);
   b.shown = [];
   battleAdvance();
