@@ -1,17 +1,11 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-09-06T18:20:03+09:00",
+    "generatedAtJst": "2026-09-06T18:25:03+09:00",
     "windowHours": 36,
     "candidateCount": 5,
-    "fetchedCount": 4,
-    "failed": [
-      {
-        "idEvent": "2492832",
-        "reason": "regression_zero_events",
-        "url": "https://www.jleague.jp/match/j1/2026/090604/livetxt/"
-      }
-    ],
+    "fetchedCount": 5,
+    "failed": [],
     "eventCount": 35
   },
   "events": {
@@ -14169,7 +14163,7 @@
     "2492830": {
       "code": "090501",
       "url": "https://www.jleague.jp/match/j1/2026/090501/livetxt/",
-      "fetchedAtJst": "2026-09-06T18:20:09+09:00",
+      "fetchedAtJst": "2026-09-06T18:25:08+09:00",
       "goals": [
         {
           "minute": "86",
@@ -14673,7 +14667,7 @@
     "2492832": {
       "code": "090604",
       "url": "https://www.jleague.jp/match/j1/2026/090604/livetxt/",
-      "fetchedAtJst": "2026-09-06T18:15:12+09:00",
+      "fetchedAtJst": "2026-09-06T18:25:12+09:00",
       "goals": [
         {
           "minute": "1",
@@ -14931,9 +14925,19 @@
     "2492834": {
       "code": "090603",
       "url": "https://www.jleague.jp/match/j1/2026/090603/livetxt/",
-      "fetchedAtJst": "2026-09-06T18:20:16+09:00",
+      "fetchedAtJst": "2026-09-06T18:25:15+09:00",
       "goals": [],
-      "cards": [],
+      "cards": [
+        {
+          "minute": "17",
+          "type": "yellow",
+          "player": "ダニーロ ボザ",
+          "position": "DF 3",
+          "club": "浦和レッズ",
+          "idTeam": "137716",
+          "playerId": "1651281"
+        }
+      ],
       "subs": [],
       "highlightVideoId": null,
       "daznVideoId": null,
@@ -15179,7 +15183,7 @@
     "2492836": {
       "code": "090605",
       "url": "https://www.jleague.jp/match/j1/2026/090605/livetxt/",
-      "fetchedAtJst": "2026-09-06T18:20:19+09:00",
+      "fetchedAtJst": "2026-09-06T18:25:19+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -15427,19 +15431,38 @@
     "2492837": {
       "code": "090606",
       "url": "https://www.jleague.jp/match/j1/2026/090606/livetxt/",
-      "fetchedAtJst": "2026-09-06T18:20:22+09:00",
+      "fetchedAtJst": "2026-09-06T18:25:22+09:00",
       "goals": [
+        {
+          "minute": "21",
+          "club": "ファジアーノ岡山",
+          "player": "河野 孝汰",
+          "position": "FW 20",
+          "scoreAfter": "2-0",
+          "idTeam": "139884",
+          "playerId": "1626006"
+        },
         {
           "minute": "10",
           "club": "ファジアーノ岡山",
           "player": "河野 孝汰",
           "position": "FW 20",
-          "scoreAfter": "1-0",
+          "scoreAfter": null,
           "idTeam": "139884",
           "playerId": "1626006"
         }
       ],
-      "cards": [],
+      "cards": [
+        {
+          "minute": "16",
+          "type": "yellow",
+          "player": "オベルダン",
+          "position": "MF 80",
+          "club": "ファジアーノ岡山",
+          "idTeam": "139884",
+          "playerId": "1644950"
+        }
+      ],
       "subs": [],
       "highlightVideoId": null,
       "daznVideoId": null,
