@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j2",
-    "generatedAtJst": "2026-09-06T19:50:04+09:00",
+    "generatedAtJst": "2026-09-06T19:55:04+09:00",
     "windowHours": 36,
     "candidateCount": 10,
     "fetchedCount": 10,
@@ -9384,7 +9384,7 @@
     "2551747": {
       "code": "090502",
       "url": "https://www.jleague.jp/match/j2/2026/090502/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:50:44+09:00",
+      "fetchedAtJst": "2026-09-06T19:55:48+09:00",
       "goals": [],
       "cards": [
         {
@@ -9842,7 +9842,7 @@
     "2551748": {
       "code": "090504",
       "url": "https://www.jleague.jp/match/j2/2026/090504/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:50:50+09:00",
+      "fetchedAtJst": "2026-09-06T19:55:56+09:00",
       "goals": [
         {
           "minute": "75",
@@ -10399,7 +10399,7 @@
     "2551749": {
       "code": "090506",
       "url": "https://www.jleague.jp/match/j2/2026/090506/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:50:55+09:00",
+      "fetchedAtJst": "2026-09-06T19:56:03+09:00",
       "goals": [
         {
           "minute": "67",
@@ -10857,7 +10857,7 @@
     "2551750": {
       "code": "090505",
       "url": "https://www.jleague.jp/match/j2/2026/090505/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:51:01+09:00",
+      "fetchedAtJst": "2026-09-06T19:56:09+09:00",
       "goals": [
         {
           "minute": "33",
@@ -11318,7 +11318,7 @@
     "2551751": {
       "code": "090503",
       "url": "https://www.jleague.jp/match/j2/2026/090503/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:51:06+09:00",
+      "fetchedAtJst": "2026-09-06T19:56:15+09:00",
       "goals": [
         {
           "minute": "67",
@@ -11804,7 +11804,7 @@
     "2551752": {
       "code": "090611",
       "url": "https://www.jleague.jp/match/j2/2026/090611/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:51:10+09:00",
+      "fetchedAtJst": "2026-09-06T19:56:20+09:00",
       "goals": [
         {
           "minute": "58",
@@ -12317,25 +12317,25 @@
     "2551753": {
       "code": "090613",
       "url": "https://www.jleague.jp/match/j2/2026/090613/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:51:13+09:00",
+      "fetchedAtJst": "2026-09-06T19:56:25+09:00",
       "goals": [
+        {
+          "minute": "90",
+          "club": "横浜ＦＣ",
+          "player": "アダイウトン",
+          "position": "FW 90",
+          "scoreAfter": "5-0",
+          "idTeam": "137720",
+          "playerId": "1500544"
+        },
         {
           "minute": "68",
           "club": "横浜ＦＣ",
           "player": "岩武 克弥",
           "position": "DF 22",
-          "scoreAfter": "4-0",
-          "idTeam": "137720",
-          "playerId": "1400120"
-        },
-        {
-          "minute": "63",
-          "club": "横浜ＦＣ",
-          "player": "細井 響",
-          "position": "DF 5",
           "scoreAfter": null,
           "idTeam": "137720",
-          "playerId": "1651453"
+          "playerId": "1400120"
         },
         {
           "minute": "28",
@@ -12345,6 +12345,15 @@
           "scoreAfter": "1-0",
           "idTeam": "137720",
           "playerId": "1630110"
+        },
+        {
+          "minute": "63",
+          "club": "横浜ＦＣ",
+          "player": "細井 響",
+          "position": "DF 5",
+          "scoreAfter": "3-0",
+          "idTeam": "137720",
+          "playerId": "1651453"
         },
         {
           "minute": "52",
@@ -12386,6 +12395,12 @@
               "position": "MF 22",
               "name": "新井 泰貴",
               "playerId": "1629430"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "大西 悠介",
+              "playerId": "1635508"
             }
           ],
           "idTeam": "139881"
@@ -12844,7 +12859,7 @@
     "2551754": {
       "code": "090612",
       "url": "https://www.jleague.jp/match/j2/2026/090612/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:51:17+09:00",
+      "fetchedAtJst": "2026-09-06T19:56:29+09:00",
       "goals": [],
       "cards": [
         {
@@ -13282,7 +13297,7 @@
     "2551755": {
       "code": "090614",
       "url": "https://www.jleague.jp/match/j2/2026/090614/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:51:20+09:00",
+      "fetchedAtJst": "2026-09-06T19:56:32+09:00",
       "goals": [
         {
           "minute": "22",
@@ -13296,7 +13311,16 @@
       ],
       "cards": [
         {
-          "minute": "42",
+          "minute": null,
+          "type": "yellow",
+          "player": "古川 真人",
+          "position": "FW 39",
+          "club": "カターレ富山",
+          "idTeam": "141251",
+          "playerId": "1635514"
+        },
+        {
+          "minute": null,
           "type": "yellow",
           "player": "吉村 瑠晟",
           "position": "DF 36",
@@ -13568,7 +13592,7 @@
     "2551756": {
       "code": "090615",
       "url": "https://www.jleague.jp/match/j2/2026/090615/livetxt/",
-      "fetchedAtJst": "2026-09-06T19:51:24+09:00",
+      "fetchedAtJst": "2026-09-06T19:56:36+09:00",
       "goals": [
         {
           "minute": "19",
