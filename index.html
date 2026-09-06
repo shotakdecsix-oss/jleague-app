@@ -353,6 +353,72 @@
   }
   .rpg-fight-note{margin:6px 2px 0; font-size:11px; color:var(--sub)}
   /* 第45弾: たたかいかた・あいてを選ぶ画面 */
+
+  /* 第46弾: 技ごとの攻撃アニメーション。
+     技名のメッセージが出た瞬間に、攻撃側が動いてボールが飛ぶ。
+     ダメージのメッセージは次の行なので、当たってから減る順序になる。
+     位置は % 指定にしてある(スプライトの高さが変わっても崩れないように)。 */
+  .bt-field{position:relative}
+  .bt-fx{
+    position:absolute; left:50%; width:12px; height:12px; margin-left:-6px;
+    border-radius:50%; background:#f5f6f8; border:2px solid #2a2a35;
+    pointer-events:none; opacity:0; z-index:2;
+  }
+  .bt-fx.small{width:9px; height:9px; margin-left:-4.5px}
+  @keyframes fxLineUp   {0%{top:66%;left:20%;opacity:0}12%{opacity:1}
+                         92%{opacity:1}100%{top:22%;left:80%;opacity:0}}
+  @keyframes fxLineDown {0%{top:22%;left:80%;opacity:0}12%{opacity:1}
+                         92%{opacity:1}100%{top:66%;left:20%;opacity:0}}
+  @keyframes fxLobUp    {0%{top:64%;left:20%;opacity:0}15%{opacity:1}
+                         50%{top:28%;left:50%}90%{opacity:1}100%{top:24%;left:80%;opacity:0}}
+  @keyframes fxLobDown  {0%{top:24%;left:80%;opacity:0}15%{opacity:1}
+                         50%{top:58%;left:50%}90%{opacity:1}100%{top:64%;left:20%;opacity:0}}
+  .bt-fx.pass.up   {animation:fxLineUp   .34s linear}
+  .bt-fx.pass.down {animation:fxLineDown .34s linear}
+  .bt-fx.shot.up   {animation:fxLineUp   .28s cubic-bezier(.2,.7,.4,1)}
+  .bt-fx.shot.down {animation:fxLineDown .28s cubic-bezier(.2,.7,.4,1)}
+  .bt-fx.lob.up    {animation:fxLobUp    .62s ease-out}
+  .bt-fx.lob.down  {animation:fxLobDown  .62s ease-out}
+  .bt-fx.head.up   {animation:fxLobUp    .52s ease-out}
+  .bt-fx.head.down {animation:fxLobDown  .52s ease-out}
+
+  /* オフサイドトラップ: 守備ラインが相手側へ押し上がる */
+  .bt-fx.line{
+    left:6%; right:6%; width:auto; margin:0; height:3px; border-radius:2px;
+    background:var(--accent); border:none;
+  }
+  @keyframes fxTrapUp   {0%{top:60%;opacity:0}25%{opacity:.95}100%{top:26%;opacity:0}}
+  @keyframes fxTrapDown {0%{top:26%;opacity:0}25%{opacity:.95}100%{top:60%;opacity:0}}
+  .bt-fx.line.up   {animation:fxTrapUp   .5s ease-out}
+  .bt-fx.line.down {animation:fxTrapDown .5s ease-out}
+
+  /* ミラクル: 場が一瞬光る */
+  .bt-fx.flash{
+    left:0; right:0; top:0; bottom:0; width:auto; height:auto; margin:0;
+    border-radius:10px; background:var(--accent); border:none;
+  }
+  @keyframes fxFlash{0%{opacity:0}20%{opacity:.55}45%{opacity:.12}65%{opacity:.45}100%{opacity:0}}
+  .bt-fx.flash.up, .bt-fx.flash.down{animation:fxFlash .6s ease-out}
+
+  /* 攻撃側のモーション。相手は上、自分は下にいるので符号が逆になる。 */
+  @keyframes btStepUp   {0%,100%{transform:translateY(0)}40%{transform:translateY(-9px)}}
+  @keyframes btStepDown {0%,100%{transform:translateY(0)}40%{transform:translateY(9px)}}
+  @keyframes btRushUp   {0%,100%{transform:translateY(0)}30%{transform:translateY(-22px) scaleX(1.06)}
+                         55%{transform:translateY(-16px)}}
+  @keyframes btRushDown {0%,100%{transform:translateY(0)}30%{transform:translateY(22px) scaleX(1.06)}
+                         55%{transform:translateY(16px)}}
+  @keyframes btJumpUp   {0%,100%{transform:translateY(0)}45%{transform:translateY(-20px)}}
+  @keyframes btJumpDown {0%,100%{transform:translateY(0)}45%{transform:translateY(20px)}}
+  .bt-me.bt-act .bt-sprite   {animation:btStepUp .4s ease-out}
+  .bt-foe.bt-act .bt-sprite  {animation:btStepDown .4s ease-out}
+  .bt-me.bt-act-rush .bt-sprite  {animation:btRushUp .5s ease-in-out}
+  .bt-foe.bt-act-rush .bt-sprite {animation:btRushDown .5s ease-in-out}
+  .bt-me.bt-act-jump .bt-sprite  {animation:btJumpUp .5s ease-out}
+  .bt-foe.bt-act-jump .bt-sprite {animation:btJumpDown .5s ease-out}
+  @media (prefers-reduced-motion: reduce){
+    .bt-fx{display:none}
+    .bt-side .bt-sprite{animation:none !important}
+  }
   .bt-picker{display:grid; gap:8px; margin-top:2px}
   .bt-foelist{max-height:58vh; overflow-y:auto; padding-right:2px}
   .bt-pick-head{margin:0 2px 2px; font-size:13px; font-weight:800}
@@ -5513,6 +5579,25 @@ const BATTLE_MOVES = {
 };
 const BATTLE_PARAMS = ["attack", "defense", "magic", "power", "speed"];
 
+/* 第46弾: 技ごとの見え方。
+     fx  … 飛ぶもの(pass=低く速い / shot=鋭い / lob=山なり / head=競り合い /
+            line=守備ラインが上がる / flash=場が光る / なし=踏み込むだけ)
+     act … 攻撃側の動き(step=踏み込む / rush=突っ込む / jump=跳ぶ) */
+const BATTLE_FX = {
+  "たたかう":           { fx: null,    act: "step" },
+  "ショートパス":       { fx: "pass",  act: "step" },
+  "スルーパス":         { fx: "pass",  act: "step" },
+  "セットプレー":       { fx: "lob",   act: "step" },
+  "ミドルシュート":     { fx: "shot",  act: "step" },
+  "ボレーシュート":     { fx: "shot",  act: "jump" },
+  "ヘディング":         { fx: "head",  act: "jump" },
+  "ロングスロー":       { fx: "lob",   act: "step" },
+  "プレス":             { fx: null,    act: "rush" },
+  "カウンター":         { fx: "shot",  act: "rush" },
+  "オフサイドトラップ": { fx: "line",  act: "step" },
+  "ミラクル":           { fx: "flash", act: "jump" },
+};
+
 function battleMovesOf(t) {
   /* 覚えている技はパラメータの上位2つで決まる。うんのよさがリーグ1位のクラブだけ
      「ミラクル」を覚える(あたらないが、当たれば一撃で持っていく)。 */
@@ -5712,7 +5797,7 @@ function battleStart(league, rpg, meId, mode, foeId) {
     /* 画面に出ているHP/MP。内部の値(meHp等)より遅れて、メッセージに合わせて動く */
     meView: 0, meMpView: 0, foeView: 0, foeMpView: 0,
     alive: [], round: 0, roundName: "", tourNext: null, champion: false,
-    log: [], phase: "log", shake: null, menu: null, over: false, cleared: false,
+    log: [], phase: "log", shake: null, fx: null, menu: null, over: false, cleared: false,
   };
   if (mode === "tournament") {
     /* 出場は自分 + ランダムに選ばれた15クラブの計16。
@@ -5789,7 +5874,10 @@ function battleResolve(b, rpg, actorIsMe, moveName) {
   if (actorIsMe) b.meMp = Math.max(0, b.meMp - m.mp);
   else b.foeMp = Math.max(0, b.foeMp - m.mp);
 
-  battleSay(b, actor.kana + " の " + moveName + "！");
+  /* 技名が出た瞬間に、攻撃側が動いてボールが飛ぶ。当たったかどうかは次の行で分かる。 */
+  const look = BATTLE_FX[moveName] || BATTLE_FX["たたかう"];
+  battleSay(b, actor.kana + " の " + moveName + "！",
+    { fx: { kind: look.fx, act: look.act, dir: actorIsMe ? "up" : "down" } });
 
   /* オフサイドトラップを受けていると当たりにくい */
   const trapped = actorIsMe ? b.meTrapped : b.foeTrapped;
@@ -5835,7 +5923,8 @@ function battleGuard(b, rpg, actorIsMe) {
   if (actorIsMe) { b.meGuard = true; b.meMp = Math.min(b.meMaxMp, b.meMp + BATTLE_GUARD_MP); }
   else { b.foeGuard = true; b.foeMp = Math.min(b.foeMaxMp, b.foeMp + BATTLE_GUARD_MP); }
   battleSay(b, who.kana + " は みを まもっている！ (MP+" + BATTLE_GUARD_MP + ")",
-    { mp: { side: actorIsMe ? "me" : "foe", value: actorIsMe ? b.meMp : b.foeMp } });
+    { mp: { side: actorIsMe ? "me" : "foe", value: actorIsMe ? b.meMp : b.foeMp },
+      fx: { kind: null, act: "step", dir: actorIsMe ? "up" : "down" } });
 }
 
 /* プレイヤーが1つコマンドを選んだ = 1ターンぶん進める。 */
@@ -5937,12 +6026,13 @@ function battleBarHtml(cls, now, max) {
   return '<span class="bt-track"><span class="bt-fill ' + cls + '" style="width:' + pct + '%"></span></span>';
 }
 
-function battleSideHtml(t, hp, maxHp, mp, maxMp, sideCls, shake) {
+function battleSideHtml(t, hp, maxHp, mp, maxMp, sideCls, shake, act) {
   const team = findTeam(t.idTeam);
   const color = team ? team.team.color : null;
   const colorSub = team ? team.team.colorSub : null;
   const low = hp / maxHp <= 0.25;
-  return '<div class="bt-side ' + sideCls + (shake ? " bt-hit" : "") + '">' +
+  const actCls = act ? (act === "step" ? " bt-act" : " bt-act-" + act) : "";
+  return '<div class="bt-side ' + sideCls + (shake ? " bt-hit" : "") + actCls + '">' +
     '<span class="bt-sprite">' + spriteSvgHtml(t.title, color, colorSub, 4) + '</span>' +
     '<span class="bt-info">' +
       '<span class="bt-name">' + esc(t.kana) + '<span class="bt-lv">Lv' + t.level + '</span></span>' +
@@ -6017,12 +6107,21 @@ function battleInnerHtml(rpg) {
     '<span class="bt-best">' + esc(right) + '</span>' +
   '</div>';
 
+  const fx = b.fx || null;
   const foeHtml = (foe && !b.cleared)
-    ? battleSideHtml(foe, b.foeView, b.foeMaxHp, null, null, "bt-foe", b.shake === "foe")
+    ? battleSideHtml(foe, b.foeView, b.foeMaxHp, null, null, "bt-foe", b.shake === "foe",
+        (fx && fx.dir === "down") ? fx.act : null)
     : '<div class="bt-side bt-foe bt-empty"></div>';
+  const meHtml = battleSideHtml(me, b.meView, b.meMaxHp, b.meMpView, b.meMaxMp, "bt-me",
+    b.shake === "me", (fx && fx.dir === "up") ? fx.act : null);
+  /* 飛ぶものはフィールド全体に対する位置で動かすので、両者をまとめて包む */
+  const fxHtml = (fx && fx.kind)
+    ? '<span class="bt-fx ' + esc(fx.kind) + ' ' + esc(fx.dir) +
+      (fx.kind === "pass" ? " small" : "") + '"></span>'
+    : "";
 
-  return head + foeHtml +
-    battleSideHtml(me, b.meView, b.meMaxHp, b.meMpView, b.meMaxMp, "bt-me", b.shake === "me") +
+  return head +
+    '<div class="bt-field">' + foeHtml + meHtml + fxHtml + '</div>' +
     '<div class="bt-msg" id="btMsg">' + msgHtml + '</div>' +
     battleCommandHtml(b, me);
 }
@@ -6070,7 +6169,8 @@ function updateBattleInPlace() {
   if (!root) return;
   const rpg = leagueCache(state.league).rpg;
   root.innerHTML = battleInnerHtml(rpg);
-  state.battle && (state.battle.shake = null);
+  /* 一度描いたら消す。次の行が来るまでアニメーションは動かない。 */
+  if (state.battle) { state.battle.shake = null; state.battle.fx = null; }
 }
 
 /* ---- 進行 ---- */
@@ -6104,6 +6204,7 @@ function battleAdvance() {
       if (line.mp.side === "foe") b.foeMpView = line.mp.value; else b.meMpView = line.mp.value;
     }
     b.shake = line.shake || null;
+    b.fx = line.fx || null;
   }
   if (!b.log.length) {
     if (b.pendingWin) {
