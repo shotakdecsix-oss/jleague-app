@@ -7572,6 +7572,25 @@ function myNewsChipsHtml(keywords, counts) {
 
 const NEWS_ALL_PAGE = 100;   // 第49弾: 全件表示の1回ぶんの件数
 
+/* 第57弾: 「すべて」に出すのは件数の多い上位9媒体だけにする。
+   331媒体のうち、98媒体は記事が1件しか無く、転載サイトやフィードの取りこぼしも多い。
+   全部混ぜると読むより探すほうが長くなるため、主要な出どころに絞る。
+   上位から外れた媒体の見出しは「媒体」から読める(隠したわけではない)。 */
+const NEWS_ALL_TOP_SOURCES = 9;
+
+let newsTopCache = null;
+function topSourceEntries(entries) {
+  const top = newsSourceStats(entries).slice(0, NEWS_ALL_TOP_SOURCES).map(x => x.src);
+  const sig = top.join("\u0001");
+  if (newsTopCache && newsTopCache.entries === entries && newsTopCache.sig === sig) return newsTopCache;
+  const set = new Set(top);
+  newsTopCache = {
+    entries: entries, sig: sig, top: top,
+    list: entries.filter(e => set.has(newsSourceOf(e.item))),
+  };
+  return newsTopCache;
+}
+
 /* 第51弾: 媒体ごとの件数。ブロック済みの媒体もここに出したいので、
    フィルタをかける前の entries から数える。 */
 function newsSourceStats(entries) {
@@ -7657,17 +7676,21 @@ function renderNewsSourceDetail(entries, segHtml, src) {
 }
 
 function renderNewsAll(entries, segHtml) {
-  const list = allNewsSorted(entries);
+  const top = topSourceEntries(entries);
+  const list = allNewsSorted(top.list);
   const limit = state.newsAllLimit || NEWS_ALL_PAGE;
   const shown = list.slice(0, limit);
   const rest = list.length - shown.length;
   /* 第54弾: 隠した媒体のチップをここに出していたが、押すたびに行が増えて
      一覧が下へずれていた。隠す・戻すの管理は「媒体」タブに一本化する。 */
   const head = '<section><h2>注目</h2><div class="card">' + segHtml +
-    '<p class="muted" style="margin:0">Jリーグ60クラブと海外サッカーの見出しを、' +
-    'キーワードで絞り込まずに新しい順で並べています（重複は畳んで' +
+    '<p class="muted" style="margin:0">件数の多い上位' + NEWS_ALL_TOP_SOURCES +
+    '媒体の見出しを、キーワードで絞り込まずに新しい順で並べています（重複は畳んで' +
     list.length.toLocaleString() + '件）。' +
-    '関係のない媒体は見出しの ⊘ で隠せます（戻すのは「媒体」から）。</p></div></section>';
+    'それ以外の媒体は「媒体」から読めます。見出しの ⊘ でその媒体を隠せます。</p></div></section>';
+  /* 上位9媒体の顔ぶれをここに並べていたが、隠すたびに顔ぶれが入れ替わって
+     行数が変わり、カードの高さごと一覧が上下にずれた(第54弾と同じ話)。
+     どの媒体が上位かは「媒体」の件数順を見れば分かるので置かない。 */
   if (!list.length) return head;
   const body = '<section><h2>すべてのニュース</h2><div class="card">' +
     '<ul class="news-list">' + shown.map(e => newsItemHtml(e.item, e.league, null, true)).join("") + '</ul>' +
