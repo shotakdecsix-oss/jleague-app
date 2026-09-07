@@ -2466,16 +2466,20 @@ async function init() {
 
     const newsUnblockSrcBtn = ev.target.closest("[data-newsunblocksrc]");
     if (newsUnblockSrcBtn) {
+      const row = newsUnblockSrcBtn.closest("[data-srcidx]");
       const list = newsBlocked();
       removeNewsBlock(list.indexOf(newsUnblockSrcBtn.dataset.newsunblocksrc));
-      renderActiveTab();
+      if (row) renderAnchoredTo('[data-srcidx="' + row.dataset.srcidx + '"]');
+      else renderActiveTab();
       return;
     }
 
     const newsBlockBtn = ev.target.closest("[data-newsblock]");
     if (newsBlockBtn) {
+      const row = newsBlockBtn.closest("[data-srcidx]");
       addNewsBlock(newsBlockBtn.dataset.newsblock);
-      renderActiveTab();
+      if (row) renderAnchoredTo('[data-srcidx="' + row.dataset.srcidx + '"]');
+      else renderActiveTab();
       return;
     }
 
@@ -2727,6 +2731,22 @@ function deferLoading(app) {
 
 /* ライブスコアが実際に画面へ出るタブかどうか。ライブと無関係なタブまで
    作り直すと、長い一覧のスクロールを毎周期ゆらす。 */
+/* 第54弾: 押した行を画面上の同じ位置に留めたまま作り直す。
+   上のカードの高さが変わっても、次に押したい行が指の下からずれない。 */
+function renderAnchoredTo(selector) {
+  const before = document.querySelector(selector);
+  const top = before ? before.getBoundingClientRect().top : null;
+  const done = renderActiveTab();
+  const fix = function () {
+    if (top === null) return;
+    const after = document.querySelector(selector);
+    if (!after) return;
+    const diff = after.getBoundingClientRect().top - top;
+    if (Math.abs(diff) > 0.5) window.scrollBy(0, diff);
+  };
+  if (done && done.then) done.then(fix); else fix();
+}
+
 function liveAffectsCurrentView() {
   if (state.viewMode === "all") return state.allTab === "schedule";
   return state.activeTab === "home" || state.activeTab === "schedule";
@@ -7526,17 +7546,19 @@ function newsSourceStats(entries) {
 function renderNewsSourceList(entries, segHtml) {
   const stats = newsSourceStats(entries);
   const blocked = newsBlocked();
-  const hidden = stats.filter(x => blocked.indexOf(x.src) >= 0).length;
 
+  /* 第54弾: ここに「いま○媒体を隠しています」を出していたが、1媒体隠すたびに
+     この一行が増減してカードの高さが23px変わり、下の一覧全体が上下にずれていた
+     (「タップすると媒体リストが下に下がる」)。隠している媒体は各行の「戻す」で
+     分かるので、高さの変わる文言は置かない。 */
   const head = '<section><h2>注目</h2><div class="card">' + segHtml +
     '<p class="muted" style="margin:0">見出しの出どころを件数の多い順に並べています（' +
     stats.length + '媒体）。名前を押すとその媒体の見出しだけを読めます。' +
-    (hidden ? '　いま' + hidden + '媒体を隠しています。' : '') +
     '</p></div></section>';
 
-  const rows = stats.map(x => {
+  const rows = stats.map((x, i) => {
     const off = blocked.indexOf(x.src) >= 0;
-    return '<div class="src-row' + (off ? " off" : "") + '">' +
+    return '<div class="src-row' + (off ? " off" : "") + '" data-srcidx="' + i + '">' +
       '<button type="button" class="src-name" data-newssource="' + esc(x.src) + '">' + esc(x.src) + '</button>' +
       '<span class="src-n">' + x.n.toLocaleString() + '</span>' +
       (off
@@ -7592,19 +7614,13 @@ function renderNewsAll(entries, segHtml) {
   const limit = state.newsAllLimit || NEWS_ALL_PAGE;
   const shown = list.slice(0, limit);
   const rest = list.length - shown.length;
-  const blocked = newsBlocked();
-  const blockedHtml = blocked.length
-    ? '<p class="muted" style="margin:10px 0 6px">隠している媒体（⊘で追加、✕で戻す）</p>' +
-      '<div class="mynews-chips">' + blocked.map((src, i) =>
-        '<span class="mynews-chip">' + esc(src) +
-        '<button type="button" data-newsunblock="' + i + '" aria-label="' + esc(src) + ' を戻す">✕</button>' +
-        '</span>').join("") + '</div>'
-    : '';
+  /* 第54弾: 隠した媒体のチップをここに出していたが、押すたびに行が増えて
+     一覧が下へずれていた。隠す・戻すの管理は「媒体」タブに一本化する。 */
   const head = '<section><h2>注目</h2><div class="card">' + segHtml +
     '<p class="muted" style="margin:0">Jリーグ60クラブと海外サッカーの見出しを、' +
     'キーワードで絞り込まずに新しい順で並べています（重複は畳んで' +
     list.length.toLocaleString() + '件）。' +
-    '関係のない媒体は見出しの ⊘ で隠せます。</p>' + blockedHtml + '</div></section>';
+    '関係のない媒体は見出しの ⊘ で隠せます（戻すのは「媒体」から）。</p></div></section>';
   if (!list.length) return head;
   const body = '<section><h2>すべてのニュース</h2><div class="card">' +
     '<ul class="news-list">' + shown.map(e => newsItemHtml(e.item, e.league, null, true)).join("") + '</ul>' +
