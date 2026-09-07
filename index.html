@@ -2713,6 +2713,25 @@ async function rerenderKeepingMyNewsFocus() {
   if (input) { input.focus(); try { input.setSelectionRange(input.value.length, input.value.length); } catch (e) { /* 無視 */ } }
 }
 
+/* 第53弾: 画面を作り直すとき、中身をすぐには消さない。
+   消すとページの高さが一瞬0に縮んでスクロール位置が飛び、指を置いた瞬間に
+   別の行が下へ来る。媒体一覧(331行)で「タップすると隣の媒体が選ばれる」という形で出た。
+   データが手元にある再描画(ライブスコアの定期更新、ボタン操作)は待ち時間がほぼ0なので、
+   「読み込み中」は少し待ってから出す。取得に時間がかかるときだけ従来どおり出る。 */
+const LOADING_DELAY_MS = 150;
+
+function deferLoading(app) {
+  const t = setTimeout(() => { app.innerHTML = LOADING_HTML; }, LOADING_DELAY_MS);
+  return function () { clearTimeout(t); };
+}
+
+/* ライブスコアが実際に画面へ出るタブかどうか。ライブと無関係なタブまで
+   作り直すと、長い一覧のスクロールを毎周期ゆらす。 */
+function liveAffectsCurrentView() {
+  if (state.viewMode === "all") return state.allTab === "schedule";
+  return state.activeTab === "home" || state.activeTab === "schedule";
+}
+
 async function renderActiveTab() {
   /* 第43弾: 画面を作り直すあいだ、戦闘のメッセージ送りを止める。
      止めないと、他のタブへ移ったあとも裏でタイマーが走り続ける。 */
@@ -2726,15 +2745,17 @@ async function renderActiveTab() {
   const { league, team } = found;
   const master = state.masters[league];
   const app = document.getElementById("app");
-  app.innerHTML = LOADING_HTML;
+  const cancelLoading = deferLoading(app);   // 第53弾
 
   /* 第37弾: 以前は ensureTabData だけを包んでいたため、描画側で例外が出ると
      app.innerHTML が LOADING_HTML のまま固まり、エラーも出ずリロード以外に復帰手段が
      無かった。データ取得と描画をまとめて包む。 */
   try {
     await ensureTabData(league, state.activeTab);
+    cancelLoading();
     renderActiveTabBody(league, team, master, app);
   } catch (e) {
+    cancelLoading();
     app.innerHTML = '<div class="err">' + esc((e && e.message) || "描画に失敗しました") + '</div>';
   }
 }
@@ -2822,14 +2843,16 @@ function renderActiveTabBody(league, team, master, app) {
 async function renderAllModeActiveTab() {
   const found = findTeam(state.idTeam);
   const app = document.getElementById("app");
-  app.innerHTML = LOADING_HTML;
+  const cancelLoading = deferLoading(app);   // 第53弾
 
   // 順位/予想タブの既定リーグは自クラブの所属リーグ(未選択のときだけ決める)
   if (!state.allLeague) state.allLeague = found ? found.league : "j1";
 
   try {
     await ensureAllTabData(state.allTab, state.allLeague);
+    cancelLoading();
   } catch (e) {
+    cancelLoading();
     app.innerHTML = '<div class="err">' + esc(e.message) + '</div>';
     return;
   }
@@ -5429,7 +5452,7 @@ async function liveTick() {
     if (Object.keys(state.liveScores).length || Object.keys(state.liveMissingStreak).length) {
       state.liveScores = {};
       state.liveMissingStreak = {};
-      renderActiveTab();
+      if (liveAffectsCurrentView()) renderActiveTab();   // 第53弾
     }
     state.liveAutoFetchDone = false; // 次の試合が候補に入ってきたときのためにリセットしておく
     /* 第37弾: 通算回数もここで戻す。LIVE_MAX_TOTAL_FETCHES は「1試合帯での暴走」を
@@ -5484,7 +5507,7 @@ async function liveTick() {
   state.liveScores = nextScores;
   state.liveMissingStreak = nextMissing;
   state.liveUpdatedAt = nowJstIso(); // 端末時刻。livescore.phpのupdatedフィールドは使わない(1章の落とし穴)
-  renderActiveTab();
+  if (liveAffectsCurrentView()) renderActiveTab();   // 第53弾
 
   // 第31弾: 得点者データの取り直しと、必要なら取得の依頼。
   // awaitしない(ポーリングの周期をこの通信で遅らせない)。
