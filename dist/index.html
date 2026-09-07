@@ -672,6 +672,9 @@
      上方向を控えめにしているのは、すぐ上に記事リンクがあるため。 */
   .news-block::after{content:""; position:absolute; inset:-9px -14px -13px -14px}
   .news-block:hover, .news-block:focus{opacity:1; color:var(--loss)}
+  /* 第55弾: 中身を丸ごと入れ替えると、ブラウザのスクロールアンカリングが
+     基準の要素を見失って位置を勝手に調整することがある。切っておく。 */
+  #app{overflow-anchor:none}
   /* 第51弾: 媒体別の一覧 */
   .src-row{display:grid; grid-template-columns:1fr auto auto; gap:8px; align-items:center;
     border-top:1px solid var(--line)}
@@ -1185,7 +1188,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "ef167e3";
+const APP_BUILD_VERSION = "fd4db65";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -2452,6 +2455,7 @@ async function init() {
       state.newsScope = newsScopeBtn.dataset.newsscope;
       state.newsAllLimit = 0;   // 切り替えたら表示件数は最初から
       state.newsSource = null;  // 第51弾: 媒体の選択も戻す
+      forceScrollTop = true;    // 第55弾: 別の画面なので先頭から
       renderActiveTab();
       return;
     }
@@ -2460,6 +2464,7 @@ async function init() {
     if (newsSourceBtn) {
       state.newsSource = newsSourceBtn.dataset.newssource || null;
       state.newsAllLimit = 0;
+      forceScrollTop = true;    // 第55弾: 媒体の中身/一覧は別の画面なので先頭から
       renderActiveTab();
       return;
     }
@@ -2731,6 +2736,34 @@ function deferLoading(app) {
 
 /* ライブスコアが実際に画面へ出るタブかどうか。ライブと無関係なタブまで
    作り直すと、長い一覧のスクロールを毎周期ゆらす。 */
+/* 第55弾: 画面を作り直したあとのスクロール位置。
+   #app の中身を入れ替えると、同じ画面の作り直しでも位置がずれることがある
+   (実機で「一覧の下のほうをタップするとリストが動いて別の行が選ばれる」形で出た)。
+   同じ画面を作り直すときだけ、元の位置へ戻す。タブやクラブを変えたときは先頭のままでよい。 */
+let lastViewKey = null;
+let forceScrollTop = false;
+
+function currentViewKey() {
+  return state.viewMode === "all"
+    ? "all:" + state.allTab + ":" + state.allLeague
+    : "club:" + state.activeTab + ":" + state.idTeam;
+}
+
+function setAppHtml(app, html) {
+  const key = currentViewKey();
+  const keep = (key === lastViewKey) && !forceScrollTop;
+  lastViewKey = key;
+  forceScrollTop = false;
+  const y = window.scrollY;
+  app.innerHTML = html;
+  if (!keep) return;
+  if (Math.abs(window.scrollY - y) > 0.5) window.scrollTo(0, y);
+  /* 差し替え直後だけでなく、レイアウトが確定したあとにもう一度見る。 */
+  requestAnimationFrame(function () {
+    if (Math.abs(window.scrollY - y) > 0.5) window.scrollTo(0, y);
+  });
+}
+
 /* 第54弾: 押した行を画面上の同じ位置に留めたまま作り直す。
    上のカードの高さが変わっても、次に押したい行が指の下からずれない。 */
 function renderAnchoredTo(selector) {
@@ -2837,7 +2870,7 @@ function renderActiveTabBody(league, team, master, app) {
       renderPromotion(cache.simulation, team, all, master.promotionRules, league) +
       renderImpactSection(cache.impact, team, master.promotionRules, league);
   }
-  app.innerHTML = html;
+  setAppHtml(app, html);   // 第55弾
   /* 第43弾: 戦闘画面が出ているならメッセージ送りを動かす */
   if (state.battle && document.getElementById("battleRoot")) battleScheduleAdvance();
 
@@ -2899,7 +2932,7 @@ async function renderAllModeActiveTab() {
     html = renderAllPredict(state.allLeague, cache.simulation, found);
     genMeta = cache.simulation && cache.simulation.meta;
   }
-  app.innerHTML = html;
+  setAppHtml(app, html);   // 第55弾
 
   if (state.allTab === "schedule" && state.calNeedsScroll) {
     scrollCalendarToAnchor();
