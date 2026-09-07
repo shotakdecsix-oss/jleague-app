@@ -619,7 +619,7 @@
   /* 第48弾: toto予想。自分で1/0/2を選んで保存し、結果が出たら答え合わせをする */
   .toto-head{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px}
   .toto-head select{
-    padding:7px 26px 7px 9px; border-radius:9px; border:1px solid var(--line);
+    padding:10px 26px 10px 9px; border-radius:9px; border:1px solid var(--line);
     background:var(--card) var(--select-arrow) no-repeat right 9px center; color:var(--ink);
     font-size:13px; font-family:inherit; -webkit-appearance:none; appearance:none;
   }
@@ -636,12 +636,17 @@
     white-space:nowrap; vertical-align:bottom}
   .toto-card .sc{font-weight:700; font-variant-numeric:tabular-nums; margin:0 4px}
   .toto-card .dt{font-size:10px; color:var(--sub); margin-left:4px}
-  .toto-marks{display:flex; gap:4px}
+  /* 第52弾: 32x32では隣の記号を押しやすかったので広げた。
+     幅を増やしすぎるとカード名(「水戸 - 川崎F 09/12」)が入らなくなるため、
+     高さを優先して伸ばしている。 */
+  .toto-marks{display:flex; gap:6px}
   .toto-marks button{
-    width:32px; height:32px; border-radius:8px; border:1px solid var(--line);
+    width:34px; height:40px; border-radius:8px; border:1px solid var(--line);
     background:var(--surface-1); color:var(--sub); font-size:14px; font-weight:700;
-    cursor:pointer; padding:0; font-family:inherit;
+    cursor:pointer; padding:0; font-family:inherit; position:relative;
   }
+  /* 幅はカード名の都合で34pxが上限。当たり判定だけ隙間(gap:6px)の半分ずつ広げて40x40にする。 */
+  .toto-marks button::after{content:""; position:absolute; inset:0 -3px}
   .toto-marks button.on{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
   .toto-marks button.res{box-shadow:inset 0 0 0 2px var(--ink)}
   .toto-marks button.hit{background:var(--win); color:#fff; border-color:var(--win)}
@@ -660,27 +665,35 @@
   .news-block{
     border:0; background:none; color:var(--sub); font-size:13px; line-height:1;
     padding:2px 4px; cursor:pointer; font-family:inherit; opacity:.55;
+    position:relative;
   }
+  /* 第52弾: 見た目は19x17しかなく、指では隣や真上の記事リンクを押してしまっていた。
+     ::after で当たり判定だけ広げる(見た目と行の高さは変えない)。
+     上方向を控えめにしているのは、すぐ上に記事リンクがあるため。 */
+  .news-block::after{content:""; position:absolute; inset:-9px -14px -13px -14px}
   .news-block:hover, .news-block:focus{opacity:1; color:var(--loss)}
   /* 第51弾: 媒体別の一覧 */
   .src-row{display:grid; grid-template-columns:1fr auto auto; gap:8px; align-items:center;
-    padding:8px 0; border-top:1px solid var(--line)}
+    border-top:1px solid var(--line)}
   .src-row:first-child{border-top:0}
   .src-row.off{opacity:.45}
   /* 下線だと英数字だけの媒体名(targma.jp / 47NEWS)で線が出たり出なかったりして
      まだらに見えたので、色で押せることを示す。 */
+  /* 第52弾: 余白を .src-row から .src-name に移してある。行の高さいっぱいが
+     媒体名の当たり判定になるようにするため(以前は中央の18pxしか押せなかった)。 */
   .src-name{
-    border:0; background:none; padding:0; text-align:left; font-size:13px;
+    border:0; background:none; padding:13px 0; text-align:left; font-size:13px;
     color:var(--accent-on-light); font-weight:600;
     font-family:inherit; cursor:pointer; min-width:0; overflow:hidden; text-overflow:ellipsis;
     white-space:nowrap;
   }
-  .src-n{font-size:12px; color:var(--sub); font-variant-numeric:tabular-nums}
+  .src-n{font-size:12px; color:var(--sub); font-variant-numeric:tabular-nums; padding:13px 0}
   .src-act{
     border:1px solid var(--line); background:var(--surface-1); color:var(--sub);
-    font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;
-    cursor:pointer; font-family:inherit; white-space:nowrap;
+    font-size:11px; font-weight:700; padding:9px 14px; border-radius:999px;
+    cursor:pointer; font-family:inherit; white-space:nowrap; position:relative;
   }
+  .src-act::after{content:""; position:absolute; inset:-6px -8px}
   .src-act.on{background:var(--loss); color:#fff; border-color:var(--loss)}
   .stat-group{margin-top:16px}
   .stat-group:first-child{margin-top:0}
@@ -1172,7 +1185,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "33034b6";
+const APP_BUILD_VERSION = "33cdc8f";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
