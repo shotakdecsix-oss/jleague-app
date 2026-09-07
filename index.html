@@ -1160,6 +1160,8 @@ const state = {
      newsWhole … 分割前の news.json。ローカル開発でのフォールバック用 */
   newsCache: null, newsAll: undefined, newsOb: undefined, newsWhole: undefined,
   myNewsKeywords: null,   // 第32弾: マイニュースのキーワード配列。nullなら初回にlocalStorageから読む
+  newsScope: "my",        // 第49弾: 注目タブの表示("my"=キーワード絞り込み / "all"=全件)
+  newsAllLimit: 0,        // 全件表示の表示件数。0なら初期値(NEWS_ALL_PAGE)
   emperorsCup: undefined, // 第23弾: 天皇杯(data/processed/emperors_cup.json)。undefined=未取得, null=データ無し
   cupRound: null,         // カップタブで表示中のラウンド名。nullなら初回描画時に決める
   currentRoundForJump: null, // 第27弾: 日程タブ「今節へ」のスクロール先(描画時に控える)
@@ -2399,6 +2401,22 @@ async function init() {
         };
       }
       saveTotoPicks(all);
+      renderActiveTab();
+      return;
+    }
+
+    /* 第49弾: 注目タブの切り替えと「もっと見る」 */
+    const newsScopeBtn = ev.target.closest("[data-newsscope]");
+    if (newsScopeBtn) {
+      state.newsScope = newsScopeBtn.dataset.newsscope;
+      state.newsAllLimit = 0;   // 切り替えたら表示件数は最初から
+      renderActiveTab();
+      return;
+    }
+
+    const newsMoreBtn = ev.target.closest("[data-newsmore]");
+    if (newsMoreBtn) {
+      state.newsAllLimit = (state.newsAllLimit || NEWS_ALL_PAGE) + NEWS_ALL_PAGE;
       renderActiveTab();
       return;
     }
@@ -5186,10 +5204,12 @@ function clearStaticCaches(deep) {
   state.newsOb = undefined;
   state.newsWhole = undefined;
   myNewsEntriesCache = null;
+  allNewsSortedCache = null;   // 第49弾
   if (deep) {
     state.clubExtra = undefined;
     state.news = undefined;
     myNewsEntriesCache = null;
+    allNewsSortedCache = null;
   }
 }
 
@@ -7241,6 +7261,26 @@ function newsDedupeKey(item) {
 /* 同じ記事が複数クラブの一覧に入っていることもある(対戦相手の名前が入った試合レポートなど)。
    先に新しい順へ並べてから畳むので、残るのは常に一番新しい1件。
    キーワードごとの件数も畳んだ後の数で数える(チップの数字と一覧の件数を一致させる)。 */
+/* 第49弾: キーワードで絞り込まない全件。並べ方と重複の畳み方は searchMyNews と同じ。
+   6,500件ほどあるので、entriesが同じ間は結果を使い回す(タブを開くたびに
+   ソートし直すとスマホで一拍もたつく)。 */
+let allNewsSortedCache = null;
+
+function allNewsSorted(entries) {
+  if (allNewsSortedCache && allNewsSortedCache.entries === entries) return allNewsSortedCache.list;
+  const sorted = entries.slice().sort((a, b) => byPublishedDesc(a.item, b.item));
+  const seen = new Set();
+  const list = [];
+  for (const e of sorted) {
+    const key = newsDedupeKey(e.item);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    list.push(e);
+  }
+  allNewsSortedCache = { entries: entries, list: list };
+  return list;
+}
+
 function searchMyNews(entries, keywords) {
   const norm = keywords.map(k => ({ raw: k, n: normalizeForSearch(k) })).filter(k => k.n);
   const counts = {};
@@ -7310,9 +7350,40 @@ function myNewsChipsHtml(keywords, counts) {
   }).join("");
 }
 
+const NEWS_ALL_PAGE = 100;   // 第49弾: 全件表示の1回ぶんの件数
+
+function renderNewsAll(entries, segHtml) {
+  const list = allNewsSorted(entries);
+  const limit = state.newsAllLimit || NEWS_ALL_PAGE;
+  const shown = list.slice(0, limit);
+  const rest = list.length - shown.length;
+  const head = '<section><h2>注目</h2><div class="card">' + segHtml +
+    '<p class="muted" style="margin:0">Jリーグ60クラブと海外サッカーの見出しを、' +
+    'キーワードで絞り込まずに新しい順で並べています（重複は畳んで' +
+    list.length.toLocaleString() + '件）。</p></div></section>';
+  if (!list.length) return head;
+  const body = '<section><h2>すべてのニュース</h2><div class="card">' +
+    '<ul class="news-list">' + shown.map(e => newsItemHtml(e.item, e.league)).join("") + '</ul>' +
+    (rest > 0
+      ? '<div style="margin-top:12px;text-align:center">' +
+        '<button type="button" class="chart-chip" data-newsmore>もっと見る（残り' +
+        rest.toLocaleString() + '件）</button></div>'
+      : '<p class="muted" style="margin:10px 0 0">これで全部です。</p>') +
+    '</div></section>';
+  return head + body;
+}
+
 function renderMyNewsTab() {
   const keywords = myNewsKeywords();
   const entries = allNewsEntries(state.newsAll, state.clubExtra);
+
+  /* 第49弾: キーワード絞り込みと全件を切り替える */
+  const segHtml = '<div class="stats-subtabs">' +
+    [["my", "マイニュース"], ["all", "すべて"]].map(pair =>
+      '<button type="button" class="' + (state.newsScope === pair[0] ? "active" : "") +
+      '" data-newsscope="' + pair[0] + '">' + pair[1] + '</button>').join("") + '</div>';
+  if (state.newsScope === "all") return renderNewsAll(entries, segHtml);
+
   const res = searchMyNews(entries, keywords);
 
   const form =
@@ -7364,7 +7435,7 @@ function renderMyNewsTab() {
     '</div></section>';
   }
 
-  return '<section><h2>マイニュース</h2><div class="card">' + manage + '</div></section>' + listHtml;
+  return '<section><h2>注目</h2><div class="card">' + segHtml + manage + '</div></section>' + listHtml;
 }
 
 function rssNewsItemHtml(item) {
