@@ -1188,7 +1188,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "be8fcd5";
+const APP_BUILD_VERSION = "7aec8ad";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -7572,22 +7572,32 @@ function myNewsChipsHtml(keywords, counts) {
 
 const NEWS_ALL_PAGE = 100;   // 第49弾: 全件表示の1回ぶんの件数
 
-/* 第57弾: 「すべて」に出すのは件数の多い上位9媒体だけにする。
-   331媒体のうち、98媒体は記事が1件しか無く、転載サイトやフィードの取りこぼしも多い。
-   全部混ぜると読むより探すほうが長くなるため、主要な出どころに絞る。
-   上位から外れた媒体の見出しは「媒体」から読める(隠したわけではない)。 */
-const NEWS_ALL_TOP_SOURCES = 9;
+/* 第58弾: 「すべて」に出す媒体は固定にする。
+   331媒体のうち98媒体は記事が1件しか無く、転載サイトやフィードの取りこぼしも多い。
+   全部混ぜると読むより探すほうが長くなるので主要な出どころに絞るが、
+   件数順で自動に選ぶと日々の記事数で顔ぶれが入れ替わり、
+   「昨日まで出ていた媒体が今日は消える」ことになるため固定した(第57弾からの変更)。
+
+   表記はデータのものと一字一句合わせること。全角の「Ｊリーグ公式サイト」
+   「ｄメニューニュース」を半角で書くと、その媒体だけ静かに0件になる。
+   ここに無い媒体は隠したわけではなく、「媒体」から従来どおり読める。 */
+const NEWS_ALL_SOURCES = [
+  "Yahoo!ニュース",
+  "ゲキサカ",
+  "targma.jp",
+  "ゲキサカ(海外)",
+  "サッカーダイジェストWeb",
+  "サッカーキング",
+  "Ｊリーグ公式サイト",
+  "ｄメニューニュース",
+  "フットボールチャンネル",
+];
 
 let newsTopCache = null;
 function topSourceEntries(entries) {
-  const top = newsSourceStats(entries).slice(0, NEWS_ALL_TOP_SOURCES).map(x => x.src);
-  const sig = top.join("\u0001");
-  if (newsTopCache && newsTopCache.entries === entries && newsTopCache.sig === sig) return newsTopCache;
-  const set = new Set(top);
-  newsTopCache = {
-    entries: entries, sig: sig, top: top,
-    list: entries.filter(e => set.has(newsSourceOf(e.item))),
-  };
+  if (newsTopCache && newsTopCache.entries === entries) return newsTopCache;
+  const set = new Set(NEWS_ALL_SOURCES);
+  newsTopCache = { entries: entries, list: entries.filter(e => set.has(newsSourceOf(e.item))) };
   return newsTopCache;
 }
 
@@ -7684,7 +7694,7 @@ function renderNewsAll(entries, segHtml) {
   /* 第54弾: 隠した媒体のチップをここに出していたが、押すたびに行が増えて
      一覧が下へずれていた。隠す・戻すの管理は「媒体」タブに一本化する。 */
   const head = '<section><h2>注目</h2><div class="card">' + segHtml +
-    '<p class="muted" style="margin:0">件数の多い上位' + NEWS_ALL_TOP_SOURCES +
+    '<p class="muted" style="margin:0">主なサッカーメディア' + NEWS_ALL_SOURCES.length +
     '媒体の見出しを、キーワードで絞り込まずに新しい順で並べています（重複は畳んで' +
     list.length.toLocaleString() + '件）。' +
     'それ以外の媒体は「媒体」から読めます。見出しの ⊘ でその媒体を隠せます。</p></div></section>';
