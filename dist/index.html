@@ -1188,7 +1188,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "0c21e53";
+const APP_BUILD_VERSION = "bc0bbce";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -1205,6 +1205,7 @@ const state = {
   newsScope: "my",        // 第49弾: 注目タブの表示("my"=キーワード絞り込み / "all"=全件)
   newsBlocked: null,      // 第50弾: 非表示にした媒体名。nullなら初回にlocalStorageから読む
   newsSource: null,       // 第51弾: 媒体別で開いている媒体名。nullなら媒体の一覧
+  newsSourceScroll: 0,    // 第56弾: 媒体を開く直前の、一覧でのスクロール位置
   newsAllLimit: 0,        // 全件表示の表示件数。0なら初期値(NEWS_ALL_PAGE)
   emperorsCup: undefined, // 第23弾: 天皇杯(data/processed/emperors_cup.json)。undefined=未取得, null=データ無し
   cupRound: null,         // カップタブで表示中のラウンド名。nullなら初回描画時に決める
@@ -2455,16 +2456,24 @@ async function init() {
       state.newsScope = newsScopeBtn.dataset.newsscope;
       state.newsAllLimit = 0;   // 切り替えたら表示件数は最初から
       state.newsSource = null;  // 第51弾: 媒体の選択も戻す
-      forceScrollTop = true;    // 第55弾: 別の画面なので先頭から
+      nextScrollTop = 0;        // 第56弾: 別の画面なので先頭から
       renderActiveTab();
       return;
     }
 
     const newsSourceBtn = ev.target.closest("[data-newssource]");
     if (newsSourceBtn) {
-      state.newsSource = newsSourceBtn.dataset.newssource || null;
+      const to = newsSourceBtn.dataset.newssource || null;
+      /* 第56弾: 一覧->媒体は先頭から。媒体->一覧は、さっき見ていた場所へ返す
+         (331媒体あるので、戻るたびに先頭からでは探し直しになる)。 */
+      if (to) {
+        if (!state.newsSource) state.newsSourceScroll = window.scrollY;
+        nextScrollTop = 0;
+      } else {
+        nextScrollTop = state.newsSourceScroll || 0;
+      }
+      state.newsSource = to;
       state.newsAllLimit = 0;
-      forceScrollTop = true;    // 第55弾: 媒体の中身/一覧は別の画面なので先頭から
       renderActiveTab();
       return;
     }
@@ -2741,7 +2750,7 @@ function deferLoading(app) {
    (実機で「一覧の下のほうをタップするとリストが動いて別の行が選ばれる」形で出た)。
    同じ画面を作り直すときだけ、元の位置へ戻す。タブやクラブを変えたときは先頭のままでよい。 */
 let lastViewKey = null;
-let forceScrollTop = false;
+let nextScrollTop = null;   // 次の描画で移動したい位置。nullなら自動で決める
 
 function currentViewKey() {
   return state.viewMode === "all"
@@ -2751,16 +2760,21 @@ function currentViewKey() {
 
 function setAppHtml(app, html) {
   const key = currentViewKey();
-  const keep = (key === lastViewKey) && !forceScrollTop;
+  const same = (key === lastViewKey);
   lastViewKey = key;
-  forceScrollTop = false;
-  const y = window.scrollY;
+
+  /* 行き先を必ず決めてから差し替える。
+     第55弾では「別の画面なら何もしない」で済ませていたが、それだとブラウザ任せになり、
+     一覧を5,000pxまでスクロールしてから媒体を開くと、詳細が469px下がった位置で
+     表示された(「タップすると勝手に下に引っ張られる」)。 */
+  const target = (nextScrollTop !== null) ? nextScrollTop : (same ? window.scrollY : 0);
+  nextScrollTop = null;
+
   app.innerHTML = html;
-  if (!keep) return;
-  if (Math.abs(window.scrollY - y) > 0.5) window.scrollTo(0, y);
+  if (Math.abs(window.scrollY - target) > 0.5) window.scrollTo(0, target);
   /* 差し替え直後だけでなく、レイアウトが確定したあとにもう一度見る。 */
   requestAnimationFrame(function () {
-    if (Math.abs(window.scrollY - y) > 0.5) window.scrollTo(0, y);
+    if (Math.abs(window.scrollY - target) > 0.5) window.scrollTo(0, target);
   });
 }
 
