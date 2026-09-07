@@ -662,6 +662,26 @@
     padding:2px 4px; cursor:pointer; font-family:inherit; opacity:.55;
   }
   .news-block:hover, .news-block:focus{opacity:1; color:var(--loss)}
+  /* 第51弾: 媒体別の一覧 */
+  .src-row{display:grid; grid-template-columns:1fr auto auto; gap:8px; align-items:center;
+    padding:8px 0; border-top:1px solid var(--line)}
+  .src-row:first-child{border-top:0}
+  .src-row.off{opacity:.45}
+  /* 下線だと英数字だけの媒体名(targma.jp / 47NEWS)で線が出たり出なかったりして
+     まだらに見えたので、色で押せることを示す。 */
+  .src-name{
+    border:0; background:none; padding:0; text-align:left; font-size:13px;
+    color:var(--accent-on-light); font-weight:600;
+    font-family:inherit; cursor:pointer; min-width:0; overflow:hidden; text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .src-n{font-size:12px; color:var(--sub); font-variant-numeric:tabular-nums}
+  .src-act{
+    border:1px solid var(--line); background:var(--surface-1); color:var(--sub);
+    font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;
+    cursor:pointer; font-family:inherit; white-space:nowrap;
+  }
+  .src-act.on{background:var(--loss); color:#fff; border-color:var(--loss)}
   .stat-group{margin-top:16px}
   .stat-group:first-child{margin-top:0}
   .stat-group-title{font-size:11px; font-weight:700; color:var(--sub); margin:0 0 4px 2px}
@@ -1152,7 +1172,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "e876181";
+const APP_BUILD_VERSION = "65f1fca";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -1168,6 +1188,7 @@ const state = {
   myNewsKeywords: null,   // 第32弾: マイニュースのキーワード配列。nullなら初回にlocalStorageから読む
   newsScope: "my",        // 第49弾: 注目タブの表示("my"=キーワード絞り込み / "all"=全件)
   newsBlocked: null,      // 第50弾: 非表示にした媒体名。nullなら初回にlocalStorageから読む
+  newsSource: null,       // 第51弾: 媒体別で開いている媒体名。nullなら媒体の一覧
   newsAllLimit: 0,        // 全件表示の表示件数。0なら初期値(NEWS_ALL_PAGE)
   emperorsCup: undefined, // 第23弾: 天皇杯(data/processed/emperors_cup.json)。undefined=未取得, null=データ無し
   cupRound: null,         // カップタブで表示中のラウンド名。nullなら初回描画時に決める
@@ -2417,6 +2438,23 @@ async function init() {
     if (newsScopeBtn) {
       state.newsScope = newsScopeBtn.dataset.newsscope;
       state.newsAllLimit = 0;   // 切り替えたら表示件数は最初から
+      state.newsSource = null;  // 第51弾: 媒体の選択も戻す
+      renderActiveTab();
+      return;
+    }
+
+    const newsSourceBtn = ev.target.closest("[data-newssource]");
+    if (newsSourceBtn) {
+      state.newsSource = newsSourceBtn.dataset.newssource || null;
+      state.newsAllLimit = 0;
+      renderActiveTab();
+      return;
+    }
+
+    const newsUnblockSrcBtn = ev.target.closest("[data-newsunblocksrc]");
+    if (newsUnblockSrcBtn) {
+      const list = newsBlocked();
+      removeNewsBlock(list.indexOf(newsUnblockSrcBtn.dataset.newsunblocksrc));
       renderActiveTab();
       return;
     }
@@ -7431,6 +7469,88 @@ function myNewsChipsHtml(keywords, counts) {
 
 const NEWS_ALL_PAGE = 100;   // 第49弾: 全件表示の1回ぶんの件数
 
+/* 第51弾: 媒体ごとの件数。ブロック済みの媒体もここに出したいので、
+   フィルタをかける前の entries から数える。 */
+function newsSourceStats(entries) {
+  const map = new Map();
+  for (const e of entries) {
+    const src = newsSourceOf(e.item);
+    if (!src) continue;
+    map.set(src, (map.get(src) || 0) + 1);
+  }
+  const out = [];
+  map.forEach((n, src) => out.push({ src: src, n: n }));
+  out.sort((a, b) => (b.n - a.n) || a.src.localeCompare(b.src, "ja"));
+  return out;
+}
+
+/* 媒体の一覧。件数の多い順。名前を押すとその媒体の見出しだけを読める。
+   何を隠すかは見出しを見てからでないと決められないので、一覧→中身→隠す
+   の順にたどれるようにしてある。 */
+function renderNewsSourceList(entries, segHtml) {
+  const stats = newsSourceStats(entries);
+  const blocked = newsBlocked();
+  const hidden = stats.filter(x => blocked.indexOf(x.src) >= 0).length;
+
+  const head = '<section><h2>注目</h2><div class="card">' + segHtml +
+    '<p class="muted" style="margin:0">見出しの出どころを件数の多い順に並べています（' +
+    stats.length + '媒体）。名前を押すとその媒体の見出しだけを読めます。' +
+    (hidden ? '　いま' + hidden + '媒体を隠しています。' : '') +
+    '</p></div></section>';
+
+  const rows = stats.map(x => {
+    const off = blocked.indexOf(x.src) >= 0;
+    return '<div class="src-row' + (off ? " off" : "") + '">' +
+      '<button type="button" class="src-name" data-newssource="' + esc(x.src) + '">' + esc(x.src) + '</button>' +
+      '<span class="src-n">' + x.n.toLocaleString() + '</span>' +
+      (off
+        ? '<button type="button" class="src-act on" data-newsunblocksrc="' + esc(x.src) + '">戻す</button>'
+        : '<button type="button" class="src-act" data-newsblock="' + esc(x.src) + '">隠す</button>') +
+    '</div>';
+  }).join("");
+
+  return head + '<section><h2>媒体</h2><div class="card">' + rows + '</div></section>';
+}
+
+/* 選んだ媒体の見出しだけを新しい順に。ここで中身を確かめてから隠すか決める。 */
+function renderNewsSourceDetail(entries, segHtml, src) {
+  const off = newsBlocked().indexOf(src) >= 0;
+  const mine = entries.filter(e => newsSourceOf(e.item) === src)
+    .sort((a, b) => byPublishedDesc(a.item, b.item));
+  const seen = new Set();
+  const list = [];
+  for (const e of mine) {
+    const key = newsDedupeKey(e.item);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    list.push(e);
+  }
+  const limit = state.newsAllLimit || NEWS_ALL_PAGE;
+  const shown = list.slice(0, limit);
+  const rest = list.length - shown.length;
+
+  const head = '<section><h2>注目</h2><div class="card">' + segHtml +
+    '<div class="toto-actions" style="margin-top:0">' +
+      '<button type="button" data-newssource="">← 媒体の一覧へ</button>' +
+      (off
+        ? '<button type="button" data-newsunblocksrc="' + esc(src) + '">この媒体を戻す</button>'
+        : '<button type="button" data-newsblock="' + esc(src) + '">この媒体を隠す</button>') +
+    '</div>' +
+    '<p class="muted" style="margin:10px 0 0"><b>' + esc(src) + '</b>　' +
+    list.length.toLocaleString() + '件' + (off ? '　（いまは隠しています）' : '') + '</p>' +
+    '</div></section>';
+
+  if (!list.length) return head;
+  return head + '<section><h2>この媒体の見出し</h2><div class="card">' +
+    '<ul class="news-list">' + shown.map(e => newsItemHtml(e.item, e.league)).join("") + '</ul>' +
+    (rest > 0
+      ? '<div style="margin-top:12px;text-align:center">' +
+        '<button type="button" class="chart-chip" data-newsmore>もっと見る（残り' +
+        rest.toLocaleString() + '件）</button></div>'
+      : '') +
+    '</div></section>';
+}
+
 function renderNewsAll(entries, segHtml) {
   const list = allNewsSorted(entries);
   const limit = state.newsAllLimit || NEWS_ALL_PAGE;
@@ -7463,14 +7583,21 @@ function renderNewsAll(entries, segHtml) {
 
 function renderMyNewsTab() {
   const keywords = myNewsKeywords();
-  const entries = filterBlockedNews(allNewsEntries(state.newsAll, state.clubExtra));
+  const rawEntries = allNewsEntries(state.newsAll, state.clubExtra);
+  const entries = filterBlockedNews(rawEntries);
 
-  /* 第49弾: キーワード絞り込みと全件を切り替える */
+  /* 第49弾: キーワード絞り込みと全件。第51弾: 媒体別。 */
   const segHtml = '<div class="stats-subtabs">' +
-    [["my", "マイニュース"], ["all", "すべて"]].map(pair =>
+    [["my", "マイニュース"], ["all", "すべて"], ["source", "媒体"]].map(pair =>
       '<button type="button" class="' + (state.newsScope === pair[0] ? "active" : "") +
       '" data-newsscope="' + pair[0] + '">' + pair[1] + '</button>').join("") + '</div>';
   if (state.newsScope === "all") return renderNewsAll(entries, segHtml);
+  if (state.newsScope === "source") {
+    /* 媒体別だけはブロック前の entries を渡す。隠した媒体も一覧に残さないと戻せない。 */
+    return state.newsSource
+      ? renderNewsSourceDetail(rawEntries, segHtml, state.newsSource)
+      : renderNewsSourceList(rawEntries, segHtml);
+  }
 
   const res = searchMyNews(entries, keywords);
 
