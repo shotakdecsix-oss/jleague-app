@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-09-09T20:50:04+09:00",
+    "generatedAtJst": "2026-09-09T20:55:04+09:00",
     "windowHours": 36,
     "candidateCount": 1,
     "fetchedCount": 1,
@@ -14240,8 +14240,17 @@
     "2491617": {
       "code": "090908",
       "url": "https://www.jleague.jp/match/j3/2026/090908/livetxt/",
-      "fetchedAtJst": "2026-09-09T20:50:06+09:00",
+      "fetchedAtJst": "2026-09-09T20:55:07+09:00",
       "goals": [
+        {
+          "minute": "89",
+          "club": "ＦＣ琉球",
+          "player": "上野 瑶介",
+          "position": "FW 18",
+          "scoreAfter": "3-0",
+          "idTeam": "139895",
+          "playerId": "1645959"
+        },
         {
           "minute": "77",
           "club": "ＦＣ琉球",
@@ -14274,7 +14283,7 @@
       ],
       "subs": [
         {
-          "minute": "86",
+          "minute": null,
           "club": "ＦＣ琉球",
           "items": [
             {
@@ -14282,6 +14291,12 @@
               "position": "DF 24",
               "name": "川口 尚紀",
               "playerId": "1200383"
+            },
+            {
+              "variant": "out",
+              "position": "DF 27",
+              "name": "船橋 勇真",
+              "playerId": "1629497"
             }
           ],
           "idTeam": "139895"
