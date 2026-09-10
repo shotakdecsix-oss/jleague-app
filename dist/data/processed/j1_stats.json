@@ -2,7 +2,7 @@
   "meta": {
     "league": "j1",
     "season": "2026-2027",
-    "generatedAtJst": "2026-09-10T07:48:50+09:00",
+    "generatedAtJst": "2026-09-10T14:09:59+09:00",
     "basedOnMatches": 60,
     "clubCount": 20,
     "note": "順位は同値同順位、次は飛ぶ方式(1,2,2,4)。シュート数はデータソースに存在しないため対象外。公式スタッツ(source:official)はJリーグ公式サイトの値・順位をそのまま使用(非公開データ。club_extra.jsonが無い場合はこのグループ自体を省略)"
@@ -264,7 +264,7 @@
         "scorePg": 2,
         "passCountPg": 2,
         "ballRate": 2,
-        "distance": 7,
+        "distance": 8,
         "sprint": 6,
         "cleanSheet": 8
       },
@@ -283,7 +283,7 @@
         },
         "distance": {
           "rankOfficial": null,
-          "rankComputed": 7
+          "rankComputed": 8
         },
         "sprint": {
           "rankOfficial": 6,
@@ -368,7 +368,7 @@
         },
         "distance": {
           "rankOfficial": 6,
-          "rankComputed": 4
+          "rankComputed": 5
         },
         "sprint": {
           "rankOfficial": 4,
@@ -441,7 +441,7 @@
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": 8,
-          "rankComputed": 7
+          "rankComputed": 8
         },
         "passCountPg": {
           "rankOfficial": 1,
@@ -516,17 +516,17 @@
         "xPoints": 20,
         "pointsOverX": 14,
         "remainingDifficulty": 5,
-        "scorePg": 16,
+        "scorePg": 17,
         "passCountPg": 12,
         "ballRate": 13,
-        "distance": 12,
+        "distance": 13,
         "sprint": 12,
         "cleanSheet": 8
       },
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": null,
-          "rankComputed": 16
+          "rankComputed": 17
         },
         "passCountPg": {
           "rankOfficial": null,
@@ -538,7 +538,7 @@
         },
         "distance": {
           "rankOfficial": null,
-          "rankComputed": 12
+          "rankComputed": 13
         },
         "sprint": {
           "rankOfficial": null,
@@ -573,7 +573,13 @@
         "defenseRating": 0.94,
         "xPoints": 8.88,
         "pointsOverX": 0.12,
-        "remainingDifficulty": 1.0
+        "remainingDifficulty": 1.0,
+        "scorePg": 1.8,
+        "passCountPg": 391.8,
+        "ballRate": 42.3,
+        "distance": 118,
+        "sprint": 98,
+        "cleanSheet": 0
       },
       "ranks": {
         "points": 10,
@@ -594,9 +600,40 @@
         "defenseRating": 7,
         "xPoints": 10,
         "pointsOverX": 10,
-        "remainingDifficulty": 3
+        "remainingDifficulty": 3,
+        "scorePg": 6,
+        "passCountPg": 15,
+        "ballRate": 18,
+        "distance": 2,
+        "sprint": 18,
+        "cleanSheet": 9
       },
-      "officialRankCheck": {}
+      "officialRankCheck": {
+        "scorePg": {
+          "rankOfficial": 6,
+          "rankComputed": 6
+        },
+        "passCountPg": {
+          "rankOfficial": null,
+          "rankComputed": 15
+        },
+        "ballRate": {
+          "rankOfficial": null,
+          "rankComputed": 18
+        },
+        "distance": {
+          "rankOfficial": 2,
+          "rankComputed": 1
+        },
+        "sprint": {
+          "rankOfficial": null,
+          "rankComputed": 18
+        },
+        "cleanSheet": {
+          "rankOfficial": 9,
+          "rankComputed": 4
+        }
+      }
     },
     {
       "idTeam": "137704",
@@ -652,7 +689,7 @@
         "scorePg": 6,
         "passCountPg": 8,
         "ballRate": 6,
-        "distance": 12,
+        "distance": 13,
         "sprint": 1,
         "cleanSheet": 1
       },
@@ -671,7 +708,7 @@
         },
         "distance": {
           "rankOfficial": null,
-          "rankComputed": 12
+          "rankComputed": 13
         },
         "sprint": {
           "rankOfficial": 1,
@@ -734,9 +771,9 @@
         "xPoints": 18,
         "pointsOverX": 19,
         "remainingDifficulty": 17,
-        "scorePg": 19,
-        "passCountPg": 17,
-        "ballRate": 18,
+        "scorePg": 20,
+        "passCountPg": 18,
+        "ballRate": 19,
         "distance": 4,
         "sprint": 3,
         "cleanSheet": 6
@@ -744,19 +781,19 @@
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": null,
-          "rankComputed": 19
+          "rankComputed": 20
         },
         "passCountPg": {
           "rankOfficial": null,
-          "rankComputed": 17
+          "rankComputed": 18
         },
         "ballRate": {
           "rankOfficial": null,
-          "rankComputed": 18
+          "rankComputed": 19
         },
         "distance": {
           "rankOfficial": 4,
-          "rankComputed": 2
+          "rankComputed": 3
         },
         "sprint": {
           "rankOfficial": 3,
@@ -841,7 +878,7 @@
         },
         "distance": {
           "rankOfficial": 10,
-          "rankComputed": 7
+          "rankComputed": 8
         },
         "sprint": {
           "rankOfficial": null,
@@ -907,7 +944,7 @@
         "scorePg": 4,
         "passCountPg": 7,
         "ballRate": 8,
-        "distance": 15,
+        "distance": 16,
         "sprint": 10,
         "cleanSheet": 9
       },
@@ -926,7 +963,7 @@
         },
         "distance": {
           "rankOfficial": null,
-          "rankComputed": 15
+          "rankComputed": 16
         },
         "sprint": {
           "rankOfficial": 10,
@@ -990,20 +1027,20 @@
         "pointsOverX": 8,
         "remainingDifficulty": 7,
         "scorePg": 8,
-        "passCountPg": 15,
+        "passCountPg": 16,
         "ballRate": 12,
-        "distance": 12,
+        "distance": 13,
         "sprint": 9,
         "cleanSheet": 1
       },
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": 8,
-          "rankComputed": 7
+          "rankComputed": 8
         },
         "passCountPg": {
           "rankOfficial": null,
-          "rankComputed": 15
+          "rankComputed": 16
         },
         "ballRate": {
           "rankOfficial": null,
@@ -1011,7 +1048,7 @@
         },
         "distance": {
           "rankOfficial": null,
-          "rankComputed": 12
+          "rankComputed": 13
         },
         "sprint": {
           "rankOfficial": 9,
@@ -1074,29 +1111,29 @@
         "xPoints": 15,
         "pointsOverX": 18,
         "remainingDifficulty": 12,
-        "scorePg": 18,
-        "passCountPg": 19,
-        "ballRate": 19,
-        "distance": 19,
+        "scorePg": 19,
+        "passCountPg": 20,
+        "ballRate": 20,
+        "distance": 20,
         "sprint": 8,
         "cleanSheet": 8
       },
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": null,
-          "rankComputed": 18
+          "rankComputed": 19
         },
         "passCountPg": {
           "rankOfficial": null,
-          "rankComputed": 19
+          "rankComputed": 20
         },
         "ballRate": {
           "rankOfficial": null,
-          "rankComputed": 19
+          "rankComputed": 20
         },
         "distance": {
           "rankOfficial": null,
-          "rankComputed": 19
+          "rankComputed": 20
         },
         "sprint": {
           "rankOfficial": 8,
@@ -1159,17 +1196,17 @@
         "xPoints": 14,
         "pointsOverX": 13,
         "remainingDifficulty": 10,
-        "scorePg": 13,
+        "scorePg": 14,
         "passCountPg": 4,
         "ballRate": 5,
-        "distance": 17,
+        "distance": 18,
         "sprint": 11,
         "cleanSheet": 9
       },
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": null,
-          "rankComputed": 13
+          "rankComputed": 14
         },
         "passCountPg": {
           "rankOfficial": 4,
@@ -1181,7 +1218,7 @@
         },
         "distance": {
           "rankOfficial": null,
-          "rankComputed": 17
+          "rankComputed": 18
         },
         "sprint": {
           "rankOfficial": null,
@@ -1244,7 +1281,7 @@
         "xPoints": 16,
         "pointsOverX": 15,
         "remainingDifficulty": 6,
-        "scorePg": 13,
+        "scorePg": 14,
         "passCountPg": 14,
         "ballRate": 14,
         "distance": 7,
@@ -1254,7 +1291,7 @@
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": null,
-          "rankComputed": 13
+          "rankComputed": 14
         },
         "passCountPg": {
           "rankOfficial": null,
@@ -1266,7 +1303,7 @@
         },
         "distance": {
           "rankOfficial": 7,
-          "rankComputed": 4
+          "rankComputed": 5
         },
         "sprint": {
           "rankOfficial": 7,
@@ -1329,17 +1366,17 @@
         "xPoints": 13,
         "pointsOverX": 16,
         "remainingDifficulty": 19,
-        "scorePg": 11,
+        "scorePg": 12,
         "passCountPg": 6,
         "ballRate": 3,
-        "distance": 16,
-        "sprint": 19,
+        "distance": 17,
+        "sprint": 20,
         "cleanSheet": 8
       },
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": null,
-          "rankComputed": 11
+          "rankComputed": 12
         },
         "passCountPg": {
           "rankOfficial": 6,
@@ -1351,11 +1388,11 @@
         },
         "distance": {
           "rankOfficial": null,
-          "rankComputed": 16
+          "rankComputed": 17
         },
         "sprint": {
           "rankOfficial": null,
-          "rankComputed": 19
+          "rankComputed": 20
         },
         "cleanSheet": {
           "rankOfficial": 8,
@@ -1414,7 +1451,7 @@
         "xPoints": 11,
         "pointsOverX": 7,
         "remainingDifficulty": 18,
-        "scorePg": 16,
+        "scorePg": 17,
         "passCountPg": 5,
         "ballRate": 4,
         "distance": 10,
@@ -1424,7 +1461,7 @@
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": null,
-          "rankComputed": 16
+          "rankComputed": 17
         },
         "passCountPg": {
           "rankOfficial": 5,
@@ -1436,7 +1473,7 @@
         },
         "distance": {
           "rankOfficial": 10,
-          "rankComputed": 7
+          "rankComputed": 8
         },
         "sprint": {
           "rankOfficial": null,
@@ -1509,7 +1546,7 @@
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": 10,
-          "rankComputed": 9
+          "rankComputed": 10
         },
         "passCountPg": {
           "rankOfficial": null,
@@ -1521,7 +1558,7 @@
         },
         "distance": {
           "rankOfficial": 8,
-          "rankComputed": 7
+          "rankComputed": 8
         },
         "sprint": {
           "rankOfficial": 2,
@@ -1584,8 +1621,8 @@
         "xPoints": 7,
         "pointsOverX": 9,
         "remainingDifficulty": 20,
-        "scorePg": 11,
-        "passCountPg": 16,
+        "scorePg": 12,
+        "passCountPg": 17,
         "ballRate": 17,
         "distance": 9,
         "sprint": 5,
@@ -1594,11 +1631,11 @@
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": null,
-          "rankComputed": 11
+          "rankComputed": 12
         },
         "passCountPg": {
           "rankOfficial": null,
-          "rankComputed": 16
+          "rankComputed": 17
         },
         "ballRate": {
           "rankOfficial": null,
@@ -1606,7 +1643,7 @@
         },
         "distance": {
           "rankOfficial": 9,
-          "rankComputed": 7
+          "rankComputed": 8
         },
         "sprint": {
           "rankOfficial": 5,
@@ -1672,7 +1709,7 @@
         "scorePg": 2,
         "passCountPg": 3,
         "ballRate": 6,
-        "distance": 18,
+        "distance": 19,
         "sprint": 18,
         "cleanSheet": 1
       },
@@ -1691,7 +1728,7 @@
         },
         "distance": {
           "rankOfficial": null,
-          "rankComputed": 18
+          "rankComputed": 19
         },
         "sprint": {
           "rankOfficial": null,
@@ -1755,7 +1792,7 @@
         "pointsOverX": 20,
         "remainingDifficulty": 16,
         "scorePg": 10,
-        "passCountPg": 18,
+        "passCountPg": 19,
         "ballRate": 16,
         "distance": 3,
         "sprint": 15,
@@ -1764,11 +1801,11 @@
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": 10,
-          "rankComputed": 9
+          "rankComputed": 10
         },
         "passCountPg": {
           "rankOfficial": null,
-          "rankComputed": 18
+          "rankComputed": 19
         },
         "ballRate": {
           "rankOfficial": null,
@@ -1776,7 +1813,7 @@
         },
         "distance": {
           "rankOfficial": 3,
-          "rankComputed": 2
+          "rankComputed": 3
         },
         "sprint": {
           "rankOfficial": null,
@@ -1839,7 +1876,7 @@
         "xPoints": 17,
         "pointsOverX": 17,
         "remainingDifficulty": 14,
-        "scorePg": 13,
+        "scorePg": 14,
         "passCountPg": 10,
         "ballRate": 15,
         "distance": 5,
@@ -1849,7 +1886,7 @@
       "officialRankCheck": {
         "scorePg": {
           "rankOfficial": null,
-          "rankComputed": 13
+          "rankComputed": 14
         },
         "passCountPg": {
           "rankOfficial": 10,
@@ -1861,7 +1898,7 @@
         },
         "distance": {
           "rankOfficial": 5,
-          "rankComputed": 4
+          "rankComputed": 5
         },
         "sprint": {
           "rankOfficial": null,
