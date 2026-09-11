@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-09-11T20:25:03+09:00",
+    "generatedAtJst": "2026-09-11T20:30:03+09:00",
     "windowHours": 36,
     "candidateCount": 2,
     "fetchedCount": 2,
@@ -19039,7 +19039,7 @@
     "2492841": {
       "code": "091101",
       "url": "https://www.jleague.jp/match/j1/2026/091101/livetxt/",
-      "fetchedAtJst": "2026-09-11T20:25:06+09:00",
+      "fetchedAtJst": "2026-09-11T20:30:06+09:00",
       "goals": [
         {
           "minute": "59",
@@ -19071,6 +19071,15 @@
       ],
       "cards": [
         {
+          "minute": "63",
+          "type": "yellow",
+          "player": "渡井 理己",
+          "position": "MF 11",
+          "club": "柏レイソル",
+          "idTeam": "137708",
+          "playerId": "1617910"
+        },
+        {
           "minute": null,
           "type": "yellow",
           "player": "松田 天馬",
@@ -19099,6 +19108,25 @@
         }
       ],
       "subs": [
+        {
+          "minute": "64",
+          "club": "京都サンガF.C.",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 77",
+              "name": "新井 晴樹",
+              "playerId": "1634968"
+            },
+            {
+              "variant": "out",
+              "position": "FW 17",
+              "name": "アレックス ソウザ",
+              "playerId": "1655795"
+            }
+          ],
+          "idTeam": "139888"
+        },
         {
           "minute": "45",
           "club": "柏レイソル",
@@ -19382,7 +19410,7 @@
     "2492848": {
       "code": "091102",
       "url": "https://www.jleague.jp/match/j1/2026/091102/livetxt/",
-      "fetchedAtJst": "2026-09-11T20:25:10+09:00",
+      "fetchedAtJst": "2026-09-11T20:30:10+09:00",
       "goals": [
         {
           "minute": "56",
@@ -19414,7 +19442,65 @@
           "playerId": "1640644"
         }
       ],
-      "subs": [],
+      "subs": [
+        {
+          "minute": "65",
+          "club": "鹿島アントラーズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 77",
+              "name": "チャヴリッチ",
+              "playerId": "1646090"
+            },
+            {
+              "variant": "out",
+              "position": "FW 34",
+              "name": "徳田 誉",
+              "playerId": "1644450"
+            }
+          ],
+          "idTeam": "137707"
+        },
+        {
+          "minute": "65",
+          "club": "鹿島アントラーズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 25",
+              "name": "小池 龍太",
+              "playerId": "1500561"
+            },
+            {
+              "variant": "out",
+              "position": "DF 37",
+              "name": "広瀬 陸斗",
+              "playerId": "1400080"
+            }
+          ],
+          "idTeam": "137707"
+        },
+        {
+          "minute": "65",
+          "club": "鹿島アントラーズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 18",
+              "name": "ヤン マテウス",
+              "playerId": "1639137"
+            },
+            {
+              "variant": "out",
+              "position": "DF 23",
+              "name": "津久井 佳祐",
+              "playerId": "1640644"
+            }
+          ],
+          "idTeam": "137707"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
