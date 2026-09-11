@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-09-11T20:35:03+09:00",
+    "generatedAtJst": "2026-09-11T20:40:03+09:00",
     "windowHours": 36,
     "candidateCount": 2,
     "fetchedCount": 2,
@@ -19039,7 +19039,7 @@
     "2492841": {
       "code": "091101",
       "url": "https://www.jleague.jp/match/j1/2026/091101/livetxt/",
-      "fetchedAtJst": "2026-09-11T20:35:06+09:00",
+      "fetchedAtJst": "2026-09-11T20:40:06+09:00",
       "goals": [
         {
           "minute": "71",
@@ -19051,15 +19051,6 @@
           "playerId": "1600146"
         },
         {
-          "minute": "67",
-          "club": "柏レイソル",
-          "player": "瀬川 祐輔",
-          "position": "MF 20",
-          "scoreAfter": null,
-          "idTeam": "137708",
-          "playerId": "1600146"
-        },
-        {
           "minute": "33",
           "club": "京都サンガF.C.",
           "player": "ラファエル エリアス",
@@ -19067,6 +19058,15 @@
           "scoreAfter": "2-0",
           "idTeam": "139888",
           "playerId": "1647904"
+        },
+        {
+          "minute": "67",
+          "club": "柏レイソル",
+          "player": "瀬川 祐輔",
+          "position": "MF 20",
+          "scoreAfter": "2-2",
+          "idTeam": "137708",
+          "playerId": "1600146"
         },
         {
           "minute": "59",
@@ -19126,6 +19126,19 @@
         }
       ],
       "subs": [
+        {
+          "minute": "75",
+          "club": "柏レイソル",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 87",
+              "name": "山内 日向汰",
+              "playerId": "1635485"
+            }
+          ],
+          "idTeam": "137708"
+        },
         {
           "minute": "64",
           "club": "京都サンガF.C.",
@@ -19428,16 +19441,25 @@
     "2492848": {
       "code": "091102",
       "url": "https://www.jleague.jp/match/j1/2026/091102/livetxt/",
-      "fetchedAtJst": "2026-09-11T20:35:10+09:00",
+      "fetchedAtJst": "2026-09-11T20:40:10+09:00",
       "goals": [
         {
-          "minute": "73",
-          "club": "鹿島アントラーズ",
-          "player": "チャヴリッチ",
-          "position": "FW 77",
-          "scoreAfter": "1-1",
-          "idTeam": "137707",
-          "playerId": "1646090"
+          "minute": "77",
+          "club": "ヴィッセル神戸",
+          "player": "山川 哲史",
+          "position": "DF 4",
+          "scoreAfter": "2-1",
+          "idTeam": "137717",
+          "playerId": "1501592"
+        },
+        {
+          "minute": "56",
+          "club": "ヴィッセル神戸",
+          "player": "大迫 勇也",
+          "position": "FW 10",
+          "scoreAfter": "1-0",
+          "idTeam": "137717",
+          "playerId": "900142"
         }
       ],
       "cards": [
@@ -19462,7 +19484,20 @@
       ],
       "subs": [
         {
-          "minute": null,
+          "minute": "78",
+          "club": "鹿島アントラーズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 10",
+              "name": "柴崎 岳",
+              "playerId": "1100202"
+            }
+          ],
+          "idTeam": "137707"
+        },
+        {
+          "minute": "72",
           "club": "ヴィッセル神戸",
           "items": [
             {
