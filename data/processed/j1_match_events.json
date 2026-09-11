@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-09-11T20:40:03+09:00",
+    "generatedAtJst": "2026-09-11T20:45:03+09:00",
     "windowHours": 36,
     "candidateCount": 2,
     "fetchedCount": 2,
@@ -19039,7 +19039,7 @@
     "2492841": {
       "code": "091101",
       "url": "https://www.jleague.jp/match/j1/2026/091101/livetxt/",
-      "fetchedAtJst": "2026-09-11T20:40:06+09:00",
+      "fetchedAtJst": "2026-09-11T20:45:06+09:00",
       "goals": [
         {
           "minute": "71",
@@ -19089,6 +19089,15 @@
       ],
       "cards": [
         {
+          "minute": "82",
+          "type": "yellow",
+          "player": "ラファエル エリアス",
+          "position": "FW 9",
+          "club": "京都サンガF.C.",
+          "idTeam": "139888",
+          "playerId": "1647904"
+        },
+        {
           "minute": "63",
           "type": "yellow",
           "player": "渡井 理己",
@@ -19127,6 +19136,25 @@
       ],
       "subs": [
         {
+          "minute": "78",
+          "club": "柏レイソル",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 44",
+              "name": "弓場 堅真",
+              "playerId": "1635506"
+            },
+            {
+              "variant": "out",
+              "position": "MF 5",
+              "name": "遠藤 渓太",
+              "playerId": "1600177"
+            }
+          ],
+          "idTeam": "137708"
+        },
+        {
           "minute": "75",
           "club": "柏レイソル",
           "items": [
@@ -19135,6 +19163,12 @@
               "position": "MF 87",
               "name": "山内 日向汰",
               "playerId": "1635485"
+            },
+            {
+              "variant": "out",
+              "position": "MF 11",
+              "name": "渡井 理己",
+              "playerId": "1617910"
             }
           ],
           "idTeam": "137708"
@@ -19441,7 +19475,7 @@
     "2492848": {
       "code": "091102",
       "url": "https://www.jleague.jp/match/j1/2026/091102/livetxt/",
-      "fetchedAtJst": "2026-09-11T20:40:10+09:00",
+      "fetchedAtJst": "2026-09-11T20:45:10+09:00",
       "goals": [
         {
           "minute": "77",
@@ -19484,6 +19518,25 @@
       ],
       "subs": [
         {
+          "minute": "81",
+          "club": "鹿島アントラーズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 24",
+              "name": "林 晴己",
+              "playerId": "1639689"
+            },
+            {
+              "variant": "out",
+              "position": "DF 7",
+              "name": "小川 諒也",
+              "playerId": "1500256"
+            }
+          ],
+          "idTeam": "137707"
+        },
+        {
           "minute": "78",
           "club": "鹿島アントラーズ",
           "items": [
@@ -19492,6 +19545,12 @@
               "position": "MF 10",
               "name": "柴崎 岳",
               "playerId": "1100202"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "マテウス ブエノ",
+              "playerId": "1650728"
             }
           ],
           "idTeam": "137707"
