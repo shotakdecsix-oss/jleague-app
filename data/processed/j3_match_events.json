@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-09-12T19:20:03+09:00",
+    "generatedAtJst": "2026-09-12T19:25:03+09:00",
     "windowHours": 36,
     "candidateCount": 4,
     "fetchedCount": 4,
@@ -14717,8 +14717,17 @@
     "2492435": {
       "code": "091219",
       "url": "https://www.jleague.jp/match/j3/2026/091219/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:21:11+09:00",
+      "fetchedAtJst": "2026-09-12T19:26:13+09:00",
       "goals": [
+        {
+          "minute": "62",
+          "club": "ガイナーレ鳥取",
+          "player": "金浦 真樹",
+          "position": "MF 42",
+          "scoreAfter": "1-4",
+          "idTeam": "141247",
+          "playerId": "1635529"
+        },
         {
           "minute": "57",
           "club": "ガイナーレ鳥取",
@@ -14757,7 +14766,27 @@
         }
       ],
       "cards": [],
-      "subs": [],
+      "subs": [
+        {
+          "minute": null,
+          "club": "ガイナーレ鳥取",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "篠田 大輝",
+              "playerId": "1651530"
+            },
+            {
+              "variant": "out",
+              "position": "FW 10",
+              "name": "三木 直土",
+              "playerId": "1624678"
+            }
+          ],
+          "idTeam": "141247"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -14996,8 +15025,17 @@
     "2492437": {
       "code": "091217",
       "url": "https://www.jleague.jp/match/j3/2026/091217/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:21:15+09:00",
+      "fetchedAtJst": "2026-09-12T19:26:17+09:00",
       "goals": [
+        {
+          "minute": "61",
+          "club": "ロアッソ熊本",
+          "player": "石原 央羅",
+          "position": "FW 14",
+          "scoreAfter": "1-2",
+          "idTeam": "141253",
+          "playerId": "1647350"
+        },
         {
           "minute": "31",
           "club": "福島ユナイテッドＦＣ",
@@ -15006,6 +15044,15 @@
           "scoreAfter": "1-1",
           "idTeam": "141246",
           "playerId": "1621198"
+        },
+        {
+          "minute": "29",
+          "club": "ロアッソ熊本",
+          "player": "小澤 秀充",
+          "position": "MF 37",
+          "scoreAfter": "0-1",
+          "idTeam": "141253",
+          "playerId": "1636277"
         }
       ],
       "cards": [
@@ -15021,7 +15068,7 @@
       ],
       "subs": [
         {
-          "minute": null,
+          "minute": "45",
           "club": "福島ユナイテッドＦＣ",
           "items": [
             {
@@ -15284,7 +15331,7 @@
     "2492441": {
       "code": "091218",
       "url": "https://www.jleague.jp/match/j3/2026/091218/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:21:19+09:00",
+      "fetchedAtJst": "2026-09-12T19:26:21+09:00",
       "goals": [
         {
           "minute": "49",
@@ -15619,7 +15666,7 @@
     "2492434": {
       "code": "091220",
       "url": "https://www.jleague.jp/match/j3/2026/091220/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:21:22+09:00",
+      "fetchedAtJst": "2026-09-12T19:26:25+09:00",
       "goals": [
         {
           "minute": "15",
@@ -15757,17 +15804,12 @@
         },
         "away": {
           "idTeam": "139897",
-          "formation": "4-4-2",
+          "formation": "3-1-4-2",
           "players": [
             {
               "id": 1627433,
               "name": "岡田",
               "number": "78"
-            },
-            {
-              "id": 1632218,
-              "name": "神垣",
-              "number": "8"
             },
             {
               "id": 1629996,
@@ -15795,14 +15837,19 @@
               "number": "37"
             },
             {
-              "id": 1200831,
-              "name": "風間",
-              "number": "15"
-            },
-            {
               "id": 1639185,
               "name": "モハマド",
               "number": "19"
+            },
+            {
+              "id": 1632218,
+              "name": "神垣",
+              "number": "8"
+            },
+            {
+              "id": 1200831,
+              "name": "風間",
+              "number": "15"
             },
             {
               "id": 1642635,
