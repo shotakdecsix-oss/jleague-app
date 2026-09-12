@@ -1,17 +1,11 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-09-12T19:50:03+09:00",
+    "generatedAtJst": "2026-09-12T19:55:03+09:00",
     "windowHours": 36,
     "candidateCount": 8,
-    "fetchedCount": 7,
-    "failed": [
-      {
-        "idEvent": "2492849",
-        "reason": "regression_zero_events",
-        "url": "https://www.jleague.jp/match/j1/2026/091206/livetxt/"
-      }
-    ],
+    "fetchedCount": 8,
+    "failed": [],
     "eventCount": 48
   },
   "events": {
@@ -19045,7 +19039,7 @@
     "2492841": {
       "code": "091101",
       "url": "https://www.jleague.jp/match/j1/2026/091101/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:50:10+09:00",
+      "fetchedAtJst": "2026-09-12T19:55:09+09:00",
       "goals": [
         {
           "minute": "71",
@@ -19576,7 +19570,7 @@
     "2492848": {
       "code": "091102",
       "url": "https://www.jleague.jp/match/j1/2026/091102/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:50:18+09:00",
+      "fetchedAtJst": "2026-09-12T19:55:15+09:00",
       "goals": [
         {
           "minute": "77",
@@ -20014,7 +20008,7 @@
     "2492843": {
       "code": "091202",
       "url": "https://www.jleague.jp/match/j1/2026/091202/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:50:22+09:00",
+      "fetchedAtJst": "2026-09-12T19:55:19+09:00",
       "goals": [
         {
           "minute": "59",
@@ -20037,7 +20031,7 @@
           "playerId": "1605464"
         },
         {
-          "minute": "88",
+          "minute": "87",
           "type": "yellow",
           "player": "ペドロ ホマーノ",
           "position": "DF 4",
@@ -20056,6 +20050,25 @@
         }
       ],
       "subs": [
+        {
+          "minute": null,
+          "club": "川崎フロンターレ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 19",
+              "name": "河原 創",
+              "playerId": "1629412"
+            },
+            {
+              "variant": "out",
+              "position": "DF 4",
+              "name": "ペドロ ホマーノ",
+              "playerId": "1657458"
+            }
+          ],
+          "idTeam": "137709"
+        },
         {
           "minute": "83",
           "club": "水戸ホーリーホック",
@@ -20472,7 +20485,7 @@
     "2492845": {
       "code": "091203",
       "url": "https://www.jleague.jp/match/j1/2026/091203/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:50:26+09:00",
+      "fetchedAtJst": "2026-09-12T19:55:24+09:00",
       "goals": [],
       "cards": [
         {
@@ -20784,7 +20797,7 @@
     "2492840": {
       "code": "091204",
       "url": "https://www.jleague.jp/match/j1/2026/091204/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:50:30+09:00",
+      "fetchedAtJst": "2026-09-12T19:55:28+09:00",
       "goals": [
         {
           "minute": "38",
@@ -21042,7 +21055,7 @@
     "2492842": {
       "code": "091201",
       "url": "https://www.jleague.jp/match/j1/2026/091201/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:50:34+09:00",
+      "fetchedAtJst": "2026-09-12T19:55:32+09:00",
       "goals": [
         {
           "minute": "12",
@@ -21055,6 +21068,15 @@
         }
       ],
       "cards": [
+        {
+          "minute": null,
+          "type": "yellow",
+          "player": "白崎 凌兵",
+          "position": "MF 23",
+          "club": "ＦＣ町田ゼルビア",
+          "idTeam": "139889",
+          "playerId": "1200059"
+        },
         {
           "minute": "20",
           "type": "yellow",
@@ -21310,8 +21332,17 @@
     "2492844": {
       "code": "091205",
       "url": "https://www.jleague.jp/match/j1/2026/091205/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:50:37+09:00",
+      "fetchedAtJst": "2026-09-12T19:55:36+09:00",
       "goals": [
+        {
+          "minute": "48",
+          "club": "サンフレッチェ広島",
+          "player": "鈴木 章斗",
+          "position": "FW 10",
+          "scoreAfter": "3-0",
+          "idTeam": "137713",
+          "playerId": "1636237"
+        },
         {
           "minute": "18",
           "club": "サンフレッチェ広島",
@@ -21577,7 +21608,7 @@
     "2492849": {
       "code": "091206",
       "url": "https://www.jleague.jp/match/j1/2026/091206/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:45:40+09:00",
+      "fetchedAtJst": "2026-09-12T19:55:40+09:00",
       "goals": [
         {
           "minute": "36",
