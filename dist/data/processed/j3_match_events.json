@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-09-12T19:10:04+09:00",
+    "generatedAtJst": "2026-09-12T19:15:04+09:00",
     "windowHours": 36,
     "candidateCount": 4,
     "fetchedCount": 4,
@@ -14717,7 +14717,7 @@
     "2492435": {
       "code": "091219",
       "url": "https://www.jleague.jp/match/j3/2026/091219/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:11:13+09:00",
+      "fetchedAtJst": "2026-09-12T19:16:13+09:00",
       "goals": [
         {
           "minute": "42",
@@ -14978,7 +14978,7 @@
     "2492437": {
       "code": "091217",
       "url": "https://www.jleague.jp/match/j3/2026/091217/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:11:17+09:00",
+      "fetchedAtJst": "2026-09-12T19:16:17+09:00",
       "goals": [
         {
           "minute": "31",
@@ -15001,7 +15001,27 @@
           "playerId": "1650522"
         }
       ],
-      "subs": [],
+      "subs": [
+        {
+          "minute": null,
+          "club": "福島ユナイテッドＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 28",
+              "name": "鈴 直樹",
+              "playerId": "1618635"
+            },
+            {
+              "variant": "out",
+              "position": "DF 23",
+              "name": "安在 達弥",
+              "playerId": "1624411"
+            }
+          ],
+          "idTeam": "141246"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -15246,8 +15266,17 @@
     "2492441": {
       "code": "091218",
       "url": "https://www.jleague.jp/match/j3/2026/091218/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:11:20+09:00",
+      "fetchedAtJst": "2026-09-12T19:16:21+09:00",
       "goals": [
+        {
+          "minute": "49",
+          "club": "ＦＣ岐阜",
+          "player": "横山 智也",
+          "position": "FW 21",
+          "scoreAfter": "1-1",
+          "idTeam": "139904",
+          "playerId": "1640671"
+        },
         {
           "minute": "45",
           "club": "奈良クラブ",
@@ -15270,6 +15299,25 @@
         }
       ],
       "subs": [
+        {
+          "minute": "45",
+          "club": "奈良クラブ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 7",
+              "name": "田村 亮介",
+              "playerId": "1400102"
+            },
+            {
+              "variant": "out",
+              "position": "MF 11",
+              "name": "佐藤 諒",
+              "playerId": "1636292"
+            }
+          ],
+          "idTeam": "147069"
+        },
         {
           "minute": "9",
           "club": "ＦＣ岐阜",
@@ -15534,7 +15582,7 @@
     "2492434": {
       "code": "091220",
       "url": "https://www.jleague.jp/match/j3/2026/091220/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:11:24+09:00",
+      "fetchedAtJst": "2026-09-12T19:16:25+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
