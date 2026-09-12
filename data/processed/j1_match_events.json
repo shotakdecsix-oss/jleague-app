@@ -1,11 +1,17 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-09-12T19:45:03+09:00",
+    "generatedAtJst": "2026-09-12T19:50:03+09:00",
     "windowHours": 36,
     "candidateCount": 8,
-    "fetchedCount": 8,
-    "failed": [],
+    "fetchedCount": 7,
+    "failed": [
+      {
+        "idEvent": "2492849",
+        "reason": "regression_zero_events",
+        "url": "https://www.jleague.jp/match/j1/2026/091206/livetxt/"
+      }
+    ],
     "eventCount": 48
   },
   "events": {
@@ -19039,7 +19045,7 @@
     "2492841": {
       "code": "091101",
       "url": "https://www.jleague.jp/match/j1/2026/091101/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:45:09+09:00",
+      "fetchedAtJst": "2026-09-12T19:50:10+09:00",
       "goals": [
         {
           "minute": "71",
@@ -19570,7 +19576,7 @@
     "2492848": {
       "code": "091102",
       "url": "https://www.jleague.jp/match/j1/2026/091102/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:45:17+09:00",
+      "fetchedAtJst": "2026-09-12T19:50:18+09:00",
       "goals": [
         {
           "minute": "77",
@@ -20008,7 +20014,7 @@
     "2492843": {
       "code": "091202",
       "url": "https://www.jleague.jp/match/j1/2026/091202/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:45:21+09:00",
+      "fetchedAtJst": "2026-09-12T19:50:22+09:00",
       "goals": [
         {
           "minute": "59",
@@ -20022,6 +20028,24 @@
       ],
       "cards": [
         {
+          "minute": "88",
+          "type": "yellow",
+          "player": "仙波 大志",
+          "position": "MF 19",
+          "club": "水戸ホーリーホック",
+          "idTeam": "139891",
+          "playerId": "1605464"
+        },
+        {
+          "minute": "88",
+          "type": "yellow",
+          "player": "ペドロ ホマーノ",
+          "position": "DF 4",
+          "club": "川崎フロンターレ",
+          "idTeam": "137709",
+          "playerId": "1657458"
+        },
+        {
           "minute": "80",
           "type": "yellow",
           "player": "フィリップ ウレモヴィッチ",
@@ -20034,6 +20058,25 @@
       "subs": [
         {
           "minute": "83",
+          "club": "水戸ホーリーホック",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "根本 凌",
+              "playerId": "1630109"
+            },
+            {
+              "variant": "out",
+              "position": "FW 10",
+              "name": "渡邉 新太",
+              "playerId": "1503340"
+            }
+          ],
+          "idTeam": "139891"
+        },
+        {
+          "minute": "83",
           "club": "川崎フロンターレ",
           "items": [
             {
@@ -20041,6 +20084,12 @@
               "position": "DF 5",
               "name": "佐々木 旭",
               "playerId": "1633162"
+            },
+            {
+              "variant": "out",
+              "position": "FW 23",
+              "name": "マルシーニョ",
+              "playerId": "1635026"
             }
           ],
           "idTeam": "137709"
@@ -20423,7 +20472,7 @@
     "2492845": {
       "code": "091203",
       "url": "https://www.jleague.jp/match/j1/2026/091203/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:45:24+09:00",
+      "fetchedAtJst": "2026-09-12T19:50:26+09:00",
       "goals": [],
       "cards": [
         {
@@ -20735,7 +20784,7 @@
     "2492840": {
       "code": "091204",
       "url": "https://www.jleague.jp/match/j1/2026/091204/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:45:28+09:00",
+      "fetchedAtJst": "2026-09-12T19:50:30+09:00",
       "goals": [
         {
           "minute": "38",
@@ -20993,7 +21042,7 @@
     "2492842": {
       "code": "091201",
       "url": "https://www.jleague.jp/match/j1/2026/091201/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:45:32+09:00",
+      "fetchedAtJst": "2026-09-12T19:50:34+09:00",
       "goals": [
         {
           "minute": "12",
@@ -21261,8 +21310,17 @@
     "2492844": {
       "code": "091205",
       "url": "https://www.jleague.jp/match/j1/2026/091205/livetxt/",
-      "fetchedAtJst": "2026-09-12T19:45:36+09:00",
+      "fetchedAtJst": "2026-09-12T19:50:37+09:00",
       "goals": [
+        {
+          "minute": "18",
+          "club": "サンフレッチェ広島",
+          "player": "鮎川 峻",
+          "position": "FW 23",
+          "scoreAfter": "2-0",
+          "idTeam": "137713",
+          "playerId": "1622855"
+        },
         {
           "minute": "10",
           "club": "サンフレッチェ広島",
