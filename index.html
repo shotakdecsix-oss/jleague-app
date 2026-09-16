@@ -232,6 +232,7 @@
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
   .vs-side.me .vs-name{font-weight:800}
+  .vs-rank{margin-top:-5px; font-size:12px; font-weight:700; color:var(--sub); font-variant-numeric:tabular-nums}  /* 第60弾 */
   /* 第37弾: 「次の試合」だけは他のカードと違う扱いにする。ホーム画面でいちばん見たい情報が
      他と同じ大きさ・同じ地色で並んでいて、主役になっていなかった。
      クラブ色をごく薄く敷き、上端にクラブ2色の細い帯を置く(--bar-a/--bar-b は既存)。 */
@@ -782,7 +783,8 @@
   .cal-day:first-child{margin-top:0}
   .cal-day-title{font-size:11px; font-weight:700; color:var(--sub); margin:0 0 6px 2px}
   .cal-row{
-    display:grid; grid-template-columns:26px 38px 1fr auto 1fr 24px 14px; align-items:center; gap:6px;
+    /* 第60弾: gap 6px -> 4px。未消化の試合に順位を添えると、390pxで「栃木SC」「横浜FM」の行が溢れた */
+    display:grid; grid-template-columns:26px 38px 1fr auto 1fr 24px 14px; align-items:center; gap:4px;
     padding:7px 0; border-bottom:1px solid var(--line); font-size:13px;
   }
   /* 第13弾でcal-rowを.cal-row-wrapに包んだため、:last-childは1つ外側で判定する */
@@ -793,6 +795,21 @@
   .cal-team.away{text-align:right}
   .cal-score{font-weight:700; font-variant-numeric:tabular-nums; text-align:center; white-space:nowrap; display:inline-flex; align-items:center; gap:4px}
   .cal-round{font-size:9px; color:var(--sub); text-align:right}
+  /* 第60弾: まだ終わっていない試合に添える現在順位。順位のせいでクラブ名が折り返したり
+     切れたりしないよう、入り切らないときは順位のほうを次の行へ送る */
+  .rank-tag{flex:none; font-size:10px; font-weight:700; color:var(--sub); font-variant-numeric:tabular-nums; white-space:nowrap}
+  .sched-row .rank-tag{font-size:11px}
+  .with-rank{display:flex; flex-wrap:wrap; align-items:baseline; column-gap:4px; min-width:0}
+  .with-rank.away{justify-content:flex-end}
+  .with-rank > .team-link{min-width:0}
+  .cal-team.with-rank{column-gap:3px}
+  .cal-team.with-rank > .team-link{overflow:hidden; text-overflow:ellipsis}
+  /* 幅360〜375pxでは2チームを並べる行の多くが1行に収まらず、1行と2行が混ざって読みにくい。
+     その幅では順位を常にクラブ名の下に置く(実測: 360pxのカレンダーで未消化の18%が溢れた) */
+  @media (max-width: 379px){
+    .cal-team.with-rank, .sched-row.all .sched-team.with-rank{flex-direction:column; flex-wrap:nowrap; align-items:flex-start; line-height:1.25}
+    .cal-team.with-rank.away, .sched-row.all .sched-team.with-rank.away{align-items:flex-end}
+  }
   /* 第23弾: 天皇杯(出典はJFA)。既存の.cal-*とはグリッドの列構成が違うので別クラスにしてある */
   /* 第36弾: 見出しの直後に置く前提の -4px だったが、大会切替(.seg-toggle)を挟むように
      なって切替ボタンと詰まって見えた。セグメントの直後に来る場合だけ上を空ける。 */
@@ -1804,6 +1821,10 @@ async function ensureStandings(league) {
   if (!c.standings) c.standings = await getJson("data/processed/" + league + "_standings.json");
   return c.standings;
 }
+/* 第60弾: 順位が無くても画面自体は出したいタブ(日程)用。取れなければ順位を添えないだけにする。 */
+async function ensureStandingsSoft(league) {
+  try { return await ensureStandings(league); } catch (e) { return null; }
+}
 async function ensureSimulation(league) {
   const c = leagueCache(league);
   if (c.simulation === undefined) c.simulation = await getJsonOptional("data/processed/" + league + "_simulation.json");
@@ -1883,6 +1904,7 @@ async function ensureAllTabData(tabId, league) {
     await ensureCalendar();
     await ensureOndemandOverlayForCalendar(); // 第10弾: オンデマンドキャッシュがあるリーグだけmatchesを読む
     await Promise.all(Object.keys(LEAGUES).map(lg => ensureMatchEvents(lg))); // 第13弾: 3リーグぶん先読み
+    await Promise.all(Object.keys(LEAGUES).map(lg => ensureStandingsSoft(lg))); // 第60弾: 現在順位
   } else if (tabId === "standings") {
     await ensureStandings(league);
     await ensureMatches(league); // 第10弾: 暫定順位の判定(オンデマンド有効かどうか)に必要
@@ -2006,6 +2028,7 @@ async function ensureTabData(league, tabId) {
   } else if (tabId === "schedule") {
     await ensureMatches(league); // 全380試合が既に入っているので追加取得は不要
     await ensureMatchEvents(league); // 第13弾: 得点/カード/交代(進行中・直近の試合のみ)
+    await ensureStandingsSoft(league); // 第60弾: 未消化の試合に現在順位を添える
   } else if (tabId === "standings") {
     await ensureStandings(league);
     await ensureMatches(league); // 第10弾: 暫定順位の判定(オンデマンド有効かどうか)に必要
@@ -2811,7 +2834,7 @@ function renderActiveTabBody(league, team, master, app) {
     const derivedLive = liveMatch ? null : findDerivedLiveMatchForTeam(mine, league);
     const nextOrLiveHtml = liveMatch
       ? renderLiveCard(liveMatch, team)
-      : (derivedLive ? renderDerivedLiveCard(derivedLive.match, derivedLive.derived, team) : renderNext(mine, team, venues));
+      : (derivedLive ? renderDerivedLiveCard(derivedLive.match, derivedLive.derived, team) : renderNext(mine, team, venues, currentRankMap(league)));
     /* 第28弾: シーズン序盤は、昇格/残留確率がリーグ平均に寄っていてほとんど動かない。
        それが画面でいちばん大きい面積を占め、アプリ自身が「まだ大きく動きます」と
        注記を添えている状態だった。注記で守るのではなく並び順で守る。
@@ -3698,7 +3721,7 @@ function visibleCalendarBuckets(dated, anchorDate, daysBefore, daysAfter) {
   return { buckets, hasMoreBefore, hasMoreAfter };
 }
 
-function calMatchRowHtml(m, ownIdTeam) {
+function calMatchRowHtml(m, ownIdTeam, ranksByLeague) {
   // 第12弾: ライブスコアがあれば最優先で使う(進行中は日程/オンデマンドの値より新しい)。
   const live = state.liveScores[String(m.e)] || null;
   // 第10弾: オンデマンドキャッシュがあれば、そのidEvent(m.e)の分だけ日時/スコアを上書きして表示する。
@@ -3716,6 +3739,9 @@ function calMatchRowHtml(m, ownIdTeam) {
   // TheSportsDB側がキックオフ後もまだ未消化のまま(liveでもfinishedでもない)なら、
   // jleague.jpの得点イベントから暫定スコアを作る(derivedScoreFromEvents参照)。
   const derived = (!live && !finished) ? derivedScoreFromEvents(evDetail, m.h[0], m.a[0]) : null;
+  // 第60弾: 現在順位は「vs」を出している(=まだ始まっていない)行だけ
+  const ranks = (!live && !finished && !derived && ranksByLeague) ? ranksByLeague[m.l] : null;
+  const homeRank = rankTagHtml(ranks, m.h[0]), awayRank = rankTagHtml(ranks, m.a[0]);
 
   let timeLabel, scoreLabel, dotHtml;
   if (live) {
@@ -3764,9 +3790,9 @@ function calMatchRowHtml(m, ownIdTeam) {
     '<div class="cal-row' + (involvesMe ? " me" : "") + (live || derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
       '<span class="league-badge ' + esc(m.l) + '">' + esc(m.l.toUpperCase()) + '</span>' +
       '<span class="cal-time">' + esc(timeLabel) + '</span>' +
-      '<span class="cal-team"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.h[0]) + '">' + teamSwatchHtml(m.h[0]) + esc(m.h[1]) + '</span></span>' +
+      '<span class="cal-team' + (homeRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.h[0]) + '">' + teamSwatchHtml(m.h[0]) + esc(m.h[1]) + '</span>' + homeRank + '</span>' +
       '<span class="cal-score">' + esc(scoreLabel) + pillHtml + dotHtml + '</span>' +
-      '<span class="cal-team away"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.a[0]) + '">' + teamSwatchHtml(m.a[0]) + esc(m.a[1]) + '</span></span>' +
+      '<span class="cal-team away' + (awayRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.a[0]) + '">' + teamSwatchHtml(m.a[0]) + esc(m.a[1]) + '</span>' + awayRank + '</span>' +
       '<span class="cal-round">' + (m.r ? "第" + esc(m.r) + "節" : "") + '</span>' + videoMarkHtml + expandHtml +
     '</div>' + panelHtml +
   '</div>';
@@ -3847,6 +3873,8 @@ function renderAllSchedule(calendar, found) {
   const anchor = state.calAnchorDate;
 
   const { buckets, hasMoreBefore, hasMoreAfter } = visibleCalendarBuckets(dated, anchor, state.calDaysBefore, state.calDaysAfter);
+  const ranksByLeague = {};   // 第60弾
+  for (const lg of Object.keys(LEAGUES)) ranksByLeague[lg] = currentRankMap(lg);
 
   const moreBeforeHtml = hasMoreBefore
     ? '<button type="button" class="cal-loadmore" data-calmore="before">さらに前を見る</button>' : "";
@@ -3854,7 +3882,7 @@ function renderAllSchedule(calendar, found) {
     ? '<button type="button" class="cal-loadmore" data-calmore="after">さらに先を見る</button>' : "";
 
   const daysHtml = buckets.map(b => {
-    const rowsHtml = b.matches.map(m => calMatchRowHtml(m, ownIdTeam)).join("");
+    const rowsHtml = b.matches.map(m => calMatchRowHtml(m, ownIdTeam, ranksByLeague)).join("");
     /* 第38弾: 日付ごとのidを振る。「さらに前を見る」で先頭に行が差し込まれても、
        いま見ていた日付を基準に位置を戻せるようにするため。 */
     return '<div class="cal-day" id="' + esc("calDay-" + b.date) + '"' + (b.date === anchor ? ' data-calanchor="1"' : '') + '>' +
@@ -3864,7 +3892,7 @@ function renderAllSchedule(calendar, found) {
 
   const undatedHtml = undated.length
     ? '<div class="cal-day"><h3 class="cal-day-title">日程未定</h3>' +
-        undated.map(m => calMatchRowHtml(m, ownIdTeam)).join("") + '</div>'
+        undated.map(m => calMatchRowHtml(m, ownIdTeam, ranksByLeague)).join("") + '</div>'
     : "";
 
   return '<section><h2>日程（全体）</h2><div class="card">' +
@@ -3874,7 +3902,7 @@ function renderAllSchedule(calendar, found) {
   '</div></section>';
 }
 
-function renderNext(mine, team, venues) {
+function renderNext(mine, team, venues, ranks) {
   const now = Date.now();
   const upcoming = mine
     .filter(m => !m.finished)
@@ -3899,6 +3927,7 @@ function renderNext(mine, team, venues) {
         (isMe
           ? '<span class="vs-name">' + name + '</span>'
           : '<span class="vs-name team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(side.idTeam) + '">' + name + '</span>') +
+        rankTagHtml(ranks, side.idTeam, "vs-rank") +   // 第60弾: まだ始まっていない試合なので現在順位を出してよい
       '</div>';
     };
     const countdown = m.kickoffTbd ? null : kickoffCountdown(m.kickoffJst);
@@ -4053,6 +4082,31 @@ function teamCrestHtml(idTeam, extraClass) {
   const style = "background:linear-gradient(145deg," + c + " 0%," + c + " 52%," + sub + " 52%," + sub + " 100%);color:" + pickInk(c);
   return '<span class="crest ' + (extraClass || "") + '" style="' + style + '">' + esc(label) + '</span>';
 }
+/* 第60弾: 現在順位(idTeam -> 順位)。順位タブ・ホームと同じ暫定判定を通す。
+   どのクラブもまだ試合をしていない(開幕前)なら並びに意味が無いので、空にして何も出さない。 */
+function rankMapFromTable(table) {
+  const map = {};
+  if (!Array.isArray(table) || !table.some(r => r && r.played > 0)) return map;
+  for (const r of table) {
+    if (r && r.idTeam != null && r.rank != null) map[r.idTeam] = r.rank;
+  }
+  return map;
+}
+function currentRankMap(league) {
+  const cache = leagueCache(league);
+  const master = state.masters[league];
+  if (hasOndemandForLeague(league) && master && cache.matches) {
+    return rankMapFromTable(computeProvisionalTable(effectiveMatches(league), master));
+  }
+  return rankMapFromTable(cache.standings && cache.standings.table);
+}
+/* 順位の添え字。呼び出し側は「まだ終わっていない試合」にだけ付けること。
+   終わった試合に今の順位を出すと、その試合の時点の順位だと読まれてしまう。 */
+function rankTagHtml(ranks, idTeam, cls) {
+  const r = ranks && ranks[idTeam];
+  return r ? '<span class="' + (cls || "rank-tag") + '">' + esc(r) + '位</span>' : "";
+}
+
 function teamSwatchHtml(idTeam) {
   const t = state.teamsById && state.teamsById[idTeam];
   const c = t && t.color;
@@ -4227,7 +4281,7 @@ function renderMatchEventsPanel(ev, homeId, homeName, awayId, awayName, ownIdTea
   return '<div class="events-panel">' + videoHtml + lineupsHtml + listHtml + shareHtml + '</div>';
 }
 
-function scheduleRowHtml(m, team, mode, provisional, league) {
+function scheduleRowHtml(m, team, mode, provisional, league, ranks) {
   const involvesMe = m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam;
   const isHome = m.home.idTeam === team.idTeam;
 
@@ -4284,22 +4338,26 @@ function scheduleRowHtml(m, team, mode, provisional, league) {
   const panelHtml = isOpen
     ? renderMatchEventsPanel(ev, m.home.idTeam, m.home.short || m.home.ja, m.away.idTeam, m.away.short || m.away.ja, team.idTeam)
     : "";
+  // 第60弾: 現在順位は日時を出している(=まだ終わっていない)行だけ。スコアが出ている行には付けない
+  const rankOf = (idTeam) => (!m.finished && !derived) ? rankTagHtml(ranks, idTeam) : "";
 
   if (mode === "mine") {
     const opp = isHome ? m.away : m.home;
+    const oppRank = rankOf(opp.idTeam);
     return '<div class="sched-row-wrap">' +
       '<div class="sched-row' + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
         '<span class="sched-ha">' + (isHome ? "H" : "A") + '</span>' +
-        '<span class="sched-opp"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></span>' +
+        '<span class="sched-opp' + (oppRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span>' + oppRank + '</span>' +
         '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' + videoMarkHtml + expandHtml +
       '</div>' + panelHtml +
     '</div>';
   }
+  const homeRank = rankOf(m.home.idTeam), awayRank = rankOf(m.away.idTeam);
   return '<div class="sched-row-wrap">' +
     '<div class="sched-row all' + (involvesMe ? " me" : "") + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
-      '<span class="sched-team"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.home.idTeam) + '">' + teamSwatchHtml(m.home.idTeam) + esc(m.home.short || m.home.ja) + '</span></span>' +
+      '<span class="sched-team' + (homeRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.home.idTeam) + '">' + teamSwatchHtml(m.home.idTeam) + esc(m.home.short || m.home.ja) + '</span>' + homeRank + '</span>' +
       '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' +
-      '<span class="sched-team away"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.away.idTeam) + '">' + teamSwatchHtml(m.away.idTeam) + esc(m.away.short || m.away.ja) + '</span></span>' + videoMarkHtml + expandHtml +
+      '<span class="sched-team away' + (awayRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.away.idTeam) + '">' + teamSwatchHtml(m.away.idTeam) + esc(m.away.short || m.away.ja) + '</span>' + awayRank + '</span>' + videoMarkHtml + expandHtml +
     '</div>' + panelHtml +
   '</div>';
 }
@@ -4334,6 +4392,7 @@ function renderScheduleTab(matchesData, team, league) {
 
   const rounds = groupMatchesByRound(all);
   const roundNumbers = Object.keys(rounds).map(Number).sort((a, b) => a - b);
+  const ranks = currentRankMap(league);   // 第60弾
 
   const toggleHtml = '<div class="seg-toggle">' +
     '<button type="button" class="' + (mode === "mine" ? "active" : "") + '" data-schedulemode="mine">自クラブのみ</button>' +
@@ -4357,7 +4416,7 @@ function renderScheduleTab(matchesData, team, league) {
       rows = rows.filter(m => m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam);
       if (!rows.length) return "";
     }
-    const rowsHtml = rows.map(m => scheduleRowHtml(m, team, mode, league && isOndemandMatch(league, m.idEvent), league)).join("");
+    const rowsHtml = rows.map(m => scheduleRowHtml(m, team, mode, league && isOndemandMatch(league, m.idEvent), league, ranks)).join("");
     return '<div class="sched-round" id="round-' + r + '"><h3 class="sched-round-title">第' + r + '節</h3>' + rowsHtml + '</div>';
   }).join("");
 
