@@ -1184,8 +1184,10 @@ const state = {
   statsGroup: "model", // スタッツタブのレーダー切替(既定は「モデル」)
   scheduleMode: "mine", // 日程タブ: "mine"=自クラブのみ(既定) / "all"=リーグ全体
   scheduleRound: null,   // 日程タブ: 表示中の節。nullなら初回表示時に直近の節を計算する
-  schedNeedsScroll: false, // 第37弾: 日程タブを開いた/節を選び直した直後だけtrue。
+  schedNeedsScroll: true,  // 第37弾: 日程タブを開いた/節を選び直した直後だけtrue。
                            // 描画のたびにスクロールを奪わないための1回きりのフラグ
+                           // 第60弾: 初期値をtrueに。#club/schedule で起動したときも今節へ寄せる
+                           // (全体モードの calNeedsScroll と同じ。他のタブで起動したら使われずに残るだけ)
   ghTokenFormOpen: false,  // 第31弾のトークン入力欄が開いているか(宣言が漏れていたので追加)
   ghTokenInvalid: false,   // 直近のworkflow_dispatchが401/403で弾かれたか
   eventsDispatchedAt: null, // 直近でworkflow_dispatchを投げた時刻(ms)。連投防止用
@@ -1724,10 +1726,26 @@ function applyRouteFromHash() {
   state.viewMode = (saved === "all") ? "all" : "club";
 }
 
+/* 第60弾: 日程を「開いた」ときの共通処理。直近(今節/今日)を計算し直し、描画でそこへ寄せる。
+   一度計算した節を使い回していたため、PWAを数日開いたままにすると古い節へ寄っていた
+   (カレンダーの基準日は第37弾で可視復帰時に戻すようにしたが、クラブの節には戻す場所が無かった)。 */
+function markClubScheduleOpened() {
+  state.scheduleRound = null;
+  state.schedNeedsScroll = true;
+}
+function markCalendarOpened() {
+  state.calAnchorDate = null;
+  state.calDaysBefore = CAL_WINDOW_STEP_DAYS;
+  state.calDaysAfter = CAL_WINDOW_STEP_DAYS;
+  state.calNeedsScroll = true;
+}
+
 function setActiveTab(tabId) {
   if (!TABS.some(t => t.id === tabId)) tabId = "home";
   state.activeTab = tabId;
-  state.schedNeedsScroll = (tabId === "schedule");  // 第37弾: 開いた直後の1回だけ節へ寄せる
+  // 第37弾: 開いた直後の1回だけ節へ寄せる
+  if (tabId === "schedule") markClubScheduleOpened();
+  else state.schedNeedsScroll = false;
   state.eventsOpen = null; // タブを切り替えたら開きっぱなしの試合詳細をリセットする(第13弾)
   syncHash();
   updateTabBarActive();
@@ -1738,7 +1756,7 @@ function setAllTab(tabId) {
   if (!ALL_TABS.some(t => t.id === tabId)) tabId = "schedule";
   state.allTab = tabId;
   state.eventsOpen = null; // タブを切り替えたら開きっぱなしの試合詳細をリセットする(第13弾)
-  if (tabId === "schedule") state.calNeedsScroll = true; // タブを開いた瞬間だけ基準日へスクロールする
+  if (tabId === "schedule") markCalendarOpened(); // タブを開いた瞬間だけ基準日へスクロールする
   syncHash();
   updateTabBarActive();
   window.scrollTo(0, 0);
@@ -1748,7 +1766,8 @@ function setViewMode(mode) {
   if (mode !== "club" && mode !== "all") mode = "club";
   if (mode === state.viewMode) return;
   state.viewMode = mode;
-  if (mode === "all" && state.allTab === "schedule") state.calNeedsScroll = true;
+  if (mode === "all" && state.allTab === "schedule") markCalendarOpened();
+  if (mode === "club" && state.activeTab === "schedule") markClubScheduleOpened();   // 第60弾
   saveViewMode(mode);
   renderTabButtons();
   applyThemeForMode();
@@ -2100,7 +2119,8 @@ async function init() {
     state.viewMode = route.mode;
     if (route.mode === "club") state.activeTab = route.tab;
     else state.allTab = route.tab;
-    if (route.mode === "all" && route.tab === "schedule") state.calNeedsScroll = true;
+    if (route.mode === "all" && route.tab === "schedule") markCalendarOpened();
+    if (route.mode === "club" && route.tab === "schedule") markClubScheduleOpened();   // 第60弾
     if (modeChanged) {
       saveViewMode(route.mode);
       renderTabButtons();
@@ -2311,8 +2331,10 @@ async function init() {
     // あるのに、クラブモードでは毎回自分で節を合わせる必要があった。
     if (ev.target.closest("[data-jumpcurrent]")) {
       const r = state.currentRoundForJump;
-      const el = r ? document.getElementById("round-" + r) : null;
-      if (el) el.scrollIntoView({ block: "start" });  // .sched-round に scroll-margin-top:90px 済み
+      const el = r ? findRoundBlock(r) : null;
+      /* 第60弾: scroll-margin-top:90px 頼みだったが、固定ヘッダーは実測149pxあり、
+         節の見出しと1行目がヘッダーの下に隠れていた。ヘッダーの高さを測って合わせる。 */
+      if (el) window.scrollTo(0, scrollTopForAnchor(el));
       return;
     }
 
@@ -2440,6 +2462,7 @@ async function init() {
     const modeBtn = ev.target.closest("[data-schedulemode]");
     if (modeBtn) {
       state.scheduleMode = modeBtn.dataset.schedulemode;
+      state.schedNeedsScroll = true;   // 第60弾: 並びが変わるので、選んでいる節へ寄せ直す
       renderActiveTab();
       return;
     }
@@ -2590,11 +2613,14 @@ async function selectTeam(idTeam) {
   if (state.battlePick) state.battlePick = null;
   state.idTeam = idTeam;
   state.league = found.league;
+  // 第60弾: 節の並びはリーグごとに違うので、クラブを変えたら今節を計算し直して寄せる
+  if (state.viewMode === "club" && state.activeTab === "schedule") markClubScheduleOpened();
   applyThemeForMode();
   await renderActiveTab();
-  // 全体モード日程タブは描画内で基準日(今日)へscrollIntoViewしている。ここで(0,0)に戻すと
-  // それを上書きしてしまうので、そのケースだけは末尾のリセットをスキップする。
-  if (!(state.viewMode === "all" && state.allTab === "schedule")) window.scrollTo(0, 0);
+  // 日程タブ(全体モードの基準日・クラブモードの今節)は描画内で位置を決めている。ここで(0,0)に
+  // 戻すとそれを上書きしてしまうので、そのケースだけは末尾のリセットをスキップする。
+  const onSchedule = (state.viewMode === "all") ? state.allTab === "schedule" : state.activeTab === "schedule";
+  if (!onSchedule) window.scrollTo(0, 0);
 }
 
 /* ---------- 描画(タブごと) ---------- */
@@ -2670,6 +2696,19 @@ function deferLoading(app) {
    同じ画面を作り直すときだけ、元の位置へ戻す。タブやクラブを変えたときは先頭のままでよい。 */
 let lastViewKey = null;
 let nextScrollTop = null;   // 次の描画で移動したい位置。nullなら自動で決める
+/* 第60弾: 次の描画で「固定ヘッダーの直下」に合わせたい要素を返す関数(日程の今節・今日)。
+   第55弾から setAppHtml が差し替え直後と次のフレームで位置を決め直すので、描画のあとで
+   scrollIntoView しても次のフレームで先頭(0)へ戻されていた。日程タブを開くと第1節
+   (全体モードは基準日の14日前)が出ていたのはこれ。行き先は setAppHtml に一緒に渡す。 */
+let nextScrollAnchor = null;
+
+/* elの上端を固定ヘッダー(#headerWrap)の下端に合わせるスクロール位置。
+   ヘッダーの高さはクラブ名の折り返しなどで変わるので、CSSの固定値ではなく実測する。 */
+function scrollTopForAnchor(el) {
+  const hdr = document.getElementById("headerWrap");
+  const offset = (hdr ? hdr.getBoundingClientRect().height : 0) + 8;
+  return Math.max(0, Math.round(el.getBoundingClientRect().top + window.scrollY - offset));
+}
 
 function currentViewKey() {
   return state.viewMode === "all"
@@ -2688,12 +2727,20 @@ function setAppHtml(app, html) {
      表示された(「タップすると勝手に下に引っ張られる」)。 */
   const target = (nextScrollTop !== null) ? nextScrollTop : (same ? window.scrollY : 0);
   nextScrollTop = null;
+  const anchorFn = nextScrollAnchor;   // 第60弾
+  nextScrollAnchor = null;
+  const resolve = function () {
+    const el = anchorFn ? anchorFn() : null;
+    return el ? scrollTopForAnchor(el) : target;
+  };
 
   app.innerHTML = html;
-  if (Math.abs(window.scrollY - target) > 0.5) window.scrollTo(0, target);
+  const t0 = resolve();
+  if (Math.abs(window.scrollY - t0) > 0.5) window.scrollTo(0, t0);
   /* 差し替え直後だけでなく、レイアウトが確定したあとにもう一度見る。 */
   requestAnimationFrame(function () {
-    if (Math.abs(window.scrollY - target) > 0.5) window.scrollTo(0, target);
+    const t1 = resolve();
+    if (Math.abs(window.scrollY - t1) > 0.5) window.scrollTo(0, t1);
   });
 }
 
@@ -2787,18 +2834,19 @@ function renderActiveTabBody(league, team, master, app) {
       renderPromotion(cache.simulation, team, all, master.promotionRules, league) +
       renderImpactSection(cache.impact, team, master.promotionRules, league);
   }
+  /* 第37弾: 「日程タブである」だけを条件にしていたため、試合中に liveTick が60秒ごとに
+     再描画するたび、選択中の節の先頭へ引き戻されていた。全体モード日程の calNeedsScroll と
+     同じく「1回だけ立てるフラグ」に揃える。
+     第60弾: 以前は描画のあとで scrollIntoView していたが、setAppHtml(第55弾)が次のフレームで
+     先頭へ戻すので効いていなかった。行き先を setAppHtml に渡す。 */
+  if (state.activeTab === "schedule" && state.scheduleRound != null && state.schedNeedsScroll) {
+    state.schedNeedsScroll = false;
+    const round = state.scheduleRound;
+    nextScrollAnchor = () => findRoundBlock(round);
+  }
   setAppHtml(app, html);   // 第55弾
   /* 第43弾: 戦闘画面が出ているならメッセージ送りを動かす */
   if (state.battle && document.getElementById("battleRoot")) battleScheduleAdvance();
-
-  /* 第37弾: 「日程タブである」だけを条件にしていたため、試合中に liveTick が60秒ごとに
-     再描画するたび、選択中の節の先頭へ引き戻されていた。全体モード日程の calNeedsScroll と
-     同じく「1回だけ立てるフラグ」に揃える。 */
-  if (state.activeTab === "schedule" && state.scheduleRound != null && state.schedNeedsScroll) {
-    state.schedNeedsScroll = false;
-    const target = document.getElementById("round-" + state.scheduleRound);
-    if (target) target.scrollIntoView({ block: "start" });
-  }
 
   const genMeta = (cache.matches && cache.matches.meta) || (cache.standings && cache.standings.meta) || (cache.stats && cache.stats.meta);
   const gen = genMeta && genMeta.generatedAtJst;
@@ -2849,12 +2897,12 @@ async function renderAllModeActiveTab() {
     html = renderAllPredict(state.allLeague, cache.simulation, found);
     genMeta = cache.simulation && cache.simulation.meta;
   }
-  setAppHtml(app, html);   // 第55弾
-
+  // 第60弾: 基準日へのスクロールも setAppHtml に渡す(クラブモードの今節と同じ理由)
   if (state.allTab === "schedule" && state.calNeedsScroll) {
-    scrollCalendarToAnchor();
     state.calNeedsScroll = false;
+    nextScrollAnchor = findCalendarAnchor;
   }
+  setAppHtml(app, html);   // 第55弾
 
   const gen = genMeta && genMeta.generatedAtJst;
   document.getElementById("footer").textContent =
@@ -3724,9 +3772,24 @@ function calMatchRowHtml(m, ownIdTeam) {
   '</div>';
 }
 
-function scrollCalendarToAnchor() {
-  const el = document.querySelector("[data-calanchor]");
-  if (el) el.scrollIntoView({ block: "start" });
+/* 第60弾: 基準日のブロック。基準日がリーグの絞り込みで消えていても、それ以降で最初の日付
+   (無ければ最後の日付)に寄せる。 */
+function findCalendarAnchor() {
+  const exact = document.querySelector("[data-calanchor]");
+  if (exact) return exact;
+  const anchor = state.calAnchorDate;
+  const days = Array.from(document.querySelectorAll(".cal-day[id^='calDay-']"));
+  const after = anchor ? days.find(d => d.id.slice(7) >= anchor) : null;
+  return after || days[days.length - 1] || null;
+}
+/* 第60弾: 節のブロック。「自クラブのみ」では試合の無い節はブロックごと出ないので、
+   その場合はそれより後で最初の節(無ければ最後の節)にする。 */
+function findRoundBlock(round) {
+  const exact = document.getElementById("round-" + round);
+  if (exact) return exact;
+  const blocks = Array.from(document.querySelectorAll(".sched-round[id^='round-']"));
+  const after = blocks.find(b => Number(b.id.slice(6)) > round);
+  return after || blocks[blocks.length - 1] || null;
 }
 function extendCalendarRange(direction) {
   /* 第38弾: 「さらに前を見る」は先頭に14日ぶんの行を差し込むので、そのままだと
@@ -3929,16 +3992,37 @@ function groupMatchesByRound(matches) {
   return rounds;
 }
 
-/* maxPlayed(消化済みの最終節)の次の節。誰も消化していなければ第1節。 */
+/* 第60弾: 「今節」= 開催日が今日以降の節のうち、いちばん早く始まる節。
+   節の開催日は「その節の中央の日付から前後3日に入る試合」の日付の範囲とし、
+   延期・前倒しで大きく離れた試合は数えない。今日以降に節が無ければ(シーズン終了後)最後の節。
+   従来の「消化済みの最大の節+1」は、
+   (1) 土曜の夜に節の半分が終わった時点で、日曜の試合を残したまま次の節へ進む
+   (2) 前倒しで消化した試合が1つあるだけで、その節の次まで飛ぶ
+   という形で直近からずれていた。 */
 function computeCurrentRound(allMatches, rules) {
-  let maxRound = 0;
+  const datesByRound = {};
   for (const m of allMatches) {
-    if (m.finished && m.round > maxRound) maxRound = m.round;
+    const d = m.kickoffTbd ? null : dateOnly(m.kickoffJst);
+    if (!d || !(m.round >= 1)) continue;
+    (datesByRound[m.round] = datesByRound[m.round] || []).push(d);
   }
-  /* 第38弾: 節数はマスタ(promotionRules.totalRounds)が持っているので、そこから取る。
-     従来の "|| 1" は Math.min の結果が必ず1以上なので到達しない死文だった。 */
+  const today = todayDateStrJst();
+  let best = null, lastRound = 0;
+  for (const key of Object.keys(datesByRound)) {
+    const r = Number(key);
+    const dates = datesByRound[key].sort();
+    const mid = dates[(dates.length - 1) >> 1];
+    const lo = addDaysToDateStr(mid, -3), hi = addDaysToDateStr(mid, 3);
+    const core = dates.filter(d => d >= lo && d <= hi);
+    const first = core[0], last = core[core.length - 1];
+    if (r > lastRound) lastRound = r;
+    if (last >= today && (!best || first < best.first || (first === best.first && r < best.r))) {
+      best = { r: r, first: first };
+    }
+  }
+  /* 第38弾: 節数はマスタ(promotionRules.totalRounds)が持っているので、そこから取る。 */
   const total = (rules && rules.totalRounds) || 38;
-  return Math.max(1, Math.min(maxRound + 1, total));
+  return Math.max(1, Math.min(best ? best.r : (lastRound || 1), total));
 }
 
 /* 第13弾: 得点/カード/交代の分表記("45+2"等)を昇順ソートするためのキーに変換する。 */
@@ -5262,6 +5346,7 @@ function clearStaticCaches(deep) {
   /* 第37弾: カレンダーの基準日もここで戻す。戻す場所が無かったため、土曜の夜に開いた
      PWAを日曜の昼に開き直すと「今日」へのスクロールが土曜のブロックへ飛んでいた。 */
   state.calAnchorDate = null;
+  state.scheduleRound = null;   // 第60弾: クラブの節も同じ理由で計算し直す
   calGroupCache = null;
   // 第26弾: ニュースの置き場が増えたので、ここも一緒に戻す(古い記事が残らないように)
   state.newsCache = null;
