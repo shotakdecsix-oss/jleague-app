@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-09-18T20:10:03+09:00",
+    "generatedAtJst": "2026-09-18T20:15:03+09:00",
     "windowHours": 36,
     "candidateCount": 2,
     "fetchedCount": 2,
@@ -19448,7 +19448,7 @@
     "2492444": {
       "code": "091803",
       "url": "https://www.jleague.jp/match/j3/2026/091803/livetxt/",
-      "fetchedAtJst": "2026-09-18T20:10:08+09:00",
+      "fetchedAtJst": "2026-09-18T20:15:07+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -19690,8 +19690,17 @@
     "2492452": {
       "code": "091802",
       "url": "https://www.jleague.jp/match/j3/2026/091802/livetxt/",
-      "fetchedAtJst": "2026-09-18T20:10:12+09:00",
+      "fetchedAtJst": "2026-09-18T20:15:11+09:00",
       "goals": [
+        {
+          "minute": "49",
+          "club": "福島ユナイテッドＦＣ",
+          "player": "清水 一雅",
+          "position": "FW 9",
+          "scoreAfter": "2-1",
+          "idTeam": "141246",
+          "playerId": "1626004"
+        },
         {
           "minute": "36",
           "club": "ＦＣ大阪",
@@ -19713,21 +19722,7 @@
           "playerId": "1637254"
         }
       ],
-      "subs": [
-        {
-          "minute": "45",
-          "club": "福島ユナイテッドＦＣ",
-          "items": [
-            {
-              "variant": "in",
-              "position": "FW 44",
-              "name": "奥田 晃也",
-              "playerId": "1604675"
-            }
-          ],
-          "idTeam": "141246"
-        }
-      ],
+      "subs": [],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
