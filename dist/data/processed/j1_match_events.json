@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-09-19T21:05:03+09:00",
+    "generatedAtJst": "2026-09-19T21:10:03+09:00",
     "windowHours": 36,
     "candidateCount": 8,
     "fetchedCount": 8,
@@ -23953,7 +23953,7 @@
     "2492850": {
       "code": "091903",
       "url": "https://www.jleague.jp/match/j1/2026/091903/livetxt/",
-      "fetchedAtJst": "2026-09-19T21:05:05+09:00",
+      "fetchedAtJst": "2026-09-19T21:10:05+09:00",
       "goals": [
         {
           "minute": "68",
@@ -24448,7 +24448,7 @@
     "2492853": {
       "code": "091909",
       "url": "https://www.jleague.jp/match/j1/2026/091909/livetxt/",
-      "fetchedAtJst": "2026-09-19T21:05:09+09:00",
+      "fetchedAtJst": "2026-09-19T21:10:09+09:00",
       "goals": [
         {
           "minute": "97",
@@ -24963,7 +24963,7 @@
     "2492856": {
       "code": "091905",
       "url": "https://www.jleague.jp/match/j1/2026/091905/livetxt/",
-      "fetchedAtJst": "2026-09-19T21:05:13+09:00",
+      "fetchedAtJst": "2026-09-19T21:10:13+09:00",
       "goals": [
         {
           "minute": "71",
@@ -25449,7 +25449,7 @@
     "2492857": {
       "code": "091904",
       "url": "https://www.jleague.jp/match/j1/2026/091904/livetxt/",
-      "fetchedAtJst": "2026-09-19T21:05:17+09:00",
+      "fetchedAtJst": "2026-09-19T21:10:16+09:00",
       "goals": [
         {
           "minute": "62",
@@ -25944,7 +25944,7 @@
     "2492858": {
       "code": "091906",
       "url": "https://www.jleague.jp/match/j1/2026/091906/livetxt/",
-      "fetchedAtJst": "2026-09-19T21:05:20+09:00",
+      "fetchedAtJst": "2026-09-19T21:10:20+09:00",
       "goals": [
         {
           "minute": "51",
@@ -26404,7 +26404,7 @@
     "2492851": {
       "code": "091902",
       "url": "https://www.jleague.jp/match/j1/2026/091902/livetxt/",
-      "fetchedAtJst": "2026-09-19T21:05:24+09:00",
+      "fetchedAtJst": "2026-09-19T21:10:24+09:00",
       "goals": [
         {
           "minute": "56",
@@ -26852,7 +26852,7 @@
     "2492855": {
       "code": "091907",
       "url": "https://www.jleague.jp/match/j1/2026/091907/livetxt/",
-      "fetchedAtJst": "2026-09-19T21:05:28+09:00",
+      "fetchedAtJst": "2026-09-19T21:10:27+09:00",
       "goals": [
         {
           "minute": "92",
@@ -27371,7 +27371,7 @@
     "2492859": {
       "code": "091908",
       "url": "https://www.jleague.jp/match/j1/2026/091908/livetxt/",
-      "fetchedAtJst": "2026-09-19T21:05:31+09:00",
+      "fetchedAtJst": "2026-09-19T21:10:31+09:00",
       "goals": [
         {
           "minute": "8",
@@ -27384,6 +27384,15 @@
         }
       ],
       "cards": [
+        {
+          "minute": "78",
+          "type": "yellow",
+          "player": "喜田 拓也",
+          "position": "MF 8",
+          "club": "横浜Ｆ・マリノス",
+          "idTeam": "137719",
+          "playerId": "1200129"
+        },
         {
           "minute": "46",
           "type": "yellow",
@@ -27413,6 +27422,44 @@
         }
       ],
       "subs": [
+        {
+          "minute": "76",
+          "club": "横浜Ｆ・マリノス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 35",
+              "name": "関富 貫太",
+              "playerId": "1643434"
+            },
+            {
+              "variant": "out",
+              "position": "MF 25",
+              "name": "鈴木 冬一",
+              "playerId": "1601786"
+            }
+          ],
+          "idTeam": "137719"
+        },
+        {
+          "minute": "76",
+          "club": "横浜Ｆ・マリノス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 11",
+              "name": "ジョルディ クルークス",
+              "playerId": "1632280"
+            },
+            {
+              "variant": "out",
+              "position": "FW 23",
+              "name": "宮市 亮",
+              "playerId": "1100118"
+            }
+          ],
+          "idTeam": "137719"
+        },
         {
           "minute": "66",
           "club": "水戸ホーリーホック",
@@ -27497,7 +27544,7 @@
               "variant": "in",
               "position": "DF 4",
               "name": "河面 旺成",
-              "playerId": null
+              "playerId": "1603777"
             },
             {
               "variant": "out",
@@ -27716,6 +27763,12 @@
               "name": "ヤクブ スウォビィク",
               "number": "27",
               "position": "GK"
+            },
+            {
+              "id": "1603777",
+              "name": "河面 旺成",
+              "number": "4",
+              "position": "DF"
             },
             {
               "id": "1657455",
