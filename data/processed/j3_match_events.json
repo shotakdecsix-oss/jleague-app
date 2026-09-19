@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-09-19T20:25:03+09:00",
+    "generatedAtJst": "2026-09-19T20:30:03+09:00",
     "windowHours": 36,
     "candidateCount": 6,
     "fetchedCount": 6,
@@ -19448,7 +19448,7 @@
     "2492444": {
       "code": "091803",
       "url": "https://www.jleague.jp/match/j3/2026/091803/livetxt/",
-      "fetchedAtJst": "2026-09-19T20:26:10+09:00",
+      "fetchedAtJst": "2026-09-19T20:31:11+09:00",
       "goals": [],
       "cards": [
         {
@@ -19897,7 +19897,7 @@
     "2492452": {
       "code": "091802",
       "url": "https://www.jleague.jp/match/j3/2026/091802/livetxt/",
-      "fetchedAtJst": "2026-09-19T20:26:15+09:00",
+      "fetchedAtJst": "2026-09-19T20:31:22+09:00",
       "goals": [
         {
           "minute": "94",
@@ -20377,7 +20377,7 @@
     "2492445": {
       "code": "091918",
       "url": "https://www.jleague.jp/match/j3/2026/091918/livetxt/",
-      "fetchedAtJst": "2026-09-19T20:26:19+09:00",
+      "fetchedAtJst": "2026-09-19T20:31:25+09:00",
       "goals": [
         {
           "minute": "92",
@@ -20847,8 +20847,18 @@
     "2492446": {
       "code": "091919",
       "url": "https://www.jleague.jp/match/j3/2026/091919/livetxt/",
-      "fetchedAtJst": "2026-09-19T20:26:22+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-09-19T20:31:29+09:00",
+      "goals": [
+        {
+          "minute": "70",
+          "club": "ザスパ群馬",
+          "player": "中村 涼",
+          "position": "DF 2",
+          "scoreAfter": "1-0",
+          "idTeam": "139897",
+          "playerId": null
+        }
+      ],
       "cards": [
         {
           "minute": "33",
@@ -20869,6 +20879,12 @@
               "variant": "in",
               "position": "MF 4",
               "name": "玉城 大志",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "MF 27",
+              "name": "藤村 怜",
               "playerId": null
             }
           ],
@@ -21096,7 +21112,7 @@
     "2492447": {
       "code": "091921",
       "url": "https://www.jleague.jp/match/j3/2026/091921/livetxt/",
-      "fetchedAtJst": "2026-09-19T20:26:26+09:00",
+      "fetchedAtJst": "2026-09-19T20:31:32+09:00",
       "goals": [
         {
           "minute": "37",
@@ -21139,23 +21155,23 @@
       ],
       "subs": [
         {
-          "minute": null,
-          "club": null,
+          "minute": "57",
+          "club": "栃木ＳＣ",
           "items": [
             {
               "variant": "in",
               "position": "MF 77",
               "name": "中村 仁郎",
-              "playerId": null
+              "playerId": "1627456"
             },
             {
               "variant": "out",
               "position": "MF 17",
               "name": "杉森 考起",
-              "playerId": null
+              "playerId": "1400059"
             }
           ],
-          "idTeam": null
+          "idTeam": "139896"
         },
         {
           "minute": "45",
@@ -21415,7 +21431,7 @@
     "2492448": {
       "code": "091920",
       "url": "https://www.jleague.jp/match/j3/2026/091920/livetxt/",
-      "fetchedAtJst": "2026-09-19T20:26:29+09:00",
+      "fetchedAtJst": "2026-09-19T20:31:36+09:00",
       "goals": [
         {
           "minute": "58",
@@ -21438,6 +21454,15 @@
       ],
       "cards": [
         {
+          "minute": "70",
+          "type": "yellow",
+          "player": "二階堂 正哉",
+          "position": "DF 4",
+          "club": "ガイナーレ鳥取",
+          "idTeam": "141247",
+          "playerId": null
+        },
+        {
           "minute": "18",
           "type": "yellow",
           "player": "佐藤 諒",
@@ -21448,6 +21473,82 @@
         }
       ],
       "subs": [
+        {
+          "minute": "66",
+          "club": "ガイナーレ鳥取",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 27",
+              "name": "本保 奏希",
+              "playerId": "1637127"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "東條 敦輝",
+              "playerId": "1618865"
+            }
+          ],
+          "idTeam": "141247"
+        },
+        {
+          "minute": "66",
+          "club": "奈良クラブ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 2",
+              "name": "高畠 捷",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "DF 22",
+              "name": "生駒 稀生",
+              "playerId": "1644237"
+            }
+          ],
+          "idTeam": "147069"
+        },
+        {
+          "minute": "66",
+          "club": "奈良クラブ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 99",
+              "name": "森本 ヒマン",
+              "playerId": "1619692"
+            },
+            {
+              "variant": "out",
+              "position": "MF 13",
+              "name": "安藤 陸登",
+              "playerId": "1650518"
+            }
+          ],
+          "idTeam": "147069"
+        },
+        {
+          "minute": "66",
+          "club": "奈良クラブ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 7",
+              "name": "田村 亮介",
+              "playerId": "1400102"
+            },
+            {
+              "variant": "out",
+              "position": "FW 54",
+              "name": "川﨑 修平",
+              "playerId": "1626011"
+            }
+          ],
+          "idTeam": "147069"
+        },
         {
           "minute": "56",
           "club": "ガイナーレ鳥取",
