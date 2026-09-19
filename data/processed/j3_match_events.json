@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-09-19T20:50:03+09:00",
+    "generatedAtJst": "2026-09-19T20:55:03+09:00",
     "windowHours": 36,
     "candidateCount": 6,
     "fetchedCount": 6,
@@ -19448,7 +19448,7 @@
     "2492444": {
       "code": "091803",
       "url": "https://www.jleague.jp/match/j3/2026/091803/livetxt/",
-      "fetchedAtJst": "2026-09-19T20:51:10+09:00",
+      "fetchedAtJst": "2026-09-19T20:56:13+09:00",
       "goals": [],
       "cards": [
         {
@@ -19897,7 +19897,7 @@
     "2492452": {
       "code": "091802",
       "url": "https://www.jleague.jp/match/j3/2026/091802/livetxt/",
-      "fetchedAtJst": "2026-09-19T20:51:16+09:00",
+      "fetchedAtJst": "2026-09-19T20:56:19+09:00",
       "goals": [
         {
           "minute": "94",
@@ -20377,7 +20377,7 @@
     "2492445": {
       "code": "091918",
       "url": "https://www.jleague.jp/match/j3/2026/091918/livetxt/",
-      "fetchedAtJst": "2026-09-19T20:51:20+09:00",
+      "fetchedAtJst": "2026-09-19T20:56:23+09:00",
       "goals": [
         {
           "minute": "92",
@@ -20847,7 +20847,7 @@
     "2492446": {
       "code": "091919",
       "url": "https://www.jleague.jp/match/j3/2026/091919/livetxt/",
-      "fetchedAtJst": "2026-09-19T20:51:24+09:00",
+      "fetchedAtJst": "2026-09-19T20:56:26+09:00",
       "goals": [
         {
           "minute": "70",
@@ -21251,8 +21251,17 @@
     "2492447": {
       "code": "091921",
       "url": "https://www.jleague.jp/match/j3/2026/091921/livetxt/",
-      "fetchedAtJst": "2026-09-19T20:51:27+09:00",
+      "fetchedAtJst": "2026-09-19T20:56:30+09:00",
       "goals": [
+        {
+          "minute": "91",
+          "club": "鹿児島ユナイテッドＦＣ",
+          "player": "髙橋 旺良",
+          "position": "FW 22",
+          "scoreAfter": "3-0",
+          "idTeam": "139903",
+          "playerId": "1652842"
+        },
         {
           "minute": "37",
           "club": "鹿児島ユナイテッドＦＣ",
@@ -21261,18 +21270,18 @@
           "scoreAfter": "2-0",
           "idTeam": "139903",
           "playerId": "1635454"
-        },
-        {
-          "minute": "5",
-          "club": "鹿児島ユナイテッドＦＣ",
-          "player": "有田 稜",
-          "position": "FW 9",
-          "scoreAfter": "1-0",
-          "idTeam": "139903",
-          "playerId": "1635500"
         }
       ],
       "cards": [
+        {
+          "minute": "86",
+          "type": "yellow",
+          "player": "髙橋 旺良",
+          "position": "FW 22",
+          "club": "鹿児島ユナイテッドＦＣ",
+          "idTeam": "139903",
+          "playerId": "1652842"
+        },
         {
           "minute": "86",
           "type": "yellow",
@@ -21302,6 +21311,19 @@
         }
       ],
       "subs": [
+        {
+          "minute": null,
+          "club": "鹿児島ユナイテッドＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 99",
+              "name": "フアンマ デルガド",
+              "playerId": "1607167"
+            }
+          ],
+          "idTeam": "139903"
+        },
         {
           "minute": "85",
           "club": "栃木ＳＣ",
@@ -21693,7 +21715,7 @@
     "2492448": {
       "code": "091920",
       "url": "https://www.jleague.jp/match/j3/2026/091920/livetxt/",
-      "fetchedAtJst": "2026-09-19T20:51:31+09:00",
+      "fetchedAtJst": "2026-09-19T20:56:33+09:00",
       "goals": [
         {
           "minute": "89",
@@ -21837,7 +21859,7 @@
               "variant": "in",
               "position": "DF 2",
               "name": "高畠 捷",
-              "playerId": null
+              "playerId": "1637069"
             },
             {
               "variant": "out",
@@ -22113,6 +22135,12 @@
               "name": "宮澤 樹",
               "number": "1",
               "position": "GK"
+            },
+            {
+              "id": "1637069",
+              "name": "高畠 捷",
+              "number": "2",
+              "position": "DF"
             },
             {
               "id": "1647086",
