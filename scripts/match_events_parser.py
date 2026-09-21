@@ -173,16 +173,30 @@ def find_highlight_video_id(chunks: dict[str, str]) -> str | None:
     return m.group("vid") if m else None
 
 
-# 日程一覧ページ(/match/{league}/): 「新しいコードのhref」直後に来る2つのチーム名(data-media=pc)を
-# home/awayとして拾う。同じコードのhrefが1試合につき複数回(mobile版リンク等で)出現するので、
-# 呼び出し側の状態機械でコードが変わった時だけ新しい試合として扱う。
+# 日程一覧ページ(/match/{league}/ -> /{league}/match/ にリダイレクトされる)。
+# ページのデータには試合1件ぶんのまとまりが入っている:
+#   "detailHref":"/match/j2/2026/091910" ... "homeTeam":{..."fullName":"北海道コンサドーレ札幌"...}
+#   ... "awayTeam":{..."fullName":"大分トリニータ"...}
+# ここからコードと両クラブ名を取る。
 # 第36弾: leaguecup(ルヴァンカップ)を追加。個別試合ページのURLがJ1〜J3とまったく同じ形
 # (/match/leaguecup/2026/090201/)で、日程一覧も /match/leaguecup/ にある。
 # 得点者・カード・交代・出場メンバー・ハイライト動画のパーサはそのまま使える。
-SCHEDULE_TOKEN_RE = re.compile(
-    r'"href":"/match/(?P<league>j1|j2|j3|j1j2|j2j3|leaguecup)/(?P<year>\d{4})/(?P<code>\d{6})"'
-    r'|m-schedule__team-name","ref":"\$undefined","data-media":"pc","children":"(?P<name>[^"]+)"'
+#
+# 第62弾(2026-09-19): 以前は「コードのhrefの直後に現れる2つのチーム名(data-media=pc)」を
+# 出現順で拾っていた。公式サイトの出力順が変わって順番が1対1に並ばなくなり、実測で
+#   J2 札幌-大分(091910): 名前を1つも拾えず欠落 -> code_not_found で試合詳細が取れなかった
+#   J1 092001: 町田-柏のはずが「町田-鹿島」という実在しない組に化けた(鹿島は別の試合の名前)
+#   J3: 10試合中8試合しか取れなかった
+# という壊れ方をした。化けた組がたまたま実在の対戦と一致すると別の試合の得点者を取り込んで
+# しまうので、順番に依存しない「1試合ぶんのまとまり」から取る形に変えた。
+SCHEDULE_MATCH_RE = re.compile(
+    r'"detailHref":"/match/(?P<league>j1|j2|j3|j1j2|j2j3|leaguecup)/(?P<year>\d{4})/(?P<code>\d{6})"'
 )
+SCHEDULE_HOME_RE = re.compile(r'"homeTeam":\{.{0,600}?"fullName":"(?P<name>[^"]+)"', re.S)
+SCHEDULE_AWAY_RE = re.compile(r'"awayTeam":\{.{0,600}?"fullName":"(?P<name>[^"]+)"', re.S)
+# 1試合ぶんのまとまりの長さの上限(実測で detailHref から awayTeam まで千数百字)。
+# 次の detailHref の手前でも切るので、隣の試合の名前を拾うことはない。
+SCHEDULE_WINDOW = 4000
 
 
 def find_goals(chunks: dict[str, str]) -> list[dict]:
@@ -240,35 +254,25 @@ def find_subs(chunks: dict[str, str]) -> list[dict]:
 def extract_schedule_index(chunks: dict[str, str]) -> list[dict]:
     """
     日程一覧ページのチャンク群から [{"league","year","code","home","away"}, ...] を作る。
-    チャンクを結合した1本のテキストに対して状態機械で読む(コードが複数チャンクに
-    またがって分割されることは無い前提。分割された場合はその試合が抜け落ちるだけで
-    例外にはならない -> 呼び出し側は「見つからなかった候補」をfailed扱いにして安全に無視できる)。
+    detailHrefごとに、その試合ぶんの範囲(次のdetailHrefの手前まで)だけを見て
+    homeTeam/awayTeamのfullNameを取る。範囲内に両方そろわない試合は黙って落とす
+    (呼び出し側が「見つからなかった候補」をfailed扱いにして処理を続ける)。
     """
     text = "".join(chunks.values())
+    hits = list(SCHEDULE_MATCH_RE.finditer(text))
     out: list[dict] = []
-    current_code = None
-    current_league = None
-    current_year = None
-    names: list[str] = []
-
-    for m in SCHEDULE_TOKEN_RE.finditer(text):
-        if m.group("code"):
-            code = m.group("code")
-            if code != current_code:
-                current_code = code
-                current_league = m.group("league")
-                current_year = m.group("year")
-                names = []
-        else:
-            if current_code is None or len(names) >= 2:
-                continue
-            names.append(m.group("name"))
-            if len(names) == 2:
-                out.append({
-                    "league": current_league,
-                    "year": current_year,
-                    "code": current_code,
-                    "home": names[0],
-                    "away": names[1],
-                })
+    for i, m in enumerate(hits):
+        stop = hits[i + 1].start() if i + 1 < len(hits) else len(text)
+        seg = text[m.end():min(stop, m.end() + SCHEDULE_WINDOW)]
+        home = SCHEDULE_HOME_RE.search(seg)
+        away = SCHEDULE_AWAY_RE.search(seg)
+        if home is None or away is None:
+            continue
+        out.append({
+            "league": m.group("league"),
+            "year": m.group("year"),
+            "code": m.group("code"),
+            "home": home.group("name"),
+            "away": away.group("name"),
+        })
     return out

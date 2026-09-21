@@ -16,7 +16,7 @@
     一方で個別試合ページのURLはJ1〜J3とまったく同じ形
     (https://www.jleague.jp/match/leaguecup/2026/090201/livetxt/)なので、得点者・カード・交代・
     出場メンバー・ハイライト動画は fetch_match_events.py の仕組みがそのまま使える
-    (match_events_parser.SCHEDULE_TOKEN_RE に leaguecup を足してある)。
+    (match_events_parser.SCHEDULE_MATCH_RE に leaguecup を足してある)。
 
 日程ページの読み方(2026-09-01に実物で確認):
     1試合が "className":"m-schedule__link" を持つリンクで始まり、その中に出現順で
