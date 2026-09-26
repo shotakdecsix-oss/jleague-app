@@ -2,8 +2,8 @@
   "meta": {
     "league": "j3",
     "season": "2026-2027",
-    "generatedAtJst": "2026-09-26T08:32:03+09:00",
-    "basedOnMatches": 70,
+    "generatedAtJst": "2026-09-26T22:33:05+09:00",
+    "basedOnMatches": 80,
     "clubCount": 20,
     "powerSource": "airBattle",
     "speedSource": "intercept",
@@ -47,30 +47,30 @@
       "ja": "福島ユナイテッドFC",
       "short": "福島",
       "kana": "ふくしま",
-      "level": 4,
+      "level": 7,
       "hp": {
-        "now": 27,
+        "now": 47,
         "max": 100,
         "recent": [
+          "W",
           "L",
           "L",
           "W",
-          "D",
-          "L"
+          "D"
         ],
         "state": "ておい"
       },
       "mp": {
-        "now": 36,
-        "max": 93,
-        "expectedPoints": 40.0,
-        "currentRank": 19,
-        "expectedRank": 16.05
+        "now": 37,
+        "max": 90,
+        "expectedPoints": 43.7,
+        "currentRank": 16,
+        "expectedRank": 14.56
       },
       "params": {
         "attack": {
-          "value": 147,
-          "rank": 7,
+          "value": 158,
+          "rank": 6,
           "label": "こうげき"
         },
         "defense": {
@@ -94,8 +94,8 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 59,
-          "rank": 20,
+          "value": 74,
+          "rank": 19,
           "label": "うんのよさ"
         }
       },
@@ -112,33 +112,33 @@
       "kana": "とちぎSC",
       "level": 9,
       "hp": {
-        "now": 33,
+        "now": 27,
         "max": 100,
         "recent": [
           "L",
+          "L",
           "D",
           "W",
-          "L",
-          "D"
+          "L"
         ],
         "state": "ておい"
       },
       "mp": {
-        "now": 40,
-        "max": 93,
-        "expectedPoints": 49.1,
-        "currentRank": 13,
-        "expectedRank": 12.13
+        "now": 37,
+        "max": 90,
+        "expectedPoints": 46.3,
+        "currentRank": 14,
+        "expectedRank": 13.48
       },
       "params": {
         "attack": {
-          "value": 123,
-          "rank": 9,
+          "value": 118,
+          "rank": 10,
           "label": "こうげき"
         },
         "defense": {
-          "value": 117,
-          "rank": 12,
+          "value": 119,
+          "rank": 11,
           "label": "ぼうぎょ"
         },
         "magic": {
@@ -157,15 +157,15 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 132,
-          "rank": 10,
+          "value": 110,
+          "rank": 13,
           "label": "うんのよさ"
         }
       },
-      "title": "せんし",
+      "title": "せいきし",
       "topParams": [
         "power",
-        "attack"
+        "defense"
       ]
     },
     {
@@ -178,30 +178,30 @@
         "now": 40,
         "max": 100,
         "recent": [
+          "L",
           "W",
           "L",
           "L",
-          "W",
-          "L"
+          "W"
         ],
         "state": "ておい"
       },
       "mp": {
-        "now": 32,
-        "max": 93,
-        "expectedPoints": 37.8,
-        "currentRank": 16,
-        "expectedRank": 16.93
+        "now": 30,
+        "max": 90,
+        "expectedPoints": 35.6,
+        "currentRank": 18,
+        "expectedRank": 17.54
       },
       "params": {
         "attack": {
-          "value": 92,
-          "rank": 16,
+          "value": 82,
+          "rank": 18,
           "label": "こうげき"
         },
         "defense": {
-          "value": 92,
-          "rank": 15,
+          "value": 101,
+          "rank": 14,
           "label": "ぼうぎょ"
         },
         "magic": {
@@ -220,8 +220,8 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 102,
-          "rank": 16,
+          "value": 82,
+          "rank": 18,
           "label": "うんのよさ"
         }
       },
@@ -236,34 +236,34 @@
       "ja": "SC相模原",
       "short": "相模原",
       "kana": "さがみはら",
-      "level": 11,
+      "level": 12,
       "hp": {
-        "now": 47,
+        "now": 33,
         "max": 100,
         "recent": [
+          "D",
           "L",
           "W",
           "D",
-          "L",
-          "W"
+          "L"
         ],
         "state": "ておい"
       },
       "mp": {
-        "now": 48,
-        "max": 93,
-        "expectedPoints": 59.1,
-        "currentRank": 6,
-        "expectedRank": 7.33
+        "now": 47,
+        "max": 90,
+        "expectedPoints": 58.8,
+        "currentRank": 8,
+        "expectedRank": 7.62
       },
       "params": {
         "attack": {
-          "value": 147,
-          "rank": 7,
+          "value": 145,
+          "rank": 8,
           "label": "こうげき"
         },
         "defense": {
-          "value": 137,
+          "value": 135,
           "rank": 10,
           "label": "ぼうぎょ"
         },
@@ -283,7 +283,7 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 113,
+          "value": 117,
           "rank": 11,
           "label": "うんのよさ"
         }
@@ -299,14 +299,14 @@
       "ja": "松本山雅FC",
       "short": "松本",
       "kana": "まつもと",
-      "level": 5,
+      "level": 8,
       "hp": {
-        "now": 27,
+        "now": 40,
         "max": 100,
         "recent": [
+          "W",
           "D",
           "L",
-          "D",
           "D",
           "D"
         ],
@@ -314,20 +314,20 @@
       },
       "mp": {
         "now": 38,
-        "max": 93,
-        "expectedPoints": 42.5,
-        "currentRank": 17,
-        "expectedRank": 14.99
+        "max": 90,
+        "expectedPoints": 46.5,
+        "currentRank": 15,
+        "expectedRank": 13.32
       },
       "params": {
         "attack": {
-          "value": 82,
-          "rank": 18,
+          "value": 87,
+          "rank": 17,
           "label": "こうげき"
         },
         "defense": {
-          "value": 151,
-          "rank": 7,
+          "value": 156,
+          "rank": 6,
           "label": "ぼうぎょ"
         },
         "magic": {
@@ -346,8 +346,8 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 74,
-          "rank": 19,
+          "value": 94,
+          "rank": 17,
           "label": "うんのよさ"
         }
       },
@@ -364,33 +364,33 @@
       "kana": "ながの",
       "level": 11,
       "hp": {
-        "now": 53,
+        "now": 33,
         "max": 100,
         "recent": [
+          "L",
           "W",
           "D",
           "D",
-          "L",
-          "W"
+          "L"
         ],
-        "state": "ふつう"
+        "state": "ておい"
       },
       "mp": {
-        "now": 43,
-        "max": 93,
-        "expectedPoints": 54.2,
-        "currentRank": 7,
-        "expectedRank": 9.67
+        "now": 41,
+        "max": 90,
+        "expectedPoints": 51.8,
+        "currentRank": 11,
+        "expectedRank": 10.93
       },
       "params": {
         "attack": {
-          "value": 101,
-          "rank": 15,
+          "value": 111,
+          "rank": 13,
           "label": "こうげき"
         },
         "defense": {
-          "value": 158,
-          "rank": 4,
+          "value": 142,
+          "rank": 9,
           "label": "ぼうぎょ"
         },
         "magic": {
@@ -409,15 +409,15 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 160,
-          "rank": 3,
+          "value": 149,
+          "rank": 6,
           "label": "うんのよさ"
         }
       },
       "title": "せいきし",
       "topParams": [
-        "defense",
-        "power"
+        "power",
+        "defense"
       ]
     },
     {
@@ -425,34 +425,34 @@
       "ja": "ツエーゲン金沢",
       "short": "金沢",
       "kana": "かなざわ",
-      "level": 7,
+      "level": 10,
       "hp": {
-        "now": 27,
+        "now": 47,
         "max": 100,
         "recent": [
+          "W",
           "L",
           "D",
           "W",
-          "L",
           "L"
         ],
         "state": "ておい"
       },
       "mp": {
-        "now": 41,
-        "max": 93,
-        "expectedPoints": 47.7,
-        "currentRank": 14,
-        "expectedRank": 12.69
+        "now": 43,
+        "max": 90,
+        "expectedPoints": 52.9,
+        "currentRank": 12,
+        "expectedRank": 10.34
       },
       "params": {
         "attack": {
-          "value": 123,
+          "value": 138,
           "rank": 9,
           "label": "こうげき"
         },
         "defense": {
-          "value": 107,
+          "value": 115,
           "rank": 13,
           "label": "ぼうぎょ"
         },
@@ -472,15 +472,15 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 109,
-          "rank": 12,
+          "value": 104,
+          "rank": 14,
           "label": "うんのよさ"
         }
       },
-      "title": "まどうし",
+      "title": "せんし",
       "topParams": [
         "power",
-        "magic"
+        "attack"
       ]
     },
     {
@@ -488,34 +488,34 @@
       "ja": "FC岐阜",
       "short": "岐阜",
       "kana": "ぎふ",
-      "level": 10,
+      "level": 13,
       "hp": {
-        "now": 27,
+        "now": 40,
         "max": 100,
         "recent": [
-          "L",
-          "L",
-          "L",
           "W",
-          "D"
+          "L",
+          "L",
+          "L",
+          "W"
         ],
         "state": "ておい"
       },
       "mp": {
-        "now": 59,
-        "max": 93,
-        "expectedPoints": 69.0,
-        "currentRank": 9,
+        "now": 56,
+        "max": 90,
+        "expectedPoints": 69.4,
+        "currentRank": 6,
         "expectedRank": 3.52
       },
       "params": {
         "attack": {
-          "value": 180,
+          "value": 187,
           "rank": 2,
           "label": "こうげき"
         },
         "defense": {
-          "value": 181,
+          "value": 168,
           "rank": 3,
           "label": "ぼうぎょ"
         },
@@ -535,15 +535,15 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 83,
-          "rank": 18,
+          "value": 98,
+          "rank": 15,
           "label": "うんのよさ"
         }
       },
       "title": "ゆうしゃ",
       "topParams": [
-        "defense",
-        "attack"
+        "attack",
+        "defense"
       ]
     },
     {
@@ -553,32 +553,32 @@
       "kana": "しが",
       "level": 12,
       "hp": {
-        "now": 60,
+        "now": 40,
         "max": 100,
         "recent": [
-          "W",
           "L",
           "W",
           "L",
-          "W"
+          "W",
+          "L"
         ],
-        "state": "ふつう"
+        "state": "ておい"
       },
       "mp": {
-        "now": 47,
-        "max": 93,
-        "expectedPoints": 59.2,
-        "currentRank": 5,
-        "expectedRank": 7.35
+        "now": 42,
+        "max": 90,
+        "expectedPoints": 53.5,
+        "currentRank": 9,
+        "expectedRank": 10.1
       },
       "params": {
         "attack": {
-          "value": 159,
-          "rank": 5,
+          "value": 149,
+          "rank": 7,
           "label": "こうげき"
         },
         "defense": {
-          "value": 133,
+          "value": 119,
           "rank": 11,
           "label": "ぼうぎょ"
         },
@@ -598,8 +598,8 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 143,
-          "rank": 9,
+          "value": 144,
+          "rank": 8,
           "label": "うんのよさ"
         }
       },
@@ -614,35 +614,35 @@
       "ja": "FC大阪",
       "short": "FC大阪",
       "kana": "FCおおさか",
-      "level": 13,
+      "level": 16,
       "hp": {
-        "now": 60,
+        "now": 73,
         "max": 100,
         "recent": [
           "W",
           "W",
-          "D",
+          "W",
           "D",
           "D"
         ],
         "state": "ふつう"
       },
       "mp": {
-        "now": 52,
-        "max": 93,
-        "expectedPoints": 65.1,
+        "now": 55,
+        "max": 90,
+        "expectedPoints": 70.9,
         "currentRank": 3,
-        "expectedRank": 4.9
+        "expectedRank": 3.16
       },
       "params": {
         "attack": {
-          "value": 159,
-          "rank": 5,
+          "value": 169,
+          "rank": 4,
           "label": "こうげき"
         },
         "defense": {
-          "value": 154,
-          "rank": 5,
+          "value": 165,
+          "rank": 4,
           "label": "ぼうぎょ"
         },
         "magic": {
@@ -661,8 +661,8 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 145,
-          "rank": 8,
+          "value": 142,
+          "rank": 9,
           "label": "うんのよさ"
         }
       },
@@ -677,35 +677,35 @@
       "ja": "奈良クラブ",
       "short": "奈良",
       "kana": "なら",
-      "level": 11,
+      "level": 14,
       "hp": {
         "now": 73,
         "max": 100,
         "recent": [
           "W",
           "W",
+          "W",
           "D",
-          "D",
-          "W"
+          "D"
         ],
         "state": "ふつう"
       },
       "mp": {
-        "now": 44,
-        "max": 93,
-        "expectedPoints": 54.8,
-        "currentRank": 8,
-        "expectedRank": 9.45
+        "now": 46,
+        "max": 90,
+        "expectedPoints": 59.8,
+        "currentRank": 5,
+        "expectedRank": 7.31
       },
       "params": {
         "attack": {
-          "value": 169,
-          "rank": 4,
+          "value": 177,
+          "rank": 3,
           "label": "こうげき"
         },
         "defense": {
-          "value": 73,
-          "rank": 19,
+          "value": 85,
+          "rank": 17,
           "label": "ぼうぎょ"
         },
         "magic": {
@@ -724,7 +724,7 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 183,
+          "value": 190,
           "rank": 2,
           "label": "うんのよさ"
         }
@@ -742,33 +742,33 @@
       "kana": "とっとり",
       "level": 10,
       "hp": {
-        "now": 60,
+        "now": 40,
         "max": 100,
         "recent": [
           "L",
-          "W",
           "L",
           "W",
+          "L",
           "W"
         ],
-        "state": "ふつう"
+        "state": "ておい"
       },
       "mp": {
-        "now": 37,
-        "max": 93,
-        "expectedPoints": 47.2,
-        "currentRank": 12,
-        "expectedRank": 13.08
+        "now": 33,
+        "max": 90,
+        "expectedPoints": 43.4,
+        "currentRank": 13,
+        "expectedRank": 14.84
       },
       "params": {
         "attack": {
-          "value": 123,
-          "rank": 9,
+          "value": 118,
+          "rank": 10,
           "label": "こうげき"
         },
         "defense": {
-          "value": 92,
-          "rank": 15,
+          "value": 83,
+          "rank": 18,
           "label": "ぼうぎょ"
         },
         "magic": {
@@ -787,8 +787,8 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 157,
-          "rank": 6,
+          "value": 165,
+          "rank": 3,
           "label": "うんのよさ"
         }
       },
@@ -817,21 +817,21 @@
         "state": "ひんし"
       },
       "mp": {
-        "now": 34,
-        "max": 93,
-        "expectedPoints": 38.4,
+        "now": 33,
+        "max": 90,
+        "expectedPoints": 37.0,
         "currentRank": 20,
-        "expectedRank": 16.64
+        "expectedRank": 17.08
       },
       "params": {
         "attack": {
-          "value": 92,
+          "value": 102,
           "rank": 16,
           "label": "こうげき"
         },
         "defense": {
-          "value": 99,
-          "rank": 14,
+          "value": 89,
+          "rank": 16,
           "label": "ぼうぎょ"
         },
         "magic": {
@@ -850,8 +850,8 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 86,
-          "rank": 17,
+          "value": 62,
+          "rank": 20,
           "label": "うんのよさ"
         }
       },
@@ -866,35 +866,35 @@
       "ja": "ギラヴァンツ北九州",
       "short": "北九州",
       "kana": "きたきゅうしゅう",
-      "level": 6,
+      "level": 7,
       "hp": {
         "now": 27,
         "max": 100,
         "recent": [
+          "D",
           "W",
           "L",
           "L",
-          "L",
-          "D"
+          "L"
         ],
         "state": "ておい"
       },
       "mp": {
         "now": 34,
-        "max": 93,
-        "expectedPoints": 40.3,
-        "currentRank": 15,
-        "expectedRank": 16.01
+        "max": 90,
+        "expectedPoints": 40.6,
+        "currentRank": 17,
+        "expectedRank": 15.85
       },
       "params": {
         "attack": {
-          "value": 114,
-          "rank": 12,
+          "value": 109,
+          "rank": 14,
           "label": "こうげき"
         },
         "defense": {
-          "value": 84,
-          "rank": 18,
+          "value": 96,
+          "rank": 15,
           "label": "ぼうぎょ"
         },
         "magic": {
@@ -913,8 +913,8 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 103,
-          "rank": 15,
+          "value": 97,
+          "rank": 16,
           "label": "うんのよさ"
         }
       },
@@ -931,33 +931,33 @@
       "kana": "こうち",
       "level": 5,
       "hp": {
-        "now": 27,
+        "now": 7,
         "max": 100,
         "recent": [
           "L",
+          "L",
           "D",
           "L",
-          "L",
-          "W"
+          "L"
         ],
-        "state": "ておい"
+        "state": "ひんし"
       },
       "mp": {
-        "now": 25,
-        "max": 93,
-        "expectedPoints": 29.7,
-        "currentRank": 18,
-        "expectedRank": 19.22
+        "now": 20,
+        "max": 90,
+        "expectedPoints": 25.5,
+        "currentRank": 19,
+        "expectedRank": 19.67
       },
       "params": {
         "attack": {
-          "value": 46,
+          "value": 42,
           "rank": 20,
           "label": "こうげき"
         },
         "defense": {
-          "value": 92,
-          "rank": 15,
+          "value": 83,
+          "rank": 18,
           "label": "ぼうぎょ"
         },
         "magic": {
@@ -976,8 +976,8 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 105,
-          "rank": 14,
+          "value": 111,
+          "rank": 12,
           "label": "うんのよさ"
         }
       },
@@ -992,34 +992,34 @@
       "ja": "鹿児島ユナイテッドFC",
       "short": "鹿児島",
       "kana": "かごしま",
-      "level": 19,
+      "level": 20,
       "hp": {
         "now": 87,
         "max": 100,
         "recent": [
+          "D",
           "W",
           "W",
           "W",
-          "W",
-          "D"
+          "W"
         ],
         "state": "げんき"
       },
       "mp": {
-        "now": 55,
-        "max": 93,
-        "expectedPoints": 73.9,
+        "now": 52,
+        "max": 90,
+        "expectedPoints": 72.2,
         "currentRank": 1,
-        "expectedRank": 2.39
+        "expectedRank": 2.88
       },
       "params": {
         "attack": {
-          "value": 180,
-          "rank": 2,
+          "value": 167,
+          "rank": 5,
           "label": "こうげき"
         },
         "defense": {
-          "value": 154,
+          "value": 158,
           "rank": 5,
           "label": "ぼうぎょ"
         },
@@ -1039,7 +1039,7 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 227,
+          "value": 226,
           "rank": 1,
           "label": "うんのよさ"
         }
@@ -1055,35 +1055,35 @@
       "ja": "FC琉球",
       "short": "琉球",
       "kana": "りゅうきゅう",
-      "level": 10,
+      "level": 11,
       "hp": {
-        "now": 60,
+        "now": 47,
         "max": 100,
         "recent": [
+          "D",
           "L",
           "W",
           "W",
-          "L",
-          "W"
+          "L"
         ],
-        "state": "ふつう"
+        "state": "ておい"
       },
       "mp": {
-        "now": 44,
-        "max": 93,
-        "expectedPoints": 53.8,
-        "currentRank": 11,
-        "expectedRank": 9.82
+        "now": 42,
+        "max": 90,
+        "expectedPoints": 53.3,
+        "currentRank": 10,
+        "expectedRank": 10.23
       },
       "params": {
         "attack": {
-          "value": 114,
-          "rank": 12,
+          "value": 109,
+          "rank": 14,
           "label": "こうげき"
         },
         "defense": {
-          "value": 140,
-          "rank": 9,
+          "value": 145,
+          "rank": 8,
           "label": "ぼうぎょ"
         },
         "magic": {
@@ -1102,7 +1102,7 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 149,
+          "value": 146,
           "rank": 7,
           "label": "うんのよさ"
         }
@@ -1118,34 +1118,34 @@
       "ja": "ロアッソ熊本",
       "short": "熊本",
       "kana": "くまもと",
-      "level": 10,
+      "level": 13,
       "hp": {
-        "now": 53,
+        "now": 73,
         "max": 100,
         "recent": [
-          "D",
           "W",
           "D",
           "W",
-          "L"
+          "D",
+          "W"
         ],
         "state": "ふつう"
       },
       "mp": {
         "now": 45,
-        "max": 93,
-        "expectedPoints": 54.8,
-        "currentRank": 10,
-        "expectedRank": 9.28
+        "max": 90,
+        "expectedPoints": 57.8,
+        "currentRank": 7,
+        "expectedRank": 8.09
       },
       "params": {
         "attack": {
-          "value": 82,
-          "rank": 18,
+          "value": 80,
+          "rank": 19,
           "label": "こうげき"
         },
         "defense": {
-          "value": 199,
+          "value": 205,
           "rank": 1,
           "label": "ぼうぎょ"
         },
@@ -1165,8 +1165,8 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 108,
-          "rank": 13,
+          "value": 128,
+          "rank": 10,
           "label": "うんのよさ"
         }
       },
@@ -1181,34 +1181,34 @@
       "ja": "レノファ山口FC",
       "short": "山口",
       "kana": "やまぐち",
-      "level": 13,
+      "level": 14,
       "hp": {
-        "now": 67,
+        "now": 73,
         "max": 100,
         "recent": [
-          "W",
-          "W",
-          "W",
           "D",
-          "L"
+          "W",
+          "W",
+          "W",
+          "D"
         ],
         "state": "ふつう"
       },
       "mp": {
-        "now": 49,
-        "max": 93,
-        "expectedPoints": 62.4,
+        "now": 48,
+        "max": 90,
+        "expectedPoints": 61.5,
         "currentRank": 4,
-        "expectedRank": 5.95
+        "expectedRank": 6.51
       },
       "params": {
         "attack": {
-          "value": 114,
+          "value": 116,
           "rank": 12,
           "label": "こうげき"
         },
         "defense": {
-          "value": 191,
+          "value": 186,
           "rank": 2,
           "label": "ぼうぎょ"
         },
@@ -1228,8 +1228,8 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 160,
-          "rank": 3,
+          "value": 158,
+          "rank": 5,
           "label": "うんのよさ"
         }
       },
@@ -1244,35 +1244,35 @@
       "ja": "愛媛FC",
       "short": "愛媛",
       "kana": "えひめ",
-      "level": 16,
+      "level": 17,
       "hp": {
         "now": 67,
         "max": 100,
         "recent": [
+          "D",
           "W",
           "L",
           "W",
-          "W",
-          "D"
+          "W"
         ],
         "state": "ふつう"
       },
       "mp": {
-        "now": 57,
-        "max": 93,
-        "expectedPoints": 72.6,
+        "now": 54,
+        "max": 90,
+        "expectedPoints": 71.5,
         "currentRank": 2,
-        "expectedRank": 2.62
+        "expectedRank": 2.98
       },
       "params": {
         "attack": {
-          "value": 214,
+          "value": 198,
           "rank": 1,
           "label": "こうげき"
         },
         "defense": {
-          "value": 147,
-          "rank": 8,
+          "value": 151,
+          "rank": 7,
           "label": "ぼうぎょ"
         },
         "magic": {
@@ -1291,15 +1291,15 @@
           "label": "すばやさ"
         },
         "luck": {
-          "value": 160,
+          "value": 165,
           "rank": 3,
           "label": "うんのよさ"
         }
       },
       "title": "まけんし",
       "topParams": [
-        "attack",
-        "magic"
+        "magic",
+        "attack"
       ]
     }
   ]
