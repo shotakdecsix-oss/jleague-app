@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j2",
-    "generatedAtJst": "2026-10-03T14:30:04+09:00",
+    "generatedAtJst": "2026-10-03T14:35:04+09:00",
     "windowHours": 36,
     "candidateCount": 2,
     "fetchedCount": 2,
@@ -28931,7 +28931,7 @@
     "2551787": {
       "code": "100309",
       "url": "https://www.jleague.jp/match/j2/2026/100309/livetxt/",
-      "fetchedAtJst": "2026-10-03T14:30:07+09:00",
+      "fetchedAtJst": "2026-10-03T14:35:07+09:00",
       "goals": [
         {
           "minute": "25",
@@ -28962,7 +28962,27 @@
         }
       ],
       "cards": [],
-      "subs": [],
+      "subs": [
+        {
+          "minute": "29",
+          "club": "徳島ヴォルティス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 14",
+              "name": "梶谷 政仁",
+              "playerId": "1635499"
+            },
+            {
+              "variant": "out",
+              "position": "FW 16",
+              "name": "渡 大生",
+              "playerId": "1200026"
+            }
+          ],
+          "idTeam": "139898"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -29201,11 +29221,11 @@
     "2551788": {
       "code": "100310",
       "url": "https://www.jleague.jp/match/j2/2026/100310/livetxt/",
-      "fetchedAtJst": "2026-10-03T14:30:11+09:00",
+      "fetchedAtJst": "2026-10-03T14:35:11+09:00",
       "goals": [],
       "cards": [
         {
-          "minute": "25",
+          "minute": "24",
           "type": "yellow",
           "player": "山田 寛人",
           "position": "FW 34",
@@ -29354,7 +29374,7 @@
         },
         "away": {
           "idTeam": "137715",
-          "formation": "4-2-3-1",
+          "formation": "4-1-2-3",
           "players": [
             {
               "id": 1610980,
@@ -29387,14 +29407,14 @@
               "number": "26"
             },
             {
-              "id": 1604080,
-              "name": "武田 将平",
-              "number": "6"
-            },
-            {
               "id": 1624317,
               "name": "アルトゥール シルバ",
               "number": "16"
+            },
+            {
+              "id": 1604080,
+              "name": "武田 将平",
+              "number": "6"
             },
             {
               "id": 1631730,
