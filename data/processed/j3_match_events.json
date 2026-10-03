@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-10-03T15:15:03+09:00",
+    "generatedAtJst": "2026-10-03T15:20:04+09:00",
     "windowHours": 36,
     "candidateCount": 5,
     "fetchedCount": 5,
@@ -29035,7 +29035,7 @@
     "2492472": {
       "code": "100201",
       "url": "https://www.jleague.jp/match/j3/2026/100201/livetxt/",
-      "fetchedAtJst": "2026-10-03T15:15:15+09:00",
+      "fetchedAtJst": "2026-10-03T15:20:17+09:00",
       "goals": [],
       "cards": [
         {
@@ -29502,7 +29502,7 @@
     "2492463": {
       "code": "100316",
       "url": "https://www.jleague.jp/match/j3/2026/100316/livetxt/",
-      "fetchedAtJst": "2026-10-03T15:15:19+09:00",
+      "fetchedAtJst": "2026-10-03T15:20:20+09:00",
       "goals": [
         {
           "minute": "28",
@@ -29812,10 +29812,53 @@
     "2492464": {
       "code": "100314",
       "url": "https://www.jleague.jp/match/j3/2026/100314/livetxt/",
-      "fetchedAtJst": "2026-10-03T15:15:23+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-10-03T15:20:24+09:00",
+      "goals": [
+        {
+          "minute": "58",
+          "club": "ガイナーレ鳥取",
+          "player": "三木 直土",
+          "position": "FW 10",
+          "scoreAfter": "0-1",
+          "idTeam": "141247",
+          "playerId": "1624678"
+        }
+      ],
       "cards": [],
-      "subs": [],
+      "subs": [
+        {
+          "minute": "60",
+          "club": "松本山雅ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 39",
+              "name": "井上 愛簾",
+              "playerId": "1644965"
+            }
+          ],
+          "idTeam": "139890"
+        },
+        {
+          "minute": "60",
+          "club": "松本山雅ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 8",
+              "name": "澤崎 凌大",
+              "playerId": "1645933"
+            },
+            {
+              "variant": "out",
+              "position": "MF 11",
+              "name": "金子 翔太",
+              "playerId": "1300848"
+            }
+          ],
+          "idTeam": "139890"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -30060,7 +30103,7 @@
     "2492470": {
       "code": "100315",
       "url": "https://www.jleague.jp/match/j3/2026/100315/livetxt/",
-      "fetchedAtJst": "2026-10-03T15:15:26+09:00",
+      "fetchedAtJst": "2026-10-03T15:20:28+09:00",
       "goals": [],
       "cards": [
         {
@@ -30312,8 +30355,18 @@
     "2492466": {
       "code": "100317",
       "url": "https://www.jleague.jp/match/j3/2026/100317/livetxt/",
-      "fetchedAtJst": "2026-10-03T15:15:31+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-10-03T15:20:32+09:00",
+      "goals": [
+        {
+          "minute": "12",
+          "club": "ザスパ群馬",
+          "player": "中島 大嘉",
+          "position": "FW 99",
+          "scoreAfter": "0-1",
+          "idTeam": "139897",
+          "playerId": null
+        }
+      ],
       "cards": [],
       "subs": [],
       "highlightVideoId": null,
@@ -30440,7 +30493,7 @@
         },
         "away": {
           "idTeam": "139897",
-          "formation": "3-1-4-2",
+          "formation": "3-4-2-1",
           "players": [
             {
               "id": 1635450,
@@ -30478,14 +30531,14 @@
               "number": "19"
             },
             {
-              "id": 1624841,
-              "name": "下川",
-              "number": "20"
-            },
-            {
               "id": 1610940,
               "name": "藤村",
               "number": "27"
+            },
+            {
+              "id": 1624841,
+              "name": "下川",
+              "number": "20"
             },
             {
               "id": 1642635,
