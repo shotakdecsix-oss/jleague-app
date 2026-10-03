@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j2",
-    "generatedAtJst": "2026-10-03T15:25:04+09:00",
+    "generatedAtJst": "2026-10-03T15:30:04+09:00",
     "windowHours": 36,
     "candidateCount": 2,
     "fetchedCount": 2,
@@ -28931,7 +28931,7 @@
     "2551787": {
       "code": "100309",
       "url": "https://www.jleague.jp/match/j2/2026/100309/livetxt/",
-      "fetchedAtJst": "2026-10-03T15:25:07+09:00",
+      "fetchedAtJst": "2026-10-03T15:30:07+09:00",
       "goals": [
         {
           "minute": "25",
@@ -28961,7 +28961,17 @@
           "playerId": "1100206"
         }
       ],
-      "cards": [],
+      "cards": [
+        {
+          "minute": "68",
+          "type": "yellow",
+          "player": "鹿沼 直生",
+          "position": "MF 6",
+          "club": "徳島ヴォルティス",
+          "idTeam": "139898",
+          "playerId": "1629500"
+        }
+      ],
       "subs": [
         {
           "minute": "45",
@@ -29259,7 +29269,7 @@
     "2551788": {
       "code": "100310",
       "url": "https://www.jleague.jp/match/j2/2026/100310/livetxt/",
-      "fetchedAtJst": "2026-10-03T15:25:11+09:00",
+      "fetchedAtJst": "2026-10-03T15:30:10+09:00",
       "goals": [
         {
           "minute": "53",
@@ -29311,6 +29321,25 @@
       ],
       "subs": [
         {
+          "minute": "65",
+          "club": "藤枝ＭＹＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 20",
+              "name": "金本 毅騎",
+              "playerId": "1651765"
+            },
+            {
+              "variant": "out",
+              "position": "FW 11",
+              "name": "真鍋 隼虎",
+              "playerId": "1636957"
+            }
+          ],
+          "idTeam": "141245"
+        },
+        {
           "minute": "62",
           "club": "湘南ベルマーレ",
           "items": [
@@ -29319,6 +29348,12 @@
               "position": "MF 25",
               "name": "奥埜 博亮",
               "playerId": "900449"
+            },
+            {
+              "variant": "out",
+              "position": "MF 17",
+              "name": "田村 蒼生",
+              "playerId": "1631730"
             }
           ],
           "idTeam": "137715"
