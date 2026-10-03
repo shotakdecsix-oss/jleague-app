@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "leaguecup",
-    "generatedAtJst": "2026-10-03T20:30:05+09:00",
+    "generatedAtJst": "2026-10-03T21:35:05+09:00",
     "windowHours": 36,
     "candidateCount": 2,
     "fetchedCount": 2,
@@ -18413,7 +18413,7 @@
     "100307": {
       "code": "100307",
       "url": "https://www.jleague.jp/match/leaguecup/2026/100307/livetxt/",
-      "fetchedAtJst": "2026-10-03T20:31:05+09:00",
+      "fetchedAtJst": "2026-10-03T21:36:07+09:00",
       "goals": [],
       "cards": [
         {
@@ -18912,16 +18912,34 @@
     "100308": {
       "code": "100308",
       "url": "https://www.jleague.jp/match/leaguecup/2026/100308/livetxt/",
-      "fetchedAtJst": "2026-10-03T20:31:09+09:00",
+      "fetchedAtJst": "2026-10-03T21:36:10+09:00",
       "goals": [
         {
-          "minute": "59",
+          "minute": "109",
           "club": "柏レイソル",
-          "player": "藤尾 翔太",
-          "position": "FW 15",
-          "scoreAfter": "2-1",
+          "player": "弓場 堅真",
+          "position": "MF 44",
+          "scoreAfter": "5-4",
           "idTeam": "137708",
-          "playerId": "1618640"
+          "playerId": "1635506"
+        },
+        {
+          "minute": "103",
+          "club": "柏レイソル",
+          "player": "弓場 堅真",
+          "position": "MF 44",
+          "scoreAfter": "4-3",
+          "idTeam": "137708",
+          "playerId": "1635506"
+        },
+        {
+          "minute": "93",
+          "club": "柏レイソル",
+          "player": "瀬川 祐輔",
+          "position": "MF 20",
+          "scoreAfter": "3-3",
+          "idTeam": "137708",
+          "playerId": "1600146"
         },
         {
           "minute": "48",
@@ -18933,17 +18951,186 @@
           "playerId": "1638665"
         },
         {
-          "minute": "28",
+          "minute": "108",
+          "club": "ガンバ大阪",
+          "player": "佐々木 翔悟",
+          "position": "DF 67",
+          "scoreAfter": "4-4",
+          "idTeam": "137705",
+          "playerId": "1622613"
+        },
+        {
+          "minute": "73",
+          "club": "ガンバ大阪",
+          "player": "ウェルトン",
+          "position": "FW 97",
+          "scoreAfter": "2-2",
+          "idTeam": "137705",
+          "playerId": "1646184"
+        },
+        {
+          "minute": "59",
           "club": "柏レイソル",
           "player": "藤尾 翔太",
           "position": "FW 15",
-          "scoreAfter": "1-0",
+          "scoreAfter": "2-1",
           "idTeam": "137708",
           "playerId": "1618640"
         }
       ],
-      "cards": [],
+      "cards": [
+        {
+          "minute": "117",
+          "type": "yellow",
+          "player": "馬場 晴也",
+          "position": "DF 88",
+          "club": "柏レイソル",
+          "idTeam": "137708",
+          "playerId": "1613331"
+        },
+        {
+          "minute": "105",
+          "type": "yellow",
+          "player": "初瀬 亮",
+          "position": "DF 21",
+          "club": "ガンバ大阪",
+          "idTeam": "137705",
+          "playerId": "1500573"
+        },
+        {
+          "minute": "99",
+          "type": "yellow",
+          "player": "安部 柊斗",
+          "position": "MF 13",
+          "club": "ガンバ大阪",
+          "idTeam": "137705",
+          "playerId": "1626372"
+        },
+        {
+          "minute": null,
+          "type": "yellow",
+          "player": "佐々木 翔悟",
+          "position": "DF 67",
+          "club": "ガンバ大阪",
+          "idTeam": "137705",
+          "playerId": "1622613"
+        }
+      ],
       "subs": [
+        {
+          "minute": "114",
+          "club": "ガンバ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 19",
+              "name": "池谷 銀姿郎",
+              "playerId": "1637147"
+            },
+            {
+              "variant": "out",
+              "position": "FW 97",
+              "name": "ウェルトン",
+              "playerId": "1646184"
+            }
+          ],
+          "idTeam": "137705"
+        },
+        {
+          "minute": "105",
+          "club": "ガンバ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 20",
+              "name": "イーライ アダムス",
+              "playerId": "1657480"
+            },
+            {
+              "variant": "out",
+              "position": "MF 27",
+              "name": "美藤 倫",
+              "playerId": "1641369"
+            }
+          ],
+          "idTeam": "137705"
+        },
+        {
+          "minute": "90",
+          "club": "柏レイソル",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 19",
+              "name": "仲間 隼斗",
+              "playerId": "1100131"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "小泉 佳穂",
+              "playerId": "1500292"
+            }
+          ],
+          "idTeam": "137708"
+        },
+        {
+          "minute": null,
+          "club": "ガンバ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 16",
+              "name": "鈴木 徳真",
+              "playerId": "1611123"
+            },
+            {
+              "variant": "out",
+              "position": "DF 47",
+              "name": "中野 伸哉",
+              "playerId": "1622204"
+            }
+          ],
+          "idTeam": "137705"
+        },
+        {
+          "minute": "81",
+          "club": "柏レイソル",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 44",
+              "name": "弓場 堅真",
+              "playerId": "1635506"
+            },
+            {
+              "variant": "out",
+              "position": "MF 5",
+              "name": "遠藤 渓太",
+              "playerId": "1600177"
+            }
+          ],
+          "idTeam": "137708"
+        },
+        {
+          "minute": "81",
+          "club": "柏レイソル",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 40",
+              "name": "原川 力",
+              "playerId": "900649"
+            },
+            {
+              "variant": "out",
+              "position": "MF 21",
+              "name": "小西 雄大",
+              "playerId": "1601436"
+            }
+          ],
+          "idTeam": "137708"
+        },
         {
           "minute": "69",
           "club": "柏レイソル",
@@ -18953,6 +19140,12 @@
               "position": "MF 20",
               "name": "瀬川 祐輔",
               "playerId": "1600146"
+            },
+            {
+              "variant": "out",
+              "position": "MF 87",
+              "name": "山内 日向汰",
+              "playerId": "1635485"
             }
           ],
           "idTeam": "137708"
@@ -19222,6 +19415,12 @@
               "name": "一森 純",
               "number": "22",
               "position": "GK"
+            },
+            {
+              "id": "1637147",
+              "name": "池谷 銀姿郎",
+              "number": "19",
+              "position": "DF"
             },
             {
               "id": "1622613",
