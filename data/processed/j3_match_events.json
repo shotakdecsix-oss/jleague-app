@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-10-21T20:40:05+09:00",
+    "generatedAtJst": "2026-10-21T20:45:13+09:00",
     "windowHours": 36,
     "candidateCount": 10,
     "fetchedCount": 10,
@@ -37355,7 +37355,7 @@
     "2492496": {
       "code": "102128",
       "url": "https://www.jleague.jp/match/j3/2026/102128/livetxt/",
-      "fetchedAtJst": "2026-10-21T20:41:13+09:00",
+      "fetchedAtJst": "2026-10-21T20:46:20+09:00",
       "goals": [
         {
           "minute": "65",
@@ -37841,7 +37841,7 @@
     "2492500": {
       "code": "102127",
       "url": "https://www.jleague.jp/match/j3/2026/102127/livetxt/",
-      "fetchedAtJst": "2026-10-21T20:41:17+09:00",
+      "fetchedAtJst": "2026-10-21T20:46:24+09:00",
       "goals": [
         {
           "minute": "65",
@@ -38330,7 +38330,7 @@
     "2492501": {
       "code": "102129",
       "url": "https://www.jleague.jp/match/j3/2026/102129/livetxt/",
-      "fetchedAtJst": "2026-10-21T20:41:21+09:00",
+      "fetchedAtJst": "2026-10-21T20:46:27+09:00",
       "goals": [
         {
           "minute": "84",
@@ -38783,16 +38783,16 @@
     "2492493": {
       "code": "102131",
       "url": "https://www.jleague.jp/match/j3/2026/102131/livetxt/",
-      "fetchedAtJst": "2026-10-21T20:41:24+09:00",
+      "fetchedAtJst": "2026-10-21T20:46:31+09:00",
       "goals": [
         {
-          "minute": "53",
+          "minute": "79",
           "club": "ＦＣ岐阜",
-          "player": "泉澤 仁",
-          "position": "MF 39",
-          "scoreAfter": "1-1",
+          "player": "北 龍磨",
+          "position": "MF 10",
+          "scoreAfter": "2-1",
           "idTeam": "139904",
-          "playerId": "1300917"
+          "playerId": "1632266"
         },
         {
           "minute": "19",
@@ -38802,11 +38802,20 @@
           "scoreAfter": "0-1",
           "idTeam": "140510",
           "playerId": "1628702"
+        },
+        {
+          "minute": "53",
+          "club": "ＦＣ岐阜",
+          "player": "泉澤 仁",
+          "position": "MF 39",
+          "scoreAfter": "1-1",
+          "idTeam": "139904",
+          "playerId": "1300917"
         }
       ],
       "cards": [
         {
-          "minute": "76",
+          "minute": "80",
           "type": "yellow",
           "player": "棚橋 尭士",
           "position": "FW 7",
@@ -38825,6 +38834,25 @@
         }
       ],
       "subs": [
+        {
+          "minute": "75",
+          "club": "ＳＣ相模原",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 13",
+              "name": "常田 克人",
+              "playerId": "1600128"
+            },
+            {
+              "variant": "out",
+              "position": "DF 5",
+              "name": "山内 琳太郎",
+              "playerId": "1648385"
+            }
+          ],
+          "idTeam": "140510"
+        },
         {
           "minute": "75",
           "club": "ＳＣ相模原",
@@ -39159,7 +39187,7 @@
     "2492494": {
       "code": "102130",
       "url": "https://www.jleague.jp/match/j3/2026/102130/livetxt/",
-      "fetchedAtJst": "2026-10-21T20:41:28+09:00",
+      "fetchedAtJst": "2026-10-21T20:46:34+09:00",
       "goals": [
         {
           "minute": "4",
@@ -39174,13 +39202,19 @@
       "cards": [],
       "subs": [
         {
-          "minute": "76",
+          "minute": null,
           "club": "ザスパ群馬",
           "items": [
             {
               "variant": "in",
               "position": "MF 42",
               "name": "原田 高虎",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "FW 17",
+              "name": "百田 真登",
               "playerId": null
             }
           ],
@@ -39509,8 +39543,17 @@
     "2492495": {
       "code": "102135",
       "url": "https://www.jleague.jp/match/j3/2026/102135/livetxt/",
-      "fetchedAtJst": "2026-10-21T20:41:31+09:00",
+      "fetchedAtJst": "2026-10-21T20:46:37+09:00",
       "goals": [
+        {
+          "minute": "82",
+          "club": "ロアッソ熊本",
+          "player": "中山 大耀",
+          "position": "FW 32",
+          "scoreAfter": "3-0",
+          "idTeam": "141253",
+          "playerId": "1657646"
+        },
         {
           "minute": "76",
           "club": "ロアッソ熊本",
@@ -39552,6 +39595,25 @@
       ],
       "subs": [
         {
+          "minute": "81",
+          "club": "ガイナーレ鳥取",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 42",
+              "name": "金浦 真樹",
+              "playerId": "1635529"
+            },
+            {
+              "variant": "out",
+              "position": "DF 3",
+              "name": "ヴァンイヤーデン ショーン",
+              "playerId": "1637145"
+            }
+          ],
+          "idTeam": "141247"
+        },
+        {
           "minute": "77",
           "club": "ロアッソ熊本",
           "items": [
@@ -39560,6 +39622,12 @@
               "position": "MF 39",
               "name": "石田 凌太郎",
               "playerId": "1619231"
+            },
+            {
+              "variant": "out",
+              "position": "MF 27",
+              "name": "根岸 恵汰",
+              "playerId": "1650520"
             }
           ],
           "idTeam": "141253"
@@ -39930,7 +39998,7 @@
     "2492497": {
       "code": "102133",
       "url": "https://www.jleague.jp/match/j3/2026/102133/livetxt/",
-      "fetchedAtJst": "2026-10-21T20:41:34+09:00",
+      "fetchedAtJst": "2026-10-21T20:46:41+09:00",
       "goals": [
         {
           "minute": "67",
@@ -39981,6 +40049,38 @@
         }
       ],
       "subs": [
+        {
+          "minute": "78",
+          "club": "ツエーゲン金沢",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 27",
+              "name": "大谷 駿斗",
+              "playerId": "1620723"
+            }
+          ],
+          "idTeam": "139902"
+        },
+        {
+          "minute": "78",
+          "club": "ツエーゲン金沢",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 41",
+              "name": "嶋田 慎太郎",
+              "playerId": "1300440"
+            },
+            {
+              "variant": "out",
+              "position": "FW 23",
+              "name": "榊原 杏太",
+              "playerId": "1635543"
+            }
+          ],
+          "idTeam": "139902"
+        },
         {
           "minute": "63",
           "club": "ツエーゲン金沢",
@@ -40296,7 +40396,7 @@
     "2492498": {
       "code": "102134",
       "url": "https://www.jleague.jp/match/j3/2026/102134/livetxt/",
-      "fetchedAtJst": "2026-10-21T20:41:38+09:00",
+      "fetchedAtJst": "2026-10-21T20:46:44+09:00",
       "goals": [
         {
           "minute": "74",
@@ -40374,6 +40474,12 @@
               "position": "DF 3",
               "name": "福島 隼斗",
               "playerId": "1624300"
+            },
+            {
+              "variant": "out",
+              "position": "DF 49",
+              "name": "阿部 稜汰",
+              "playerId": "1635342"
             }
           ],
           "idTeam": "139883"
@@ -40775,7 +40881,7 @@
     "2492499": {
       "code": "102136",
       "url": "https://www.jleague.jp/match/j3/2026/102136/livetxt/",
-      "fetchedAtJst": "2026-10-21T20:41:41+09:00",
+      "fetchedAtJst": "2026-10-21T20:46:48+09:00",
       "goals": [
         {
           "minute": "35",
@@ -40836,6 +40942,19 @@
       ],
       "subs": [
         {
+          "minute": "82",
+          "club": "高知ユナイテッドＳＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 76",
+              "name": "三門 雄大",
+              "playerId": "800926"
+            }
+          ],
+          "idTeam": "150223"
+        },
+        {
           "minute": "75",
           "club": "鹿児島ユナイテッドＦＣ",
           "items": [
@@ -40844,6 +40963,12 @@
               "position": "FW 11",
               "name": "福田 望久斗",
               "playerId": "1636272"
+            },
+            {
+              "variant": "out",
+              "position": "MF 2",
+              "name": "嵯峨 理久",
+              "playerId": "1636323"
             }
           ],
           "idTeam": "139903"
@@ -41220,7 +41345,7 @@
     "2492502": {
       "code": "102132",
       "url": "https://www.jleague.jp/match/j3/2026/102132/livetxt/",
-      "fetchedAtJst": "2026-10-21T20:41:44+09:00",
+      "fetchedAtJst": "2026-10-21T20:46:51+09:00",
       "goals": [
         {
           "minute": "26",
