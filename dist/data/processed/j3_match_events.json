@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-10-25T14:35:04+09:00",
+    "generatedAtJst": "2026-10-25T14:40:09+09:00",
     "windowHours": 36,
     "candidateCount": 9,
     "skippedPreKickoff": 1,
@@ -42104,7 +42104,7 @@
     "2492506": {
       "code": "102413",
       "url": "https://www.jleague.jp/match/j3/2026/102413/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:36:14+09:00",
+      "fetchedAtJst": "2026-10-25T14:41:27+09:00",
       "goals": [
         {
           "minute": "83",
@@ -42502,7 +42502,7 @@
     "2492509": {
       "code": "102414",
       "url": "https://www.jleague.jp/match/j3/2026/102414/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:36:19+09:00",
+      "fetchedAtJst": "2026-10-25T14:41:33+09:00",
       "goals": [],
       "cards": [
         {
@@ -42975,7 +42975,7 @@
     "2492511": {
       "code": "102416",
       "url": "https://www.jleague.jp/match/j3/2026/102416/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:36:26+09:00",
+      "fetchedAtJst": "2026-10-25T14:41:39+09:00",
       "goals": [
         {
           "minute": "67",
@@ -43470,7 +43470,7 @@
     "2492512": {
       "code": "102415",
       "url": "https://www.jleague.jp/match/j3/2026/102415/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:36:32+09:00",
+      "fetchedAtJst": "2026-10-25T14:41:44+09:00",
       "goals": [
         {
           "minute": "51",
@@ -43949,8 +43949,17 @@
     "2492504": {
       "code": "102516",
       "url": "https://www.jleague.jp/match/j3/2026/102516/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:36:35+09:00",
+      "fetchedAtJst": "2026-10-25T14:41:48+09:00",
       "goals": [
+        {
+          "minute": "79",
+          "club": "ロアッソ熊本",
+          "player": "石原 央羅",
+          "position": "FW 14",
+          "scoreAfter": "2-1",
+          "idTeam": "141253",
+          "playerId": "1647350"
+        },
         {
           "minute": "41",
           "club": "ＦＣ岐阜",
@@ -43959,9 +43968,27 @@
           "scoreAfter": "0-1",
           "idTeam": "139904",
           "playerId": "1600147"
+        },
+        {
+          "minute": "75",
+          "club": "ロアッソ熊本",
+          "player": "石原 央羅",
+          "position": "FW 14",
+          "scoreAfter": "1-1",
+          "idTeam": "141253",
+          "playerId": "1647350"
         }
       ],
       "cards": [
+        {
+          "minute": "79",
+          "type": "yellow",
+          "player": "那須 健一",
+          "position": "MF 25",
+          "club": "ロアッソ熊本",
+          "idTeam": "141253",
+          "playerId": "1647285"
+        },
         {
           "minute": "62",
           "type": "yellow",
@@ -43991,6 +44018,25 @@
         }
       ],
       "subs": [
+        {
+          "minute": "76",
+          "club": "ＦＣ岐阜",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 17",
+              "name": "ジョルダン テル",
+              "playerId": "1657625"
+            },
+            {
+              "variant": "out",
+              "position": "MF 98",
+              "name": "屋嘉比 奏汰",
+              "playerId": "1647286"
+            }
+          ],
+          "idTeam": "139904"
+        },
         {
           "minute": "63",
           "club": "ロアッソ熊本",
@@ -44344,28 +44390,38 @@
     "2492508": {
       "code": "102515",
       "url": "https://www.jleague.jp/match/j3/2026/102515/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:36:39+09:00",
+      "fetchedAtJst": "2026-10-25T14:41:51+09:00",
       "goals": [],
-      "cards": [],
+      "cards": [
+        {
+          "minute": "76",
+          "type": "yellow",
+          "player": "小林 大智",
+          "position": "DF 4",
+          "club": "高知ユナイテッドＳＣ",
+          "idTeam": "150223",
+          "playerId": "1632370"
+        }
+      ],
       "subs": [
         {
-          "minute": null,
-          "club": null,
+          "minute": "74",
+          "club": "高知ユナイテッドＳＣ",
           "items": [
             {
               "variant": "in",
               "position": "FW 13",
               "name": "河田 篤秀",
-              "playerId": null
+              "playerId": "1400651"
             },
             {
               "variant": "out",
               "position": "MF 7",
               "name": "金原 朝陽",
-              "playerId": null
+              "playerId": "1627826"
             }
           ],
-          "idTeam": null
+          "idTeam": "150223"
         },
         {
           "minute": "66",
@@ -44701,7 +44757,7 @@
     "2492503": {
       "code": "102517",
       "url": "https://www.jleague.jp/match/j3/2026/102517/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:36:42+09:00",
+      "fetchedAtJst": "2026-10-25T14:41:55+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -44943,7 +44999,7 @@
     "2492507": {
       "code": "102519",
       "url": "https://www.jleague.jp/match/j3/2026/102519/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:36:45+09:00",
+      "fetchedAtJst": "2026-10-25T14:41:58+09:00",
       "goals": [],
       "cards": [
         {
@@ -45195,8 +45251,17 @@
     "2492510": {
       "code": "102518",
       "url": "https://www.jleague.jp/match/j3/2026/102518/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:36:49+09:00",
+      "fetchedAtJst": "2026-10-25T14:42:02+09:00",
       "goals": [
+        {
+          "minute": "38",
+          "club": "ツエーゲン金沢",
+          "player": "ブワニカ 啓太",
+          "position": "FW 9",
+          "scoreAfter": "0-3",
+          "idTeam": "139902",
+          "playerId": "1631742"
+        },
         {
           "minute": "13",
           "club": "ツエーゲン金沢",
