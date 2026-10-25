@@ -1,11 +1,11 @@
 {
   "meta": {
     "league": "j2",
-    "generatedAtJst": "2026-10-25T14:00:55+09:00",
+    "generatedAtJst": "2026-10-25T14:11:28+09:00",
     "windowHours": 36,
-    "candidateCount": 9,
-    "skippedPreKickoff": 0,
-    "fetchedCount": 9,
+    "candidateCount": 8,
+    "skippedPreKickoff": 1,
+    "fetchedCount": 8,
     "failed": [],
     "eventCount": 94
   },
@@ -40886,7 +40886,7 @@
     "2551827": {
       "code": "102411",
       "url": "https://www.jleague.jp/match/j2/2026/102411/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:02:06+09:00",
+      "fetchedAtJst": "2026-10-25T14:12:17+09:00",
       "goals": [
         {
           "minute": "68",
@@ -41393,7 +41393,7 @@
     "2551828": {
       "code": "102412",
       "url": "https://www.jleague.jp/match/j2/2026/102412/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:02:15+09:00",
+      "fetchedAtJst": "2026-10-25T14:12:24+09:00",
       "goals": [
         {
           "minute": "28",
@@ -41852,7 +41852,7 @@
     "2551829": {
       "code": "102511",
       "url": "https://www.jleague.jp/match/j2/2026/102511/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:02:19+09:00",
+      "fetchedAtJst": "2026-10-25T14:12:27+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -42094,7 +42094,7 @@
     "2551830": {
       "code": "102512",
       "url": "https://www.jleague.jp/match/j2/2026/102512/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:02:26+09:00",
+      "fetchedAtJst": "2026-10-25T14:12:31+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -42336,9 +42336,28 @@
     "2551831": {
       "code": "102509",
       "url": "https://www.jleague.jp/match/j2/2026/102509/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:02:31+09:00",
+      "fetchedAtJst": "2026-10-25T14:12:34+09:00",
       "goals": [],
-      "cards": [],
+      "cards": [
+        {
+          "minute": "5",
+          "type": "yellow",
+          "player": "マテウス モラエス",
+          "position": "DF 19",
+          "club": "ベガルタ仙台",
+          "idTeam": "137718",
+          "playerId": "1639140"
+        },
+        {
+          "minute": "3",
+          "type": "yellow",
+          "player": "新井 泰貴",
+          "position": "MF 22",
+          "club": "アルビレックス新潟",
+          "idTeam": "139881",
+          "playerId": "1629430"
+        }
+      ],
       "subs": [],
       "highlightVideoId": null,
       "daznVideoId": null,
@@ -42578,8 +42597,18 @@
     "2551832": {
       "code": "102508",
       "url": "https://www.jleague.jp/match/j2/2026/102508/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:02:34+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-10-25T14:12:38+09:00",
+      "goals": [
+        {
+          "minute": "5",
+          "club": "テゲバジャーロ宮崎",
+          "player": "奥村 晃司",
+          "position": "MF 47",
+          "scoreAfter": "0-1",
+          "idTeam": "141254",
+          "playerId": "1632287"
+        }
+      ],
       "cards": [],
       "subs": [],
       "highlightVideoId": null,
@@ -42589,7 +42618,7 @@
       "lineups": {
         "home": {
           "idTeam": "139892",
-          "formation": "4-4-2",
+          "formation": "4-2-1-3",
           "players": [
             {
               "id": 1636992,
@@ -42617,11 +42646,6 @@
               "number": "5"
             },
             {
-              "id": 1632259,
-              "name": "柳町 魁耀",
-              "number": "14"
-            },
-            {
               "id": 1603082,
               "name": "吉尾 海夏",
               "number": "20"
@@ -42635,6 +42659,11 @@
               "id": 1100134,
               "name": "土居 聖真",
               "number": "8"
+            },
+            {
+              "id": 1632259,
+              "name": "柳町 魁耀",
+              "number": "14"
             },
             {
               "id": 1624376,
@@ -42820,7 +42849,7 @@
     "2551833": {
       "code": "102507",
       "url": "https://www.jleague.jp/match/j2/2026/102507/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:02:38+09:00",
+      "fetchedAtJst": "2026-10-25T14:12:42+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -42948,7 +42977,7 @@
         },
         "away": {
           "idTeam": "141249",
-          "formation": "4-2-3-1",
+          "formation": "4-4-2",
           "players": [
             {
               "id": 1624398,
@@ -42986,11 +43015,6 @@
               "number": "6"
             },
             {
-              "id": 1644462,
-              "name": "古山 兼悟",
-              "number": "19"
-            },
-            {
               "id": 900646,
               "name": "駒井 善成",
               "number": "14"
@@ -42999,6 +43023,11 @@
               "id": 1600185,
               "name": "森 晃太",
               "number": "8"
+            },
+            {
+              "id": 1644462,
+              "name": "古山 兼悟",
+              "number": "19"
             },
             {
               "id": 1624388,
@@ -43068,7 +43097,7 @@
     "2551834": {
       "code": "102510",
       "url": "https://www.jleague.jp/match/j2/2026/102510/livetxt/",
-      "fetchedAtJst": "2026-10-25T14:02:43+09:00",
+      "fetchedAtJst": "2026-10-25T14:12:46+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
