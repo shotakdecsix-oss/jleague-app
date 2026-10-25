@@ -1171,7 +1171,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "9ca613e6";
+const APP_BUILD_VERSION = "bcd1f0fa";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -3738,7 +3738,7 @@ function calMatchRowHtml(m, ownIdTeam, ranksByLeague) {
   const hasEvents = hasMatchEventDetail(evDetail);
   // TheSportsDB側がキックオフ後もまだ未消化のまま(liveでもfinishedでもない)なら、
   // jleague.jpの得点イベントから暫定スコアを作る(derivedScoreFromEvents参照)。
-  const derived = (!live && !finished) ? derivedScoreFromEvents(evDetail, m.h[0], m.a[0]) : null;
+  const derived = (!live && !finished) ? derivedScoreFromEvents(evDetail, m.h[0], m.a[0], eff.b ? null : eff.k) : null;
   // 第60弾: 現在順位は「vs」を出している(=まだ始まっていない)行だけ
   const ranks = (!live && !finished && !derived && ranksByLeague) ? ranksByLeague[m.l] : null;
   const homeRank = rankTagHtml(ranks, m.h[0]), awayRank = rankTagHtml(ranks, m.a[0]);
@@ -4112,8 +4112,18 @@ function teamSwatchHtml(idTeam) {
   const c = t && t.color;
   return c ? '<i class="team-sw" style="background:' + esc(c) + '"></i>' : "";
 }
-function derivedScoreFromEvents(ev, homeId, awayId) {
+/* 第64弾: キックオフ前は暫定スコアを作らない(nullを返す)。
+   第13弾は「evがあること自体が、公式の速報ページで試合が始まっている証拠」という前提だった。
+   これは第63弾でスタメンをキックオフ2時間前から取りに行くようになって崩れた
+   (得点0件のevが試合前から存在するため、日程・カレンダーが「0 - 0」+ライブ点で埋まる)。
+   キックオフ時刻を渡してもらい、開始前なら暫定スコアを作らない。
+   kickoffJstが無い/読めない(日時未定など)ときは、evがある=開始済みとみなす従来の挙動に倒す。 */
+function derivedScoreFromEvents(ev, homeId, awayId, kickoffJst) {
   if (!ev) return null;
+  if (kickoffJst) {
+    const t = new Date(kickoffJst).getTime();
+    if (!isNaN(t) && Date.now() < t) return null;   // まだキックオフ前
+  }
   let home = 0, away = 0;
   for (const g of ev.goals || []) {
     if (g.idTeam === homeId) home++;
@@ -4291,7 +4301,7 @@ function scheduleRowHtml(m, team, mode, provisional, league, ranks) {
   const hasEvents = hasMatchEventDetail(ev);
   // TheSportsDB側がキックオフ後もまだ未消化のままだと、finishedが立たずずっと「日時」表示のままに
   // なってしまう。jleague.jpの得点イベントから暫定スコアを作れる場合はそちらを使う(derivedScoreFromEvents参照)。
-  const derived = !m.finished ? derivedScoreFromEvents(ev, m.home.idTeam, m.away.idTeam) : null;
+  const derived = !m.finished ? derivedScoreFromEvents(ev, m.home.idTeam, m.away.idTeam, m.kickoffTbd ? null : m.kickoffJst) : null;
   let dotHtml = provisional ? '<span class="provisional-dot"></span>' : "";
 
   let centerHtml, pillHtml = "";
@@ -5683,7 +5693,7 @@ function findDerivedLiveMatchForTeam(mine, league) {
     if (new Date(m.kickoffJst).getTime() > now) continue; // まだキックオフ前
     const ev = findMatchEvents(league, m.idEvent);
     if (!ev) continue;
-    const derived = derivedScoreFromEvents(ev, m.home.idTeam, m.away.idTeam);
+    const derived = derivedScoreFromEvents(ev, m.home.idTeam, m.away.idTeam, m.kickoffJst);
     if (!derived) continue;
     return { match: m, derived };
   }
