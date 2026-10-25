@@ -55,13 +55,35 @@ def test_pick_candidates_window():
         _match("in_window", "2026-08-22T14:00:00+09:00"),   # 4時間前。窓内
         _match("just_now", "2026-08-22T17:59:00+09:00"),    # 直前。窓内
         _match("too_old", "2026-08-20T18:00:00+09:00"),     # 48時間前。窓外
-        _match("future", "2026-08-22T20:00:00+09:00"),      # まだキックオフ前。対象外
+        _match("pre_2h", "2026-08-22T20:00:00+09:00"),      # ちょうど2時間後。第63弾で窓内
+        _match("pre_3h", "2026-08-22T21:00:00+09:00"),      # 3時間後。まだ対象外
         _match("no_kickoff", None),                          # 日時未定。対象外
     ]
-    matches[4]["kickoffJst"] = None
+    matches[5]["kickoffJst"] = None
     picked = {m["idEvent"] for m in pick_candidates(matches, now)}
-    assert picked == {"in_window", "just_now"}, picked
-    print(f"OK: pick_candidates() が窓({EVENTS_WINDOW_HOURS}時間)内の試合だけを選ぶことを確認")
+    assert picked == {"in_window", "just_now", "pre_2h"}, picked
+    print(f"OK: pick_candidates() が窓(前{EVENTS_WINDOW_HOURS}時間〜後2時間)内の試合だけを選ぶことを確認")
+
+
+def test_drop_prekickoff_done():
+    """第63弾: スタメンを取得済みの未開催試合だけを候補から外す。"""
+    import fetch_match_events as fme
+
+    now = datetime.fromisoformat("2026-08-22T18:00:00+09:00")
+    lineups = {"lineups": {"home": {"players": [1]}, "away": {"players": [1]}}}
+    candidates = [
+        _match("pre_with_lineup", "2026-08-22T19:30:00+09:00"),   # 開始前・取得済み -> 外す
+        _match("pre_without", "2026-08-22T19:30:00+09:00"),       # 開始前・未取得 -> 残す
+        _match("started_with_lineup", "2026-08-22T17:00:00+09:00"),  # 開始後 -> 必ず残す
+    ]
+    existing = {"pre_with_lineup": lineups, "started_with_lineup": lineups}
+    kept = {m["idEvent"] for m in fme.drop_prekickoff_done(candidates, existing, now)}
+    assert kept == {"pre_without", "started_with_lineup"}, kept
+    # 片側だけのスタメン(取得途中)は未取得とみなして取りに行く
+    half = {"pre_with_lineup": {"lineups": {"home": {"players": [1]}}}}
+    kept_half = {m["idEvent"] for m in fme.drop_prekickoff_done(candidates[:1], half, now)}
+    assert kept_half == {"pre_with_lineup"}, kept_half
+    print("OK: drop_prekickoff_done() がスタメン取得済みの未開催試合だけを外すことを確認")
 
 
 # ---------- parse_and_merge: 退行(0件上書き)防止の安全弁 ----------
@@ -540,6 +562,7 @@ def test_parsers_against_samples():
 
 if __name__ == "__main__":
     test_pick_candidates_window()
+    test_drop_prekickoff_done()
     test_parse_and_merge_regression_guard()
     test_lineups_carry_forward_when_missing()
     test_search_dazn_highlight_title_filter()

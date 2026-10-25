@@ -78,6 +78,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 PROCESSED_DIR = BASE_DIR / "data" / "processed"
 
 EVENTS_WINDOW_HOURS = 36
+# 第63弾: キックオフの何時間前から取りに行くか。公式のスタメン発表がキックオフ2時間前なので、
+# そこから候補に入れて出場メンバーを試合前に出す。スタメンが取れた試合はキックオフまで
+# 再取得しない(drop_prekickoff_done)ので、19試合ある土曜でもリクエストはほとんど増えない。
+PRE_KICKOFF_WINDOW_HOURS = 2
 SLEEP_BETWEEN_MATCHES = 2.0
 SLEEP_BETWEEN_REQUESTS = 1.0  # 第14弾: 同一試合内でlivetxt/基点ページの2回叩く間隔
 
@@ -162,8 +166,13 @@ def load_existing_events(league: str) -> dict:
 
 
 def pick_candidates(matches: list[dict], now: datetime) -> list[dict]:
-    """キックオフ済み、かつnowからEVENTS_WINDOW_HOURS時間以内にキックオフした試合だけを対象にする。"""
+    """EVENTS_WINDOW_HOURS時間前〜PRE_KICKOFF_WINDOW_HOURS時間後にキックオフする試合を対象にする。
+
+    第63弾: 以前は「キックオフ済み」だけ(dt <= now)だった。公式のスタメン発表はキックオフ2時間前
+    なので、それだと発表を拾えず、出場メンバーが画面に出るのは試合開始後になっていた。
+    """
     horizon = now - timedelta(hours=EVENTS_WINDOW_HOURS)
+    limit = now + timedelta(hours=PRE_KICKOFF_WINDOW_HOURS)
     out = []
     for m in matches:
         kj = m.get("kickoffJst")
@@ -173,8 +182,35 @@ def pick_candidates(matches: list[dict], now: datetime) -> list[dict]:
             dt = datetime.fromisoformat(kj)
         except ValueError:
             continue
-        if horizon <= dt <= now:
+        if horizon <= dt <= limit:
             out.append(m)
+    return out
+
+
+def has_lineups(ev: dict | None) -> bool:
+    """両チームの出場メンバーを取得済みか。"""
+    lineups = (ev or {}).get("lineups") or {}
+    return bool(lineups.get("home") and lineups.get("away"))
+
+
+def drop_prekickoff_done(candidates: list[dict], existing: dict, now: datetime) -> list[dict]:
+    """まだ始まっていない試合のうち、スタメンを取得済みのものを候補から外す(第63弾)。
+
+    キックオフ前に5分おきで同じ試合を叩いても、発表済みのスタメンは基本変わらない。
+    1回取れたら打ち止めにして、相手サイトへのリクエストを増やさない。
+    キックオフ後は従来どおり毎回取りに行くので、直前の変更や当日の欠場はそこで上書きされる。
+    日時未定(kickoffJstが読めない)の試合は判断材料が無いので残す。
+    """
+    out = []
+    for m in candidates:
+        try:
+            dt = datetime.fromisoformat(m.get("kickoffJst") or "")
+        except ValueError:
+            out.append(m)
+            continue
+        if dt > now and has_lineups(existing.get(m["idEvent"])):
+            continue
+        out.append(m)
     return out
 
 
@@ -482,8 +518,12 @@ def write_events(league: str, events: dict, meta: dict) -> None:
 
 def process_league(league: str, all_teams: list[dict], now: datetime) -> None:
     matches = load_matches(league)
-    candidates = pick_candidates(matches, now)
     existing = load_existing_events(league)
+    candidates = pick_candidates(matches, now)
+    # 第63弾: スタメン取得済みの未開催試合は外す(resolve_codesも走らせない)
+    before_drop = len(candidates)
+    candidates = drop_prekickoff_done(candidates, existing, now)
+    skipped_prekickoff = before_drop - len(candidates)
     events = dict(existing)  # コピーして開始。候補以外の既存データには一切触らない
 
     meta = {
@@ -491,6 +531,7 @@ def process_league(league: str, all_teams: list[dict], now: datetime) -> None:
         "generatedAtJst": now.isoformat(timespec="seconds"),
         "windowHours": EVENTS_WINDOW_HOURS,
         "candidateCount": len(candidates),
+        "skippedPreKickoff": skipped_prekickoff,  # 第63弾: スタメン取得済みで見送った未開催試合
         "fetchedCount": 0,
         "failed": [],
     }

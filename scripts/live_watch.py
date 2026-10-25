@@ -12,7 +12,8 @@ Windowsのタスクスケジューラから5分おきに呼ばれる前提(live_
     結局「確実に5分おきに起動できる場所」が手元のPCしか無かった、という経緯。
 
 やること:
-    1. 進行中の試合(キックオフ済み・150分以内・未終了)があるか判定する
+    1. 対象の試合(キックオフ2時間前〜キックオフ後150分・未終了)があるか判定する
+       (2時間前からなのは、公式のスタメン発表を拾って出場メンバーを試合前に出すため。第63弾)
     2. 無ければ即終了する。gitもRenderも動かさない(試合の無い日は毎回ここで終わる)
     3. あれば fetch_match_events.py を実行して取得する
     4. 得点/カード/交代に実質的な変化があるときだけ build_dist.py -> commit -> push する
@@ -60,6 +61,9 @@ GENERATED_PREFIXES = ("data/processed/", "data/history/", "dist/")
 # ライブ扱いにする時間幅。index.html の LIVE_WINDOW_MINUTES と合わせてある
 # (ハーフタイムと追加時間ぶんの余裕。延長のあるカップ戦は対象外)。
 LIVE_WINDOW = timedelta(minutes=150)
+# 第63弾: 公式のスタメン発表(キックオフ2時間前)を拾うため、この時間前から動くようにする。
+# fetch_match_events.py の PRE_KICKOFF_WINDOW_HOURS と合わせてある。
+PRE_KICKOFF_WINDOW = timedelta(hours=2)
 # 前回の実行が固まったまま残った場合に備え、この時間を過ぎたロックは無視する
 LOCK_STALE = timedelta(minutes=20)
 LOG_MAX_BYTES = 512 * 1024
@@ -123,7 +127,10 @@ def rotate_log() -> None:
 
 
 def live_matches(now: datetime) -> list[dict]:
-    """キックオフ済みで150分以内、かつ未終了の試合。"""
+    """キックオフ2時間前〜キックオフ後150分の、未終了の試合(第63弾で前に広げた)。
+
+    started=False はまだ始まっていない試合(スタメン発表待ち/発表済み)。
+    """
     out = []
     for league in LEAGUES:
         path = PROCESSED_DIR / f"{league}_matches.json"
@@ -144,8 +151,11 @@ def live_matches(now: datetime) -> list[dict]:
                 t = datetime.fromisoformat(ko)
             except ValueError:
                 continue
-            if t <= now < t + LIVE_WINDOW:
-                out.append({"league": league, "home": m["home"]["ja"], "away": m["away"]["ja"]})
+            if t - PRE_KICKOFF_WINDOW <= now < t + LIVE_WINDOW:
+                out.append({
+                    "league": league, "home": m["home"]["ja"], "away": m["away"]["ja"],
+                    "started": t <= now,
+                })
     return out
 
 
@@ -447,7 +457,17 @@ def main() -> None:
 
     try:
         if live:
-            log(f"進行中の試合 {len(live)}件: " + ", ".join(f"{m['home']}-{m['away']}" for m in live[:4]))
+            # 第63弾: 開始前(スタメン待ち)と進行中を分けて出す。どちらで動いたか後から分かるように。
+            started = [m for m in live if m.get("started")]
+            soon = [m for m in live if not m.get("started")]
+            parts = []
+            if started:
+                parts.append(f"進行中 {len(started)}件: "
+                             + ", ".join(f"{m['home']}-{m['away']}" for m in started[:3]))
+            if soon:
+                parts.append(f"まもなく開始 {len(soon)}件: "
+                             + ", ".join(f"{m['home']}-{m['away']}" for m in soon[:3]))
+            log(" / ".join(parts))
         else:
             log("進行中の試合なし。1時間ごとの拾い直し(ハイライト動画・得点の訂正)")
             mark_idle_run(now)
