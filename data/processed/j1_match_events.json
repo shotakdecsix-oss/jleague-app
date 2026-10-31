@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-10-31T15:25:04+09:00",
+    "generatedAtJst": "2026-10-31T15:30:04+09:00",
     "windowHours": 36,
     "candidateCount": 5,
     "skippedPreKickoff": 1,
@@ -41561,7 +41561,7 @@
     "2492903": {
       "code": "103112",
       "url": "https://www.jleague.jp/match/j1/2026/103112/livetxt/",
-      "fetchedAtJst": "2026-10-31T15:25:10+09:00",
+      "fetchedAtJst": "2026-10-31T15:30:11+09:00",
       "goals": [
         {
           "minute": "50",
@@ -41584,6 +41584,15 @@
       ],
       "cards": [
         {
+          "minute": "61",
+          "type": "yellow",
+          "player": "マテウス ブルネッティ",
+          "position": "DF 25",
+          "club": "清水エスパルス",
+          "idTeam": "137714",
+          "playerId": "1652394"
+        },
+        {
           "minute": "43",
           "type": "yellow",
           "player": "アレックス ソウザ",
@@ -41604,7 +41613,45 @@
       ],
       "subs": [
         {
-          "minute": null,
+          "minute": "58",
+          "club": "清水エスパルス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 18",
+              "name": "平戸 太貴",
+              "playerId": "1401480"
+            },
+            {
+              "variant": "out",
+              "position": "MF 21",
+              "name": "松崎 快",
+              "playerId": "1629436"
+            }
+          ],
+          "idTeam": "137714"
+        },
+        {
+          "minute": "58",
+          "club": "清水エスパルス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 50",
+              "name": "藤井 智也",
+              "playerId": "1629897"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "カピシャーバ",
+              "playerId": "1640499"
+            }
+          ],
+          "idTeam": "137714"
+        },
+        {
+          "minute": "53",
           "club": "京都サンガF.C.",
           "items": [
             {
@@ -41886,7 +41933,7 @@
     "2492905": {
       "code": "103107",
       "url": "https://www.jleague.jp/match/j1/2026/103107/livetxt/",
-      "fetchedAtJst": "2026-10-31T15:25:16+09:00",
+      "fetchedAtJst": "2026-10-31T15:30:17+09:00",
       "goals": [
         {
           "minute": "54",
@@ -42240,16 +42287,16 @@
     "2492906": {
       "code": "103109",
       "url": "https://www.jleague.jp/match/j1/2026/103109/livetxt/",
-      "fetchedAtJst": "2026-10-31T15:25:22+09:00",
+      "fetchedAtJst": "2026-10-31T15:30:23+09:00",
       "goals": [
         {
-          "minute": "47",
+          "minute": "63",
           "club": "ＦＣ東京",
-          "player": "仲川 輝人",
-          "position": "FW 39",
-          "scoreAfter": "0-2",
+          "player": "ダニ ゴメス",
+          "position": "FW 99",
+          "scoreAfter": "0-3",
           "idTeam": "137704",
-          "playerId": "1400647"
+          "playerId": "1658986"
         },
         {
           "minute": "49",
@@ -42257,6 +42304,15 @@
           "player": "仲川 輝人",
           "position": "FW 39",
           "scoreAfter": "0-1",
+          "idTeam": "137704",
+          "playerId": "1400647"
+        },
+        {
+          "minute": "47",
+          "club": "ＦＣ東京",
+          "player": "仲川 輝人",
+          "position": "FW 39",
+          "scoreAfter": "0-2",
           "idTeam": "137704",
           "playerId": "1400647"
         }
@@ -42282,6 +42338,12 @@
               "position": "DF 15",
               "name": "大森 理生",
               "playerId": "1625428"
+            },
+            {
+              "variant": "out",
+              "position": "DF 6",
+              "name": "バングーナガンデ 佳史扶",
+              "playerId": "1618671"
             }
           ],
           "idTeam": "137704"
@@ -42582,8 +42644,26 @@
     "2492901": {
       "code": "103110",
       "url": "https://www.jleague.jp/match/j1/2026/103110/livetxt/",
-      "fetchedAtJst": "2026-10-31T15:25:28+09:00",
+      "fetchedAtJst": "2026-10-31T15:30:30+09:00",
       "goals": [
+        {
+          "minute": "25",
+          "club": "セレッソ大阪",
+          "player": "パブロ サバック",
+          "position": "FW 19",
+          "scoreAfter": "2-1",
+          "idTeam": "137703",
+          "playerId": "1646038"
+        },
+        {
+          "minute": "22",
+          "club": "鹿島アントラーズ",
+          "player": "エウベル",
+          "position": "FW 17",
+          "scoreAfter": "2-0",
+          "idTeam": "137707",
+          "playerId": "1632263"
+        },
         {
           "minute": "14",
           "club": "鹿島アントラーズ",
@@ -42595,7 +42675,27 @@
         }
       ],
       "cards": [],
-      "subs": [],
+      "subs": [
+        {
+          "minute": "21",
+          "club": "セレッソ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 28",
+              "name": "岡澤 昂星",
+              "playerId": "1630179"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "香川 真司",
+              "playerId": "600064"
+            }
+          ],
+          "idTeam": "137703"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -42622,7 +42722,7 @@
             },
             {
               "id": 1614200,
-              "name": "関川",
+              "name": "関川 郁万",
               "number": "5"
             },
             {
@@ -42834,7 +42934,7 @@
     "2492907": {
       "code": "103113",
       "url": "https://www.jleague.jp/match/j1/2026/103113/livetxt/",
-      "fetchedAtJst": "2026-10-31T15:25:35+09:00",
+      "fetchedAtJst": "2026-10-31T15:30:36+09:00",
       "goals": [
         {
           "minute": "2",
@@ -42846,7 +42946,17 @@
           "playerId": "801348"
         }
       ],
-      "cards": [],
+      "cards": [
+        {
+          "minute": "21",
+          "type": "yellow",
+          "player": "山川 哲史",
+          "position": "DF 4",
+          "club": "ヴィッセル神戸",
+          "idTeam": "137717",
+          "playerId": "1501592"
+        }
+      ],
       "subs": [],
       "highlightVideoId": null,
       "daznVideoId": null,
