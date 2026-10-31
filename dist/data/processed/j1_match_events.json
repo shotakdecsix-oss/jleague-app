@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-10-31T14:05:04+09:00",
+    "generatedAtJst": "2026-10-31T14:10:04+09:00",
     "windowHours": 36,
     "candidateCount": 4,
     "skippedPreKickoff": 2,
@@ -41561,9 +41561,19 @@
     "2492903": {
       "code": "103112",
       "url": "https://www.jleague.jp/match/j1/2026/103112/livetxt/",
-      "fetchedAtJst": "2026-10-31T14:05:10+09:00",
+      "fetchedAtJst": "2026-10-31T14:10:11+09:00",
       "goals": [],
-      "cards": [],
+      "cards": [
+        {
+          "minute": "6",
+          "type": "yellow",
+          "player": "高橋 祐治",
+          "position": "DF 3",
+          "club": "清水エスパルス",
+          "idTeam": "137714",
+          "playerId": "900641"
+        }
+      ],
       "subs": [],
       "highlightVideoId": null,
       "daznVideoId": null,
@@ -41809,10 +41819,24 @@
     "2492905": {
       "code": "103107",
       "url": "https://www.jleague.jp/match/j1/2026/103107/livetxt/",
-      "fetchedAtJst": "2026-10-31T14:05:17+09:00",
+      "fetchedAtJst": "2026-10-31T14:10:17+09:00",
       "goals": [],
       "cards": [],
-      "subs": [],
+      "subs": [
+        {
+          "minute": "6",
+          "club": "水戸ホーリーホック",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 50",
+              "name": "家泉 怜依",
+              "playerId": "1633171"
+            }
+          ],
+          "idTeam": "139891"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -41820,17 +41844,12 @@
       "lineups": {
         "home": {
           "idTeam": "139891",
-          "formation": "4-4-2",
+          "formation": "3-4-2-1",
           "players": [
             {
               "id": 1627462,
               "name": "ヤクブ スウォビィク",
               "number": "27"
-            },
-            {
-              "id": 1607143,
-              "name": "真瀬 拓海",
-              "number": "25"
             },
             {
               "id": 1400642,
@@ -41848,6 +41867,11 @@
               "number": "16"
             },
             {
+              "id": 1607143,
+              "name": "真瀬 拓海",
+              "number": "25"
+            },
+            {
               "id": 1646181,
               "name": "西原 源樹",
               "number": "44"
@@ -41863,14 +41887,14 @@
               "number": "3"
             },
             {
-              "id": 1645880,
-              "name": "奥村 仁",
-              "number": "30"
-            },
-            {
               "id": 1611450,
               "name": "谷口 海斗",
               "number": "22"
+            },
+            {
+              "id": 1645880,
+              "name": "奥村 仁",
+              "number": "30"
             },
             {
               "id": 1656732,
@@ -42003,6 +42027,12 @@
               "position": "GK"
             },
             {
+              "id": "1602209",
+              "name": "大内 一生",
+              "number": "99",
+              "position": "GK"
+            },
+            {
               "id": "1607284",
               "name": "松本 泰志",
               "number": "14",
@@ -42051,7 +42081,7 @@
     "2492906": {
       "code": "103109",
       "url": "https://www.jleague.jp/match/j1/2026/103109/livetxt/",
-      "fetchedAtJst": "2026-10-31T14:05:24+09:00",
+      "fetchedAtJst": "2026-10-31T14:10:24+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -42783,7 +42813,7 @@
     "2492902": {
       "code": "103111",
       "url": "https://www.jleague.jp/match/j1/2026/103111/livetxt/",
-      "fetchedAtJst": "2026-10-31T14:05:30+09:00",
+      "fetchedAtJst": "2026-10-31T14:10:30+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
