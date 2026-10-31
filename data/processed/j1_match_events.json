@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-10-31T17:25:04+09:00",
+    "generatedAtJst": "2026-10-31T17:30:04+09:00",
     "windowHours": 36,
     "candidateCount": 6,
     "skippedPreKickoff": 0,
@@ -41561,7 +41561,7 @@
     "2492903": {
       "code": "103112",
       "url": "https://www.jleague.jp/match/j1/2026/103112/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:25:11+09:00",
+      "fetchedAtJst": "2026-10-31T17:30:11+09:00",
       "goals": [
         {
           "minute": "50",
@@ -42074,7 +42074,7 @@
     "2492905": {
       "code": "103107",
       "url": "https://www.jleague.jp/match/j1/2026/103107/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:25:17+09:00",
+      "fetchedAtJst": "2026-10-31T17:30:17+09:00",
       "goals": [
         {
           "minute": "83",
@@ -42579,7 +42579,7 @@
     "2492906": {
       "code": "103109",
       "url": "https://www.jleague.jp/match/j1/2026/103109/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:25:23+09:00",
+      "fetchedAtJst": "2026-10-31T17:30:24+09:00",
       "goals": [
         {
           "minute": "93",
@@ -43059,7 +43059,7 @@
     "2492901": {
       "code": "103110",
       "url": "https://www.jleague.jp/match/j1/2026/103110/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:25:30+09:00",
+      "fetchedAtJst": "2026-10-31T17:30:30+09:00",
       "goals": [
         {
           "minute": "70",
@@ -43593,7 +43593,7 @@
     "2492907": {
       "code": "103113",
       "url": "https://www.jleague.jp/match/j1/2026/103113/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:25:38+09:00",
+      "fetchedAtJst": "2026-10-31T17:30:37+09:00",
       "goals": [
         {
           "minute": "91",
@@ -44037,8 +44037,17 @@
     "2492902": {
       "code": "103111",
       "url": "https://www.jleague.jp/match/j1/2026/103111/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:25:43+09:00",
+      "fetchedAtJst": "2026-10-31T17:30:43+09:00",
       "goals": [
+        {
+          "minute": "68",
+          "club": "柏レイソル",
+          "player": "弓場 堅真",
+          "position": "MF 44",
+          "scoreAfter": "2-0",
+          "idTeam": "137708",
+          "playerId": "1635506"
+        },
         {
           "minute": "37",
           "club": "柏レイソル",
@@ -44062,6 +44071,25 @@
       ],
       "subs": [
         {
+          "minute": null,
+          "club": "浦和レッズ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 45",
+              "name": "オナイウ 阿道",
+              "playerId": "1400082"
+            },
+            {
+              "variant": "out",
+              "position": "MF 10",
+              "name": "マテウス サヴィオ",
+              "playerId": "1627458"
+            }
+          ],
+          "idTeam": "137716"
+        },
+        {
           "minute": "63",
           "club": "浦和レッズ",
           "items": [
@@ -44070,6 +44098,12 @@
               "position": "MF 39",
               "name": "早川 隼平",
               "playerId": "1636532"
+            },
+            {
+              "variant": "out",
+              "position": "DF 18",
+              "name": "林 幸多郎",
+              "playerId": "1635337"
             }
           ],
           "idTeam": "137716"
