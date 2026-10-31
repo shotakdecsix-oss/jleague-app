@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-10-31T14:10:04+09:00",
+    "generatedAtJst": "2026-10-31T14:15:04+09:00",
     "windowHours": 36,
     "candidateCount": 4,
     "skippedPreKickoff": 2,
@@ -41561,11 +41561,21 @@
     "2492903": {
       "code": "103112",
       "url": "https://www.jleague.jp/match/j1/2026/103112/livetxt/",
-      "fetchedAtJst": "2026-10-31T14:10:11+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-10-31T14:15:10+09:00",
+      "goals": [
+        {
+          "minute": "9",
+          "club": "京都サンガF.C.",
+          "player": "ラファエル エリアス",
+          "position": "FW 9",
+          "scoreAfter": "1-0",
+          "idTeam": "139888",
+          "playerId": "1647904"
+        }
+      ],
       "cards": [
         {
-          "minute": "6",
+          "minute": "9",
           "type": "yellow",
           "player": "高橋 祐治",
           "position": "DF 3",
@@ -41819,12 +41829,12 @@
     "2492905": {
       "code": "103107",
       "url": "https://www.jleague.jp/match/j1/2026/103107/livetxt/",
-      "fetchedAtJst": "2026-10-31T14:10:17+09:00",
+      "fetchedAtJst": "2026-10-31T14:15:17+09:00",
       "goals": [],
       "cards": [],
       "subs": [
         {
-          "minute": "6",
+          "minute": null,
           "club": "水戸ホーリーホック",
           "items": [
             {
@@ -41832,6 +41842,12 @@
               "position": "DF 50",
               "name": "家泉 怜依",
               "playerId": "1633171"
+            },
+            {
+              "variant": "out",
+              "position": "DF 15",
+              "name": "木本 恭生",
+              "playerId": "1400642"
             }
           ],
           "idTeam": "139891"
@@ -41853,7 +41869,7 @@
             },
             {
               "id": 1400642,
-              "name": "木本",
+              "name": "木本 恭生",
               "number": "15"
             },
             {
@@ -42081,7 +42097,7 @@
     "2492906": {
       "code": "103109",
       "url": "https://www.jleague.jp/match/j1/2026/103109/livetxt/",
-      "fetchedAtJst": "2026-10-31T14:10:24+09:00",
+      "fetchedAtJst": "2026-10-31T14:15:23+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -42813,7 +42829,7 @@
     "2492902": {
       "code": "103111",
       "url": "https://www.jleague.jp/match/j1/2026/103111/livetxt/",
-      "fetchedAtJst": "2026-10-31T14:10:30+09:00",
+      "fetchedAtJst": "2026-10-31T14:15:29+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -42821,7 +42837,236 @@
       "daznVideoId": null,
       "daznSearchAttempts": 0,
       "daznLastSearchedAtJst": null,
-      "lineups": null
+      "lineups": {
+        "home": {
+          "idTeam": "137708",
+          "formation": "3-4-2-1",
+          "players": [
+            {
+              "id": 1300058,
+              "name": "永井 堅梧",
+              "number": "29"
+            },
+            {
+              "id": 1627436,
+              "name": "原田 亘",
+              "number": "42"
+            },
+            {
+              "id": 1200017,
+              "name": "犬飼",
+              "number": "13"
+            },
+            {
+              "id": 1600029,
+              "name": "杉岡 大暉",
+              "number": "26"
+            },
+            {
+              "id": 1635506,
+              "name": "弓場 堅真",
+              "number": "44"
+            },
+            {
+              "id": 1635453,
+              "name": "中川 敦瑛",
+              "number": "39"
+            },
+            {
+              "id": 1611125,
+              "name": "戸嶋 祥郎",
+              "number": "28"
+            },
+            {
+              "id": 1600177,
+              "name": "遠藤 渓太",
+              "number": "5"
+            },
+            {
+              "id": 1500292,
+              "name": "小泉 佳穂",
+              "number": "8"
+            },
+            {
+              "id": 1605463,
+              "name": "満田 誠",
+              "number": "51"
+            },
+            {
+              "id": 1600141,
+              "name": "垣田 裕暉",
+              "number": "18"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1607370",
+              "name": "猿田 遥己",
+              "number": "1",
+              "position": "GK"
+            },
+            {
+              "id": "1603080",
+              "name": "古賀 太陽",
+              "number": "4",
+              "position": "DF"
+            },
+            {
+              "id": "1637309",
+              "name": "山之内 佑成",
+              "number": "32",
+              "position": "DF"
+            },
+            {
+              "id": "1300447",
+              "name": "汰木 康也",
+              "number": "16",
+              "position": "MF"
+            },
+            {
+              "id": "1601436",
+              "name": "小西 雄大",
+              "number": "21",
+              "position": "MF"
+            },
+            {
+              "id": "1634324",
+              "name": "久保 藤次郎",
+              "number": "24",
+              "position": "MF"
+            },
+            {
+              "id": "1641583",
+              "name": "古谷 柊介",
+              "number": "30",
+              "position": "MF"
+            },
+            {
+              "id": "1635485",
+              "name": "山内 日向汰",
+              "number": "87",
+              "position": "MF"
+            },
+            {
+              "id": "1625303",
+              "name": "細谷 真大",
+              "number": "9",
+              "position": "FW"
+            }
+          ]
+        },
+        "away": {
+          "idTeam": "137716",
+          "formation": "3-4-2-1",
+          "players": [
+            {
+              "id": 400563,
+              "name": "西川 周作",
+              "number": "1"
+            },
+            {
+              "id": 1651281,
+              "name": "ダニーロ ボザ",
+              "number": "3"
+            },
+            {
+              "id": 1631769,
+              "name": "宮本 優太",
+              "number": "2"
+            },
+            {
+              "id": 1632431,
+              "name": "工藤 孝太",
+              "number": "15"
+            },
+            {
+              "id": 1635337,
+              "name": "林 幸多郎",
+              "number": "18"
+            },
+            {
+              "id": 1627548,
+              "name": "瀬古 樹",
+              "number": "12"
+            },
+            {
+              "id": 1641597,
+              "name": "植木 颯",
+              "number": "37"
+            },
+            {
+              "id": 1401506,
+              "name": "長沼 洋一",
+              "number": "88"
+            },
+            {
+              "id": 1624851,
+              "name": "金子 拓郎",
+              "number": "7"
+            },
+            {
+              "id": 1627458,
+              "name": "マテウス サヴィオ",
+              "number": "10"
+            },
+            {
+              "id": 1636782,
+              "name": "南野 遥海",
+              "number": "42"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1613204",
+              "name": "新井 栄聡",
+              "number": "44",
+              "position": "GK"
+            },
+            {
+              "id": "1645913",
+              "name": "サミュエル グスタフソン",
+              "number": "11",
+              "position": "MF"
+            },
+            {
+              "id": "1633165",
+              "name": "安居 海渡",
+              "number": "25",
+              "position": "MF"
+            },
+            {
+              "id": "1650534",
+              "name": "笹 修大",
+              "number": "33",
+              "position": "MF"
+            },
+            {
+              "id": "1636532",
+              "name": "早川 隼平",
+              "number": "39",
+              "position": "MF"
+            },
+            {
+              "id": "1639183",
+              "name": "小森 飛絢",
+              "number": "17",
+              "position": "FW"
+            },
+            {
+              "id": "1643560",
+              "name": "肥田野 蓮治",
+              "number": "36",
+              "position": "FW"
+            },
+            {
+              "id": "1400082",
+              "name": "オナイウ 阿道",
+              "number": "45",
+              "position": "FW"
+            }
+          ]
+        }
+      }
     }
   }
 }
