@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-10-31T15:15:04+09:00",
+    "generatedAtJst": "2026-10-31T15:20:04+09:00",
     "windowHours": 36,
     "candidateCount": 5,
     "skippedPreKickoff": 1,
@@ -41561,7 +41561,7 @@
     "2492903": {
       "code": "103112",
       "url": "https://www.jleague.jp/match/j1/2026/103112/livetxt/",
-      "fetchedAtJst": "2026-10-31T15:15:10+09:00",
+      "fetchedAtJst": "2026-10-31T15:20:11+09:00",
       "goals": [
         {
           "minute": "50",
@@ -41867,8 +41867,17 @@
     "2492905": {
       "code": "103107",
       "url": "https://www.jleague.jp/match/j1/2026/103107/livetxt/",
-      "fetchedAtJst": "2026-10-31T15:15:16+09:00",
+      "fetchedAtJst": "2026-10-31T15:20:16+09:00",
       "goals": [
+        {
+          "minute": "54",
+          "club": "サンフレッチェ広島",
+          "player": "中野 就斗",
+          "position": "DF 15",
+          "scoreAfter": "0-2",
+          "idTeam": "137713",
+          "playerId": "1635465"
+        },
         {
           "minute": "30",
           "club": "サンフレッチェ広島",
@@ -41891,6 +41900,25 @@
         }
       ],
       "subs": [
+        {
+          "minute": "45",
+          "club": "サンフレッチェ広島",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "クシニ イェンギ",
+              "playerId": "1638769"
+            },
+            {
+              "variant": "out",
+              "position": "MF 45",
+              "name": "小林 志紋",
+              "playerId": "1650817"
+            }
+          ],
+          "idTeam": "137713"
+        },
         {
           "minute": "45",
           "club": "水戸ホーリーホック",
@@ -42193,7 +42221,7 @@
     "2492906": {
       "code": "103109",
       "url": "https://www.jleague.jp/match/j1/2026/103109/livetxt/",
-      "fetchedAtJst": "2026-10-31T15:15:22+09:00",
+      "fetchedAtJst": "2026-10-31T15:20:22+09:00",
       "goals": [
         {
           "minute": "47",
@@ -42464,8 +42492,18 @@
     "2492901": {
       "code": "103110",
       "url": "https://www.jleague.jp/match/j1/2026/103110/livetxt/",
-      "fetchedAtJst": "2026-10-31T15:15:28+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-10-31T15:20:29+09:00",
+      "goals": [
+        {
+          "minute": "14",
+          "club": "鹿島アントラーズ",
+          "player": "エウベル",
+          "position": "FW 17",
+          "scoreAfter": "1-0",
+          "idTeam": "137707",
+          "playerId": "1632263"
+        }
+      ],
       "cards": [],
       "subs": [],
       "highlightVideoId": null,
@@ -42706,7 +42744,7 @@
     "2492907": {
       "code": "103113",
       "url": "https://www.jleague.jp/match/j1/2026/103113/livetxt/",
-      "fetchedAtJst": "2026-10-31T15:15:34+09:00",
+      "fetchedAtJst": "2026-10-31T15:20:35+09:00",
       "goals": [
         {
           "minute": "2",
@@ -42852,11 +42890,6 @@
               "number": "1"
             },
             {
-              "id": 1600025,
-              "name": "原 輝綺",
-              "number": "70"
-            },
-            {
               "id": 1618633,
               "name": "藤井 陽也",
               "number": "13"
@@ -42872,14 +42905,14 @@
               "number": "2"
             },
             {
+              "id": 1600025,
+              "name": "原 輝綺",
+              "number": "70"
+            },
+            {
               "id": 1400047,
               "name": "稲垣 祥",
               "number": "15"
-            },
-            {
-              "id": 1503926,
-              "name": "和泉 竜司",
-              "number": "7"
             },
             {
               "id": 1624306,
@@ -42890,6 +42923,11 @@
               "id": 1602398,
               "name": "内田 宅哉",
               "number": "17"
+            },
+            {
+              "id": 1503926,
+              "name": "和泉 竜司",
+              "number": "7"
             },
             {
               "id": 1633622,
