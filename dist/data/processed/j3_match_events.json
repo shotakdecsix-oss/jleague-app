@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-10-31T17:50:04+09:00",
+    "generatedAtJst": "2026-10-31T17:55:04+09:00",
     "windowHours": 36,
     "candidateCount": 9,
     "skippedPreKickoff": 1,
@@ -46863,7 +46863,7 @@
     "2492513": {
       "code": "103127",
       "url": "https://www.jleague.jp/match/j3/2026/103127/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:51:55+09:00",
+      "fetchedAtJst": "2026-10-31T17:56:53+09:00",
       "goals": [
         {
           "minute": "78",
@@ -47349,7 +47349,7 @@
     "2492514": {
       "code": "103126",
       "url": "https://www.jleague.jp/match/j3/2026/103126/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:52:01+09:00",
+      "fetchedAtJst": "2026-10-31T17:57:00+09:00",
       "goals": [
         {
           "minute": "93",
@@ -47789,7 +47789,7 @@
     "2492516": {
       "code": "103125",
       "url": "https://www.jleague.jp/match/j3/2026/103125/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:52:08+09:00",
+      "fetchedAtJst": "2026-10-31T17:57:06+09:00",
       "goals": [
         {
           "minute": "80",
@@ -48232,7 +48232,7 @@
     "2492517": {
       "code": "103133",
       "url": "https://www.jleague.jp/match/j3/2026/103133/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:52:15+09:00",
+      "fetchedAtJst": "2026-10-31T17:57:13+09:00",
       "goals": [
         {
           "minute": "66",
@@ -48700,7 +48700,7 @@
     "2492520": {
       "code": "103124",
       "url": "https://www.jleague.jp/match/j3/2026/103124/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:52:21+09:00",
+      "fetchedAtJst": "2026-10-31T17:57:19+09:00",
       "goals": [
         {
           "minute": "46",
@@ -49188,7 +49188,7 @@
     "2492522": {
       "code": "103128",
       "url": "https://www.jleague.jp/match/j3/2026/103128/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:52:28+09:00",
+      "fetchedAtJst": "2026-10-31T17:57:25+09:00",
       "goals": [
         {
           "minute": "36",
@@ -49695,7 +49695,7 @@
     "2492515": {
       "code": "103129",
       "url": "https://www.jleague.jp/match/j3/2026/103129/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:52:34+09:00",
+      "fetchedAtJst": "2026-10-31T17:57:32+09:00",
       "goals": [
         {
           "minute": "78",
@@ -50175,7 +50175,7 @@
     "2492518": {
       "code": "103131",
       "url": "https://www.jleague.jp/match/j3/2026/103131/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:52:40+09:00",
+      "fetchedAtJst": "2026-10-31T17:57:38+09:00",
       "goals": [
         {
           "minute": "88",
@@ -50242,6 +50242,15 @@
         }
       ],
       "cards": [
+        {
+          "minute": null,
+          "type": "yellow",
+          "player": "吉田 温紀",
+          "position": "MF 3",
+          "club": "ＦＣ琉球",
+          "idTeam": "139895",
+          "playerId": "1632477"
+        },
         {
           "minute": "59",
           "type": "yellow",
@@ -50700,16 +50709,16 @@
     "2492521": {
       "code": "103130",
       "url": "https://www.jleague.jp/match/j3/2026/103130/livetxt/",
-      "fetchedAtJst": "2026-10-31T17:52:46+09:00",
+      "fetchedAtJst": "2026-10-31T17:57:44+09:00",
       "goals": [
         {
-          "minute": "80",
+          "minute": "94",
           "club": "ＡＣ長野パルセイロ",
-          "player": "田中 康介",
-          "position": "MF 25",
-          "scoreAfter": "2-1",
+          "player": "藤川 虎太朗",
+          "position": "MF 28",
+          "scoreAfter": "3-1",
           "idTeam": "141252",
-          "playerId": "1632243"
+          "playerId": "1504471"
         },
         {
           "minute": "34",
@@ -50719,6 +50728,15 @@
           "scoreAfter": "1-0",
           "idTeam": "141252",
           "playerId": "1650553"
+        },
+        {
+          "minute": "80",
+          "club": "ＡＣ長野パルセイロ",
+          "player": "田中 康介",
+          "position": "MF 25",
+          "scoreAfter": "2-1",
+          "idTeam": "141252",
+          "playerId": "1632243"
         },
         {
           "minute": "50",
@@ -50761,6 +50779,25 @@
       ],
       "subs": [
         {
+          "minute": null,
+          "club": "ＡＣ長野パルセイロ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 3",
+              "name": "冨田 康平",
+              "playerId": "1620804"
+            },
+            {
+              "variant": "out",
+              "position": "MF 25",
+              "name": "田中 康介",
+              "playerId": "1632243"
+            }
+          ],
+          "idTeam": "141252"
+        },
+        {
           "minute": "79",
           "club": "レイラック滋賀ＦＣ",
           "items": [
@@ -50787,7 +50824,7 @@
               "variant": "in",
               "position": "DF 5",
               "name": "西山 大雅",
-              "playerId": null
+              "playerId": "1605605"
             },
             {
               "variant": "out",
@@ -51120,6 +51157,12 @@
               "name": "伊東 倖希",
               "number": "1",
               "position": "GK"
+            },
+            {
+              "id": "1605605",
+              "name": "西山 大雅",
+              "number": "5",
+              "position": "DF"
             },
             {
               "id": "1654345",
