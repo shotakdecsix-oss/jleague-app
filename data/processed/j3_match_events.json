@@ -1,13 +1,13 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-11-02T23:10:06+09:00",
+    "generatedAtJst": "2026-11-05T00:31:53+09:00",
     "windowHours": 36,
-    "candidateCount": 0,
+    "candidateCount": 10,
     "skippedPreKickoff": 0,
-    "fetchedCount": 0,
+    "fetchedCount": 10,
     "failed": [],
-    "eventCount": 109
+    "eventCount": 119
   },
   "events": {
     "2492404": {
@@ -51666,6 +51666,4591 @@
               "id": "1629502",
               "name": "松田 詠太郎",
               "number": "22",
+              "position": "MF"
+            },
+            {
+              "id": "1655793",
+              "name": "鹿取 勇斗",
+              "number": "10",
+              "position": "FW"
+            },
+            {
+              "id": "1647350",
+              "name": "石原 央羅",
+              "number": "14",
+              "position": "FW"
+            },
+            {
+              "id": "1657646",
+              "name": "中山 大耀",
+              "number": "32",
+              "position": "FW"
+            }
+          ]
+        }
+      }
+    },
+    "2492523": {
+      "code": "110318",
+      "url": "https://www.jleague.jp/match/j3/2026/110318/livetxt/",
+      "fetchedAtJst": "2026-11-05T00:34:33+09:00",
+      "goals": [
+        {
+          "minute": "71",
+          "club": "ＡＣ長野パルセイロ",
+          "player": "清水 蒼太朗",
+          "position": "FW 51",
+          "scoreAfter": "0-2",
+          "idTeam": "141252",
+          "playerId": "1637304"
+        },
+        {
+          "minute": "29",
+          "club": "ＡＣ長野パルセイロ",
+          "player": "吉澤 柊",
+          "position": "FW 18",
+          "scoreAfter": "0-1",
+          "idTeam": "141252",
+          "playerId": "1636326"
+        }
+      ],
+      "cards": [
+        {
+          "minute": null,
+          "type": "yellow",
+          "player": "川上 竜",
+          "position": "MF 40",
+          "club": "ツエーゲン金沢",
+          "idTeam": "139902",
+          "playerId": "1609244"
+        },
+        {
+          "minute": "84",
+          "type": "yellow",
+          "player": "渡邉 禅",
+          "position": "DF 24",
+          "club": "ＡＣ長野パルセイロ",
+          "idTeam": "141252",
+          "playerId": "1655844"
+        },
+        {
+          "minute": "82",
+          "type": "yellow",
+          "player": "吉澤 柊",
+          "position": "FW 18",
+          "club": "ＡＣ長野パルセイロ",
+          "idTeam": "141252",
+          "playerId": "1636326"
+        }
+      ],
+      "subs": [
+        {
+          "minute": "90",
+          "club": "ツエーゲン金沢",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 28",
+              "name": "鈴木 遼",
+              "playerId": "1642077"
+            },
+            {
+              "variant": "out",
+              "position": "DF 20",
+              "name": "長倉 颯",
+              "playerId": "1624312"
+            }
+          ],
+          "idTeam": "139902"
+        },
+        {
+          "minute": "86",
+          "club": "ＡＣ長野パルセイロ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 6",
+              "name": "長谷川 隼",
+              "playerId": "1630113"
+            },
+            {
+              "variant": "out",
+              "position": "FW 18",
+              "name": "吉澤 柊",
+              "playerId": "1636326"
+            }
+          ],
+          "idTeam": "141252"
+        },
+        {
+          "minute": "75",
+          "club": "ツエーゲン金沢",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 27",
+              "name": "大谷 駿斗",
+              "playerId": "1620723"
+            },
+            {
+              "variant": "out",
+              "position": "MF 41",
+              "name": "嶋田 慎太郎",
+              "playerId": "1300440"
+            }
+          ],
+          "idTeam": "139902"
+        },
+        {
+          "minute": "73",
+          "club": "ＡＣ長野パルセイロ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 40",
+              "name": "長谷川 雄志",
+              "playerId": "1611961"
+            },
+            {
+              "variant": "out",
+              "position": "MF 14",
+              "name": "忽那 喬司",
+              "playerId": "1502856"
+            }
+          ],
+          "idTeam": "141252"
+        },
+        {
+          "minute": "73",
+          "club": "ＡＣ長野パルセイロ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 11",
+              "name": "進 昂平",
+              "playerId": "1611205"
+            },
+            {
+              "variant": "out",
+              "position": "FW 51",
+              "name": "清水 蒼太朗",
+              "playerId": "1637304"
+            }
+          ],
+          "idTeam": "141252"
+        },
+        {
+          "minute": "66",
+          "club": "ツエーゲン金沢",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 23",
+              "name": "榊原 杏太",
+              "playerId": "1635543"
+            },
+            {
+              "variant": "out",
+              "position": "FW 11",
+              "name": "杉浦 恭平",
+              "playerId": "700759"
+            }
+          ],
+          "idTeam": "139902"
+        },
+        {
+          "minute": "66",
+          "club": "ツエーゲン金沢",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 40",
+              "name": "川上 竜",
+              "playerId": "1609244"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "大山 啓輔",
+              "playerId": "1201189"
+            }
+          ],
+          "idTeam": "139902"
+        },
+        {
+          "minute": "66",
+          "club": "ツエーゲン金沢",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 71",
+              "name": "櫻井 風我",
+              "playerId": "1635338"
+            },
+            {
+              "variant": "out",
+              "position": "DF 29",
+              "name": "宮崎 海冬",
+              "playerId": "1635563"
+            }
+          ],
+          "idTeam": "139902"
+        },
+        {
+          "minute": "60",
+          "club": "ＡＣ長野パルセイロ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 24",
+              "name": "渡邉 禅",
+              "playerId": "1655844"
+            },
+            {
+              "variant": "out",
+              "position": "DF 16",
+              "name": "石井 光輝",
+              "playerId": "1604881"
+            }
+          ],
+          "idTeam": "141252"
+        },
+        {
+          "minute": "60",
+          "club": "ＡＣ長野パルセイロ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 30",
+              "name": "野嶋 圭人",
+              "playerId": "1646527"
+            },
+            {
+              "variant": "out",
+              "position": "MF 39",
+              "name": "安藤 一哉",
+              "playerId": "1629428"
+            }
+          ],
+          "idTeam": "141252"
+        }
+      ],
+      "highlightVideoId": null,
+      "daznVideoId": "ROT_YwGru_E",
+      "daznSearchAttempts": 1,
+      "daznLastSearchedAtJst": "2026-11-05T00:34:33+09:00",
+      "lineups": {
+        "home": {
+          "idTeam": "139902",
+          "formation": "3-4-2-1",
+          "players": [
+            {
+              "id": 1618637,
+              "name": "上田 樹",
+              "number": "31"
+            },
+            {
+              "id": 1629923,
+              "name": "松本 大輔",
+              "number": "55"
+            },
+            {
+              "id": 1611471,
+              "name": "山本",
+              "number": "2"
+            },
+            {
+              "id": 1624312,
+              "name": "長倉 颯",
+              "number": "20"
+            },
+            {
+              "id": 1635563,
+              "name": "宮崎 海冬",
+              "number": "29"
+            },
+            {
+              "id": 1620724,
+              "name": "西谷 優希",
+              "number": "15"
+            },
+            {
+              "id": 1201189,
+              "name": "大山 啓輔",
+              "number": "8"
+            },
+            {
+              "id": 1650532,
+              "name": "四宮 悠成",
+              "number": "14"
+            },
+            {
+              "id": 1300440,
+              "name": "嶋田 慎太郎",
+              "number": "41"
+            },
+            {
+              "id": 700759,
+              "name": "杉浦 恭平",
+              "number": "11"
+            },
+            {
+              "id": 1300102,
+              "name": "パトリック",
+              "number": "10"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1401475",
+              "name": "後藤 大輝",
+              "number": "50",
+              "position": "GK"
+            },
+            {
+              "id": "1401470",
+              "name": "畑尾 大翔",
+              "number": "3",
+              "position": "DF"
+            },
+            {
+              "id": "1631755",
+              "name": "寺阪 尚悟",
+              "number": "19",
+              "position": "DF"
+            },
+            {
+              "id": "1642077",
+              "name": "鈴木 遼",
+              "number": "28",
+              "position": "DF"
+            },
+            {
+              "id": "1635338",
+              "name": "櫻井 風我",
+              "number": "71",
+              "position": "DF"
+            },
+            {
+              "id": "1647161",
+              "name": "土佐 陸翼",
+              "number": "7",
+              "position": "MF"
+            },
+            {
+              "id": "1609244",
+              "name": "川上 竜",
+              "number": "40",
+              "position": "MF"
+            },
+            {
+              "id": "1635543",
+              "name": "榊原 杏太",
+              "number": "23",
+              "position": "FW"
+            },
+            {
+              "id": "1620723",
+              "name": "大谷 駿斗",
+              "number": "27",
+              "position": "FW"
+            }
+          ]
+        },
+        "away": {
+          "idTeam": "141252",
+          "formation": "4-4-2",
+          "players": [
+            {
+              "id": 1200005,
+              "name": "田尻 健",
+              "number": "1"
+            },
+            {
+              "id": 1646523,
+              "name": "中田 舜貴",
+              "number": "26"
+            },
+            {
+              "id": 1640482,
+              "name": "行德 瑛",
+              "number": "4"
+            },
+            {
+              "id": 1620804,
+              "name": "冨田 康平",
+              "number": "3"
+            },
+            {
+              "id": 1604881,
+              "name": "石井 光輝",
+              "number": "16"
+            },
+            {
+              "id": 1629428,
+              "name": "安藤 一哉",
+              "number": "39"
+            },
+            {
+              "id": 1635384,
+              "name": "山中 麗央",
+              "number": "10"
+            },
+            {
+              "id": 1627546,
+              "name": "樋口 叶",
+              "number": "15"
+            },
+            {
+              "id": 1502856,
+              "name": "忽那 喬司",
+              "number": "14"
+            },
+            {
+              "id": 1636326,
+              "name": "吉澤 柊",
+              "number": "18"
+            },
+            {
+              "id": 1637304,
+              "name": "清水 蒼太朗",
+              "number": "51"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1641531",
+              "name": "牧野 虎太郎",
+              "number": "31",
+              "position": "GK"
+            },
+            {
+              "id": "1655844",
+              "name": "渡邉 禅",
+              "number": "24",
+              "position": "DF"
+            },
+            {
+              "id": "1630113",
+              "name": "長谷川 隼",
+              "number": "6",
+              "position": "MF"
+            },
+            {
+              "id": "1637078",
+              "name": "伊藤 恵亮",
+              "number": "17",
+              "position": "MF"
+            },
+            {
+              "id": "1646527",
+              "name": "野嶋 圭人",
+              "number": "30",
+              "position": "MF"
+            },
+            {
+              "id": "1611961",
+              "name": "長谷川 雄志",
+              "number": "40",
+              "position": "MF"
+            },
+            {
+              "id": "1639189",
+              "name": "大﨑 舜",
+              "number": "9",
+              "position": "FW"
+            },
+            {
+              "id": "1611205",
+              "name": "進 昂平",
+              "number": "11",
+              "position": "FW"
+            }
+          ]
+        }
+      }
+    },
+    "2492524": {
+      "code": "110321",
+      "url": "https://www.jleague.jp/match/j3/2026/110321/livetxt/",
+      "fetchedAtJst": "2026-11-05T00:34:43+09:00",
+      "goals": [
+        {
+          "minute": "95",
+          "club": "鹿児島ユナイテッドＦＣ",
+          "player": "フアンマ デルガド",
+          "position": "FW 99",
+          "scoreAfter": "1-1",
+          "idTeam": "139903",
+          "playerId": "1607167"
+        },
+        {
+          "minute": "67",
+          "club": "レノファ山口ＦＣ",
+          "player": "成岡 輝瑠",
+          "position": "MF 40",
+          "scoreAfter": "1-0",
+          "idTeam": "139894",
+          "playerId": "1622191"
+        }
+      ],
+      "cards": [
+        {
+          "minute": "76",
+          "type": "yellow",
+          "player": "菊地 脩太",
+          "position": "DF 33",
+          "club": "レノファ山口ＦＣ",
+          "idTeam": "139894",
+          "playerId": "1635021"
+        },
+        {
+          "minute": "29",
+          "type": "yellow",
+          "player": "藤森 颯太",
+          "position": "MF 25",
+          "club": "レノファ山口ＦＣ",
+          "idTeam": "139894",
+          "playerId": "1636958"
+        },
+        {
+          "minute": "28",
+          "type": "yellow",
+          "player": "田中 渉",
+          "position": "MF 7",
+          "club": "鹿児島ユナイテッドＦＣ",
+          "idTeam": "139903",
+          "playerId": "1624295"
+        }
+      ],
+      "subs": [
+        {
+          "minute": null,
+          "club": "レノファ山口ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 18",
+              "name": "亀川 諒史",
+              "playerId": "1200043"
+            },
+            {
+              "variant": "out",
+              "position": "FW 8",
+              "name": "野寄 和哉",
+              "playerId": "1639187"
+            }
+          ],
+          "idTeam": "139894"
+        },
+        {
+          "minute": "77",
+          "club": "鹿児島ユナイテッドＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 27",
+              "name": "川島 功奨",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "DF 35",
+              "name": "江川 慶城",
+              "playerId": "1624359"
+            }
+          ],
+          "idTeam": "139903"
+        },
+        {
+          "minute": "72",
+          "club": "鹿児島ユナイテッドＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 99",
+              "name": "フアンマ デルガド",
+              "playerId": "1607167"
+            },
+            {
+              "variant": "out",
+              "position": "FW 18",
+              "name": "河村 慶人",
+              "playerId": "1635233"
+            }
+          ],
+          "idTeam": "139903"
+        },
+        {
+          "minute": "72",
+          "club": "鹿児島ユナイテッドＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 11",
+              "name": "福田 望久斗",
+              "playerId": "1636272"
+            },
+            {
+              "variant": "out",
+              "position": "MF 20",
+              "name": "圓道 将良",
+              "playerId": "1635470"
+            }
+          ],
+          "idTeam": "139903"
+        },
+        {
+          "minute": "68",
+          "club": "鹿児島ユナイテッドＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 2",
+              "name": "嵯峨 理久",
+              "playerId": "1636323"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "田中 渉",
+              "playerId": "1624295"
+            }
+          ],
+          "idTeam": "139903"
+        },
+        {
+          "minute": "68",
+          "club": "鹿児島ユナイテッドＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "有田 稜",
+              "playerId": "1635500"
+            },
+            {
+              "variant": "out",
+              "position": "FW 22",
+              "name": "髙橋 旺良",
+              "playerId": "1652842"
+            }
+          ],
+          "idTeam": "139903"
+        },
+        {
+          "minute": "59",
+          "club": "レノファ山口ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 88",
+              "name": "野村 直輝",
+              "playerId": "1400084"
+            },
+            {
+              "variant": "out",
+              "position": "MF 4",
+              "name": "中島 賢星",
+              "playerId": "1500465"
+            }
+          ],
+          "idTeam": "139894"
+        },
+        {
+          "minute": "59",
+          "club": "レノファ山口ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 19",
+              "name": "山本 駿亮",
+              "playerId": "1632224"
+            },
+            {
+              "variant": "out",
+              "position": "FW 11",
+              "name": "藤岡 浩介",
+              "playerId": "1300038"
+            }
+          ],
+          "idTeam": "139894"
+        },
+        {
+          "minute": "45",
+          "club": "レノファ山口ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 32",
+              "name": "伊藤 拓巳",
+              "playerId": "1640647"
+            },
+            {
+              "variant": "out",
+              "position": "MF 25",
+              "name": "藤森 颯太",
+              "playerId": "1636958"
+            }
+          ],
+          "idTeam": "139894"
+        }
+      ],
+      "highlightVideoId": null,
+      "daznVideoId": "CLAlJkml9uw",
+      "daznSearchAttempts": 1,
+      "daznLastSearchedAtJst": "2026-11-05T00:34:43+09:00",
+      "lineups": {
+        "home": {
+          "idTeam": "139894",
+          "formation": "3-4-2-1",
+          "players": [
+            {
+              "id": 1000660,
+              "name": "内山 圭",
+              "number": "35"
+            },
+            {
+              "id": 1635021,
+              "name": "菊地 脩太",
+              "number": "33"
+            },
+            {
+              "id": 1629505,
+              "name": "喜岡 佳太",
+              "number": "5"
+            },
+            {
+              "id": 1101478,
+              "name": "大岩 一貴",
+              "number": "3"
+            },
+            {
+              "id": 1636958,
+              "name": "藤森 颯太",
+              "number": "25"
+            },
+            {
+              "id": 1622191,
+              "name": "成岡 輝瑠",
+              "number": "40"
+            },
+            {
+              "id": 1639187,
+              "name": "野寄 和哉",
+              "number": "8"
+            },
+            {
+              "id": 1648837,
+              "name": "小澤",
+              "number": "2"
+            },
+            {
+              "id": 1500465,
+              "name": "中島 賢星",
+              "number": "4"
+            },
+            {
+              "id": 1300038,
+              "name": "藤岡 浩介",
+              "number": "11"
+            },
+            {
+              "id": 1645965,
+              "name": "渡邉 颯太",
+              "number": "13"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1635494",
+              "name": "飯田 雅浩",
+              "number": "41",
+              "position": "GK"
+            },
+            {
+              "id": "1630085",
+              "name": "下堂 竜聖",
+              "number": "14",
+              "position": "DF"
+            },
+            {
+              "id": "1200043",
+              "name": "亀川 諒史",
+              "number": "18",
+              "position": "DF"
+            },
+            {
+              "id": "1641540",
+              "name": "田邉 光平",
+              "number": "17",
+              "position": "MF"
+            },
+            {
+              "id": "1627191",
+              "name": "沼田 航征",
+              "number": "24",
+              "position": "MF"
+            },
+            {
+              "id": "1640647",
+              "name": "伊藤 拓巳",
+              "number": "32",
+              "position": "MF"
+            },
+            {
+              "id": "1400084",
+              "name": "野村 直輝",
+              "number": "88",
+              "position": "MF"
+            },
+            {
+              "id": "1632224",
+              "name": "山本 駿亮",
+              "number": "19",
+              "position": "FW"
+            },
+            {
+              "id": "1621200",
+              "name": "久保 征一郎",
+              "number": "22",
+              "position": "FW"
+            }
+          ]
+        },
+        "away": {
+          "idTeam": "139903",
+          "formation": "4-4-2",
+          "players": [
+            {
+              "id": 1630052,
+              "name": "坂田 大樹",
+              "number": "31"
+            },
+            {
+              "id": 1624359,
+              "name": "江川 慶城",
+              "number": "35"
+            },
+            {
+              "id": 1500473,
+              "name": "広瀬 健太",
+              "number": "4"
+            },
+            {
+              "id": 1636997,
+              "name": "山田 裕翔",
+              "number": "5"
+            },
+            {
+              "id": 1605080,
+              "name": "青木 義孝",
+              "number": "44"
+            },
+            {
+              "id": 1624295,
+              "name": "田中 渉",
+              "number": "7"
+            },
+            {
+              "id": 1635454,
+              "name": "吉尾 虹樹",
+              "number": "14"
+            },
+            {
+              "id": 1656196,
+              "name": "梅木 翔斗",
+              "number": "32"
+            },
+            {
+              "id": 1635470,
+              "name": "圓道 将良",
+              "number": "20"
+            },
+            {
+              "id": 1635233,
+              "name": "河村 慶人",
+              "number": "18"
+            },
+            {
+              "id": 1652842,
+              "name": "髙橋 旺良",
+              "number": "22"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1637074",
+              "name": "川上 康平",
+              "number": "21",
+              "position": "GK"
+            },
+            {
+              "id": "1500496",
+              "name": "池田 樹雷人",
+              "number": "36",
+              "position": "DF"
+            },
+            {
+              "id": "1636323",
+              "name": "嵯峨 理久",
+              "number": "2",
+              "position": "MF"
+            },
+            {
+              "id": "1200010",
+              "name": "藤村 慶太",
+              "number": "8",
+              "position": "MF"
+            },
+            {
+              "id": "1503565",
+              "name": "稲葉 修土",
+              "number": "19",
+              "position": "MF"
+            },
+            {
+              "id": "1635500",
+              "name": "有田 稜",
+              "number": "9",
+              "position": "FW"
+            },
+            {
+              "id": "1636272",
+              "name": "福田 望久斗",
+              "number": "11",
+              "position": "FW"
+            },
+            {
+              "id": "1607167",
+              "name": "フアンマ デルガド",
+              "number": "99",
+              "position": "FW"
+            }
+          ]
+        }
+      }
+    },
+    "2492525": {
+      "code": "110317",
+      "url": "https://www.jleague.jp/match/j3/2026/110317/livetxt/",
+      "fetchedAtJst": "2026-11-05T00:34:53+09:00",
+      "goals": [],
+      "cards": [
+        {
+          "minute": "39",
+          "type": "yellow",
+          "player": "青島 太一",
+          "position": "MF 11",
+          "club": "栃木ＳＣ",
+          "idTeam": "139896",
+          "playerId": "1625300"
+        },
+        {
+          "minute": "24",
+          "type": "yellow",
+          "player": "東 廉太",
+          "position": "DF 3",
+          "club": "栃木ＳＣ",
+          "idTeam": "139896",
+          "playerId": null
+        }
+      ],
+      "subs": [
+        {
+          "minute": "87",
+          "club": "福島ユナイテッドＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 40",
+              "name": "樋口 寛規",
+              "playerId": "1100188"
+            },
+            {
+              "variant": "out",
+              "position": "FW 9",
+              "name": "清水 一雅",
+              "playerId": "1626004"
+            }
+          ],
+          "idTeam": "141246"
+        },
+        {
+          "minute": "83",
+          "club": "栃木ＳＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 20",
+              "name": "鈴木 輪太朗 イブラヒーム",
+              "playerId": "1632261"
+            },
+            {
+              "variant": "out",
+              "position": "DF 37",
+              "name": "木邨 優人",
+              "playerId": "1647380"
+            }
+          ],
+          "idTeam": "139896"
+        },
+        {
+          "minute": "74",
+          "club": "栃木ＳＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 81",
+              "name": "中野 克哉",
+              "playerId": "1619986"
+            },
+            {
+              "variant": "out",
+              "position": "MF 10",
+              "name": "五十嵐 太陽",
+              "playerId": "1635199"
+            }
+          ],
+          "idTeam": "139896"
+        },
+        {
+          "minute": "74",
+          "club": "栃木ＳＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 14",
+              "name": "鈴木 俊也",
+              "playerId": "1632430"
+            },
+            {
+              "variant": "out",
+              "position": "FW 80",
+              "name": "オタボー ケネス",
+              "playerId": "1632272"
+            }
+          ],
+          "idTeam": "139896"
+        },
+        {
+          "minute": "74",
+          "club": "福島ユナイテッドＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 96",
+              "name": "吉田 陣平",
+              "playerId": "1636247"
+            },
+            {
+              "variant": "out",
+              "position": "MF 10",
+              "name": "針谷 岳晃",
+              "playerId": "1607141"
+            }
+          ],
+          "idTeam": "141246"
+        },
+        {
+          "minute": "74",
+          "club": "福島ユナイテッドＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 20",
+              "name": "泉 彩稀",
+              "playerId": "1631762"
+            },
+            {
+              "variant": "out",
+              "position": "MF 30",
+              "name": "狩野 海晟",
+              "playerId": "1641376"
+            }
+          ],
+          "idTeam": "141246"
+        },
+        {
+          "minute": "63",
+          "club": "福島ユナイテッドＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 7",
+              "name": "芦部 晃生",
+              "playerId": "1644488"
+            },
+            {
+              "variant": "out",
+              "position": "FW 44",
+              "name": "奥田 晃也",
+              "playerId": "1604675"
+            }
+          ],
+          "idTeam": "141246"
+        },
+        {
+          "minute": "63",
+          "club": "福島ユナイテッドＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 8",
+              "name": "岡田 優希",
+              "playerId": "1621198"
+            },
+            {
+              "variant": "out",
+              "position": "MF 14",
+              "name": "中村 翼",
+              "playerId": "1637254"
+            }
+          ],
+          "idTeam": "141246"
+        },
+        {
+          "minute": "55",
+          "club": "栃木ＳＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "近藤 慶一",
+              "playerId": "1641020"
+            },
+            {
+              "variant": "out",
+              "position": "FW 25",
+              "name": "山口 太陽",
+              "playerId": "1643393"
+            }
+          ],
+          "idTeam": "139896"
+        },
+        {
+          "minute": "45",
+          "club": "栃木ＳＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 16",
+              "name": "名願 斗哉",
+              "playerId": "1640480"
+            },
+            {
+              "variant": "out",
+              "position": "MF 17",
+              "name": "杉森 考起",
+              "playerId": "1400059"
+            }
+          ],
+          "idTeam": "139896"
+        }
+      ],
+      "highlightVideoId": null,
+      "daznVideoId": "xwJhwnwrtvw",
+      "daznSearchAttempts": 1,
+      "daznLastSearchedAtJst": "2026-11-05T00:34:53+09:00",
+      "lineups": {
+        "home": {
+          "idTeam": "139896",
+          "formation": "3-4-2-1",
+          "players": [
+            {
+              "id": 1632220,
+              "name": "田代 琉我",
+              "number": "41"
+            },
+            {
+              "id": 1647380,
+              "name": "木邨 優人",
+              "number": "37"
+            },
+            {
+              "id": 1636504,
+              "name": "東",
+              "number": "3"
+            },
+            {
+              "id": 1643223,
+              "name": "田畑 知起",
+              "number": "26"
+            },
+            {
+              "id": 1633870,
+              "name": "阿部 海斗",
+              "number": "6"
+            },
+            {
+              "id": 1641569,
+              "name": "堤 陽輝",
+              "number": "15"
+            },
+            {
+              "id": 1625300,
+              "name": "青島 太一",
+              "number": "11"
+            },
+            {
+              "id": 1400059,
+              "name": "杉森 考起",
+              "number": "17"
+            },
+            {
+              "id": 1632272,
+              "name": "オタボー ケネス",
+              "number": "80"
+            },
+            {
+              "id": 1635199,
+              "name": "五十嵐 太陽",
+              "number": "10"
+            },
+            {
+              "id": 1643393,
+              "name": "山口 太陽",
+              "number": "25"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1100297",
+              "name": "川田 修平",
+              "number": "1",
+              "position": "GK"
+            },
+            {
+              "id": "1617908",
+              "name": "柳 育崇",
+              "number": "5",
+              "position": "DF"
+            },
+            {
+              "id": "1632430",
+              "name": "鈴木 俊也",
+              "number": "14",
+              "position": "DF"
+            },
+            {
+              "id": "1636280",
+              "name": "大曽根 広汰",
+              "number": "13",
+              "position": "MF"
+            },
+            {
+              "id": "1640480",
+              "name": "名願 斗哉",
+              "number": "16",
+              "position": "MF"
+            },
+            {
+              "id": "1400650",
+              "name": "松下 佳貴",
+              "number": "18",
+              "position": "MF"
+            },
+            {
+              "id": "1619986",
+              "name": "中野 克哉",
+              "number": "81",
+              "position": "MF"
+            },
+            {
+              "id": "1641020",
+              "name": "近藤 慶一",
+              "number": "9",
+              "position": "FW"
+            },
+            {
+              "id": "1632261",
+              "name": "鈴木 輪太朗 イブラヒーム",
+              "number": "20",
+              "position": "FW"
+            }
+          ]
+        },
+        "away": {
+          "idTeam": "141246",
+          "formation": "4-1-2-3",
+          "players": [
+            {
+              "id": 1401499,
+              "name": "上田 智輝",
+              "number": "1"
+            },
+            {
+              "id": 1630185,
+              "name": "上原 牧人",
+              "number": "66"
+            },
+            {
+              "id": 1618093,
+              "name": "藤谷 匠",
+              "number": "17"
+            },
+            {
+              "id": 1643995,
+              "name": "土屋 櫂大",
+              "number": "29"
+            },
+            {
+              "id": 1624411,
+              "name": "安在 達弥",
+              "number": "23"
+            },
+            {
+              "id": 1607141,
+              "name": "針谷 岳晃",
+              "number": "10"
+            },
+            {
+              "id": 1641376,
+              "name": "狩野 海晟",
+              "number": "30"
+            },
+            {
+              "id": 1655876,
+              "name": "樋口 有斗",
+              "number": "13"
+            },
+            {
+              "id": 1637254,
+              "name": "中村 翼",
+              "number": "14"
+            },
+            {
+              "id": 1604675,
+              "name": "奥田 晃也",
+              "number": "44"
+            },
+            {
+              "id": 1626004,
+              "name": "清水 一雅",
+              "number": "9"
+            }
+          ],
+          "bench": [
+            {
+              "id": "605028",
+              "name": "チョン ソンリョン",
+              "number": "78",
+              "position": "GK"
+            },
+            {
+              "id": "1618635",
+              "name": "鈴 直樹",
+              "number": "28",
+              "position": "DF"
+            },
+            {
+              "id": "1644488",
+              "name": "芦部 晃生",
+              "number": "7",
+              "position": "MF"
+            },
+            {
+              "id": "1621198",
+              "name": "岡田 優希",
+              "number": "8",
+              "position": "MF"
+            },
+            {
+              "id": "1631762",
+              "name": "泉 彩稀",
+              "number": "20",
+              "position": "MF"
+            },
+            {
+              "id": "1636247",
+              "name": "吉田 陣平",
+              "number": "96",
+              "position": "MF"
+            },
+            {
+              "id": "291",
+              "name": "三浦 知良",
+              "number": "11",
+              "position": "FW"
+            },
+            {
+              "id": "1100188",
+              "name": "樋口 寛規",
+              "number": "40",
+              "position": "FW"
+            }
+          ]
+        }
+      }
+    },
+    "2492526": {
+      "code": "110326",
+      "url": "https://www.jleague.jp/match/j3/2026/110326/livetxt/",
+      "fetchedAtJst": "2026-11-05T00:35:02+09:00",
+      "goals": [
+        {
+          "minute": "64",
+          "club": "カマタマーレ讃岐",
+          "player": "河上 将平",
+          "position": "MF 33",
+          "scoreAfter": "1-0",
+          "idTeam": "141250",
+          "playerId": "1629451"
+        }
+      ],
+      "cards": [],
+      "subs": [
+        {
+          "minute": null,
+          "club": "カマタマーレ讃岐",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 30",
+              "name": "岡 英輝",
+              "playerId": "1632991"
+            },
+            {
+              "variant": "out",
+              "position": "MF 33",
+              "name": "河上 将平",
+              "playerId": "1629451"
+            }
+          ],
+          "idTeam": "141250"
+        },
+        {
+          "minute": null,
+          "club": "カマタマーレ讃岐",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 60",
+              "name": "森川 裕基",
+              "playerId": "1500509"
+            },
+            {
+              "variant": "out",
+              "position": "MF 86",
+              "name": "淺田 彗潤",
+              "playerId": "1647386"
+            }
+          ],
+          "idTeam": "141250"
+        },
+        {
+          "minute": "78",
+          "club": "松本山雅ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 19",
+              "name": "田中 想来",
+              "playerId": "1638472"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "澤崎 凌大",
+              "playerId": "1645933"
+            }
+          ],
+          "idTeam": "139890"
+        },
+        {
+          "minute": "78",
+          "club": "松本山雅ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 46",
+              "name": "安永 玲央",
+              "playerId": "1618853"
+            },
+            {
+              "variant": "out",
+              "position": "MF 13",
+              "name": "村上 陽斗",
+              "playerId": "1650540"
+            }
+          ],
+          "idTeam": "139890"
+        },
+        {
+          "minute": "69",
+          "club": "松本山雅ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "ウェリントン",
+              "playerId": "1300881"
+            },
+            {
+              "variant": "out",
+              "position": "FW 38",
+              "name": "藤枝 康佑",
+              "playerId": "1652655"
+            }
+          ],
+          "idTeam": "139890"
+        },
+        {
+          "minute": "69",
+          "club": "松本山雅ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 22",
+              "name": "佐相 壱明",
+              "playerId": "1617892"
+            },
+            {
+              "variant": "out",
+              "position": "DF 30",
+              "name": "北爪 健吾",
+              "playerId": "1400640"
+            }
+          ],
+          "idTeam": "139890"
+        },
+        {
+          "minute": "69",
+          "club": "松本山雅ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 39",
+              "name": "井上 愛簾",
+              "playerId": "1644965"
+            },
+            {
+              "variant": "out",
+              "position": "MF 11",
+              "name": "金子 翔太",
+              "playerId": "1300848"
+            }
+          ],
+          "idTeam": "139890"
+        },
+        {
+          "minute": "61",
+          "club": "カマタマーレ讃岐",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 16",
+              "name": "有田 朱里",
+              "playerId": "1607147"
+            },
+            {
+              "variant": "out",
+              "position": "MF 17",
+              "name": "牧山 晃政",
+              "playerId": "1635505"
+            }
+          ],
+          "idTeam": "141250"
+        },
+        {
+          "minute": "58",
+          "club": "カマタマーレ讃岐",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 10",
+              "name": "後藤 優介",
+              "playerId": "1200049"
+            },
+            {
+              "variant": "out",
+              "position": "FW 77",
+              "name": "村上 悠緋",
+              "playerId": "1635015"
+            }
+          ],
+          "idTeam": "141250"
+        },
+        {
+          "minute": "58",
+          "club": "カマタマーレ讃岐",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 24",
+              "name": "上野 輝人",
+              "playerId": "1640672"
+            },
+            {
+              "variant": "out",
+              "position": "FW 99",
+              "name": "米澤 令衣",
+              "playerId": "1400732"
+            }
+          ],
+          "idTeam": "141250"
+        }
+      ],
+      "highlightVideoId": null,
+      "daznVideoId": "4nWTiTEOVOk",
+      "daznSearchAttempts": 1,
+      "daznLastSearchedAtJst": "2026-11-05T00:35:02+09:00",
+      "lineups": {
+        "home": {
+          "idTeam": "141250",
+          "formation": "3-1-4-2",
+          "players": [
+            {
+              "id": 1601777,
+              "name": "青木 心",
+              "number": "55"
+            },
+            {
+              "id": 1624850,
+              "name": "林田 魁斗",
+              "number": "44"
+            },
+            {
+              "id": 1634115,
+              "name": "波本 頼",
+              "number": "34"
+            },
+            {
+              "id": 1655866,
+              "name": "宮﨑",
+              "number": "6"
+            },
+            {
+              "id": 1645977,
+              "name": "左合 修土",
+              "number": "35"
+            },
+            {
+              "id": 1650523,
+              "name": "石倉 潤征",
+              "number": "14"
+            },
+            {
+              "id": 1647386,
+              "name": "淺田 彗潤",
+              "number": "86"
+            },
+            {
+              "id": 1635505,
+              "name": "牧山 晃政",
+              "number": "17"
+            },
+            {
+              "id": 1629451,
+              "name": "河上 将平",
+              "number": "33"
+            },
+            {
+              "id": 1400732,
+              "name": "米澤 令衣",
+              "number": "99"
+            },
+            {
+              "id": 1635015,
+              "name": "村上 悠緋",
+              "number": "77"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1636376",
+              "name": "今村 勇介",
+              "number": "1",
+              "position": "GK"
+            },
+            {
+              "id": "1635317",
+              "name": "田尾 佳祐",
+              "number": "29",
+              "position": "DF"
+            },
+            {
+              "id": "1604116",
+              "name": "禹 相皓",
+              "number": "66",
+              "position": "MF"
+            },
+            {
+              "id": "1632991",
+              "name": "岡 英輝",
+              "number": "30",
+              "position": "DF"
+            },
+            {
+              "id": "1635455",
+              "name": "高嶋 修也",
+              "number": "40",
+              "position": "DF"
+            },
+            {
+              "id": "1607147",
+              "name": "有田 朱里",
+              "number": "16",
+              "position": "MF"
+            },
+            {
+              "id": "1500509",
+              "name": "森川 裕基",
+              "number": "60",
+              "position": "MF"
+            },
+            {
+              "id": "1200049",
+              "name": "後藤 優介",
+              "number": "10",
+              "position": "FW"
+            },
+            {
+              "id": "1657467",
+              "name": "カン ドンウォン",
+              "number": "19",
+              "position": "FW"
+            },
+            {
+              "id": "1640672",
+              "name": "上野 輝人",
+              "number": "24",
+              "position": "FW"
+            }
+          ]
+        },
+        "away": {
+          "idTeam": "139890",
+          "formation": "3-1-4-2",
+          "players": [
+            {
+              "id": 1635387,
+              "name": "高麗 稜太",
+              "number": "23"
+            },
+            {
+              "id": 1629501,
+              "name": "白井 達也",
+              "number": "5"
+            },
+            {
+              "id": 1653310,
+              "name": "金子 光汰",
+              "number": "43"
+            },
+            {
+              "id": 1401518,
+              "name": "野田 裕喜",
+              "number": "6"
+            },
+            {
+              "id": 1400640,
+              "name": "北爪 健吾",
+              "number": "30"
+            },
+            {
+              "id": 1635562,
+              "name": "川上 航立",
+              "number": "48"
+            },
+            {
+              "id": 1642053,
+              "name": "樋口 大輝",
+              "number": "40"
+            },
+            {
+              "id": 1645933,
+              "name": "澤崎 凌大",
+              "number": "8"
+            },
+            {
+              "id": 1650540,
+              "name": "村上 陽斗",
+              "number": "13"
+            },
+            {
+              "id": 1300848,
+              "name": "金子 翔太",
+              "number": "11"
+            },
+            {
+              "id": 1652655,
+              "name": "藤枝 康佑",
+              "number": "38"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1636506",
+              "name": "小林 将天",
+              "number": "31",
+              "position": "GK"
+            },
+            {
+              "id": "1617892",
+              "name": "佐相 壱明",
+              "number": "22",
+              "position": "MF"
+            },
+            {
+              "id": "1647704",
+              "name": "松村 厳",
+              "number": "36",
+              "position": "MF"
+            },
+            {
+              "id": "1618853",
+              "name": "安永 玲央",
+              "number": "46",
+              "position": "MF"
+            },
+            {
+              "id": "1300881",
+              "name": "ウェリントン",
+              "number": "9",
+              "position": "FW"
+            },
+            {
+              "id": "1604181",
+              "name": "佐藤 亮",
+              "number": "18",
+              "position": "FW"
+            },
+            {
+              "id": "1638472",
+              "name": "田中 想来",
+              "number": "19",
+              "position": "FW"
+            },
+            {
+              "id": "1644965",
+              "name": "井上 愛簾",
+              "number": "39",
+              "position": "FW"
+            }
+          ]
+        }
+      }
+    },
+    "2492527": {
+      "code": "110323",
+      "url": "https://www.jleague.jp/match/j3/2026/110323/livetxt/",
+      "fetchedAtJst": "2026-11-05T00:35:13+09:00",
+      "goals": [
+        {
+          "minute": "11",
+          "club": "レイラック滋賀ＦＣ",
+          "player": "坂元 一渚璃",
+          "position": "FW 9",
+          "scoreAfter": "0-1",
+          "idTeam": "150625",
+          "playerId": "1640627"
+        }
+      ],
+      "cards": [
+        {
+          "minute": null,
+          "type": "yellow",
+          "player": "高 昇辰",
+          "position": "FW 11",
+          "club": "ギラヴァンツ北九州",
+          "idTeam": "139885",
+          "playerId": "1640635"
+        },
+        {
+          "minute": "87",
+          "type": "yellow",
+          "player": "谷田 壮志朗",
+          "position": "DF 48",
+          "club": "レイラック滋賀ＦＣ",
+          "idTeam": "150625",
+          "playerId": "1639136"
+        },
+        {
+          "minute": "64",
+          "type": "yellow",
+          "player": "ワッド モハメッドサディキ",
+          "position": "FW 15",
+          "club": "ギラヴァンツ北九州",
+          "idTeam": "139885",
+          "playerId": "1644758"
+        },
+        {
+          "minute": "54",
+          "type": "yellow",
+          "player": "海口 彦太",
+          "position": "MF 32",
+          "club": "レイラック滋賀ＦＣ",
+          "idTeam": "150625",
+          "playerId": "1627399"
+        }
+      ],
+      "subs": [
+        {
+          "minute": "81",
+          "club": "レイラック滋賀ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 66",
+              "name": "松原 海斗",
+              "playerId": "1651528"
+            },
+            {
+              "variant": "out",
+              "position": "FW 77",
+              "name": "北條 真汰",
+              "playerId": "1654346"
+            }
+          ],
+          "idTeam": "150625"
+        },
+        {
+          "minute": "75",
+          "club": "ギラヴァンツ北九州",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 7",
+              "name": "平原 隆暉",
+              "playerId": "1636268"
+            },
+            {
+              "variant": "out",
+              "position": "DF 30",
+              "name": "福森 健太",
+              "playerId": "1604082"
+            }
+          ],
+          "idTeam": "139885"
+        },
+        {
+          "minute": "75",
+          "club": "ギラヴァンツ北九州",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 10",
+              "name": "永井 龍",
+              "playerId": "1000051"
+            },
+            {
+              "variant": "out",
+              "position": "MF 17",
+              "name": "岡野 凜平",
+              "playerId": "1640641"
+            }
+          ],
+          "idTeam": "139885"
+        },
+        {
+          "minute": "71",
+          "club": "レイラック滋賀ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 2",
+              "name": "平井 駿助",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "DF 5",
+              "name": "西山 大雅",
+              "playerId": "1605605"
+            }
+          ],
+          "idTeam": "150625"
+        },
+        {
+          "minute": "71",
+          "club": "レイラック滋賀ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 24",
+              "name": "ロメロ フランク",
+              "playerId": "800936"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "久保 瑛史",
+              "playerId": "1653084"
+            }
+          ],
+          "idTeam": "150625"
+        },
+        {
+          "minute": "61",
+          "club": "ギラヴァンツ北九州",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 19",
+              "name": "吉原 楓人",
+              "playerId": "1643446"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "吉長 真優",
+              "playerId": "1629476"
+            }
+          ],
+          "idTeam": "139885"
+        },
+        {
+          "minute": "61",
+          "club": "レイラック滋賀ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 23",
+              "name": "竜田 柊士",
+              "playerId": "1654344"
+            },
+            {
+              "variant": "out",
+              "position": "MF 16",
+              "name": "鈴木 翔太",
+              "playerId": "1654341"
+            }
+          ],
+          "idTeam": "150625"
+        },
+        {
+          "minute": "61",
+          "club": "レイラック滋賀ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 15",
+              "name": "菊島 卓",
+              "playerId": "1630103"
+            },
+            {
+              "variant": "out",
+              "position": "FW 29",
+              "name": "日野 友貴",
+              "playerId": "1630015"
+            }
+          ],
+          "idTeam": "150625"
+        },
+        {
+          "minute": "45",
+          "club": "ギラヴァンツ北九州",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 16",
+              "name": "丸山 壮大",
+              "playerId": "1636283"
+            },
+            {
+              "variant": "out",
+              "position": "DF 20",
+              "name": "安光 将作",
+              "playerId": "1635442"
+            }
+          ],
+          "idTeam": "139885"
+        },
+        {
+          "minute": "45",
+          "club": "ギラヴァンツ北九州",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 15",
+              "name": "ワッド モハメッドサディキ",
+              "playerId": "1644758"
+            },
+            {
+              "variant": "out",
+              "position": "FW 37",
+              "name": "吉田 晃盛",
+              "playerId": "1651451"
+            }
+          ],
+          "idTeam": "139885"
+        }
+      ],
+      "highlightVideoId": null,
+      "daznVideoId": null,
+      "daznSearchAttempts": 1,
+      "daznLastSearchedAtJst": "2026-11-05T00:35:13+09:00",
+      "lineups": {
+        "home": {
+          "idTeam": "139885",
+          "formation": "4-4-2",
+          "players": [
+            {
+              "id": 600708,
+              "name": "大谷 幸輝",
+              "number": "31"
+            },
+            {
+              "id": 1604082,
+              "name": "福森 健太",
+              "number": "30"
+            },
+            {
+              "id": 1647349,
+              "name": "横窪 皇太",
+              "number": "28"
+            },
+            {
+              "id": 1609242,
+              "name": "長谷川",
+              "number": "4"
+            },
+            {
+              "id": 1635442,
+              "name": "安光 将作",
+              "number": "20"
+            },
+            {
+              "id": 1617963,
+              "name": "髙橋 大悟",
+              "number": "66"
+            },
+            {
+              "id": 1630161,
+              "name": "平松 昇",
+              "number": "18"
+            },
+            {
+              "id": 1640641,
+              "name": "岡野 凜平",
+              "number": "17"
+            },
+            {
+              "id": 1629476,
+              "name": "吉長 真優",
+              "number": "8"
+            },
+            {
+              "id": 1640635,
+              "name": "高 昇辰",
+              "number": "11"
+            },
+            {
+              "id": 1651451,
+              "name": "吉田 晃盛",
+              "number": "37"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1624680",
+              "name": "杉本 光希",
+              "number": "41",
+              "position": "GK"
+            },
+            {
+              "id": "1631671",
+              "name": "奈良坂 巧",
+              "number": "5",
+              "position": "DF"
+            },
+            {
+              "id": "1617895",
+              "name": "生駒 仁",
+              "number": "22",
+              "position": "DF"
+            },
+            {
+              "id": "1636268",
+              "name": "平原 隆暉",
+              "number": "7",
+              "position": "MF"
+            },
+            {
+              "id": "1636283",
+              "name": "丸山 壮大",
+              "number": "16",
+              "position": "MF"
+            },
+            {
+              "id": "1643446",
+              "name": "吉原 楓人",
+              "number": "19",
+              "position": "MF"
+            },
+            {
+              "id": "1652498",
+              "name": "坂下 湧太郎",
+              "number": "51",
+              "position": "MF"
+            },
+            {
+              "id": "1000051",
+              "name": "永井 龍",
+              "number": "10",
+              "position": "FW"
+            },
+            {
+              "id": "1644758",
+              "name": "ワッド モハメッドサディキ",
+              "number": "15",
+              "position": "FW"
+            }
+          ]
+        },
+        "away": {
+          "idTeam": "150625",
+          "formation": "3-1-4-2",
+          "players": [
+            {
+              "id": 1627355,
+              "name": "伊東 倖希",
+              "number": "1"
+            },
+            {
+              "id": 1654345,
+              "name": "角田 駿",
+              "number": "26"
+            },
+            {
+              "id": 1639136,
+              "name": "谷田 壮志朗",
+              "number": "48"
+            },
+            {
+              "id": 1605605,
+              "name": "西山 大雅",
+              "number": "5"
+            },
+            {
+              "id": 1612697,
+              "name": "前川 智敬",
+              "number": "36"
+            },
+            {
+              "id": 1654341,
+              "name": "鈴木 翔太",
+              "number": "16"
+            },
+            {
+              "id": 1627399,
+              "name": "海口 彦太",
+              "number": "32"
+            },
+            {
+              "id": 1653084,
+              "name": "久保 瑛史",
+              "number": "7"
+            },
+            {
+              "id": 1654346,
+              "name": "北條 真汰",
+              "number": "77"
+            },
+            {
+              "id": 1640627,
+              "name": "坂元 一渚璃",
+              "number": "9"
+            },
+            {
+              "id": 1630015,
+              "name": "日野 友貴",
+              "number": "29"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1647176",
+              "name": "本吉 勇貴",
+              "number": "41",
+              "position": "GK"
+            },
+            {
+              "id": "1627353",
+              "name": "井出 敬大",
+              "number": "4",
+              "position": "DF"
+            },
+            {
+              "id": "1400733",
+              "name": "藤谷 壮",
+              "number": "44",
+              "position": "DF"
+            },
+            {
+              "id": "1654344",
+              "name": "竜田 柊士",
+              "number": "23",
+              "position": "MF"
+            },
+            {
+              "id": "800936",
+              "name": "ロメロ フランク",
+              "number": "24",
+              "position": "MF"
+            },
+            {
+              "id": "1651528",
+              "name": "松原 海斗",
+              "number": "66",
+              "position": "MF"
+            },
+            {
+              "id": "1630103",
+              "name": "菊島 卓",
+              "number": "15",
+              "position": "FW"
+            },
+            {
+              "id": "1632790",
+              "name": "奥田 陽琉",
+              "number": "99",
+              "position": "FW"
+            }
+          ]
+        }
+      }
+    },
+    "2492529": {
+      "code": "110320",
+      "url": "https://www.jleague.jp/match/j3/2026/110320/livetxt/",
+      "fetchedAtJst": "2026-11-05T00:35:23+09:00",
+      "goals": [
+        {
+          "minute": "73",
+          "club": "ＳＣ相模原",
+          "player": "半代 将都",
+          "position": "FW 34",
+          "scoreAfter": "0-1",
+          "idTeam": "140510",
+          "playerId": "1628702"
+        }
+      ],
+      "cards": [],
+      "subs": [
+        {
+          "minute": null,
+          "club": "ＳＣ相模原",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 22",
+              "name": "奥山 洋平",
+              "playerId": "1636495"
+            },
+            {
+              "variant": "out",
+              "position": "FW 7",
+              "name": "棚橋 尭士",
+              "playerId": "1604180"
+            }
+          ],
+          "idTeam": "140510"
+        },
+        {
+          "minute": null,
+          "club": "ＳＣ相模原",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 3",
+              "name": "ピトリック",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "FW 34",
+              "name": "半代 将都",
+              "playerId": "1628702"
+            }
+          ],
+          "idTeam": "140510"
+        },
+        {
+          "minute": "82",
+          "club": "ガイナーレ鳥取",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 10",
+              "name": "三木 直土",
+              "playerId": "1624678"
+            },
+            {
+              "variant": "out",
+              "position": "MF 29",
+              "name": "小西 陽向",
+              "playerId": "1629503"
+            }
+          ],
+          "idTeam": "141247"
+        },
+        {
+          "minute": "76",
+          "club": "ガイナーレ鳥取",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 7",
+              "name": "荒井 涼",
+              "playerId": "1641671"
+            },
+            {
+              "variant": "out",
+              "position": "DF 32",
+              "name": "ムン ミン",
+              "playerId": "1655801"
+            }
+          ],
+          "idTeam": "141247"
+        },
+        {
+          "minute": "76",
+          "club": "ＳＣ相模原",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 11",
+              "name": "武藤 雄樹",
+              "playerId": "800932"
+            },
+            {
+              "variant": "out",
+              "position": "MF 6",
+              "name": "徳永 裕大",
+              "playerId": "1200333"
+            }
+          ],
+          "idTeam": "140510"
+        },
+        {
+          "minute": "71",
+          "club": "ガイナーレ鳥取",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 22",
+              "name": "吉田 伊吹",
+              "playerId": "1627749"
+            },
+            {
+              "variant": "out",
+              "position": "FW 24",
+              "name": "星 景虎",
+              "playerId": "1641573"
+            }
+          ],
+          "idTeam": "141247"
+        },
+        {
+          "minute": "71",
+          "club": "ガイナーレ鳥取",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 2",
+              "name": "藤田 一途",
+              "playerId": "1607215"
+            },
+            {
+              "variant": "out",
+              "position": "MF 27",
+              "name": "本保 奏希",
+              "playerId": "1637127"
+            }
+          ],
+          "idTeam": "141247"
+        },
+        {
+          "minute": "62",
+          "club": "ＳＣ相模原",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "佐々木 快",
+              "playerId": "1632240"
+            },
+            {
+              "variant": "out",
+              "position": "MF 15",
+              "name": "前田 泰良",
+              "playerId": "1637081"
+            }
+          ],
+          "idTeam": "140510"
+        }
+      ],
+      "highlightVideoId": null,
+      "daznVideoId": null,
+      "daznSearchAttempts": 1,
+      "daznLastSearchedAtJst": "2026-11-05T00:35:23+09:00",
+      "lineups": {
+        "home": {
+          "idTeam": "141247",
+          "formation": "3-1-4-2",
+          "players": [
+            {
+              "id": 1653071,
+              "name": "桃井 玲",
+              "number": "47"
+            },
+            {
+              "id": 1653468,
+              "name": "ローレンス マルコ",
+              "number": "20"
+            },
+            {
+              "id": 1637145,
+              "name": "ヴァンイヤーデン",
+              "number": "3"
+            },
+            {
+              "id": 1640665,
+              "name": "大嶋 春樹",
+              "number": "55"
+            },
+            {
+              "id": 1655801,
+              "name": "ムン ミン",
+              "number": "32"
+            },
+            {
+              "id": 1636981,
+              "name": "木内 達也",
+              "number": "15"
+            },
+            {
+              "id": 1640626,
+              "name": "河村 匠",
+              "number": "14"
+            },
+            {
+              "id": 1637127,
+              "name": "本保 奏希",
+              "number": "27"
+            },
+            {
+              "id": 1651530,
+              "name": "篠田 大輝",
+              "number": "9"
+            },
+            {
+              "id": 1629503,
+              "name": "小西 陽向",
+              "number": "29"
+            },
+            {
+              "id": 1641573,
+              "name": "星 景虎",
+              "number": "24"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1632427",
+              "name": "バーンズ アントン",
+              "number": "88",
+              "position": "GK"
+            },
+            {
+              "id": "1640664",
+              "name": "二階堂 正哉",
+              "number": "4",
+              "position": "DF"
+            },
+            {
+              "id": "1641671",
+              "name": "荒井 涼",
+              "number": "7",
+              "position": "DF"
+            },
+            {
+              "id": "1607215",
+              "name": "藤田 一途",
+              "number": "2",
+              "position": "MF"
+            },
+            {
+              "id": "1637092",
+              "name": "清水 祐輔",
+              "number": "13",
+              "position": "MF"
+            },
+            {
+              "id": "1644024",
+              "name": "田制 裕作",
+              "number": "16",
+              "position": "MF"
+            },
+            {
+              "id": "1635529",
+              "name": "金浦 真樹",
+              "number": "42",
+              "position": "MF"
+            },
+            {
+              "id": "1624678",
+              "name": "三木 直土",
+              "number": "10",
+              "position": "FW"
+            },
+            {
+              "id": "1627749",
+              "name": "吉田 伊吹",
+              "number": "22",
+              "position": "FW"
+            }
+          ]
+        },
+        "away": {
+          "idTeam": "140510",
+          "formation": "4-2-3-1",
+          "players": [
+            {
+              "id": 1624341,
+              "name": "金 珉浩",
+              "number": "21"
+            },
+            {
+              "id": 1632760,
+              "name": "沖田 空",
+              "number": "19"
+            },
+            {
+              "id": 1648385,
+              "name": "山内 琳太郎",
+              "number": "5"
+            },
+            {
+              "id": 1600128,
+              "name": "常田 克人",
+              "number": "13"
+            },
+            {
+              "id": 1629994,
+              "name": "綿引 康",
+              "number": "2"
+            },
+            {
+              "id": 1632759,
+              "name": "竹内 崇人",
+              "number": "17"
+            },
+            {
+              "id": 1200333,
+              "name": "徳永 裕大",
+              "number": "6"
+            },
+            {
+              "id": 1620698,
+              "name": "中山 陸",
+              "number": "10"
+            },
+            {
+              "id": 1637081,
+              "name": "前田 泰良",
+              "number": "15"
+            },
+            {
+              "id": 1604180,
+              "name": "棚橋 尭士",
+              "number": "7"
+            },
+            {
+              "id": 1628702,
+              "name": "半代 将都",
+              "number": "34"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1624385",
+              "name": "三浦 基瑛",
+              "number": "1",
+              "position": "GK"
+            },
+            {
+              "id": "1636282",
+              "name": "加藤 慎太郎",
+              "number": "16",
+              "position": "DF"
+            },
+            {
+              "id": "1644492",
+              "name": "佐藤 颯真",
+              "number": "26",
+              "position": "DF"
+            },
+            {
+              "id": "900039",
+              "name": "島川 俊郎",
+              "number": "4",
+              "position": "MF"
+            },
+            {
+              "id": "1636968",
+              "name": "川畑 優翔",
+              "number": "20",
+              "position": "MF"
+            },
+            {
+              "id": "1636495",
+              "name": "奥山 洋平",
+              "number": "22",
+              "position": "MF"
+            },
+            {
+              "id": "1632240",
+              "name": "佐々木 快",
+              "number": "9",
+              "position": "FW"
+            },
+            {
+              "id": "800932",
+              "name": "武藤 雄樹",
+              "number": "11",
+              "position": "FW"
+            }
+          ]
+        }
+      }
+    },
+    "2492530": {
+      "code": "110322",
+      "url": "https://www.jleague.jp/match/j3/2026/110322/livetxt/",
+      "fetchedAtJst": "2026-11-05T00:35:33+09:00",
+      "goals": [
+        {
+          "minute": "63",
+          "club": "高知ユナイテッドＳＣ",
+          "player": "七牟禮 蒼杜",
+          "position": "FW 28",
+          "scoreAfter": "4-0",
+          "idTeam": "150223",
+          "playerId": "1615895"
+        },
+        {
+          "minute": "22",
+          "club": "高知ユナイテッドＳＣ",
+          "player": "七牟禮 蒼杜",
+          "position": "FW 28",
+          "scoreAfter": "1-0",
+          "idTeam": "150223",
+          "playerId": "1615895"
+        },
+        {
+          "minute": "58",
+          "club": "高知ユナイテッドＳＣ",
+          "player": "杉山 伶央",
+          "position": "FW 20",
+          "scoreAfter": "3-0",
+          "idTeam": "150223",
+          "playerId": "1636325"
+        },
+        {
+          "minute": "51",
+          "club": "高知ユナイテッドＳＣ",
+          "player": "田中 稔也",
+          "position": "MF 73",
+          "scoreAfter": "2-0",
+          "idTeam": "150223",
+          "playerId": "1400360"
+        }
+      ],
+      "cards": [
+        {
+          "minute": "20",
+          "type": "yellow",
+          "player": "白坂 楓馬",
+          "position": "GK 56",
+          "club": "愛媛ＦＣ",
+          "idTeam": "139883",
+          "playerId": "1626032"
+        }
+      ],
+      "subs": [
+        {
+          "minute": "83",
+          "club": "高知ユナイテッドＳＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 77",
+              "name": "佐藤 丈晟",
+              "playerId": "1635203"
+            },
+            {
+              "variant": "out",
+              "position": "MF 16",
+              "name": "上月 翔聖",
+              "playerId": "1640608"
+            }
+          ],
+          "idTeam": "150223"
+        },
+        {
+          "minute": "83",
+          "club": "高知ユナイテッドＳＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 14",
+              "name": "関野 元弥",
+              "playerId": "1625634"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "高野 裕維",
+              "playerId": "1647557"
+            }
+          ],
+          "idTeam": "150223"
+        },
+        {
+          "minute": "79",
+          "club": "高知ユナイテッドＳＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 7",
+              "name": "金原 朝陽",
+              "playerId": "1627826"
+            },
+            {
+              "variant": "out",
+              "position": "FW 20",
+              "name": "杉山 伶央",
+              "playerId": "1636325"
+            }
+          ],
+          "idTeam": "150223"
+        },
+        {
+          "minute": "74",
+          "club": "愛媛ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 28",
+              "name": "小酒井 新大",
+              "playerId": "1644486"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "上村 周平",
+              "playerId": "1300451"
+            }
+          ],
+          "idTeam": "139883"
+        },
+        {
+          "minute": "66",
+          "club": "高知ユナイテッドＳＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 19",
+              "name": "オリグバッジョ イスマイラ",
+              "playerId": "1625673"
+            },
+            {
+              "variant": "out",
+              "position": "FW 28",
+              "name": "七牟禮 蒼杜",
+              "playerId": "1615895"
+            }
+          ],
+          "idTeam": "150223"
+        },
+        {
+          "minute": "66",
+          "club": "高知ユナイテッドＳＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 11",
+              "name": "三好 麟大",
+              "playerId": "1624265"
+            },
+            {
+              "variant": "out",
+              "position": "MF 73",
+              "name": "田中 稔也",
+              "playerId": "1400360"
+            }
+          ],
+          "idTeam": "150223"
+        },
+        {
+          "minute": "61",
+          "club": "愛媛ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 44",
+              "name": "林 誠道",
+              "playerId": "1500500"
+            },
+            {
+              "variant": "out",
+              "position": "FW 17",
+              "name": "田村 翔太",
+              "playerId": "1300064"
+            }
+          ],
+          "idTeam": "139883"
+        },
+        {
+          "minute": "45",
+          "club": "愛媛ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 5",
+              "name": "黒石 貴哉",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "MF 6",
+              "name": "谷岡 昌",
+              "playerId": "1642624"
+            }
+          ],
+          "idTeam": "139883"
+        },
+        {
+          "minute": "45",
+          "club": "愛媛ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 48",
+              "name": "行友 翔哉",
+              "playerId": "1636795"
+            },
+            {
+              "variant": "out",
+              "position": "DF 3",
+              "name": "福島 隼斗",
+              "playerId": "1624300"
+            }
+          ],
+          "idTeam": "139883"
+        },
+        {
+          "minute": "45",
+          "club": "愛媛ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 27",
+              "name": "舩橋 京汰",
+              "playerId": "1641393"
+            },
+            {
+              "variant": "out",
+              "position": "MF 22",
+              "name": "竹本 雄飛",
+              "playerId": "1629413"
+            }
+          ],
+          "idTeam": "139883"
+        }
+      ],
+      "highlightVideoId": null,
+      "daznVideoId": "omv1CFnbwRY",
+      "daznSearchAttempts": 1,
+      "daznLastSearchedAtJst": "2026-11-05T00:35:33+09:00",
+      "lineups": {
+        "home": {
+          "idTeam": "150223",
+          "formation": "3-4-2-1",
+          "players": [
+            {
+              "id": 1655806,
+              "name": "村田 侑大",
+              "number": "99"
+            },
+            {
+              "id": 1641596,
+              "name": "松本 大地",
+              "number": "23"
+            },
+            {
+              "id": 1632370,
+              "name": "小林",
+              "number": "4"
+            },
+            {
+              "id": 1647186,
+              "name": "藤森 隆汰",
+              "number": "22"
+            },
+            {
+              "id": 1640608,
+              "name": "上月 翔聖",
+              "number": "16"
+            },
+            {
+              "id": 1647557,
+              "name": "高野 裕維",
+              "number": "8"
+            },
+            {
+              "id": 1639209,
+              "name": "下田 栄祐",
+              "number": "44"
+            },
+            {
+              "id": 1646921,
+              "name": "長 疾風",
+              "number": "33"
+            },
+            {
+              "id": 1636325,
+              "name": "杉山 伶央",
+              "number": "20"
+            },
+            {
+              "id": 1400360,
+              "name": "田中 稔也",
+              "number": "73"
+            },
+            {
+              "id": 1615895,
+              "name": "七牟禮 蒼杜",
+              "number": "28"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1647059",
+              "name": "大野 来生",
+              "number": "1",
+              "position": "GK"
+            },
+            {
+              "id": "1651557",
+              "name": "坂本 光",
+              "number": "15",
+              "position": "DF"
+            },
+            {
+              "id": "1627826",
+              "name": "金原 朝陽",
+              "number": "7",
+              "position": "MF"
+            },
+            {
+              "id": "1624265",
+              "name": "三好 麟大",
+              "number": "11",
+              "position": "MF"
+            },
+            {
+              "id": "1625634",
+              "name": "関野 元弥",
+              "number": "14",
+              "position": "MF"
+            },
+            {
+              "id": "1618767",
+              "name": "工藤 真人",
+              "number": "31",
+              "position": "MF"
+            },
+            {
+              "id": "1635203",
+              "name": "佐藤 丈晟",
+              "number": "77",
+              "position": "MF"
+            },
+            {
+              "id": "1400651",
+              "name": "河田 篤秀",
+              "number": "13",
+              "position": "FW"
+            },
+            {
+              "id": "1625673",
+              "name": "オリグバッジョ イスマイラ",
+              "number": "19",
+              "position": "FW"
+            }
+          ]
+        },
+        "away": {
+          "idTeam": "139883",
+          "formation": "3-4-1-2",
+          "players": [
+            {
+              "id": 1626032,
+              "name": "白坂 楓馬",
+              "number": "56"
+            },
+            {
+              "id": 1642624,
+              "name": "谷岡 昌",
+              "number": "6"
+            },
+            {
+              "id": 1636293,
+              "name": "杉山 耕二",
+              "number": "50"
+            },
+            {
+              "id": 1615268,
+              "name": "細谷 航平",
+              "number": "16"
+            },
+            {
+              "id": 1624300,
+              "name": "福島 隼斗",
+              "number": "3"
+            },
+            {
+              "id": 1300451,
+              "name": "上村 周平",
+              "number": "8"
+            },
+            {
+              "id": 1632787,
+              "name": "柴田 徹",
+              "number": "18"
+            },
+            {
+              "id": 1400297,
+              "name": "宮本 航汰",
+              "number": "23"
+            },
+            {
+              "id": 1635402,
+              "name": "日野 翔太",
+              "number": "38"
+            },
+            {
+              "id": 1629413,
+              "name": "竹本 雄飛",
+              "number": "22"
+            },
+            {
+              "id": 1300064,
+              "name": "田村 翔太",
+              "number": "17"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1636793",
+              "name": "牧口 一真",
+              "number": "45",
+              "position": "GK"
+            },
+            {
+              "id": "1632789",
+              "name": "山下 雄大",
+              "number": "13",
+              "position": "MF"
+            },
+            {
+              "id": "1644486",
+              "name": "小酒井 新大",
+              "number": "28",
+              "position": "MF"
+            },
+            {
+              "id": "1647287",
+              "name": "武藤 寛",
+              "number": "39",
+              "position": "MF"
+            },
+            {
+              "id": "1636795",
+              "name": "行友 翔哉",
+              "number": "48",
+              "position": "MF"
+            },
+            {
+              "id": "1641393",
+              "name": "舩橋 京汰",
+              "number": "27",
+              "position": "FW"
+            },
+            {
+              "id": "1500500",
+              "name": "林 誠道",
+              "number": "44",
+              "position": "FW"
+            },
+            {
+              "id": "1630132",
+              "name": "樺山 諒乃介",
+              "number": "99",
+              "position": "FW"
+            }
+          ]
+        }
+      }
+    },
+    "2492531": {
+      "code": "110319",
+      "url": "https://www.jleague.jp/match/j3/2026/110319/livetxt/",
+      "fetchedAtJst": "2026-11-05T00:35:43+09:00",
+      "goals": [
+        {
+          "minute": "54",
+          "club": "奈良クラブ",
+          "player": "安藤 陸登",
+          "position": "MF 13",
+          "scoreAfter": "3-0",
+          "idTeam": "147069",
+          "playerId": "1650518"
+        },
+        {
+          "minute": "41",
+          "club": "奈良クラブ",
+          "player": "川﨑 修平",
+          "position": "FW 54",
+          "scoreAfter": "2-0",
+          "idTeam": "147069",
+          "playerId": "1626011"
+        }
+      ],
+      "cards": [
+        {
+          "minute": "63",
+          "type": "yellow",
+          "player": "相馬 丞",
+          "position": "DF 52",
+          "club": "ザスパ群馬",
+          "idTeam": "139897",
+          "playerId": null
+        }
+      ],
+      "subs": [
+        {
+          "minute": "77",
+          "club": "奈良クラブ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 40",
+              "name": "吉村 弦",
+              "playerId": "1624397"
+            },
+            {
+              "variant": "out",
+              "position": "DF 22",
+              "name": "生駒 稀生",
+              "playerId": "1644237"
+            }
+          ],
+          "idTeam": "147069"
+        },
+        {
+          "minute": "76",
+          "club": "ザスパ群馬",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 15",
+              "name": "風間 宏希",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "FW 17",
+              "name": "百田 真登",
+              "playerId": null
+            }
+          ],
+          "idTeam": "139897"
+        },
+        {
+          "minute": "71",
+          "club": "奈良クラブ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 7",
+              "name": "田村 亮介",
+              "playerId": "1400102"
+            },
+            {
+              "variant": "out",
+              "position": "MF 11",
+              "name": "佐藤 諒",
+              "playerId": "1636292"
+            }
+          ],
+          "idTeam": "147069"
+        },
+        {
+          "minute": "71",
+          "club": "奈良クラブ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 99",
+              "name": "森本 ヒマン",
+              "playerId": "1619692"
+            },
+            {
+              "variant": "out",
+              "position": "MF 13",
+              "name": "安藤 陸登",
+              "playerId": "1650518"
+            }
+          ],
+          "idTeam": "147069"
+        },
+        {
+          "minute": "71",
+          "club": "奈良クラブ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 29",
+              "name": "一村 聖連",
+              "playerId": "1647329"
+            },
+            {
+              "variant": "out",
+              "position": "FW 54",
+              "name": "川﨑 修平",
+              "playerId": "1626011"
+            }
+          ],
+          "idTeam": "147069"
+        },
+        {
+          "minute": "60",
+          "club": "奈良クラブ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 14",
+              "name": "望月 想空",
+              "playerId": "1645938"
+            },
+            {
+              "variant": "out",
+              "position": "MF 48",
+              "name": "川西 翔太",
+              "playerId": "1100175"
+            }
+          ],
+          "idTeam": "147069"
+        },
+        {
+          "minute": "60",
+          "club": "ザスパ群馬",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 77",
+              "name": "小竹 知恩",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "MF 36",
+              "name": "安達 秀都",
+              "playerId": null
+            }
+          ],
+          "idTeam": "139897"
+        },
+        {
+          "minute": "60",
+          "club": "ザスパ群馬",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "青木 翔大",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "FW 99",
+              "name": "中島 大嘉",
+              "playerId": null
+            }
+          ],
+          "idTeam": "139897"
+        },
+        {
+          "minute": "45",
+          "club": "ザスパ群馬",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 25",
+              "name": "中野 力瑠",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "DF 22",
+              "name": "貫 真郷",
+              "playerId": null
+            }
+          ],
+          "idTeam": "139897"
+        },
+        {
+          "minute": "45",
+          "club": "ザスパ群馬",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 29",
+              "name": "松本 皐誠",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "MF 19",
+              "name": "モハマド ファルザン佐名",
+              "playerId": null
+            }
+          ],
+          "idTeam": "139897"
+        }
+      ],
+      "highlightVideoId": null,
+      "daznVideoId": "_vHzMwrk1Tw",
+      "daznSearchAttempts": 1,
+      "daznLastSearchedAtJst": "2026-11-05T00:35:43+09:00",
+      "lineups": {
+        "home": {
+          "idTeam": "147069",
+          "formation": "4-2-3-1",
+          "players": [
+            {
+              "id": 1646001,
+              "name": "マルク ヴィト",
+              "number": "96"
+            },
+            {
+              "id": 1644237,
+              "name": "生駒 稀生",
+              "number": "22"
+            },
+            {
+              "id": 1646519,
+              "name": "佐藤 大翔",
+              "number": "33"
+            },
+            {
+              "id": 1629916,
+              "name": "石井 大生",
+              "number": "36"
+            },
+            {
+              "id": 1635548,
+              "name": "吉田",
+              "number": "8"
+            },
+            {
+              "id": 1632385,
+              "name": "増田 隼司",
+              "number": "30"
+            },
+            {
+              "id": 1624685,
+              "name": "森田 凜",
+              "number": "10"
+            },
+            {
+              "id": 1636292,
+              "name": "佐藤 諒",
+              "number": "11"
+            },
+            {
+              "id": 1100175,
+              "name": "川西 翔太",
+              "number": "48"
+            },
+            {
+              "id": 1626011,
+              "name": "川﨑 修平",
+              "number": "54"
+            },
+            {
+              "id": 1650518,
+              "name": "安藤 陸登",
+              "number": "13"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1652496",
+              "name": "宮澤 樹",
+              "number": "1",
+              "position": "GK"
+            },
+            {
+              "id": "1637069",
+              "name": "高畠 捷",
+              "number": "2",
+              "position": "DF"
+            },
+            {
+              "id": "1624397",
+              "name": "吉村 弦",
+              "number": "40",
+              "position": "DF"
+            },
+            {
+              "id": "1400102",
+              "name": "田村 亮介",
+              "number": "7",
+              "position": "MF"
+            },
+            {
+              "id": "1650524",
+              "name": "戸水 利紀",
+              "number": "21",
+              "position": "MF"
+            },
+            {
+              "id": "1647329",
+              "name": "一村 聖連",
+              "number": "29",
+              "position": "MF"
+            },
+            {
+              "id": "1655848",
+              "name": "オラスンカンミ",
+              "number": "47",
+              "position": "MF"
+            },
+            {
+              "id": "1645938",
+              "name": "望月 想空",
+              "number": "14",
+              "position": "FW"
+            },
+            {
+              "id": "1619692",
+              "name": "森本 ヒマン",
+              "number": "99",
+              "position": "FW"
+            }
+          ]
+        },
+        "away": {
+          "idTeam": "139897",
+          "formation": "3-4-2-1",
+          "players": [
+            {
+              "id": 1627433,
+              "name": "岡田",
+              "number": "78"
+            },
+            {
+              "id": 1627038,
+              "name": "相馬",
+              "number": "52"
+            },
+            {
+              "id": 1629996,
+              "name": "大畑",
+              "number": "3"
+            },
+            {
+              "id": 1648745,
+              "name": "中村",
+              "number": "2"
+            },
+            {
+              "id": 1636297,
+              "name": "貫",
+              "number": "22"
+            },
+            {
+              "id": 1632218,
+              "name": "神垣",
+              "number": "8"
+            },
+            {
+              "id": 1644220,
+              "name": "玉城",
+              "number": "4"
+            },
+            {
+              "id": 1639185,
+              "name": "モハマド",
+              "number": "19"
+            },
+            {
+              "id": 1636515,
+              "name": "安達",
+              "number": "36"
+            },
+            {
+              "id": 1642635,
+              "name": "百田",
+              "number": "17"
+            },
+            {
+              "id": 1630220,
+              "name": "中島",
+              "number": "99"
+            }
+          ],
+          "bench": []
+        }
+      }
+    },
+    "2492528": {
+      "code": "110324",
+      "url": "https://www.jleague.jp/match/j3/2026/110324/livetxt/",
+      "fetchedAtJst": "2026-11-05T00:35:53+09:00",
+      "goals": [
+        {
+          "minute": "83",
+          "club": "ＦＣ岐阜",
+          "player": "屋嘉比 奏汰",
+          "position": "MF 98",
+          "scoreAfter": "2-3",
+          "idTeam": "139904",
+          "playerId": "1647286"
+        },
+        {
+          "minute": "23",
+          "club": "ＦＣ岐阜",
+          "player": "ジョルダン テル",
+          "position": "FW 17",
+          "scoreAfter": "2-1",
+          "idTeam": "139904",
+          "playerId": "1657625"
+        },
+        {
+          "minute": "53",
+          "club": "ＦＣ岐阜",
+          "player": "北 龍磨",
+          "position": "MF 10",
+          "scoreAfter": "2-2",
+          "idTeam": "139904",
+          "playerId": "1632266"
+        },
+        {
+          "minute": "9",
+          "club": "ＦＣ琉球",
+          "player": "岩本 翔",
+          "position": "MF 13",
+          "scoreAfter": "1-0",
+          "idTeam": "139895",
+          "playerId": "1610936"
+        }
+      ],
+      "cards": [
+        {
+          "minute": "79",
+          "type": "yellow",
+          "player": "堀内 颯人",
+          "position": "MF 8",
+          "club": "ＦＣ琉球",
+          "idTeam": "139895",
+          "playerId": "1626020"
+        },
+        {
+          "minute": "40",
+          "type": "yellow",
+          "player": "ジョルダン テル",
+          "position": "FW 17",
+          "club": "ＦＣ岐阜",
+          "idTeam": "139904",
+          "playerId": "1657625"
+        },
+        {
+          "minute": "30",
+          "type": "yellow",
+          "player": "船橋 勇真",
+          "position": "DF 27",
+          "club": "ＦＣ琉球",
+          "idTeam": "139895",
+          "playerId": "1629497"
+        }
+      ],
+      "subs": [
+        {
+          "minute": "85",
+          "club": "ＦＣ琉球",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 89",
+              "name": "高木 大輔",
+              "playerId": "1100266"
+            },
+            {
+              "variant": "out",
+              "position": "MF 11",
+              "name": "石浦 大雅",
+              "playerId": "1627750"
+            }
+          ],
+          "idTeam": "139895"
+        },
+        {
+          "minute": "85",
+          "club": "ＦＣ琉球",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 90",
+              "name": "ヴァヴァ ゲレイロ",
+              "playerId": "1657448"
+            },
+            {
+              "variant": "out",
+              "position": "FW 23",
+              "name": "曽田 一騎",
+              "playerId": "1640613"
+            }
+          ],
+          "idTeam": "139895"
+        },
+        {
+          "minute": "75",
+          "club": "ＦＣ岐阜",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 66",
+              "name": "北島 郁哉",
+              "playerId": "1645954"
+            },
+            {
+              "variant": "out",
+              "position": "FW 19",
+              "name": "閑田 隼人",
+              "playerId": "1646981"
+            }
+          ],
+          "idTeam": "139904"
+        },
+        {
+          "minute": "67",
+          "club": "ＦＣ岐阜",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 98",
+              "name": "屋嘉比 奏汰",
+              "playerId": "1647286"
+            },
+            {
+              "variant": "out",
+              "position": "MF 39",
+              "name": "泉澤 仁",
+              "playerId": "1300917"
+            }
+          ],
+          "idTeam": "139904"
+        },
+        {
+          "minute": "57",
+          "club": "ＦＣ琉球",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 55",
+              "name": "幸喜 祐心",
+              "playerId": "1630188"
+            },
+            {
+              "variant": "out",
+              "position": "MF 16",
+              "name": "井堀 二昭",
+              "playerId": "1644483"
+            }
+          ],
+          "idTeam": "139895"
+        },
+        {
+          "minute": "57",
+          "club": "ＦＣ琉球",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 46",
+              "name": "池田 廉",
+              "playerId": "1629485"
+            },
+            {
+              "variant": "out",
+              "position": "MF 32",
+              "name": "高柳 郁弥",
+              "playerId": "1637079"
+            }
+          ],
+          "idTeam": "139895"
+        },
+        {
+          "minute": "45",
+          "club": "ＦＣ琉球",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 24",
+              "name": "川口 尚紀",
+              "playerId": "1200383"
+            },
+            {
+              "variant": "out",
+              "position": "MF 3",
+              "name": "吉田 温紀",
+              "playerId": null
+            }
+          ],
+          "idTeam": "139895"
+        },
+        {
+          "minute": "45",
+          "club": "ＦＣ岐阜",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 26",
+              "name": "大串 昇平",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "FW 17",
+              "name": "ジョルダン テル",
+              "playerId": "1657625"
+            }
+          ],
+          "idTeam": "139904"
+        },
+        {
+          "minute": "45",
+          "club": "ＦＣ岐阜",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 43",
+              "name": "浅田 大翔",
+              "playerId": "1644613"
+            },
+            {
+              "variant": "out",
+              "position": "FW 95",
+              "name": "武 颯",
+              "playerId": "1300444"
+            }
+          ],
+          "idTeam": "139904"
+        },
+        {
+          "minute": "45",
+          "club": "ＦＣ岐阜",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 10",
+              "name": "北 龍磨",
+              "playerId": "1632266"
+            },
+            {
+              "variant": "out",
+              "position": "DF 23",
+              "name": "外山 凌",
+              "playerId": "1607286"
+            }
+          ],
+          "idTeam": "139904"
+        }
+      ],
+      "highlightVideoId": null,
+      "daznVideoId": null,
+      "daznSearchAttempts": 1,
+      "daznLastSearchedAtJst": "2026-11-05T00:35:53+09:00",
+      "lineups": {
+        "home": {
+          "idTeam": "139895",
+          "formation": "3-4-2-1",
+          "players": [
+            {
+              "id": 1632234,
+              "name": "佐藤 久弥",
+              "number": "1"
+            },
+            {
+              "id": 1624364,
+              "name": "鈴木 順也",
+              "number": "14"
+            },
+            {
+              "id": 1632477,
+              "name": "吉田",
+              "number": "3"
+            },
+            {
+              "id": 1626020,
+              "name": "堀内 颯人",
+              "number": "8"
+            },
+            {
+              "id": 1629497,
+              "name": "船橋 勇真",
+              "number": "27"
+            },
+            {
+              "id": 1637079,
+              "name": "高柳 郁弥",
+              "number": "32"
+            },
+            {
+              "id": 1610936,
+              "name": "岩本 翔",
+              "number": "13"
+            },
+            {
+              "id": 1635391,
+              "name": "加藤 悠馬",
+              "number": "17"
+            },
+            {
+              "id": 1644483,
+              "name": "井堀 二昭",
+              "number": "16"
+            },
+            {
+              "id": 1627750,
+              "name": "石浦 大雅",
+              "number": "11"
+            },
+            {
+              "id": 1640613,
+              "name": "曽田 一騎",
+              "number": "23"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1655791",
+              "name": "宮本 流維",
+              "number": "33",
+              "position": "GK"
+            },
+            {
+              "id": "1629415",
+              "name": "神谷 凱士",
+              "number": "22",
+              "position": "DF"
+            },
+            {
+              "id": "1200383",
+              "name": "川口 尚紀",
+              "number": "24",
+              "position": "DF"
+            },
+            {
+              "id": "500913",
+              "name": "千葉 和彦",
+              "number": "35",
+              "position": "DF"
+            },
+            {
+              "id": "1400756",
+              "name": "茂木 駿佑",
+              "number": "7",
+              "position": "MF"
+            },
+            {
+              "id": "1629485",
+              "name": "池田 廉",
+              "number": "46",
+              "position": "MF"
+            },
+            {
+              "id": "1630188",
+              "name": "幸喜 祐心",
+              "number": "55",
+              "position": "MF"
+            },
+            {
+              "id": "1100266",
+              "name": "高木 大輔",
+              "number": "89",
+              "position": "FW"
+            },
+            {
+              "id": "1657448",
+              "name": "ヴァヴァ ゲレイロ",
+              "number": "90",
+              "position": "FW"
+            }
+          ]
+        },
+        "away": {
+          "idTeam": "139904",
+          "formation": "4-4-2",
+          "players": [
+            {
+              "id": 1632426,
+              "name": "春名 竜聖",
+              "number": "77"
+            },
+            {
+              "id": 1607286,
+              "name": "外山 凌",
+              "number": "23"
+            },
+            {
+              "id": 1653366,
+              "name": "湯岑 滉生",
+              "number": "34"
+            },
+            {
+              "id": 1604304,
+              "name": "甲斐 健太郎",
+              "number": "4"
+            },
+            {
+              "id": 1636309,
+              "name": "文 仁柱",
+              "number": "22"
+            },
+            {
+              "id": 1650528,
+              "name": "箱崎 達也",
+              "number": "7"
+            },
+            {
+              "id": 1600147,
+              "name": "中村 駿",
+              "number": "9"
+            },
+            {
+              "id": 1300917,
+              "name": "泉澤 仁",
+              "number": "39"
+            },
+            {
+              "id": 1657625,
+              "name": "ジョルダン テル",
+              "number": "17"
+            },
+            {
+              "id": 1646981,
+              "name": "閑田 隼人",
+              "number": "19"
+            },
+            {
+              "id": 1300444,
+              "name": "武 颯",
+              "number": "95"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1603824",
+              "name": "佐藤 隼",
+              "number": "55",
+              "position": "GK"
+            },
+            {
+              "id": "1650527",
+              "name": "キム ユゴン",
+              "number": "90",
+              "position": "DF"
+            },
+            {
+              "id": "1625668",
+              "name": "羽田 健人",
+              "number": "27",
+              "position": "DF"
+            },
+            {
+              "id": "1645954",
+              "name": "北島 郁哉",
+              "number": "66",
+              "position": "DF"
+            },
+            {
+              "id": "1618634",
+              "name": "萩野 滉大",
+              "number": "3",
+              "position": "MF"
+            },
+            {
+              "id": "1632266",
+              "name": "北 龍磨",
+              "number": "10",
+              "position": "MF"
+            },
+            {
+              "id": "1647286",
+              "name": "屋嘉比 奏汰",
+              "number": "98",
+              "position": "MF"
+            },
+            {
+              "id": "1644613",
+              "name": "浅田 大翔",
+              "number": "43",
+              "position": "FW"
+            },
+            {
+              "id": "1630182",
+              "name": "屋敷 優成",
+              "number": "50",
+              "position": "FW"
+            }
+          ]
+        }
+      }
+    },
+    "2492532": {
+      "code": "110411",
+      "url": "https://www.jleague.jp/match/j3/2026/110411/livetxt/",
+      "fetchedAtJst": "2026-11-05T00:36:03+09:00",
+      "goals": [
+        {
+          "minute": "92",
+          "club": "ＦＣ大阪",
+          "player": "伊佐 耕平",
+          "position": "FW 95",
+          "scoreAfter": "2-1",
+          "idTeam": "147070",
+          "playerId": "1400118"
+        },
+        {
+          "minute": "85",
+          "club": "ロアッソ熊本",
+          "player": "小澤 秀充",
+          "position": "MF 37",
+          "scoreAfter": "1-1",
+          "idTeam": "141253",
+          "playerId": "1636277"
+        },
+        {
+          "minute": "57",
+          "club": "ＦＣ大阪",
+          "player": "木匠 貴大",
+          "position": "MF 7",
+          "scoreAfter": "1-0",
+          "idTeam": "147070",
+          "playerId": "1625702"
+        }
+      ],
+      "cards": [],
+      "subs": [
+        {
+          "minute": "90",
+          "club": "ＦＣ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 99",
+              "name": "ヴィニシウス ソウザ",
+              "playerId": "1651465"
+            },
+            {
+              "variant": "out",
+              "position": "MF 11",
+              "name": "吉田 源太郎",
+              "playerId": "1637296"
+            }
+          ],
+          "idTeam": "147070"
+        },
+        {
+          "minute": "78",
+          "club": "ＦＣ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 32",
+              "name": "鳥山 陽斗",
+              "playerId": "1655834"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "木匠 貴大",
+              "playerId": "1625702"
+            }
+          ],
+          "idTeam": "147070"
+        },
+        {
+          "minute": "78",
+          "club": "ＦＣ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 78",
+              "name": "長野 星輝",
+              "playerId": "1632386"
+            },
+            {
+              "variant": "out",
+              "position": "FW 28",
+              "name": "東家 聡樹",
+              "playerId": "1629477"
+            }
+          ],
+          "idTeam": "147070"
+        },
+        {
+          "minute": "76",
+          "club": "ロアッソ熊本",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 28",
+              "name": "吉岡 優希",
+              "playerId": "1646514"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "藤井 皓也",
+              "playerId": "1642047"
+            }
+          ],
+          "idTeam": "141253"
+        },
+        {
+          "minute": "71",
+          "club": "ＦＣ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 95",
+              "name": "伊佐 耕平",
+              "playerId": "1400118"
+            },
+            {
+              "variant": "out",
+              "position": "FW 9",
+              "name": "島田 拓海",
+              "playerId": "1624570"
+            }
+          ],
+          "idTeam": "147070"
+        },
+        {
+          "minute": "71",
+          "club": "ＦＣ大阪",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 18",
+              "name": "夏川 大和",
+              "playerId": "1645934"
+            },
+            {
+              "variant": "out",
+              "position": "FW 10",
+              "name": "久保 吏久斗",
+              "playerId": "1626967"
+            }
+          ],
+          "idTeam": "147070"
+        },
+        {
+          "minute": "67",
+          "club": "ロアッソ熊本",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 37",
+              "name": "小澤 秀充",
+              "playerId": "1636277"
+            },
+            {
+              "variant": "out",
+              "position": "MF 17",
+              "name": "永井 颯太",
+              "playerId": "1633168"
+            }
+          ],
+          "idTeam": "141253"
+        },
+        {
+          "minute": "63",
+          "club": "ロアッソ熊本",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 10",
+              "name": "鹿取 勇斗",
+              "playerId": "1655793"
+            },
+            {
+              "variant": "out",
+              "position": "MF 11",
+              "name": "渡邉 怜歩",
+              "playerId": "1647675"
+            }
+          ],
+          "idTeam": "141253"
+        },
+        {
+          "minute": "63",
+          "club": "ロアッソ熊本",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 39",
+              "name": "石田 凌太郎",
+              "playerId": "1619231"
+            },
+            {
+              "variant": "out",
+              "position": "MF 22",
+              "name": "松田 詠太郎",
+              "playerId": "1629502"
+            }
+          ],
+          "idTeam": "141253"
+        },
+        {
+          "minute": "63",
+          "club": "ロアッソ熊本",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 14",
+              "name": "石原 央羅",
+              "playerId": "1647350"
+            },
+            {
+              "variant": "out",
+              "position": "FW 9",
+              "name": "ベ ジョンミン",
+              "playerId": "1645922"
+            }
+          ],
+          "idTeam": "141253"
+        }
+      ],
+      "highlightVideoId": null,
+      "daznVideoId": null,
+      "daznSearchAttempts": 1,
+      "daznLastSearchedAtJst": "2026-11-05T00:36:03+09:00",
+      "lineups": {
+        "home": {
+          "idTeam": "147070",
+          "formation": "4-4-2",
+          "players": [
+            {
+              "id": 1636294,
+              "name": "菅原 大道",
+              "number": "1"
+            },
+            {
+              "id": 1640845,
+              "name": "坂本",
+              "number": "2"
+            },
+            {
+              "id": 1640667,
+              "name": "水口 湧斗",
+              "number": "5"
+            },
+            {
+              "id": 1618860,
+              "name": "山下 諒時",
+              "number": "4"
+            },
+            {
+              "id": 1200051,
+              "name": "舘野 俊祐",
+              "number": "6"
+            },
+            {
+              "id": 1626967,
+              "name": "久保 吏久斗",
+              "number": "10"
+            },
+            {
+              "id": 1635555,
+              "name": "住田 将",
+              "number": "14"
+            },
+            {
+              "id": 1637296,
+              "name": "吉田 源太郎",
+              "number": "11"
+            },
+            {
+              "id": 1629477,
+              "name": "東家 聡樹",
+              "number": "28"
+            },
+            {
+              "id": 1625702,
+              "name": "木匠 貴大",
+              "number": "7"
+            },
+            {
+              "id": 1624570,
+              "name": "島田 拓海",
+              "number": "9"
+            }
+          ],
+          "bench": [
+            {
+              "id": "1640266",
+              "name": "梅田 陸空",
+              "number": "88",
+              "position": "GK"
+            },
+            {
+              "id": "1630070",
+              "name": "美馬 和也",
+              "number": "13",
+              "position": "DF"
+            },
+            {
+              "id": "1617897",
+              "name": "秋山 拓也",
+              "number": "23",
+              "position": "DF"
+            },
+            {
+              "id": "1645934",
+              "name": "夏川 大和",
+              "number": "18",
+              "position": "MF"
+            },
+            {
+              "id": "1655831",
+              "name": "木村 大輝",
+              "number": "21",
+              "position": "MF"
+            },
+            {
+              "id": "1655834",
+              "name": "鳥山 陽斗",
+              "number": "32",
+              "position": "MF"
+            },
+            {
+              "id": "1632386",
+              "name": "長野 星輝",
+              "number": "78",
+              "position": "FW"
+            },
+            {
+              "id": "1400118",
+              "name": "伊佐 耕平",
+              "number": "95",
+              "position": "FW"
+            },
+            {
+              "id": "1651465",
+              "name": "ヴィニシウス ソウザ",
+              "number": "99",
+              "position": "FW"
+            }
+          ]
+        },
+        "away": {
+          "idTeam": "141253",
+          "formation": "3-4-2-1",
+          "players": [
+            {
+              "id": 1641507,
+              "name": "佐藤 史騎",
+              "number": "1"
+            },
+            {
+              "id": 1639771,
+              "name": "薬師田 澪",
+              "number": "4"
+            },
+            {
+              "id": 1650522,
+              "name": "李 泰河",
+              "number": "24"
+            },
+            {
+              "id": 1647667,
+              "name": "戸田 峻平",
+              "number": "26"
+            },
+            {
+              "id": 1629502,
+              "name": "松田 詠太郎",
+              "number": "22"
+            },
+            {
+              "id": 1650519,
+              "name": "飯星 明良",
+              "number": "13"
+            },
+            {
+              "id": 1647285,
+              "name": "那須 健一",
+              "number": "25"
+            },
+            {
+              "id": 1633168,
+              "name": "永井 颯太",
+              "number": "17"
+            },
+            {
+              "id": 1647675,
+              "name": "渡邉 怜歩",
+              "number": "11"
+            },
+            {
+              "id": 1642047,
+              "name": "藤井 皓也",
+              "number": "7"
+            },
+            {
+              "id": 1645922,
+              "name": "ベ ジョンミン",
+              "number": "9"
+            }
+          ],
+          "bench": [
+            {
+              "id": "400737",
+              "name": "佐藤 優也",
+              "number": "23",
+              "position": "GK"
+            },
+            {
+              "id": "1651811",
+              "name": "伊藤 颯真",
+              "number": "35",
+              "position": "DF"
+            },
+            {
+              "id": "1646514",
+              "name": "吉岡 優希",
+              "number": "28",
+              "position": "MF"
+            },
+            {
+              "id": "1636277",
+              "name": "小澤 秀充",
+              "number": "37",
+              "position": "MF"
+            },
+            {
+              "id": "1619231",
+              "name": "石田 凌太郎",
+              "number": "39",
               "position": "MF"
             },
             {
