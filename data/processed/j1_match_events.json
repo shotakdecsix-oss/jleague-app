@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-11-07T13:20:04+09:00",
+    "generatedAtJst": "2026-11-07T13:25:04+09:00",
     "windowHours": 36,
     "candidateCount": 1,
     "skippedPreKickoff": 4,
@@ -46596,10 +46596,40 @@
     "2492917": {
       "code": "110706",
       "url": "https://www.jleague.jp/match/j1/2026/110706/livetxt/",
-      "fetchedAtJst": "2026-11-07T13:20:10+09:00",
+      "fetchedAtJst": "2026-11-07T13:25:11+09:00",
       "goals": [],
-      "cards": [],
-      "subs": [],
+      "cards": [
+        {
+          "minute": "21",
+          "type": "yellow",
+          "player": "林 尚輝",
+          "position": "DF 4",
+          "club": "東京ヴェルディ",
+          "idTeam": "139901",
+          "playerId": "1632226"
+        }
+      ],
+      "subs": [
+        {
+          "minute": "18",
+          "club": "東京ヴェルディ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 29",
+              "name": "佐古 真礼",
+              "playerId": "1622199"
+            },
+            {
+              "variant": "out",
+              "position": "DF 96",
+              "name": "チョ ユミン",
+              "playerId": "1621163"
+            }
+          ],
+          "idTeam": "139901"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -46626,7 +46656,7 @@
             },
             {
               "id": 900641,
-              "name": "高橋",
+              "name": "高橋 祐治",
               "number": "3"
             },
             {
