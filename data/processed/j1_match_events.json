@@ -1,11 +1,11 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-11-07T14:55:04+09:00",
+    "generatedAtJst": "2026-11-07T15:00:04+09:00",
     "windowHours": 36,
-    "candidateCount": 3,
-    "skippedPreKickoff": 3,
-    "fetchedCount": 3,
+    "candidateCount": 5,
+    "skippedPreKickoff": 1,
+    "fetchedCount": 5,
     "failed": [],
     "eventCount": 102
   },
@@ -46596,7 +46596,7 @@
     "2492917": {
       "code": "110706",
       "url": "https://www.jleague.jp/match/j1/2026/110706/livetxt/",
-      "fetchedAtJst": "2026-11-07T14:55:11+09:00",
+      "fetchedAtJst": "2026-11-07T15:00:10+09:00",
       "goals": [
         {
           "minute": "72",
@@ -46610,13 +46610,22 @@
       ],
       "cards": [
         {
-          "minute": "89",
+          "minute": null,
           "type": "yellow",
           "player": "カピシャーバ",
           "position": "MF 7",
           "club": "清水エスパルス",
           "idTeam": "137714",
           "playerId": "1640499"
+        },
+        {
+          "minute": null,
+          "type": "yellow",
+          "player": "寺沼 星文",
+          "position": "FW 45",
+          "club": "東京ヴェルディ",
+          "idTeam": "139901",
+          "playerId": "1635473"
         },
         {
           "minute": "64",
@@ -46638,6 +46647,25 @@
         }
       ],
       "subs": [
+        {
+          "minute": "89",
+          "club": "清水エスパルス",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 7",
+              "name": "カピシャーバ",
+              "playerId": "1640499"
+            },
+            {
+              "variant": "out",
+              "position": "DF 14",
+              "name": "パク スンウク",
+              "playerId": "1635312"
+            }
+          ],
+          "idTeam": "137714"
+        },
         {
           "minute": "86",
           "club": "東京ヴェルディ",
@@ -47048,7 +47076,7 @@
     "2492916": {
       "code": "110708",
       "url": "https://www.jleague.jp/match/j1/2026/110708/livetxt/",
-      "fetchedAtJst": "2026-11-07T14:55:17+09:00",
+      "fetchedAtJst": "2026-11-07T15:00:17+09:00",
       "goals": [
         {
           "minute": "43",
@@ -47319,7 +47347,7 @@
     "2492918": {
       "code": "110707",
       "url": "https://www.jleague.jp/match/j1/2026/110707/livetxt/",
-      "fetchedAtJst": "2026-11-07T14:55:23+09:00",
+      "fetchedAtJst": "2026-11-07T15:00:23+09:00",
       "goals": [
         {
           "minute": "48",
@@ -47590,7 +47618,7 @@
     "2492910": {
       "code": "110710",
       "url": "https://www.jleague.jp/match/j1/2026/110710/livetxt/",
-      "fetchedAtJst": "2026-11-07T13:15:16+09:00",
+      "fetchedAtJst": "2026-11-07T15:00:29+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -47832,7 +47860,7 @@
     "2492912": {
       "code": "110709",
       "url": "https://www.jleague.jp/match/j1/2026/110709/livetxt/",
-      "fetchedAtJst": "2026-11-07T13:10:24+09:00",
+      "fetchedAtJst": "2026-11-07T15:00:35+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
