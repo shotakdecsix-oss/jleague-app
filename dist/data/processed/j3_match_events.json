@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-11-07T15:50:04+09:00",
+    "generatedAtJst": "2026-11-07T15:55:04+09:00",
     "windowHours": 36,
     "candidateCount": 5,
     "skippedPreKickoff": 1,
@@ -56278,7 +56278,7 @@
     "2492533": {
       "code": "110720",
       "url": "https://www.jleague.jp/match/j3/2026/110720/livetxt/",
-      "fetchedAtJst": "2026-11-07T15:51:20+09:00",
+      "fetchedAtJst": "2026-11-07T15:56:19+09:00",
       "goals": [
         {
           "minute": "34",
@@ -56702,7 +56702,7 @@
     "2492537": {
       "code": "110719",
       "url": "https://www.jleague.jp/match/j3/2026/110719/livetxt/",
-      "fetchedAtJst": "2026-11-07T15:51:27+09:00",
+      "fetchedAtJst": "2026-11-07T15:56:25+09:00",
       "goals": [
         {
           "minute": "66",
@@ -56732,7 +56732,17 @@
           "playerId": "1625702"
         }
       ],
-      "cards": [],
+      "cards": [
+        {
+          "minute": null,
+          "type": "yellow",
+          "player": "住田 将",
+          "position": "MF 14",
+          "club": "ＦＣ大阪",
+          "idTeam": "147070",
+          "playerId": "1635555"
+        }
+      ],
       "subs": [
         {
           "minute": "74",
@@ -57089,7 +57099,7 @@
     "2492538": {
       "code": "110718",
       "url": "https://www.jleague.jp/match/j3/2026/110718/livetxt/",
-      "fetchedAtJst": "2026-11-07T15:51:33+09:00",
+      "fetchedAtJst": "2026-11-07T15:56:31+09:00",
       "goals": [
         {
           "minute": "78",
@@ -57136,9 +57146,34 @@
           "items": [
             {
               "variant": "in",
+              "position": "FW 11",
+              "name": "三浦 知良",
+              "playerId": "291"
+            },
+            {
+              "variant": "out",
+              "position": "FW 40",
+              "name": "樋口 寛規",
+              "playerId": "1100188"
+            }
+          ],
+          "idTeam": "141246"
+        },
+        {
+          "minute": null,
+          "club": "福島ユナイテッドＦＣ",
+          "items": [
+            {
+              "variant": "in",
               "position": "MF 14",
               "name": "中村 翼",
               "playerId": "1637254"
+            },
+            {
+              "variant": "out",
+              "position": "MF 10",
+              "name": "針谷 岳晃",
+              "playerId": "1607141"
             }
           ],
           "idTeam": "141246"
@@ -57534,7 +57569,7 @@
     "2492542": {
       "code": "110721",
       "url": "https://www.jleague.jp/match/j3/2026/110721/livetxt/",
-      "fetchedAtJst": "2026-11-07T15:51:40+09:00",
+      "fetchedAtJst": "2026-11-07T15:56:38+09:00",
       "goals": [
         {
           "minute": "86",
@@ -58004,7 +58039,7 @@
     "2492534": {
       "code": "110722",
       "url": "https://www.jleague.jp/match/j3/2026/110722/livetxt/",
-      "fetchedAtJst": "2026-11-07T15:51:45+09:00",
+      "fetchedAtJst": "2026-11-07T15:56:44+09:00",
       "goals": [
         {
           "minute": "14",
@@ -58017,7 +58052,65 @@
         }
       ],
       "cards": [],
-      "subs": [],
+      "subs": [
+        {
+          "minute": null,
+          "club": "松本山雅ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "ウェリントン",
+              "playerId": "1300881"
+            },
+            {
+              "variant": "out",
+              "position": "FW 19",
+              "name": "田中 想来",
+              "playerId": "1638472"
+            }
+          ],
+          "idTeam": "139890"
+        },
+        {
+          "minute": "61",
+          "club": "ツエーゲン金沢",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 41",
+              "name": "嶋田 慎太郎",
+              "playerId": "1300440"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "土佐 陸翼",
+              "playerId": "1647161"
+            }
+          ],
+          "idTeam": "139902"
+        },
+        {
+          "minute": "61",
+          "club": "ツエーゲン金沢",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 10",
+              "name": "パトリック",
+              "playerId": "1300102"
+            },
+            {
+              "variant": "out",
+              "position": "FW 27",
+              "name": "大谷 駿斗",
+              "playerId": "1620723"
+            }
+          ],
+          "idTeam": "139902"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
