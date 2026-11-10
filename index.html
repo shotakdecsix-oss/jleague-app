@@ -188,7 +188,11 @@
   @media (prefers-reduced-motion: no-preference){
     #tabbar button{transition:border-bottom-color .18s ease, opacity .18s ease, background-color .18s ease}
     .card, .ec-row, .sched-row, .cal-row, .r-row, .predict-row{transition:background-color .15s ease, transform .12s ease}
-    .card:active, .ec-row:active, .sched-row:active, .cal-row:active, .r-row:active, .predict-row:active{transform:scale(.995)}
+    /* 第66弾: .card を外した。ニュースや日程は何十〜百行が入った1枚のカードなので、中のリンクや行を押すと
+       :active がカードにも付き、カード全体が中心に向かって縮む。scale(.995) でも高さ9,000pxのカードでは
+       上のほうの行が約20px下へ動き、押した瞬間に一覧が下がって見えた(画面収録で 3倍解像度で+62px を実測)。
+       押したときの反応は行ごとの :active に任せる(行は小さいので縮んでも位置はほぼ動かない)。 */
+    .ec-row:active, .sched-row:active, .cal-row:active, .r-row:active, .predict-row:active{transform:scale(.995)}
     .events-toggle{transition:transform .18s ease}
     .seg-toggle button, .chart-chip, .mynews-chip{transition:background-color .15s ease, color .15s ease, border-color .15s ease}
     .events-panel{animation:panelIn .18s ease}
