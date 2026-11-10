@@ -1171,7 +1171,7 @@ const ALL_TABS = [
    dist/deploy-version.txt には同じビルドで同じ値が書かれるので、
    「焼き込まれた値 != deploy-version.txt」= ブラウザが古いHTMLを掴んでいる、と判定できる
    (deploy-version.txt が「1つ前のコミット」を指す件は、一致するかどうかしか見ないので無関係)。 */
-const APP_BUILD_VERSION = "67a0e327";
+const APP_BUILD_VERSION = "0ac1d348";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
@@ -2064,9 +2064,19 @@ function isStaleBuild(latest) {
 function updateDeployBadge() {
   updateOndemandPopoverInPlace();
 }
+/* 第65弾: バナーはヘッダー(sticky)の中に流し込む作りなので、出た瞬間にヘッダーが1行ぶん高くなり、
+   その下の一覧がまるごと下へずれる。出すのは可視復帰の直後(記事を読んで戻ってきた直後)で、
+   ちょうど次の記事をタップしようとしている時に一覧が動き、別の記事に当たっていた。
+   live_watch が試合中は5分おきに push するので、試合のある日は戻るたびにほぼ毎回出る。
+   伸びたぶんだけ同じフレームでスクロールを送り、指の下の行を動かさない。 */
 function showUpdateBanner() {
   const el = document.getElementById("updateBanner");
-  if (el) el.hidden = false;
+  if (!el || !el.hidden) return;
+  const hdr = document.getElementById("headerWrap");
+  const before = hdr ? hdr.getBoundingClientRect().height : 0;
+  el.hidden = false;
+  const grew = hdr ? hdr.getBoundingClientRect().height - before : 0;
+  if (grew > 0) window.scrollBy(0, grew);
 }
 /* 自動リロードはしない。試合を見ながら操作している最中に画面が飛ぶ方が困る。
    定期ポーリングも足さない。可視復帰のたびに数十バイトのテキストを1回取るだけで足りる。 */
@@ -2706,7 +2716,15 @@ async function rerenderKeepingMyNewsFocus() {
    「読み込み中」は少し待ってから出す。取得に時間がかかるときだけ従来どおり出る。 */
 const LOADING_DELAY_MS = 150;
 
+/* 第65弾: 同じ画面の作り直し(可視復帰での再取得など)では「読み込み中」を出さない。
+   第53弾の「取得に時間がかかるときだけ出す」では足りなかった。ニュースの記事を別タブで読んで
+   戻ってくると、可視復帰の再取得(refreshStaticMatchData)でニュースを取り直すので150msを超え、
+   一覧が「読み込み中」に置き換わってページが縮み、スクロール位置が先頭まで戻っていた
+   (実測: scrollY 769 -> 0。戻った直後のタップが別の記事に当たる)。
+   同じ画面なら前の中身を見せたまま待ち、できた中身に差し替える(位置は setAppHtml が保つ)。
+   タブやクラブを変えたとき(別の画面)は、残す中身が無いので従来どおり出す。 */
 function deferLoading(app) {
+  if (currentViewKey() === lastViewKey) return function () {};
   const t = setTimeout(() => { app.innerHTML = LOADING_HTML; }, LOADING_DELAY_MS);
   return function () { clearTimeout(t); };
 }
