@@ -268,9 +268,11 @@
   /* 直近結果 */
   ul.results{list-style:none; margin:0; padding:0}
   /* 第14弾: 試合ドリルダウン対応のため、grid行(.r-row)と詳細パネルをliの中で縦に並べる */
+  /* 第67弾: 最終列を14px→26px(🎥と▸が並ぶ幅)にした。増えたぶんは gap(10→8px)とH/A列(26→22px)で
+     相殺してあり、クラブ名の列幅は変わらない。 */
   .r-row{
-    display:grid; grid-template-columns:auto 26px 1fr auto auto 14px;
-    align-items:center; gap:10px;
+    display:grid; grid-template-columns:auto 22px 1fr auto auto 26px;
+    align-items:center; gap:8px;
     padding:11px 0; border-bottom:1px solid var(--line);
   }
   ul.results li:last-child .r-row{border-bottom:none}
@@ -1000,6 +1002,14 @@
   .events-toggle.open{transform:rotate(90deg); color:var(--accent)}
   /* 第15弾: ハイライト動画が既に埋め込み済みの試合行に付ける目印 */
   .video-mark{font-size:12px; flex:none; line-height:1}
+  /* 第67弾: 試合行の最終列。🎥(ハイライト動画あり)と▸(詳細を開く)を1つの要素にまとめて入れる。
+     以前は別々のグリッド子要素だったので、🎥がある行だけ列が足りず▸が次の行へ落ちていた(行高45→72px)。
+     行は1つずつ独立したグリッドなので、列幅は固定(26px)にして、🎥の有無で右端の位置が揺れないようにする。
+     どちらも無い行(未消化の試合)には has-tail を付けず、従来の14pxのまま。 */
+  .row-tail{display:inline-flex; align-items:center; justify-content:flex-end; gap:2px; min-width:0}
+  .sched-row.has-tail{grid-template-columns:26px 1fr auto 26px}
+  .sched-row.all.has-tail{grid-template-columns:1fr auto 1fr 26px}
+  .cal-row.has-tail{grid-template-columns:26px 38px 1fr auto 1fr 24px 26px}
   .events-panel{padding:2px 0 10px; animation:events-fade-in .15s ease}
   @keyframes events-fade-in{from{opacity:0} to{opacity:1}}
   .events-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
@@ -1569,6 +1579,14 @@ function fmtDate(iso, withTime) {
 }
 function esc(s) {
   return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+/* 第67弾: 試合行の最終列(🎥+▸)。別々のグリッド子要素にすると、🎥がある行だけ▸が次の行へ落ちる。
+   どちらも無い行は空文字を返す(行側は has-tail を付けない)。 */
+function rowTailHtml(videoMarkHtml, expandHtml) {
+  return (videoMarkHtml || expandHtml)
+    ? '<span class="row-tail">' + videoMarkHtml + expandHtml + '</span>'
+    : "";
 }
 
 /* ---------- タブ ---------- */
@@ -3809,13 +3827,13 @@ function calMatchRowHtml(m, ownIdTeam, ranksByLeague) {
     : "";
 
   return '<div class="cal-row-wrap">' +
-    '<div class="cal-row' + (involvesMe ? " me" : "") + (live || derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
+    '<div class="cal-row' + (involvesMe ? " me" : "") + (live || derived ? " live" : "") + (hasEvents ? " has-events" : "") + (videoMarkHtml || expandHtml ? " has-tail" : "") + '"' + attrHtml + '>' +
       '<span class="league-badge ' + esc(m.l) + '">' + esc(m.l.toUpperCase()) + '</span>' +
       '<span class="cal-time">' + esc(timeLabel) + '</span>' +
       '<span class="cal-team' + (homeRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.h[0]) + '">' + teamSwatchHtml(m.h[0]) + esc(m.h[1]) + '</span>' + homeRank + '</span>' +
       '<span class="cal-score">' + esc(scoreLabel) + pillHtml + dotHtml + '</span>' +
       '<span class="cal-team away' + (awayRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.a[0]) + '">' + teamSwatchHtml(m.a[0]) + esc(m.a[1]) + '</span>' + awayRank + '</span>' +
-      '<span class="cal-round">' + (m.r ? "第" + esc(m.r) + "節" : "") + '</span>' + videoMarkHtml + expandHtml +
+      '<span class="cal-round">' + (m.r ? "第" + esc(m.r) + "節" : "") + '</span>' + rowTailHtml(videoMarkHtml, expandHtml) +
     '</div>' + panelHtml +
   '</div>';
 }
@@ -4025,7 +4043,7 @@ function renderResults(mine, team, league) {
           '<span class="r-ha">' + (isHome ? "H" : "A") + '</span>' +
           '<span class="r-opp"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></span>' +
           '<span class="r-score">' + me.score + ' - ' + opp.score + dot + '</span>' +
-          '<span class="pill ' + mark + '">' + mark + '</span>' + videoMarkHtml + expandHtml +
+          '<span class="pill ' + mark + '">' + mark + '</span>' + rowTailHtml(videoMarkHtml, expandHtml) +
         '</div>' + panelHtml +
       '</li>';
     }).join("") + '</ul>';
@@ -4377,19 +4395,19 @@ function scheduleRowHtml(m, team, mode, provisional, league, ranks) {
     const opp = isHome ? m.away : m.home;
     const oppRank = rankOf(opp.idTeam);
     return '<div class="sched-row-wrap">' +
-      '<div class="sched-row' + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
+      '<div class="sched-row' + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + (videoMarkHtml || expandHtml ? " has-tail" : "") + '"' + attrHtml + '>' +
         '<span class="sched-ha">' + (isHome ? "H" : "A") + '</span>' +
         '<span class="sched-opp' + (oppRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span>' + oppRank + '</span>' +
-        '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' + videoMarkHtml + expandHtml +
+        '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' + rowTailHtml(videoMarkHtml, expandHtml) +
       '</div>' + panelHtml +
     '</div>';
   }
   const homeRank = rankOf(m.home.idTeam), awayRank = rankOf(m.away.idTeam);
   return '<div class="sched-row-wrap">' +
-    '<div class="sched-row all' + (involvesMe ? " me" : "") + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
+    '<div class="sched-row all' + (involvesMe ? " me" : "") + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + (videoMarkHtml || expandHtml ? " has-tail" : "") + '"' + attrHtml + '>' +
       '<span class="sched-team' + (homeRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.home.idTeam) + '">' + teamSwatchHtml(m.home.idTeam) + esc(m.home.short || m.home.ja) + '</span>' + homeRank + '</span>' +
       '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' +
-      '<span class="sched-team away' + (awayRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.away.idTeam) + '">' + teamSwatchHtml(m.away.idTeam) + esc(m.away.short || m.away.ja) + '</span>' + awayRank + '</span>' + videoMarkHtml + expandHtml +
+      '<span class="sched-team away' + (awayRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.away.idTeam) + '">' + teamSwatchHtml(m.away.idTeam) + esc(m.away.short || m.away.ja) + '</span>' + awayRank + '</span>' + rowTailHtml(videoMarkHtml, expandHtml) +
     '</div>' + panelHtml +
   '</div>';
 }
