@@ -551,6 +551,23 @@
   }
   /* 自クラブの行だけは通常の濃さに戻す(自分の調子は一目で見たい) */
   tr.me .form-row .pill{opacity:1}
+  /* 第67弾: 順位表のクラブ名が全行2行に折り返していた(390pxでクラブ列が62px、20行中20行)。
+     › を外し、セルの左右余白(3→2px)とカードの左右余白(16→12px)を詰めて、短縮名(最長でも4文字≒44px)が
+     1行に収まる幅を作る。それでも足りない狭い画面では、直近5試合を小さく、さらに隠す、の順で譲る。 */
+  .card.st-card{padding-left:12px; padding-right:12px}
+  .st-table th, .st-table td{padding-left:2px; padding-right:2px}
+  .st-table td.club, .st-table th.club{padding-left:6px}
+  .st-table td.form, .st-table th.form{padding-left:6px}
+  .st-table td.club{white-space:nowrap}
+  .st-table .team-link::after{content:none}
+  .st-table .zone, .st-table .team-sw{margin-right:4px}
+  @media (max-width:389px){
+    .st-table .form-row{gap:2px}
+    .st-table .form-row .pill{width:12px; height:12px; line-height:12px}
+  }
+  @media (max-width:350px){
+    .st-table th.form, .st-table td.form{display:none}
+  }
   .legend{display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; font-size:11px; color:var(--sub)}
   .legend span{display:flex; align-items:center; gap:5px}
   .sw{width:10px; height:10px; border-radius:3px; display:inline-block}
@@ -700,10 +717,15 @@
     text-decoration:underline; text-decoration-style:dotted; text-decoration-color:var(--sub);
     text-underline-offset:2px; cursor:pointer;
   }
-  .team-link::after{content:" \203A"; color:var(--sub); text-decoration:none}
+  /* 第67弾: › の前の空白が改行位置になり、長いクラブ名(9文字前後)で › だけが次の行に落ちていた。
+     語結合子(U+2060)で名前の末尾に接着する(空白ぶんの間隔は margin で保つ)。 */
+  .team-link::after{content:"\2060\203A"; margin-left:.3em; color:var(--sub); text-decoration:none}
 
   /* レーダーチャート */
-  .radar-wrap{display:flex; justify-content:center}
+  /* 第67弾: ラベルが収まるよう viewBox を広げたぶん(最大で約346px)、カードの左右の内側余白(16px)へ
+     14pxずつはみ出させて、390px幅でも等倍で描く。もっと狭い画面では svg が縮む。 */
+  .radar-wrap{display:flex; justify-content:center; margin:0 -14px}
+  .radar-wrap svg{max-width:100%; height:auto; flex:0 1 auto}
   .radar-label-name{font-size:10px; font-weight:700; fill:var(--ink)}
   .radar-label-rank{font-size:9px; fill:var(--sub)}
   .radar-hit{cursor:pointer}
@@ -832,7 +854,7 @@
   .ec-teams{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px; margin-top:4px}
   .ec-team{font-size:13px; overflow:hidden; text-overflow:ellipsis}
   .ec-team.away{text-align:right}
-  .ec-team.team-link{cursor:pointer}
+  .ec-team .team-link{cursor:pointer}
   .ec-team.me{font-weight:700}
   .ec-qual{display:block; font-size:10px; color:var(--sub); font-weight:400}
   .ec-scorewrap{text-align:center; white-space:nowrap}
@@ -3108,10 +3130,14 @@ function renderCupEventsPanel(ev, m, ownIdTeam) {
 
 function cupTeamHtml(side, ownIdTeam, isAway) {
   const isMe = !!(side.idTeam && side.idTeam === ownIdTeam);
-  const cls = "ec-team" + (isAway ? " away" : "") + (isMe ? " me" : "") + (side.idTeam ? " team-link" : "");
-  const attr = side.idTeam ? ' data-idteam="' + esc(side.idTeam) + '"' : "";
-  return '<span class="' + cls + '"' + attr + '>' +
-    (side.idTeam ? teamSwatchHtml(side.idTeam) : "") + esc(side.name || "未定") +
+  /* 第67弾: team-link(下線・›・タップ判定)をクラブ名だけを包む内側のspanへ移した。外側のspanに
+     付けていたため、その後ろの「J2」(.ec-qual, display:block)の下に › だけの行ができていた。 */
+  const cls = "ec-team" + (isAway ? " away" : "") + (isMe ? " me" : "");
+  const nameHtml = (side.idTeam ? teamSwatchHtml(side.idTeam) : "") + esc(side.name || "未定");
+  return '<span class="' + cls + '">' +
+    (side.idTeam
+      ? '<span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(side.idTeam) + '">' + nameHtml + '</span>'
+      : nameHtml) +
     (side.qualification ? '<span class="ec-qual">' + esc(side.qualification) + '</span>' : "") +
   '</span>';
 }
@@ -3364,9 +3390,9 @@ function standingsSectionHtml(standings, master, opts) {
   const badgeHtml = provisional ? '<span class="provisional-badge">暫定</span>' : "";
   const provisionalNoteHtml = provisional ? '<p class="ondemand-basis">' + PROVISIONAL_NOTE + '</p>' : "";
 
-  return '<section><h2>' + esc(opts.heading) + badgeHtml + '</h2><div class="card">' +
+  return '<section><h2>' + esc(opts.heading) + badgeHtml + '</h2><div class="card st-card">' +
     (opts.aboveTableHtml || "") +
-    '<table><thead><tr>' +
+    '<table class="st-table"><thead><tr>' +
       '<th class="rank">#</th><th class="club">クラブ</th><th>試</th><th>勝</th><th>分</th><th>負</th><th>差</th><th>点</th>' +
       '<th class="form">直近</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>' +
@@ -5896,20 +5922,29 @@ function renderRadarForGroup(stats, team, groupDef) {
     );
   }).join("");
 
+  /* 第67弾: 軸ラベルがSVGの枠(0〜300)の外に描かれて切れていた(「残り日程の難易度」は左へ44px)。
+     文字幅を見積もって、はみ出す側だけ viewBox を広げる。全角は文字サイズ、半角は約0.62倍。 */
+  const textPx = (str, px) => Array.from(String(str)).reduce((w, ch) => w + (ch.charCodeAt(0) > 0x2E7F ? px : px * 0.62), 0);
+  let lblMinX = 0, lblMaxX = 300;
   const labels = axisData.map(d => {
     const [x, y] = polarPoint(cx, cy, R + 20, d.angle);
     let anchor = "middle";
     if (d.angle > 5 && d.angle < 175) anchor = "start";
     else if (d.angle > 185 && d.angle < 355) anchor = "end";
     const rankText = d.available ? (d.rank + "位/" + clubCount) : "データなし";
+    const lblW = Math.max(textPx(d.label, 10) * 1.05, textPx(rankText, 9));
+    lblMinX = Math.min(lblMinX, anchor === "end" ? x - lblW : anchor === "middle" ? x - lblW / 2 : x);
+    lblMaxX = Math.max(lblMaxX, anchor === "start" ? x + lblW : anchor === "middle" ? x + lblW / 2 : x);
     return (
       '<text x="' + x.toFixed(1) + '" y="' + (y - 4).toFixed(1) + '" text-anchor="' + anchor + '" class="radar-label-name">' + esc(d.label) + '</text>' +
       '<text x="' + x.toFixed(1) + '" y="' + (y + 9).toFixed(1) + '" text-anchor="' + anchor + '" class="radar-label-rank">' + esc(rankText) + '</text>'
     );
   }).join("");
 
+  const vbX = lblMinX < 0 ? Math.floor(lblMinX) - 4 : 0;
+  const vbW = (lblMaxX > 300 ? Math.ceil(lblMaxX) + 4 : 300) - vbX;
   const svg =
-    '<svg viewBox="0 0 300 300" width="300" height="300" xmlns="http://www.w3.org/2000/svg">' +
+    '<svg viewBox="' + vbX + ' 0 ' + vbW + ' 300" width="' + vbW + '" height="300" xmlns="http://www.w3.org/2000/svg">' +
       rings + spokes.join("") +
       '<polygon points="' + dataPolygon + '" fill="' + fillColor + '" stroke="' + strokeColor + '" stroke-width="2"></polygon>' +
       markers + labels +
