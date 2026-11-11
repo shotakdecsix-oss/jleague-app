@@ -581,6 +581,8 @@
   }
   footer{text-align:center; font-size:11px; color:var(--page-ink, var(--accent-ink)); margin-top:24px; padding:0 16px}
   .err{background:var(--err-bg); border:1px solid var(--err-line); color:var(--err-ink); padding:14px; border-radius:var(--radius); font-size:13px}
+  .err .err-detail{margin-top:6px; font-size:11px; opacity:.8; word-break:break-all}
+  .err button{display:block; margin-top:10px; min-height:44px; padding:0 18px; border-radius:999px; border:1px solid var(--err-line); background:var(--card); color:var(--err-ink); font:inherit; font-weight:700; cursor:pointer}
 
   /* 昇格確率 */
   .promo-grid{display:flex; gap:10px}
@@ -1611,6 +1613,15 @@ function rowTailHtml(videoMarkHtml, expandHtml) {
     : "";
 }
 
+/* 第67弾: 読み込み・描画に失敗したときの表示。以前はメッセージだけで、復帰するにはブラウザ側の
+   リロード操作しか無かった(ホーム画面に追加したアプリにはアドレスバーが無い)。
+   data-app-reload は更新バナーと共通のハンドラ(location.reload())に繋がる。 */
+function errorHtml(message) {
+  return '<div class="err"><b>読み込めませんでした。</b>通信状態を確認して、もう一度お試しください。' +
+    (message ? '<div class="err-detail">' + esc(message) + '</div>' : "") +
+    '<button type="button" data-app-reload>再読み込み</button></div>';
+}
+
 /* ---------- タブ ---------- */
 
 /* タブの一覧はモードで差し替わる(クラブ=TABS / 全体=ALL_TABS)。ボタンの描画(renderTabButtons)と
@@ -2149,7 +2160,7 @@ async function init() {
     app.innerHTML = '<div class="err"><b>データを読み込めませんでした。</b><br>' + esc(e.message) +
       '<br><br>プロジェクトのルートで <code>python -m http.server 8000</code> を起動し、' +
       '<code>http://localhost:8000/</code> を開いてください。' +
-      'ファイルを直接ダブルクリックで開くとブラウザがJSONの読み込みを拒否します。</div>';
+      'ファイルを直接ダブルクリックで開くとブラウザがJSONの読み込みを拒否します。<br><button type="button" data-app-reload>再読み込み</button></div>';
     return;
   }
 
@@ -2173,6 +2184,13 @@ async function init() {
   const initial = (saved && findTeam(saved)) ? saved : findFavoriteTeam();
   document.getElementById("clubSelect").value = initial;
   await selectTeam(initial);
+  /* 第67弾: ヘッダーの ⟳ の時刻は試合データ(generatedAtJst)から取る。選手・ニュース・カップなどを
+     最初に開いた(リロード時にそのタブのまま戻ってきた)場合は試合データが未取得で、「--:--」のままだった。
+     最初の描画のあとで、応援クラブのリーグの分だけ先読みして時刻を埋める。await しない(初回描画を
+     待たせない)。失敗しても何も起きない(ensureMatches は失敗をキャッシュしない)。 */
+  if (state.league && !leagueCache(state.league).matches) {
+    ensureMatches(state.league).then(() => updateOndemandHeaderBtn(), () => {});
+  }
 
   document.getElementById("themeToggleBtn").addEventListener("click", toggleTheme);
   updateThemeToggleBtn();
@@ -2858,7 +2876,7 @@ async function renderActiveTab() {
     renderActiveTabBody(league, team, master, app);
   } catch (e) {
     cancelLoading();
-    app.innerHTML = '<div class="err">' + esc((e && e.message) || "描画に失敗しました") + '</div>';
+    app.innerHTML = errorHtml((e && e.message) || "描画に失敗しました");
   }
 }
 
@@ -2936,7 +2954,7 @@ function renderActiveTabBody(league, team, master, app) {
   const genMeta = (cache.matches && cache.matches.meta) || (cache.standings && cache.standings.meta) || (cache.stats && cache.stats.meta);
   const gen = genMeta && genMeta.generatedAtJst;
   document.getElementById("footer").textContent =
-    "データ取得: " + (gen ? fmtDate(gen, true) : "不明") + " ／ 出典: TheSportsDB";
+    (gen ? "データ取得: " + fmtDate(gen, true) + " ／ " : "") + "出典: TheSportsDB";
   updateOndemandHeaderBtn();
   updateOndemandPopoverInPlace();
 }
@@ -2956,7 +2974,7 @@ async function renderAllModeActiveTab() {
     cancelLoading();
   } catch (e) {
     cancelLoading();
-    app.innerHTML = '<div class="err">' + esc(e.message) + '</div>';
+    app.innerHTML = errorHtml(e.message);
     return;
   }
 
@@ -2991,7 +3009,7 @@ async function renderAllModeActiveTab() {
 
   const gen = genMeta && genMeta.generatedAtJst;
   document.getElementById("footer").textContent =
-    "データ取得: " + (gen ? fmtDate(gen, true) : "不明") + " ／ 出典: " + source;
+    (gen ? "データ取得: " + fmtDate(gen, true) + " ／ " : "") + "出典: " + source;
   updateOndemandHeaderBtn();
   updateOndemandPopoverInPlace();
 }
