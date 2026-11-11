@@ -117,6 +117,19 @@
   @media (max-width:360px){ .deploy-badge{display:none} header h1{font-size:13px} }
   .header-row2{display:flex; gap:8px; align-items:center}
   .header-row2 select{flex:1; min-width:0; padding:8px 12px} /* 本文中の汎用select{padding:10px 12px}をヘッダ内だけ上書き */
+  /* 第68弾: クラブ名をタップして見ているあいだ(表示中のクラブ ≠ 応援クラブ)だけ出す帯。
+     タップは「見るだけ」で保存しない。ここから応援クラブへ戻す、または応援クラブにする。
+     375px未満は文言を短くして(「に戻る」「クラブ」を省く)1行に収める。それでも入らない幅では次の行へ折り返す。 */
+  .viewing-bar{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; font-size:12px}
+  .viewing-bar[hidden]{display:none}
+  .viewing-bar .vb-text{flex:1 1 auto; min-width:0; font-weight:700}
+  .viewing-bar button{
+    flex:none; border:1px solid var(--on-accent-line); background:var(--on-accent-soft);
+    color:var(--accent-ink); font:inherit; font-size:11px; font-weight:700; padding:6px 9px;
+    border-radius:999px; cursor:pointer;
+  }
+  .viewing-bar button[data-setfav]{background:var(--accent-ink); color:var(--accent); border-color:var(--accent-ink)}   /* 主な操作。地(--accent)と文字(--accent-ink)を入れ替えて、ダークでも読める */
+  @media (max-width:374px){ .viewing-bar .vb-opt{display:none} }
   /* モード切替(クラブ/全体)。タブバーと同じ2ndカラーのベタ塗りの上に、さらに一段浮かせた見た目にする */
   .mode-toggle{display:flex; gap:6px; flex:none; width:120px}
   .mode-toggle button{
@@ -1159,6 +1172,7 @@
     </div>
     <select id="clubSelect" aria-label="応援クラブを選ぶ"></select>
   </div>
+  <div id="viewingBar" class="viewing-bar" role="status" hidden></div>
 </header>
 <nav id="tabbar"></nav>
 </div>
@@ -1213,7 +1227,7 @@ const APP_BUILD_VERSION = "__DEPLOY_VERSION__";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
-  masters: {}, cache: {}, idTeam: null, league: null,
+  masters: {}, cache: {}, idTeam: null, favTeam: null, league: null,   // favTeam: 応援クラブ(保存される)。idTeam は表示中のクラブ
   teamsById: {}, // 第14弾: 全リーグ横断のidTeam->チーム情報(color等)。init()でmasters読み込み後に構築する
   news: undefined, clubExtra: undefined, // undefined=未取得, null=取得試行済みでデータ無し
   /* 第26弾: ニュースはクラブ別に分割配信されている。
@@ -1543,6 +1557,34 @@ function saveFav(id) {
   try { localStorage.setItem(STORE_KEY, id); } catch (e) { /* 無視 */ }
 }
 
+/* 第68弾: クラブ名のタップは「見るだけ」にした。応援クラブ(state.favTeam・保存される)と、
+   表示中のクラブ(state.idTeam・一時的)を分け、両者が違うあいだだけヘッダー下段に帯を出す。 */
+function renderViewingBar() {
+  const bar = document.getElementById("viewingBar");
+  if (!bar) return;
+  const cur = findTeam(state.idTeam), fav = findTeam(state.favTeam);
+  if (!cur || !fav || state.idTeam === state.favTeam) { bar.hidden = true; bar.innerHTML = ""; return; }
+  const nm = f => esc(f.team.short || f.team.ja || "");
+  bar.innerHTML =
+    '<span class="vb-text">' + nm(cur) + 'を表示中</span>' +
+    '<button type="button" data-backfav aria-label="' + nm(fav) + 'に戻る">← ' + nm(fav) + '<span class="vb-opt">に戻る</span></button>' +
+    '<button type="button" data-setfav aria-label="応援クラブにする">★ 応援<span class="vb-opt">クラブ</span>にする</button>';
+  bar.hidden = false;
+}
+
+/* 第68弾: 「クラブを変えた」「モードを変えた」という大きな移動だけ履歴に積む(タブの移動は今までどおり積まない)。
+   積む直前に、いまの画面(クラブ・モード)を現在の履歴へ書き込み、積んだ先には移動後の値を書く。
+   戻る/進む(popstate)では、移動先の履歴に書かれたクラブへ切り替える。 */
+function recordViewState() {
+  try { history.replaceState({ idTeam: state.idTeam, mode: state.viewMode }, ""); } catch (e) { /* 無視 */ }
+}
+function pushViewHistory(nextIdTeam, nextMode) {
+  try {
+    recordViewState();
+    history.pushState({ idTeam: nextIdTeam || state.idTeam, mode: nextMode || state.viewMode }, "");
+  } catch (e) { /* 履歴が使えない環境(file:// など)では積まない。戻れないだけ */ }
+}
+
 /* 第37弾: "no-store" から "no-cache" にした。どちらも毎回サーバへ問い合わせる点は同じだが、
    "no-store" は 304 Not Modified による条件付きリクエストまで禁止するため、
    中身が1バイトも変わっていなくても毎回フルダウンロードになっていた。
@@ -1773,7 +1815,7 @@ function syncHash() {
      replaceState なら hashchange は発火しない。ハッシュは「いま開いている画面」の
      記録としてだけ使い、戻る/進むは従来どおり hashchange 側で処理する。 */
   try {
-    history.replaceState(null, "", "#" + path);
+    history.replaceState(history.state, "", "#" + path);   // 第68弾: pushViewHistory で書いた state を消さない
   } catch (e) {
     location.hash = path;  // file:// など replaceState が使えない場合の保険
   }
@@ -1837,6 +1879,7 @@ function setAllTab(tabId) {
 function setViewMode(mode) {
   if (mode !== "club" && mode !== "all") mode = "club";
   if (mode === state.viewMode) return;
+  pushViewHistory(state.idTeam, mode);   // 第68弾
   state.viewMode = mode;
   if (mode === "all" && state.allTab === "schedule") markCalendarOpened();
   if (mode === "club" && state.activeTab === "schedule") markClubScheduleOpened();   // 第60弾
@@ -2182,6 +2225,7 @@ async function init() {
 
   const saved = loadFav();
   const initial = (saved && findTeam(saved)) ? saved : findFavoriteTeam();
+  state.favTeam = initial;   // 第68弾
   document.getElementById("clubSelect").value = initial;
   await selectTeam(initial);
   /* 第67弾: ヘッダーの ⟳ の時刻は試合データ(generatedAtJst)から取る。選手・ニュース・カップなどを
@@ -2204,7 +2248,21 @@ async function init() {
 
   document.getElementById("clubSelect").addEventListener("change", ev => {
     saveFav(ev.target.value);
+    state.favTeam = ev.target.value;   // 第68弾
     selectTeam(ev.target.value);
+    recordViewState();                 // 第68弾: 現在の履歴に書いたクラブを古いままにしない
+  });
+
+  /* 第68弾: 戻る/進む。state を持つのは pushViewHistory で積んだ履歴だけ(それ以外は何もしない)。
+     ハッシュ(タブ・モード)が変わる移動では、この直後に hashchange が描画するので、ここではクラブだけ
+     切り替えて描画しない(二重に描画しない)。ハッシュが同じ(同じ画面でクラブだけ違う)ときは
+     hashchange が起きないので、ここで描画する。 */
+  window.addEventListener("popstate", ev => {
+    const st = ev.state;
+    if (!st || !st.idTeam || !findTeam(st.idTeam) || st.idTeam === state.idTeam) return;
+    const hashWillChange = location.hash.replace("#", "") !== currentHashPath();
+    document.getElementById("clubSelect").value = st.idTeam;
+    selectTeam(st.idTeam, hashWillChange);
   });
 
   window.addEventListener("hashchange", () => {
@@ -2320,6 +2378,23 @@ async function init() {
       return;
     }
 
+    // 第68弾: 表示中のクラブの帯。応援クラブへ戻る / 表示中のクラブを応援クラブにする
+    if (ev.target.closest("[data-backfav]")) {
+      const fav = state.favTeam;
+      if (fav && fav !== state.idTeam && findTeam(fav)) {
+        pushViewHistory(fav);
+        document.getElementById("clubSelect").value = fav;
+        selectTeam(fav);
+      }
+      return;
+    }
+    if (ev.target.closest("[data-setfav]")) {
+      saveFav(state.idTeam);
+      state.favTeam = state.idTeam;
+      renderViewingBar();
+      return;
+    }
+
     const modeToggleBtn = ev.target.closest("[data-viewmode]");
     if (modeToggleBtn) {
       setViewMode(modeToggleBtn.dataset.viewmode);
@@ -2368,9 +2443,9 @@ async function init() {
     if (teamLinkBtn) {
       const idTeam = teamLinkBtn.dataset.idteam;
       if (idTeam && idTeam !== state.idTeam && findTeam(idTeam)) {
+        pushViewHistory(idTeam);   // 第68弾: 戻る操作で元のクラブへ戻れるようにする
         document.getElementById("clubSelect").value = idTeam;
-        saveFav(idTeam);
-        selectTeam(idTeam);
+        selectTeam(idTeam);        // 第68弾: 保存しない(応援クラブはプルダウンか「★ 応援クラブにする」でだけ変える)
         return;
       }
     }
@@ -2700,7 +2775,7 @@ function buildSelect() {
   }
 }
 
-async function selectTeam(idTeam) {
+async function selectTeam(idTeam, noRender) {   // noRender: 第68弾 戻る操作で hashchange が描画するとき
   const found = findTeam(idTeam);
   if (!found) return;
   // 第43弾: 別のクラブに切り替えたら、そのクラブの戦いは畳む
@@ -2708,9 +2783,11 @@ async function selectTeam(idTeam) {
   if (state.battlePick) state.battlePick = null;
   state.idTeam = idTeam;
   state.league = found.league;
+  renderViewingBar();   // 第68弾: 描画の前に出す(ヘッダーの高さを先に確定させる)
   // 第60弾: 節の並びはリーグごとに違うので、クラブを変えたら今節を計算し直して寄せる
   if (state.viewMode === "club" && state.activeTab === "schedule") markClubScheduleOpened();
   applyThemeForMode();
+  if (noRender) return;
   await renderActiveTab();
   // 日程タブ(全体モードの基準日・クラブモードの今節)は描画内で位置を決めている。ここで(0,0)に
   // 戻すとそれを上書きしてしまうので、そのケースだけは末尾のリセットをスキップする。
