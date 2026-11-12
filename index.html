@@ -86,68 +86,92 @@
     background:var(--page-bg, var(--accent)); color:var(--ink); /* 地はベタ塗り(縦に長いのでグラデーションにしない) */
     font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI",sans-serif;
     font-size:15px; line-height:1.55;
-    padding-bottom:calc(24px + env(safe-area-inset-bottom));
+    padding-bottom:calc(24px + 56px + env(safe-area-inset-bottom));   /* 第70弾 D2: 下部固定ナビ(56px)の分。末尾のフッターが隠れないように */
   }
 
-  /* ヘッダー+タブバーをまとめて上部固定 */
+  /* 第70弾 D1: 上部に固定するのはクラブ選択の段(#headerWrap > .header-main)だけにした。
+     アプリ名と ⟳ / i / テーマの段(.top-bar)は固定の外に出し、スクロールすると流れて消える
+     (常時表示 150px → 約56px)。⟳ は一番上でしか使わず、引っ張って更新も一番上専用なので支障は小さい。
+     タブは下部ナビ(#tabbar)へ移した(D2)。 */
+  .top-bar{
+    background:var(--accent); color:var(--accent-ink);
+    padding:12px calc(14px + env(safe-area-inset-right)) 0 calc(14px + env(safe-area-inset-left));
+  }
   #headerWrap{position:sticky; top:0; z-index:10}
-  header{
+  .header-main{
     /* 1stカラーを地にしたまま、下端に向けてだけわずかに沈める。色が変わったと分かるほどの
        グラデーションにはしない(第29弾。それ以前は完全なベタ塗りだった)。 */
     background:linear-gradient(180deg, var(--accent) 0%, var(--accent-grad-to) 100%);
     color:var(--accent-ink);
-    padding:12px calc(14px + env(safe-area-inset-right)) 12px calc(14px + env(safe-area-inset-left));
+    padding:8px calc(14px + env(safe-area-inset-right)) 10px calc(14px + env(safe-area-inset-left));
     box-shadow:var(--elev-2);
     position:relative; /* トースト/ポップオーバーをこの下端にオーバーレイ表示するための基準 */
   }
   /* ヘッダを役割で2段に分ける(第10弾改訂2): 上段=アプリ全体・データの状態、下段=表示対象の選択 */
-  .header-row1{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px}
+  .header-row1{display:flex; align-items:center; justify-content:space-between; gap:8px}
   /* h1はflexアイテムとして縮む対象になる。右側のボタン群(⟳/i/deployBadge)で幅が圧迫されると、
      white-spaceの指定が無いと日本語は任意の位置で改行できるため1文字ずつ縦に積まれてしまう。
      flex:1 1 auto + min-width:0 + white-space:nowrap + overflow:hidden の4点セットで
      「入らなければ末尾を…で省略」という単一行の挙動にする(改訂: fix-header-layout)。 */
-  header h1{
+  .top-bar h1{
     margin:0; font-size:15px; font-weight:600; letter-spacing:.04em; opacity:.9;
     flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .header-row1-right{display:flex; align-items:center; gap:6px; flex:none}
   /* デプロイ日時・バージョンのデバッグ表示。目立たせない(色はh1と同じaccent-ink継承、不透明度だけ落とす)。
      狭い画面では優先度が低いので隠す(更新ボタンは常に出す)。 */
-  .deploy-badge{font-size:9px; opacity:.55; letter-spacing:.02em; white-space:nowrap}
-  @media (max-width:360px){ .deploy-badge{display:none} header h1{font-size:13px} }
+  .deploy-badge{font-size:10px; opacity:.55; letter-spacing:.02em; white-space:nowrap}
+  @media (max-width:360px){ .deploy-badge{display:none} .top-bar h1{font-size:13px} }
   .header-row2{display:flex; gap:8px; align-items:center}
   .header-row2 select{flex:1; min-width:0; padding:8px 12px} /* 本文中の汎用select{padding:10px 12px}をヘッダ内だけ上書き */
+  /* 第68弾: クラブ名をタップして見ているあいだ(表示中のクラブ ≠ 応援クラブ)だけ出す帯。
+     タップは「見るだけ」で保存しない。ここから応援クラブへ戻す、または応援クラブにする。
+     375px未満は文言を短くして(「に戻る」「クラブ」を省く)1行に収める。それでも入らない幅では次の行へ折り返す。 */
+  .viewing-bar{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; font-size:12px}
+  .viewing-bar[hidden]{display:none}
+  .viewing-bar .vb-text{flex:1 1 auto; min-width:0; font-weight:700}
+  .viewing-bar button{
+    flex:none; border:1px solid var(--on-accent-line); background:var(--on-accent-soft);
+    color:var(--accent-ink); font:inherit; font-size:11px; font-weight:700; padding:6px 9px;
+    border-radius:999px; cursor:pointer;
+  }
+  .viewing-bar button[data-setfav]{background:var(--accent-ink); color:var(--accent); border-color:var(--accent-ink)}   /* 主な操作。地(--accent)と文字(--accent-ink)を入れ替えて、ダークでも読める */
+  @media (max-width:374px){ .viewing-bar .vb-opt{display:none} }
   /* モード切替(クラブ/全体)。タブバーと同じ2ndカラーのベタ塗りの上に、さらに一段浮かせた見た目にする */
-  .mode-toggle{display:flex; gap:6px; flex:none; width:120px}
+  .mode-toggle{display:flex; gap:0; flex:none; width:120px}
   .mode-toggle button{
     flex:1; border:1px solid var(--on-accent-line); background:var(--on-accent-soft);
     color:var(--accent-ink); opacity:.75; font-size:12px; font-weight:700; padding:7px 4px;
-    border-radius:999px; cursor:pointer; font-family:inherit;
+    border-radius:0; cursor:pointer; font-family:inherit;
   }
-  .mode-toggle button.active{background:var(--card); color:var(--accent-on-light); opacity:1; border-color:var(--card)}
+  /* 第70弾 D3: 連結型。外側だけ丸め、境界の線は1本にする。overflow:hiddenで切ると44pxの当たり判定(::before)まで切れるので使わない */
+  .mode-toggle button:first-child{border-radius:999px 0 0 999px}
+  .mode-toggle button:last-child{border-radius:0 999px 999px 0; margin-left:-1px}
+  .mode-toggle button.active{background:var(--card); color:var(--accent-on-light); opacity:1; border-color:var(--card); z-index:1}
   @media (max-width:360px){ .mode-toggle{width:96px} .mode-toggle button{font-size:11px; padding:7px 2px} }
 
+  /* 第70弾 D2: タブは画面下に固定するナビへ(5項目)。クラブのタブ7個のうち、スタッツ・選手を「データ」、
+     ニュース・注目を「ニュース」にまとめ、中の切り替えは各画面の先頭(.seg-sub)に置く。
+     内部のタブidとハッシュは7個のまま変えていない(古いURLもそのまま開け、左右スワイプも従来の順)。
+     高さは56px+ホームバーの余白。ラベルはどの幅でも11px。全体モードは4項目。 */
   #tabbar{
-    display:flex; background:var(--accent-sub); /* 2ndカラーのベタ塗り */
-    box-shadow:var(--elev-1);
-    padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right);
+    position:fixed; left:0; right:0; bottom:0; z-index:10;
+    display:flex; justify-content:center; background:var(--accent-sub); /* 2ndカラーのベタ塗り */
+    box-shadow:0 -2px 10px rgba(0,0,0,.18);
+    padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   #tabbar button{
-    flex:1; border:none; background:none; padding:12px 3px 10px;
-    font-size:12px; font-weight:700; color:var(--accent-sub-ink); opacity:.7;
-    font-family:inherit; cursor:pointer;
-    border-bottom:3px solid transparent;
+    flex:1 1 0; min-width:0; max-width:140px; height:56px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    border:none; border-top:3px solid transparent; background:none; padding:2px 2px 0;
+    font-size:11px; font-weight:700; line-height:1.2; white-space:nowrap;
+    color:var(--accent-sub-ink); opacity:.7; font-family:inherit; cursor:pointer;
   }
-  /* 第32弾でタブが7個になった。390px幅だと1つあたり約56pxしか無く、12pxのままでは
-     「スタッツ」「ニュース」が2行に折り返して他のタブと高さが揃わなくなる。
-     タブを減らすかスクロールさせるかではなく、狭い端末で文字を1段落とす方を選んだ
-     (全部のタブが常に見えている方が、この画面では迷わない)。
-     幅を変えて確認済み: 320 / 360 / 390 / 430px のいずれでも1行に収まる。 */
-  @media (max-width:420px){ #tabbar button{font-size:11px} }
-  @media (max-width:344px){ #tabbar button{font-size:10px; padding-left:2px; padding-right:2px} }
-  /* 選択中のタブは下線だけでなく面もわずかに持ち上げる。半透明の向き(白/黒)はタブバーの
-     地色に載る文字色と揃えてあるので、明るい2ndカラーでも消えない。 */
-  #tabbar button.active{opacity:1; border-bottom-color:var(--accent-sub-ink); background:var(--on-sub-soft)}
+  #tabbar button svg{width:22px; height:22px; flex:none; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+  /* 選択中は上端の線と面でも示す(色だけに頼らない)。半透明の向き(白/黒)はナビの地色に載る文字色と揃えてある。 */
+  #tabbar button.active{opacity:1; border-top-color:var(--accent-sub-ink); background:var(--on-sub-soft)}
+  /* 入力欄にフォーカスがあるあいだ(キーボードが出ている)は隠す。キーボードの上に残って画面を狭めないため。 */
+  body.kbd-open #tabbar{display:none}
   select{
     width:100%; padding:10px 12px; font-size:16px; font-weight:600;
     border:none; border-radius:12px; background:var(--card); color:var(--ink);
@@ -186,7 +210,7 @@
   /* 第37弾: 触ったときの反応。transitionが7箇所しか無く、タブもアコーディオンも
      瞬間的に切り替わっていた。動きが苦手な人のために prefers-reduced-motion では全部止める。 */
   @media (prefers-reduced-motion: no-preference){
-    #tabbar button{transition:border-bottom-color .18s ease, opacity .18s ease, background-color .18s ease}
+    #tabbar button{transition:border-top-color .18s ease, opacity .18s ease, background-color .18s ease}
     .card, .ec-row, .sched-row, .cal-row, .r-row, .predict-row{transition:background-color .15s ease, transform .12s ease}
     /* 第66弾: .card を外した。ニュースや日程は何十〜百行が入った1枚のカードなので、中のリンクや行を押すと
        :active がカードにも付き、カード全体が中心に向かって縮む。scale(.995) でも高さ9,000pxのカードでは
@@ -268,9 +292,11 @@
   /* 直近結果 */
   ul.results{list-style:none; margin:0; padding:0}
   /* 第14弾: 試合ドリルダウン対応のため、grid行(.r-row)と詳細パネルをliの中で縦に並べる */
+  /* 第67弾: 最終列を14px→26px(🎥と▸が並ぶ幅)にした。増えたぶんは gap(10→8px)とH/A列(26→22px)で
+     相殺してあり、クラブ名の列幅は変わらない。 */
   .r-row{
-    display:grid; grid-template-columns:auto 26px 1fr auto auto 14px;
-    align-items:center; gap:10px;
+    display:grid; grid-template-columns:auto 22px 1fr auto auto 26px;
+    align-items:center; gap:8px;
     padding:11px 0; border-bottom:1px solid var(--line);
   }
   ul.results li:last-child .r-row{border-bottom:none}
@@ -351,7 +377,7 @@
   }
   .bt-move.off{opacity:.45}
   .bt-move-name{font-size:13px; font-weight:700}
-  .bt-move-sub{font-size:10px; color:var(--sub); font-variant-numeric:tabular-nums}
+  .bt-move-sub{font-size:11px; color:var(--sub); font-variant-numeric:tabular-nums}
   .bt-back{align-items:center; justify-content:center}
   .rpg-fight{
     display:block; width:100%; min-height:44px; margin-top:12px; padding:0 14px;
@@ -521,11 +547,11 @@
   /* 順位表 */
   table{width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums}
   th,td{padding:7px 3px; text-align:right; font-size:13px; border-bottom:1px solid var(--line)}
-  th{font-size:10px; color:var(--sub); font-weight:600; letter-spacing:.04em; border-bottom-width:2px}
+  th{font-size:11px; color:var(--sub); font-weight:600; letter-spacing:.04em; border-bottom-width:2px}
   td.rank,th.rank{text-align:center; width:30px; font-weight:600}
   /* 前節からの順位変動。順位表はrankHistoryを引数で受け取っていたのに使っていなかった
      (推移グラフに丸投げしていた)ので、一番動きの分かる情報を表の中に出す。 */
-  .rk-delta{display:block; font-size:9px; font-weight:700; line-height:1.2; margin-top:1px}
+  .rk-delta{display:block; font-size:10px; font-weight:700; line-height:1.2; margin-top:1px}
   .rk-delta.up{color:var(--win)}
   .rk-delta.down{color:var(--loss)}
   .rk-delta.same{color:var(--sub); opacity:.55}
@@ -545,10 +571,27 @@
   .form-row{display:flex; gap:3px; align-items:center}
   .form-row .pill{
     width:14px; height:14px; line-height:14px; border-radius:4px;
-    font-size:8px; opacity:.62;
+    font-size:10px; opacity:.62;   /* 第69弾: 8px→10px。箱は14px角のまま(第67弾で列幅を詰めてあるので広げない) */
   }
   /* 自クラブの行だけは通常の濃さに戻す(自分の調子は一目で見たい) */
   tr.me .form-row .pill{opacity:1}
+  /* 第67弾: 順位表のクラブ名が全行2行に折り返していた(390pxでクラブ列が62px、20行中20行)。
+     › を外し、セルの左右余白(3→2px)とカードの左右余白(16→12px)を詰めて、短縮名(最長でも4文字≒44px)が
+     1行に収まる幅を作る。それでも足りない狭い画面では、直近5試合を小さく、さらに隠す、の順で譲る。 */
+  .card.st-card{padding-left:12px; padding-right:12px}
+  .st-table th, .st-table td{padding-left:2px; padding-right:2px}
+  .st-table td.club, .st-table th.club{padding-left:6px}
+  .st-table td.form, .st-table th.form{padding-left:6px}
+  .st-table td.club{white-space:nowrap}
+  .st-table .team-link::after{content:none}
+  .st-table .zone, .st-table .team-sw{margin-right:4px}
+  @media (max-width:389px){
+    .st-table .form-row{gap:2px}
+    .st-table .form-row .pill{width:12px; height:12px; line-height:12px}
+  }
+  @media (max-width:350px){
+    .st-table th.form, .st-table td.form{display:none}
+  }
   .legend{display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; font-size:11px; color:var(--sub)}
   .legend span{display:flex; align-items:center; gap:5px}
   .sw{width:10px; height:10px; border-radius:3px; display:inline-block}
@@ -562,6 +605,8 @@
   }
   footer{text-align:center; font-size:11px; color:var(--page-ink, var(--accent-ink)); margin-top:24px; padding:0 16px}
   .err{background:var(--err-bg); border:1px solid var(--err-line); color:var(--err-ink); padding:14px; border-radius:var(--radius); font-size:13px}
+  .err .err-detail{margin-top:6px; font-size:11px; opacity:.8; word-break:break-all}
+  .err button{display:block; margin-top:10px; min-height:44px; padding:0 18px; border-radius:999px; border:1px solid var(--err-line); background:var(--card); color:var(--err-ink); font:inherit; font-weight:700; cursor:pointer}
 
   /* 昇格確率 */
   .promo-grid{display:flex; gap:10px}
@@ -603,6 +648,12 @@
   }
   .news-item a:hover{text-decoration:underline}
   .news-meta{font-size:11px; color:var(--sub); margin-top:4px; display:flex; gap:6px; align-items:center}
+  /* 第69弾: クラブのニュースタブは日付ごとの見出しで区切り、行の中の日付は出さない。
+     同じ記事が複数の媒体に出ている行は「◯◯ ほかN媒体」にまとめる。 */
+  .news-day{margin-top:14px}
+  .stats-subtabs + .news-day{margin-top:0}
+  .news-day-title{font-size:11px; font-weight:700; color:var(--sub); margin:0 0 2px 2px}
+  .news-more{white-space:nowrap}
   /* 出典は補助情報。走査に効くのは日付なので、日付を先に置いて出典は控えめにする
      (クラブのニュースタブでは毎行「◯◯公式サイト」が並ぶため、目立たせると邪魔になる)。 */
   .news-src{
@@ -640,7 +691,7 @@
   .toto-card .nm{display:inline-block; max-width:6.5em; overflow:hidden; text-overflow:ellipsis;
     white-space:nowrap; vertical-align:bottom}
   .toto-card .sc{font-weight:700; font-variant-numeric:tabular-nums; margin:0 4px}
-  .toto-card .dt{font-size:10px; color:var(--sub); margin-left:4px}
+  .toto-card .dt{font-size:11px; color:var(--sub); margin-left:4px}
   /* 第52弾: 32x32では隣の記号を押しやすかったので広げた。
      幅を増やしすぎるとカード名(「水戸 - 川崎F 09/12」)が入らなくなるため、
      高さを優先して伸ばしている。 */
@@ -678,7 +729,7 @@
   td.p-name,th.p-name{text-align:left; padding-left:6px}
   /* 年齢は生年月日と同じセルに縦に積む。横に並べると狭い端末で選手名の幅を食うため。 */
   td.p-age{white-space:nowrap; font-variant-numeric:tabular-nums}
-  .p-bd{display:block; font-size:10px; font-weight:400; color:var(--sub)}
+  .p-bd{display:block; font-size:11px; font-weight:400; color:var(--sub)}
   .leaders{display:flex; flex-direction:column; gap:8px}
   .leader-row{display:flex; align-items:baseline; gap:8px; font-size:13px}
   .leader-cat{color:var(--sub); font-size:11px; width:76px; flex:none}
@@ -698,12 +749,24 @@
     text-decoration:underline; text-decoration-style:dotted; text-decoration-color:var(--sub);
     text-underline-offset:2px; cursor:pointer;
   }
-  .team-link::after{content:" \203A"; color:var(--sub); text-decoration:none}
+  /* 第69弾: 当たり判定だけを広げる(見た目と行の高さは変えない)。クラブ名リンクは高さ16px・幅40px前後しか無かった。
+     paddingで広げ、同じ量の負のmarginで打ち消す。inline要素では縦のpaddingは行の高さに効かず縦のmarginも
+     効かない(どちらも起きない)。横は両方効くので打ち消し合う。flex/gridの子としてblock化されている場合は縦も打ち消し合う。
+     広がった箱は隣の行にも少し重なるが、重なった所は後ろの行(DOM順で後)が受けるので、実質の当たりは行の高さになる。 */
+  .team-link{padding:15px 5px; margin:-15px -5px}
+  td.p-name a, .leader-name a{padding-block:15px; margin-block:-15px}
+  .ec-link{padding:15px 6px; margin-block:-15px; margin-right:-6px}   /* margin-left:auto は元のルールのまま */
+  /* 第67弾: › の前の空白が改行位置になり、長いクラブ名(9文字前後)で › だけが次の行に落ちていた。
+     語結合子(U+2060)で名前の末尾に接着する(空白ぶんの間隔は margin で保つ)。 */
+  .team-link::after{content:"\2060\203A"; margin-left:.3em; color:var(--sub); text-decoration:none}
 
   /* レーダーチャート */
-  .radar-wrap{display:flex; justify-content:center}
-  .radar-label-name{font-size:10px; font-weight:700; fill:var(--ink)}
-  .radar-label-rank{font-size:9px; fill:var(--sub)}
+  /* 第67弾: ラベルが収まるよう viewBox を広げたぶん(最大で約346px)、カードの左右の内側余白(16px)へ
+     14pxずつはみ出させて、390px幅でも等倍で描く。もっと狭い画面では svg が縮む。 */
+  .radar-wrap{display:flex; justify-content:center; margin:0 -14px}
+  .radar-wrap svg{max-width:100%; height:auto; flex:0 1 auto}
+  .radar-label-name{font-size:12px; font-weight:700; fill:var(--ink)}   /* 第69弾: レーダーも縮小表示(360pxで0.92倍)。指定12で実効約11px */
+  .radar-label-rank{font-size:10px; fill:var(--sub)}
   .radar-hit{cursor:pointer}
   #radarTooltip{
     margin-top:8px; min-height:18px; text-align:center;
@@ -745,11 +808,15 @@
   .news-item mark{background:var(--ink); color:var(--card); border-radius:3px; padding:0 3px; font-weight:800}
   .chart-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch}
   .chart-scroll svg{display:block}
-  .chart-axis-label{font-size:9px; fill:var(--sub)}
+  .chart-axis-label{font-size:10px; fill:var(--sub)}
+  /* 第69弾: 順位推移グラフは viewBox 360 を幅100%に縮めて描く(390pxで0.9倍・360pxで0.82倍・320pxで0.7倍)。
+     文字の実寸は「指定値×縮尺」なので、9pxの指定は実寸8px(390px)〜6px(320px)まで小さくなっていた。
+     指定を12にして、実寸を390pxで約11px・360pxで約10px・320pxで約8.5pxにする。 */
+  .rank-chart-wrap .chart-axis-label{font-size:12px}
   .chart-result-mark{font-size:11px; font-weight:700; fill:var(--ink)}
   .rank-team-label{cursor:pointer}
   .rank-team-label text{font-size:18px}
-  .rank-value-label{font-size:9px; font-weight:700}
+  .rank-value-label{font-size:12px; font-weight:700}   /* 第69弾: 上と同じ理由で9→12 */
   .rank-chart-wrap svg{display:block; width:100%; height:auto}
 
   /* 他会場インパクト(第8弾B) */
@@ -771,7 +838,7 @@
 
   /* 全体ビュー(第9弾) 共通: リーグセグメント切替はscheduleの.seg-toggleを再利用する */
   .league-badge{
-    display:inline-block; font-size:9px; font-weight:700; padding:2px 5px; border-radius:4px;
+    display:inline-block; font-size:10px; font-weight:700; padding:2px 5px; border-radius:4px;
     color:#fff; letter-spacing:.02em; flex:none;
   }
   .league-badge.j1{background:var(--lg-j1)} .league-badge.j2{background:var(--lg-j2)} .league-badge.j3{background:var(--lg-j3)}
@@ -798,7 +865,7 @@
   .cal-team{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px}
   .cal-team.away{text-align:right}
   .cal-score{font-weight:700; font-variant-numeric:tabular-nums; text-align:center; white-space:nowrap; display:inline-flex; align-items:center; gap:4px}
-  .cal-round{font-size:9px; color:var(--sub); text-align:right}
+  .cal-round{font-size:10px; color:var(--sub); text-align:right; white-space:nowrap}
   /* 第60弾: まだ終わっていない試合に添える現在順位。順位のせいでクラブ名が折り返したり
      切れたりしないよう、入り切らないときは順位のほうを次の行へ送る */
   .rank-tag{flex:none; font-size:10px; font-weight:700; color:var(--sub); font-variant-numeric:tabular-nums; white-space:nowrap}
@@ -830,12 +897,12 @@
   .ec-teams{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px; margin-top:4px}
   .ec-team{font-size:13px; overflow:hidden; text-overflow:ellipsis}
   .ec-team.away{text-align:right}
-  .ec-team.team-link{cursor:pointer}
+  .ec-team .team-link{cursor:pointer}
   .ec-team.me{font-weight:700}
   .ec-qual{display:block; font-size:10px; color:var(--sub); font-weight:400}
   .ec-scorewrap{text-align:center; white-space:nowrap}
   .ec-score{font-weight:700; font-variant-numeric:tabular-nums}
-  .ec-ex,.ec-pk{display:block; font-size:9px; color:var(--sub); font-weight:700}
+  .ec-ex,.ec-pk{display:block; font-size:10px; color:var(--sub); font-weight:700}
   .ec-venue{font-size:11px; color:var(--sub); margin-top:3px}
   .ec-scorers{display:grid; grid-template-columns:1fr auto 1fr; gap:8px; margin-top:4px; font-size:11px; color:var(--sub); line-height:1.5}
   .ec-scorers .away{text-align:right}
@@ -869,7 +936,7 @@
     border-radius:50%; background:var(--marker); border:2px solid var(--marker-line); opacity:.95;
   }
   /* margin左80px/右40pxは .predict-row の grid-template-columns(20px 44px 1fr 32px)と gap(8px)から来ている: 左=20+8+44+8, 右=32+8。列幅を変えたらここも直すこと。 */
-  .predict-axis{display:flex; justify-content:space-between; font-size:10px; color:var(--sub); margin:4px 40px 0 80px}
+  .predict-axis{display:flex; justify-content:space-between; font-size:11px; color:var(--sub); margin:4px 40px 0 80px}
   .predict-detail{margin:2px 0 8px; padding:10px 12px; background:var(--surface-1); border-left:3px solid var(--accent); border-radius:0 8px 8px 0}
   .predict-detail-big{font-size:13px; margin-bottom:6px}
   .predict-detail-big b{font-size:19px}
@@ -906,8 +973,9 @@
   }
   .theme-toggle-btn svg{display:block}
   /* headerの通常フローに置くと、表示/非表示のたびにヘッダの高さが変わり下のコンテンツが飛ぶ
-     (stickyヘッダなので特に目立つ)。header{position:relative}を基準にオーバーレイ表示する
-     (改訂: fix-header-layout)。#headerWrapのposition/z-indexはタブバー固定に関わるため触らない。 */
+     (stickyヘッダなので特に目立つ)。.header-main{position:relative}を基準にオーバーレイ表示する
+     (改訂: fix-header-layout)。第70弾: 基準は固定側(クラブ選択の段)に変わったので、一番上でも
+     スクロールした後でも、固定ヘッダの真下に出る。#headerWrapのposition/z-indexは触らない。 */
   .ondemand-toast{
     position:absolute; top:100%; left:calc(12px + env(safe-area-inset-left)); right:calc(12px + env(safe-area-inset-right)); z-index:20;
     margin:6px 0 0; padding:8px 12px; border-radius:10px; background:rgba(0,0,0,.28);
@@ -934,6 +1002,7 @@
     position:absolute; top:100%; left:calc(12px + env(safe-area-inset-left)); right:calc(12px + env(safe-area-inset-right)); z-index:20;
     margin:6px 0 0; padding:12px 14px; border-radius:var(--radius); background:var(--card); color:var(--ink);
     box-shadow:0 4px 16px rgba(0,0,0,.18); font-size:12px;
+    max-height:calc(100vh - 150px); overflow-y:auto;   /* 第70弾: 固定ヘッダが短くなり下部ナビが入ったので、背の低い画面でもナビの下へはみ出さない */
   }
   .ondemand-popover h4{margin:0 0 8px; font-size:11px; font-weight:700; color:var(--sub); letter-spacing:.06em}
   .ondemand-popover-row{display:flex; justify-content:space-between; gap:10px; padding:4px 0}
@@ -957,7 +1026,7 @@
     color:var(--ink); font-size:12px; font-weight:700; padding:8px 12px; border-radius:8px;
     cursor:pointer; font-family:inherit;
   }
-  .ghtoken-note{margin:7px 0 0; font-size:10px; color:var(--sub); line-height:1.5}
+  .ghtoken-note{margin:7px 0 0; font-size:11px; color:var(--sub); line-height:1.5}
 
   /* ホームタブの昇格確率タイルだけは、その場に小さく基準時刻を残す(一番誤解されやすい数字のため) */
   .ondemand-basis-compact{margin:8px 0 0; font-size:11px; color:var(--sub)}
@@ -1000,6 +1069,29 @@
   .events-toggle.open{transform:rotate(90deg); color:var(--accent)}
   /* 第15弾: ハイライト動画が既に埋め込み済みの試合行に付ける目印 */
   .video-mark{font-size:12px; flex:none; line-height:1}
+  /* 第67弾: 試合行の最終列。🎥(ハイライト動画あり)と▸(詳細を開く)を1つの要素にまとめて入れる。
+     以前は別々のグリッド子要素だったので、🎥がある行だけ列が足りず▸が次の行へ落ちていた(行高45→72px)。
+     行は1つずつ独立したグリッドなので、列幅は固定(26px)にして、🎥の有無で右端の位置が揺れないようにする。
+     どちらも無い行(未消化の試合)には has-tail を付けず、従来の14pxのまま。 */
+  .row-tail{display:inline-flex; align-items:center; justify-content:flex-end; gap:2px; min-width:0}
+  .sched-row.has-tail{grid-template-columns:26px 1fr auto 26px}
+  .sched-row.all.has-tail{grid-template-columns:1fr auto 1fr 26px}
+  /* 第69弾: クラブ日程(自クラブのみ)は月ごとの見出しにして、節番号は各行の左端(H/Aの前)に小さく置く。
+     左の列は26px→34px(8px増)。 */
+  .sched-row.with-rd{grid-template-columns:34px 1fr auto 14px}
+  .sched-row.with-rd.has-tail{grid-template-columns:34px 1fr auto 26px}
+  .sched-lead{display:flex; align-items:baseline; gap:6px}
+  .sched-rd{min-width:14px; text-align:right; font-size:11px; color:var(--sub); font-variant-numeric:tabular-nums}
+  .cal-row.has-tail{grid-template-columns:26px 38px 1fr auto 1fr 24px 26px}
+  /* 第69弾: .cal-team / .ec-team は省略記号のために overflow:hidden だが、それだと縦に広げた当たりも切り落とされる。
+     対応しているブラウザでは横方向だけ切る(省略記号の挙動は同じ)。非対応なら従来どおり hidden のまま。 */
+  @supports (overflow:clip){
+    .cal-team, .ec-team{overflow-x:clip; overflow-y:visible}
+  }
+  /* 第69弾: 節を日付見出しにまとめた日の行は、節の列(24px)を出さない。空いた幅はクラブ名の2列(1fr)に回る。 */
+  .cal-row.no-rd{grid-template-columns:26px 38px 1fr auto 1fr 14px}
+  .cal-row.no-rd.has-tail{grid-template-columns:26px 38px 1fr auto 1fr 26px}
+  .cal-day-rd{font-weight:400; margin-left:6px}
   .events-panel{padding:2px 0 10px; animation:events-fade-in .15s ease}
   @keyframes events-fade-in{from{opacity:0} to{opacity:1}}
   .events-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
@@ -1028,7 +1120,7 @@
   .lineups-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px; font-size:12px}
   .lineups-num{display:inline-block; min-width:20px; color:var(--sub); font-variant-numeric:tabular-nums}
   /* 第14弾: 控えメンバー(スタメンより一段落ち着いた見た目にする) */
-  .lineups-sub-title{font-size:10px; font-weight:700; color:var(--sub); margin:8px 0 3px}
+  .lineups-sub-title{font-size:11px; font-weight:700; color:var(--sub); margin:8px 0 3px}
   .lineups-bench{color:var(--sub)}
   .lineups-pos{display:inline-block; min-width:26px; font-size:10px; color:var(--sub)}
   /* 第22弾: 選手名リンク(Jリーグ公式の個人ページ)。地の文と見分けがつく程度に留め、下線はhoverのみ */
@@ -1057,6 +1149,48 @@
   button, a, .predict-row, .sched-row, .cal-row, .ec-row, .team-link{
     -webkit-tap-highlight-color:transparent;
   }
+  /* 第70弾 D3: 切り替え(セグメント)の見た目を1種類にそろえた。これまでは .seg-toggle だけが連結型で、
+     .stats-subtabs / .chart-series-tabs / .cal-league-filter は離れた丸ボタン、ヘッダーの .mode-toggle は別物と、
+     見た目が5系統あった。角丸の連結型・高さ44px(タップ下限。提案の40pxでなく既存の下限に合わせた)・
+     選択中は1stカラーのベタ塗り。幅が足りないときは折り返さず横スクロールにする(スクロールバーは出さない)。
+     マークアップとJSは変えていない。ヘッダーの .mode-toggle は上の定義で同じ連結型にしてある。 */
+  .seg-toggle,
+  .stats-subtabs,
+  .chart-series-tabs,
+  .cal-league-filter{
+    display:flex; flex-wrap:nowrap; gap:0; align-items:stretch;
+    border:1px solid var(--line); border-radius:999px; background:var(--card);
+    overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  }
+  .seg-toggle::-webkit-scrollbar,
+  .stats-subtabs::-webkit-scrollbar,
+  .chart-series-tabs::-webkit-scrollbar,
+  .cal-league-filter::-webkit-scrollbar{display:none}
+  .seg-toggle button,
+  .stats-subtabs button,
+  .chart-series-tabs button,
+  .cal-league-filter button{
+    flex:1 0 auto; min-width:0; border:none; border-radius:0; background:transparent; color:var(--sub);
+    font-size:12px; font-weight:700; padding:0 10px; white-space:nowrap; cursor:pointer; font-family:inherit;
+  }
+  .seg-toggle button + button,
+  .stats-subtabs button + button,
+  .chart-series-tabs button + button,
+  .cal-league-filter button + button{box-shadow:inset 1px 0 0 var(--line)}
+  .seg-toggle button.active,
+  .stats-subtabs button.active,
+  .chart-series-tabs button.active,
+  .cal-league-filter button.active{background:var(--accent); color:var(--accent-ink); box-shadow:none}
+  .seg-toggle button.active + button,
+  .stats-subtabs button.active + button,
+  .chart-series-tabs button.active + button,
+  .cal-league-filter button.active + button{box-shadow:none}
+  .seg-toggle button:focus-visible,
+  .stats-subtabs button:focus-visible,
+  .chart-series-tabs button:focus-visible,
+  .cal-league-filter button:focus-visible{outline-offset:-3px; border-radius:0}   /* 外側へ出すと、はみ出し判定の箱で切れる */
+  .seg-sub{margin-bottom:12px}   /* 第70弾 D2: 「データ」「ニュース」の中の切り替え(画面の先頭) */
+
   /* 指のタップ領域の下限(44px, Apple HIG)。paddingを増やすのではなくmin-heightで
      下限だけ決め、中身はflexで中央に置く。既に44pxを超えている#tabbar/a.btnは対象外。 */
   .seg-toggle button, .stats-subtabs button, .chart-series-tabs button,
@@ -1095,8 +1229,8 @@
 </head>
 <body>
 
-<div id="headerWrap">
-<header>
+<!-- 第70弾 D1: アプリ名と ⟳ / i / テーマの段。固定せず、スクロールすると流れて消える -->
+<header class="top-bar" id="topBar">
   <div class="header-row1">
     <h1>Jリーグ ダッシュボード</h1>
     <div class="header-row1-right">
@@ -1111,6 +1245,10 @@
            1行に ⟳/i/テーマ/版数/日時 が詰まってアプリ名が「Jリー…」と切れていたため。 -->
     </div>
   </div>
+</header>
+<!-- 第70弾 D1: 画面上部に固定するのはクラブ選択の段だけ(トースト・更新バナー・ポップオーバーもこの中) -->
+<div id="headerWrap">
+<div class="header-main">
   <!-- 第37弾: 取得結果を伝える唯一の手段なので、支援技術にも届くようにする(#updateBannerと揃える) -->
   <div id="ondemandToast" class="ondemand-toast" role="status" aria-live="polite" hidden></div>
   <div id="updateBanner" class="update-banner" role="status" hidden>
@@ -1125,8 +1263,8 @@
     </div>
     <select id="clubSelect" aria-label="応援クラブを選ぶ"></select>
   </div>
-</header>
-<nav id="tabbar"></nav>
+  <div id="viewingBar" class="viewing-bar" role="status" hidden></div>
+</div>
 </div>
 
 <main id="app">
@@ -1134,6 +1272,9 @@
 </main>
 
 <footer id="footer"></footer>
+
+<!-- 第70弾 D2: 画面下に固定するナビ。中身は renderTabButtons() が入れる -->
+<nav id="tabbar" aria-label="メインメニュー"></nav>
 
 <script>
 "use strict";
@@ -1179,7 +1320,7 @@ const APP_BUILD_VERSION = "__DEPLOY_VERSION__";
 const APP_BUILD_VERSION_PLACEHOLDER = "__DEPLOY" + "_VERSION__";  // 自分自身が置換されないように分割
 
 const state = {
-  masters: {}, cache: {}, idTeam: null, league: null,
+  masters: {}, cache: {}, idTeam: null, favTeam: null, league: null,   // favTeam: 応援クラブ(保存される)。idTeam は表示中のクラブ
   teamsById: {}, // 第14弾: 全リーグ横断のidTeam->チーム情報(color等)。init()でmasters読み込み後に構築する
   news: undefined, clubExtra: undefined, // undefined=未取得, null=取得試行済みでデータ無し
   /* 第26弾: ニュースはクラブ別に分割配信されている。
@@ -1191,6 +1332,8 @@ const state = {
   myNewsKeywords: null,   // 第32弾: マイニュースのキーワード配列。nullなら初回にlocalStorageから読む
   newsScope: "my",        // 第49弾: 注目タブの表示("my"=キーワード絞り込み / "all"=全件)
   newsAllLimit: 0,        // 全件表示の表示件数。0なら初期値(NEWS_ALL_PAGE)
+  newsClubKind: "all",    // 第69弾: クラブの「ニュース」タブの絞り込み("all"/"official"/"media")
+  newsClubLimit: 0,       // 同・表示件数。0なら初期値(NEWS_CLUB_PAGE)。クラブを変えたら戻す
   emperorsCup: undefined, // 第23弾: 天皇杯(data/processed/emperors_cup.json)。undefined=未取得, null=データ無し
   cupRound: null,         // カップタブで表示中のラウンド名。nullなら初回描画時に決める
   currentRoundForJump: null, // 第27弾: 日程タブ「今節へ」のスクロール先(描画時に控える)
@@ -1201,6 +1344,7 @@ const state = {
   leagueCup: undefined,       // leaguecup.json。undefined=未取得, null=データ無し
   leagueCupEvents: undefined, // leaguecup_match_events.json(得点者/カード/交代/メンバー/動画)
   emperorsCupEvents: undefined, // 第23弾フェーズ2: 天皇杯の試合詳細(emperors_cup_events.json)
+  navLast: {},           // 第70弾: 下部ナビの項目ごとに最後に開いたタブ(データ→選手 など)。保存はしない
   activeTab: "home",
   statsGroup: "model", // スタッツタブのレーダー切替(既定は「モデル」)
   scheduleMode: "mine", // 日程タブ: "mine"=自クラブのみ(既定) / "all"=リーグ全体
@@ -1509,6 +1653,34 @@ function saveFav(id) {
   try { localStorage.setItem(STORE_KEY, id); } catch (e) { /* 無視 */ }
 }
 
+/* 第68弾: クラブ名のタップは「見るだけ」にした。応援クラブ(state.favTeam・保存される)と、
+   表示中のクラブ(state.idTeam・一時的)を分け、両者が違うあいだだけヘッダー下段に帯を出す。 */
+function renderViewingBar() {
+  const bar = document.getElementById("viewingBar");
+  if (!bar) return;
+  const cur = findTeam(state.idTeam), fav = findTeam(state.favTeam);
+  if (!cur || !fav || state.idTeam === state.favTeam) { bar.hidden = true; bar.innerHTML = ""; return; }
+  const nm = f => esc(f.team.short || f.team.ja || "");
+  bar.innerHTML =
+    '<span class="vb-text">' + nm(cur) + 'を表示中</span>' +
+    '<button type="button" data-backfav aria-label="' + nm(fav) + 'に戻る">← ' + nm(fav) + '<span class="vb-opt">に戻る</span></button>' +
+    '<button type="button" data-setfav aria-label="応援クラブにする">★ 応援<span class="vb-opt">クラブ</span>にする</button>';
+  bar.hidden = false;
+}
+
+/* 第68弾: 「クラブを変えた」「モードを変えた」という大きな移動だけ履歴に積む(タブの移動は今までどおり積まない)。
+   積む直前に、いまの画面(クラブ・モード)を現在の履歴へ書き込み、積んだ先には移動後の値を書く。
+   戻る/進む(popstate)では、移動先の履歴に書かれたクラブへ切り替える。 */
+function recordViewState() {
+  try { history.replaceState({ idTeam: state.idTeam, mode: state.viewMode }, ""); } catch (e) { /* 無視 */ }
+}
+function pushViewHistory(nextIdTeam, nextMode) {
+  try {
+    recordViewState();
+    history.pushState({ idTeam: nextIdTeam || state.idTeam, mode: nextMode || state.viewMode }, "");
+  } catch (e) { /* 履歴が使えない環境(file:// など)では積まない。戻れないだけ */ }
+}
+
 /* 第37弾: "no-store" から "no-cache" にした。どちらも毎回サーバへ問い合わせる点は同じだが、
    "no-store" は 304 Not Modified による条件付きリクエストまで禁止するため、
    中身が1バイトも変わっていなくても毎回フルダウンロードになっていた。
@@ -1571,7 +1743,77 @@ function esc(s) {
   return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 }
 
+/* 第67弾: 試合行の最終列(🎥+▸)。別々のグリッド子要素にすると、🎥がある行だけ▸が次の行へ落ちる。
+   どちらも無い行は空文字を返す(行側は has-tail を付けない)。 */
+function rowTailHtml(videoMarkHtml, expandHtml) {
+  return (videoMarkHtml || expandHtml)
+    ? '<span class="row-tail">' + videoMarkHtml + expandHtml + '</span>'
+    : "";
+}
+
+/* 第67弾: 読み込み・描画に失敗したときの表示。以前はメッセージだけで、復帰するにはブラウザ側の
+   リロード操作しか無かった(ホーム画面に追加したアプリにはアドレスバーが無い)。
+   data-app-reload は更新バナーと共通のハンドラ(location.reload())に繋がる。 */
+function errorHtml(message) {
+  return '<div class="err"><b>読み込めませんでした。</b>通信状態を確認して、もう一度お試しください。' +
+    (message ? '<div class="err-detail">' + esc(message) + '</div>' : "") +
+    '<button type="button" data-app-reload>再読み込み</button></div>';
+}
+
 /* ---------- タブ ---------- */
+
+/* 第70弾 D2: 下部ナビの項目。tabs=その項目に属する内部タブid(TABS/ALL_TABSのid)。
+   内部のタブ・ハッシュ・state.activeTab/allTab は従来のまま(下部ナビは見せ方だけ)。
+   タブを2つ以上持つ項目(データ/ニュース)は、画面の先頭の切り替え(.seg-sub)で行き来する。 */
+const NAV_ICONS = {
+  home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/>',
+  schedule: '<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  standings: '<path d="M3 20.5h18"/><path d="M9 20.5V9h6v11.5"/><path d="M3.5 20.5V14H9"/><path d="M15 20.5V16h5.5v4.5"/>',
+  stats: '<path d="M3.5 4v16.5h17"/><path d="M7.5 15.5l4-5 3 3 5-6.5"/>',
+  news: '<rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8 9h8M8 13h8M8 17h5"/>',
+  predict: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><path d="M12 12h.01"/>',
+  cup: '<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H4.5v1.5A3.5 3.5 0 0 0 8 11M16 6h3.5v1.5A3.5 3.5 0 0 1 16 11"/><path d="M12 13.5V17M8.5 20h7M10 17h4"/>',
+};
+const NAV_CLUB = [
+  { id: "home", label: "ホーム", tabs: ["home"] },
+  { id: "schedule", label: "日程", tabs: ["schedule"] },
+  { id: "standings", label: "順位", tabs: ["standings"] },
+  { id: "stats", label: "データ", tabs: ["stats", "players"] },
+  { id: "news", label: "ニュース", tabs: ["news", "mynews"] },
+];
+const NAV_ALL = ALL_TABS.map(t => ({ id: t.id, label: t.label, tabs: [t.id] }));
+/* 画面の先頭の切り替えに出す名前。下部ナビの名前や旧タブ名(「注目」)とは別に、中身が分かる名前にする。 */
+const SUB_LABELS = { stats: "スタッツ", players: "選手", news: "クラブのニュース", mynews: "注目" };
+function navGroupOf(tabId) {
+  return NAV_CLUB.find(i => i.tabs.length > 1 && i.tabs.includes(tabId)) || null;
+}
+function rememberNavTab(tabId) {
+  const g = navGroupOf(tabId);
+  if (g) state.navLast[g.id] = tabId;
+}
+/* 下部ナビを押したときの行き先。データ/ニュースは、その項目で最後に開いていたタブへ戻る。 */
+function navTargetTab(navId) {
+  const item = NAV_CLUB.find(i => i.id === navId);
+  if (!item) return navId;
+  const last = state.navLast[item.id];
+  return (last && item.tabs.includes(last)) ? last : item.tabs[0];
+}
+function clubSubSwitchHtml(tabId) {
+  const g = navGroupOf(tabId);
+  if (!g) return "";
+  return '<div class="seg-toggle seg-sub" role="group" aria-label="' + esc(g.label) + 'の表示切り替え">' +
+    g.tabs.map(id =>
+      '<button type="button" class="' + (id === tabId ? "active" : "") + '" aria-current="' + (id === tabId ? "page" : "false") +
+      '" data-subtab="' + id + '">' + esc(SUB_LABELS[id] || id) + '</button>'
+    ).join("") + '</div>';
+}
+/* 入力欄にフォーカスがあるあいだ(=キーボードが出ている)は下部ナビを隠す(CSSの body.kbd-open)。 */
+function isTextEntry(el) {
+  return !!(el && el.matches && el.matches("textarea, input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=range])"));
+}
+function syncKbdOpen() {
+  document.body.classList.toggle("kbd-open", isTextEntry(document.activeElement));
+}
 
 /* タブの一覧はモードで差し替わる(クラブ=TABS / 全体=ALL_TABS)。ボタンの描画(renderTabButtons)と
    クリックの購読(bindTabBarEvents)を分けてあるのは、#tabbar要素自体は使い回し、モード切替のたびに
@@ -1584,8 +1826,10 @@ function currentActiveTabId() {
 }
 function renderTabButtons() {
   const bar = document.getElementById("tabbar");
-  bar.innerHTML = currentTabList().map(t =>
-    '<button type="button" data-tab="' + t.id + '" aria-current="false">' + esc(t.label) + '</button>'
+  bar.innerHTML = (state.viewMode === "all" ? NAV_ALL : NAV_CLUB).map(t =>
+    '<button type="button" data-tab="' + t.id + '" data-tabs="' + t.tabs.join(" ") + '" aria-current="false">' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + (NAV_ICONS[t.id] || "") + '</svg>' +
+      '<span>' + esc(t.label) + '</span></button>'
   ).join("");
 }
 /* 左右スワイプでの隣タブ移動(第27弾)。
@@ -1603,6 +1847,10 @@ function bindSwipeNavigation() {
     /* 横スクロールを持つ要素の上から始まったスワイプは、その要素のものとして扱う。
        .chart-scroll(確率推移グラフ)と .ec-rounds(カップのラウンド切替)が該当する。 */
     if (ev.target.closest && ev.target.closest(".chart-scroll, .ec-rounds")) { active = false; return; }
+    /* 第70弾 D3: 切り替え(セグメント)は幅が足りないと横スクロールする。実際にあふれているときだけ、
+       その上の指の動きは切り替え側のものとして扱う(あふれていなければ従来どおりタブ移動のスワイプ)。 */
+    const seg = ev.target.closest && ev.target.closest(".seg-toggle, .stats-subtabs, .chart-series-tabs, .cal-league-filter");
+    if (seg && seg.scrollWidth > seg.clientWidth + 1) { active = false; return; }
     const t = ev.touches[0];
     sx = t.clientX; sy = t.clientY; st = Date.now(); active = true;
   }, { passive: true });
@@ -1674,14 +1922,24 @@ function bindTabBarEvents() {
     const btn = ev.target.closest("button[data-tab]");
     if (!btn) return;
     if (state.viewMode === "all") setAllTab(btn.dataset.tab);
-    else setActiveTab(btn.dataset.tab);
+    else setActiveTab(navTargetTab(btn.dataset.tab));   // 第70弾: データ/ニュースは最後に開いたタブへ
+  });
+  /* 第70弾 D2: 入力欄(注目タブのキーワード欄)にフォーカスがあるあいだ、下部ナビを隠す。
+     閉じる側は focusout で外す。入力欄ごと作り直される場合は setAppHtml / updateTabBarActive でも合わせ直す。 */
+  document.addEventListener("focusin", ev => {
+    document.body.classList.toggle("kbd-open", isTextEntry(ev.target));
+  });
+  document.addEventListener("focusout", () => {
+    document.body.classList.remove("kbd-open");
   });
 }
 function updateTabBarActive() {
   const bar = document.getElementById("tabbar");
   const active = currentActiveTabId();
+  if (state.viewMode !== "all") rememberNavTab(active);   // 第70弾: ハッシュ・スワイプ・戻る操作のどれで開いても覚える
+  syncKbdOpen();
   for (const btn of bar.querySelectorAll("button[data-tab]")) {
-    const on = btn.dataset.tab === active;
+    const on = (btn.dataset.tabs || btn.dataset.tab).split(" ").includes(active);
     btn.classList.toggle("active", on);
     btn.setAttribute("aria-current", on ? "page" : "false");
   }
@@ -1722,7 +1980,7 @@ function syncHash() {
      replaceState なら hashchange は発火しない。ハッシュは「いま開いている画面」の
      記録としてだけ使い、戻る/進むは従来どおり hashchange 側で処理する。 */
   try {
-    history.replaceState(null, "", "#" + path);
+    history.replaceState(history.state, "", "#" + path);   // 第68弾: pushViewHistory で書いた state を消さない
   } catch (e) {
     location.hash = path;  // file:// など replaceState が使えない場合の保険
   }
@@ -1786,6 +2044,7 @@ function setAllTab(tabId) {
 function setViewMode(mode) {
   if (mode !== "club" && mode !== "all") mode = "club";
   if (mode === state.viewMode) return;
+  pushViewHistory(state.idTeam, mode);   // 第68弾
   state.viewMode = mode;
   if (mode === "all" && state.allTab === "schedule") markCalendarOpened();
   if (mode === "club" && state.activeTab === "schedule") markClubScheduleOpened();   // 第60弾
@@ -2109,7 +2368,7 @@ async function init() {
     app.innerHTML = '<div class="err"><b>データを読み込めませんでした。</b><br>' + esc(e.message) +
       '<br><br>プロジェクトのルートで <code>python -m http.server 8000</code> を起動し、' +
       '<code>http://localhost:8000/</code> を開いてください。' +
-      'ファイルを直接ダブルクリックで開くとブラウザがJSONの読み込みを拒否します。</div>';
+      'ファイルを直接ダブルクリックで開くとブラウザがJSONの読み込みを拒否します。<br><button type="button" data-app-reload>再読み込み</button></div>';
     return;
   }
 
@@ -2131,8 +2390,16 @@ async function init() {
 
   const saved = loadFav();
   const initial = (saved && findTeam(saved)) ? saved : findFavoriteTeam();
+  state.favTeam = initial;   // 第68弾
   document.getElementById("clubSelect").value = initial;
   await selectTeam(initial);
+  /* 第67弾: ヘッダーの ⟳ の時刻は試合データ(generatedAtJst)から取る。選手・ニュース・カップなどを
+     最初に開いた(リロード時にそのタブのまま戻ってきた)場合は試合データが未取得で、「--:--」のままだった。
+     最初の描画のあとで、応援クラブのリーグの分だけ先読みして時刻を埋める。await しない(初回描画を
+     待たせない)。失敗しても何も起きない(ensureMatches は失敗をキャッシュしない)。 */
+  if (state.league && !leagueCache(state.league).matches) {
+    ensureMatches(state.league).then(() => updateOndemandHeaderBtn(), () => {});
+  }
 
   document.getElementById("themeToggleBtn").addEventListener("click", toggleTheme);
   updateThemeToggleBtn();
@@ -2146,7 +2413,21 @@ async function init() {
 
   document.getElementById("clubSelect").addEventListener("change", ev => {
     saveFav(ev.target.value);
+    state.favTeam = ev.target.value;   // 第68弾
     selectTeam(ev.target.value);
+    recordViewState();                 // 第68弾: 現在の履歴に書いたクラブを古いままにしない
+  });
+
+  /* 第68弾: 戻る/進む。state を持つのは pushViewHistory で積んだ履歴だけ(それ以外は何もしない)。
+     ハッシュ(タブ・モード)が変わる移動では、この直後に hashchange が描画するので、ここではクラブだけ
+     切り替えて描画しない(二重に描画しない)。ハッシュが同じ(同じ画面でクラブだけ違う)ときは
+     hashchange が起きないので、ここで描画する。 */
+  window.addEventListener("popstate", ev => {
+    const st = ev.state;
+    if (!st || !st.idTeam || !findTeam(st.idTeam) || st.idTeam === state.idTeam) return;
+    const hashWillChange = location.hash.replace("#", "") !== currentHashPath();
+    document.getElementById("clubSelect").value = st.idTeam;
+    selectTeam(st.idTeam, hashWillChange);
   });
 
   window.addEventListener("hashchange", () => {
@@ -2262,6 +2543,23 @@ async function init() {
       return;
     }
 
+    // 第68弾: 表示中のクラブの帯。応援クラブへ戻る / 表示中のクラブを応援クラブにする
+    if (ev.target.closest("[data-backfav]")) {
+      const fav = state.favTeam;
+      if (fav && fav !== state.idTeam && findTeam(fav)) {
+        pushViewHistory(fav);
+        document.getElementById("clubSelect").value = fav;
+        selectTeam(fav);
+      }
+      return;
+    }
+    if (ev.target.closest("[data-setfav]")) {
+      saveFav(state.idTeam);
+      state.favTeam = state.idTeam;
+      renderViewingBar();
+      return;
+    }
+
     const modeToggleBtn = ev.target.closest("[data-viewmode]");
     if (modeToggleBtn) {
       setViewMode(modeToggleBtn.dataset.viewmode);
@@ -2310,9 +2608,9 @@ async function init() {
     if (teamLinkBtn) {
       const idTeam = teamLinkBtn.dataset.idteam;
       if (idTeam && idTeam !== state.idTeam && findTeam(idTeam)) {
+        pushViewHistory(idTeam);   // 第68弾: 戻る操作で元のクラブへ戻れるようにする
         document.getElementById("clubSelect").value = idTeam;
-        saveFav(idTeam);
-        selectTeam(idTeam);
+        selectTeam(idTeam);        // 第68弾: 保存しない(応援クラブはプルダウンか「★ 応援クラブにする」でだけ変える)
         return;
       }
     }
@@ -2489,6 +2787,27 @@ async function init() {
       return;
     }
 
+    /* 第69弾: クラブの「ニュース」タブ。すべて/公式/メディアの切替と、30件ずつの「さらに見る」。 */
+    const newsKindBtn = ev.target.closest("[data-newsclubkind]");
+    if (newsKindBtn) {
+      state.newsClubKind = newsKindBtn.dataset.newsclubkind;
+      state.newsClubLimit = 0;   // 切り替えたら表示件数は最初から
+      renderActiveTab();
+      return;
+    }
+    if (ev.target.closest("[data-newsclubmore]")) {
+      state.newsClubLimit = (state.newsClubLimit || NEWS_CLUB_PAGE) + NEWS_CLUB_PAGE;
+      renderActiveTab();
+      return;
+    }
+
+    /* 第70弾 D2: 「データ」「ニュース」の中の切り替え(スタッツ⇔選手 / クラブのニュース⇔マイニュース)。 */
+    const subBtn = ev.target.closest("[data-subtab]");
+    if (subBtn) {
+      if (subBtn.dataset.subtab !== state.activeTab) setActiveTab(subBtn.dataset.subtab);
+      return;
+    }
+
     const groupBtn = ev.target.closest("[data-statsgroup]");
     if (groupBtn) {
       state.statsGroup = groupBtn.dataset.statsgroup;
@@ -2642,7 +2961,7 @@ function buildSelect() {
   }
 }
 
-async function selectTeam(idTeam) {
+async function selectTeam(idTeam, noRender) {   // noRender: 第68弾 戻る操作で hashchange が描画するとき
   const found = findTeam(idTeam);
   if (!found) return;
   // 第43弾: 別のクラブに切り替えたら、そのクラブの戦いは畳む
@@ -2650,9 +2969,12 @@ async function selectTeam(idTeam) {
   if (state.battlePick) state.battlePick = null;
   state.idTeam = idTeam;
   state.league = found.league;
+  state.newsClubKind = "all"; state.newsClubLimit = 0;   // 第69弾: クラブのニュースの絞り込みと件数は、クラブごとに最初から
+  renderViewingBar();   // 第68弾: 描画の前に出す(ヘッダーの高さを先に確定させる)
   // 第60弾: 節の並びはリーグごとに違うので、クラブを変えたら今節を計算し直して寄せる
   if (state.viewMode === "club" && state.activeTab === "schedule") markClubScheduleOpened();
   applyThemeForMode();
+  if (noRender) return;
   await renderActiveTab();
   // 日程タブ(全体モードの基準日・クラブモードの今節)は描画内で位置を決めている。ここで(0,0)に
   // 戻すとそれを上書きしてしまうので、そのケースだけは末尾のリセットをスキップする。
@@ -2780,6 +3102,7 @@ function setAppHtml(app, html) {
   };
 
   app.innerHTML = html;
+  syncKbdOpen();   // 第70弾: 入力欄ごと作り直されたときに、下部ナビの隠れっぱなしを防ぐ
   const t0 = resolve();
   if (Math.abs(window.scrollY - t0) > 0.5) window.scrollTo(0, t0);
   /* 差し替え直後だけでなく、レイアウトが確定したあとにもう一度見る。 */
@@ -2818,7 +3141,7 @@ async function renderActiveTab() {
     renderActiveTabBody(league, team, master, app);
   } catch (e) {
     cancelLoading();
-    app.innerHTML = '<div class="err">' + esc((e && e.message) || "描画に失敗しました") + '</div>';
+    app.innerHTML = errorHtml((e && e.message) || "描画に失敗しました");
   }
 }
 
@@ -2889,6 +3212,7 @@ function renderActiveTabBody(league, team, master, app) {
     const round = state.scheduleRound;
     nextScrollAnchor = () => findRoundBlock(round);
   }
+  html = clubSubSwitchHtml(state.activeTab) + html;   // 第70弾 D2: データ/ニュースの先頭に切り替えを置く
   setAppHtml(app, html);   // 第55弾
   /* 第43弾: 戦闘画面が出ているならメッセージ送りを動かす */
   if (state.battle && document.getElementById("battleRoot")) battleScheduleAdvance();
@@ -2896,7 +3220,7 @@ function renderActiveTabBody(league, team, master, app) {
   const genMeta = (cache.matches && cache.matches.meta) || (cache.standings && cache.standings.meta) || (cache.stats && cache.stats.meta);
   const gen = genMeta && genMeta.generatedAtJst;
   document.getElementById("footer").textContent =
-    "データ取得: " + (gen ? fmtDate(gen, true) : "不明") + " ／ 出典: TheSportsDB";
+    (gen ? "データ取得: " + fmtDate(gen, true) + " ／ " : "") + "出典: TheSportsDB";
   updateOndemandHeaderBtn();
   updateOndemandPopoverInPlace();
 }
@@ -2916,7 +3240,7 @@ async function renderAllModeActiveTab() {
     cancelLoading();
   } catch (e) {
     cancelLoading();
-    app.innerHTML = '<div class="err">' + esc(e.message) + '</div>';
+    app.innerHTML = errorHtml(e.message);
     return;
   }
 
@@ -2951,7 +3275,7 @@ async function renderAllModeActiveTab() {
 
   const gen = genMeta && genMeta.generatedAtJst;
   document.getElementById("footer").textContent =
-    "データ取得: " + (gen ? fmtDate(gen, true) : "不明") + " ／ 出典: " + source;
+    (gen ? "データ取得: " + fmtDate(gen, true) + " ／ " : "") + "出典: " + source;
   updateOndemandHeaderBtn();
   updateOndemandPopoverInPlace();
 }
@@ -3090,10 +3414,14 @@ function renderCupEventsPanel(ev, m, ownIdTeam) {
 
 function cupTeamHtml(side, ownIdTeam, isAway) {
   const isMe = !!(side.idTeam && side.idTeam === ownIdTeam);
-  const cls = "ec-team" + (isAway ? " away" : "") + (isMe ? " me" : "") + (side.idTeam ? " team-link" : "");
-  const attr = side.idTeam ? ' data-idteam="' + esc(side.idTeam) + '"' : "";
-  return '<span class="' + cls + '"' + attr + '>' +
-    (side.idTeam ? teamSwatchHtml(side.idTeam) : "") + esc(side.name || "未定") +
+  /* 第67弾: team-link(下線・›・タップ判定)をクラブ名だけを包む内側のspanへ移した。外側のspanに
+     付けていたため、その後ろの「J2」(.ec-qual, display:block)の下に › だけの行ができていた。 */
+  const cls = "ec-team" + (isAway ? " away" : "") + (isMe ? " me" : "");
+  const nameHtml = (side.idTeam ? teamSwatchHtml(side.idTeam) : "") + esc(side.name || "未定");
+  return '<span class="' + cls + '">' +
+    (side.idTeam
+      ? '<span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(side.idTeam) + '">' + nameHtml + '</span>'
+      : nameHtml) +
     (side.qualification ? '<span class="ec-qual">' + esc(side.qualification) + '</span>' : "") +
   '</span>';
 }
@@ -3346,9 +3674,9 @@ function standingsSectionHtml(standings, master, opts) {
   const badgeHtml = provisional ? '<span class="provisional-badge">暫定</span>' : "";
   const provisionalNoteHtml = provisional ? '<p class="ondemand-basis">' + PROVISIONAL_NOTE + '</p>' : "";
 
-  return '<section><h2>' + esc(opts.heading) + badgeHtml + '</h2><div class="card">' +
+  return '<section><h2>' + esc(opts.heading) + badgeHtml + '</h2><div class="card st-card">' +
     (opts.aboveTableHtml || "") +
-    '<table><thead><tr>' +
+    '<table class="st-table"><thead><tr>' +
       '<th class="rank">#</th><th class="club">クラブ</th><th>試</th><th>勝</th><th>分</th><th>負</th><th>差</th><th>点</th>' +
       '<th class="form">直近</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>' +
@@ -3743,7 +4071,28 @@ function visibleCalendarBuckets(dated, anchorDate, daysBefore, daysAfter) {
   return { buckets, hasMoreBefore, hasMoreAfter };
 }
 
-function calMatchRowHtml(m, ownIdTeam, ranksByLeague) {
+/* 第69弾: 日付見出しに添える節。同じ日の試合を、リーグごとに「節がすべて同じ」ときだけ見出しへまとめる
+   (例: 「J1・J2・J3 第17節」「J1・J2 第17節 ／ J3 第16節」)。節が分からない試合や、同じリーグの中で節が割れる日
+   (延期された試合が同じ日に行われるとき)は null を返し、その日は各行に節を残す。 */
+function calDayRoundLabel(matches) {
+  const byLeague = {};
+  for (const m of matches) {
+    if (!m.r) return null;
+    const r = String(m.r);
+    if (byLeague[m.l] === undefined) byLeague[m.l] = r;
+    else if (byLeague[m.l] !== r) return null;
+  }
+  const parts = [];
+  for (const lg of Object.keys(byLeague).sort()) {
+    const r = byLeague[lg];
+    const hit = parts.find(p => p.r === r);
+    if (hit) hit.leagues.push(lg.toUpperCase());
+    else parts.push({ r: r, leagues: [lg.toUpperCase()] });
+  }
+  return parts.map(p => p.leagues.join("・") + " 第" + p.r + "節").join(" ／ ");
+}
+
+function calMatchRowHtml(m, ownIdTeam, ranksByLeague, rdInHead) {   // rdInHead: 節は日付見出しに出しているので行には出さない(第69弾)
   // 第12弾: ライブスコアがあれば最優先で使う(進行中は日程/オンデマンドの値より新しい)。
   const live = state.liveScores[String(m.e)] || null;
   // 第10弾: オンデマンドキャッシュがあれば、そのidEvent(m.e)の分だけ日時/スコアを上書きして表示する。
@@ -3809,13 +4158,13 @@ function calMatchRowHtml(m, ownIdTeam, ranksByLeague) {
     : "";
 
   return '<div class="cal-row-wrap">' +
-    '<div class="cal-row' + (involvesMe ? " me" : "") + (live || derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
+    '<div class="cal-row' + (rdInHead ? " no-rd" : "") + (involvesMe ? " me" : "") + (live || derived ? " live" : "") + (hasEvents ? " has-events" : "") + (videoMarkHtml || expandHtml ? " has-tail" : "") + '"' + attrHtml + '>' +
       '<span class="league-badge ' + esc(m.l) + '">' + esc(m.l.toUpperCase()) + '</span>' +
       '<span class="cal-time">' + esc(timeLabel) + '</span>' +
       '<span class="cal-team' + (homeRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.h[0]) + '">' + teamSwatchHtml(m.h[0]) + esc(m.h[1]) + '</span>' + homeRank + '</span>' +
       '<span class="cal-score">' + esc(scoreLabel) + pillHtml + dotHtml + '</span>' +
       '<span class="cal-team away' + (awayRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.a[0]) + '">' + teamSwatchHtml(m.a[0]) + esc(m.a[1]) + '</span>' + awayRank + '</span>' +
-      '<span class="cal-round">' + (m.r ? "第" + esc(m.r) + "節" : "") + '</span>' + videoMarkHtml + expandHtml +
+      (rdInHead ? "" : '<span class="cal-round">' + (m.r ? esc(m.r) + "節" : "") + '</span>') + rowTailHtml(videoMarkHtml, expandHtml) +
     '</div>' + panelHtml +
   '</div>';
 }
@@ -3835,8 +4184,14 @@ function findCalendarAnchor() {
 function findRoundBlock(round) {
   const exact = document.getElementById("round-" + round);
   if (exact) return exact;
-  const blocks = Array.from(document.querySelectorAll(".sched-round[id^='round-']"));
-  const after = blocks.find(b => Number(b.id.slice(6)) > round);
+  /* 第69弾: 「自クラブのみ」は月見出しにして、節のidは各試合行(.sched-row-wrap)に付く。日付順に並べるので
+     延期の試合があると並びが節の順とは限らない。節番号が最小のものを選ぶ。 */
+  const blocks = Array.from(document.querySelectorAll("[id^='round-']"));
+  let after = null;
+  for (const b of blocks) {
+    const n = Number(b.id.slice(6));
+    if (n > round && (!after || n < Number(after.id.slice(6)))) after = b;
+  }
   return after || blocks[blocks.length - 1] || null;
 }
 function extendCalendarRange(direction) {
@@ -3904,11 +4259,12 @@ function renderAllSchedule(calendar, found) {
     ? '<button type="button" class="cal-loadmore" data-calmore="after">さらに先を見る</button>' : "";
 
   const daysHtml = buckets.map(b => {
-    const rowsHtml = b.matches.map(m => calMatchRowHtml(m, ownIdTeam, ranksByLeague)).join("");
+    const rdLabel = calDayRoundLabel(b.matches);   // 第69弾: 節は日付見出しへ(割れる日は各行に残す)
+    const rowsHtml = b.matches.map(m => calMatchRowHtml(m, ownIdTeam, ranksByLeague, !!rdLabel)).join("");
     /* 第38弾: 日付ごとのidを振る。「さらに前を見る」で先頭に行が差し込まれても、
        いま見ていた日付を基準に位置を戻せるようにするため。 */
     return '<div class="cal-day" id="' + esc("calDay-" + b.date) + '"' + (b.date === anchor ? ' data-calanchor="1"' : '') + '>' +
-      '<h3 class="cal-day-title">' + esc(fmtDateOnly(b.date)) + '</h3>' + rowsHtml +
+      '<h3 class="cal-day-title">' + esc(fmtDateOnly(b.date)) + (rdLabel ? '<span class="cal-day-rd">' + esc(rdLabel) + '</span>' : "") + '</h3>' + rowsHtml +
     '</div>';
   }).join("");
 
@@ -4025,7 +4381,7 @@ function renderResults(mine, team, league) {
           '<span class="r-ha">' + (isHome ? "H" : "A") + '</span>' +
           '<span class="r-opp"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span></span>' +
           '<span class="r-score">' + me.score + ' - ' + opp.score + dot + '</span>' +
-          '<span class="pill ' + mark + '">' + mark + '</span>' + videoMarkHtml + expandHtml +
+          '<span class="pill ' + mark + '">' + mark + '</span>' + rowTailHtml(videoMarkHtml, expandHtml) +
         '</div>' + panelHtml +
       '</li>';
     }).join("") + '</ul>';
@@ -4313,7 +4669,7 @@ function renderMatchEventsPanel(ev, homeId, homeName, awayId, awayName, ownIdTea
   return '<div class="events-panel">' + videoHtml + lineupsHtml + listHtml + shareHtml + '</div>';
 }
 
-function scheduleRowHtml(m, team, mode, provisional, league, ranks) {
+function scheduleRowHtml(m, team, mode, provisional, league, ranks, opts) {   // opts.round: 節番号を左端に出し、行に #round-N を付ける(第69弾・自クラブのみ)
   const involvesMe = m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam;
   const isHome = m.home.idTeam === team.idTeam;
 
@@ -4376,20 +4732,22 @@ function scheduleRowHtml(m, team, mode, provisional, league, ranks) {
   if (mode === "mine") {
     const opp = isHome ? m.away : m.home;
     const oppRank = rankOf(opp.idTeam);
-    return '<div class="sched-row-wrap">' +
-      '<div class="sched-row' + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
-        '<span class="sched-ha">' + (isHome ? "H" : "A") + '</span>' +
+    const showRd = !!(opts && opts.round && m.round >= 1);
+    const haHtml = '<span class="sched-ha">' + (isHome ? "H" : "A") + '</span>';
+    return '<div class="sched-row-wrap"' + (showRd ? ' id="round-' + esc(m.round) + '"' : "") + '>' +
+      '<div class="sched-row' + (showRd ? " with-rd" : "") + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + (videoMarkHtml || expandHtml ? " has-tail" : "") + '"' + attrHtml + '>' +
+        (showRd ? '<span class="sched-lead"><span class="sched-rd" title="第' + esc(m.round) + '節">' + esc(m.round) + '</span>' + haHtml + '</span>' : haHtml) +
         '<span class="sched-opp' + (oppRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(opp.idTeam) + '">' + teamSwatchHtml(opp.idTeam) + esc(opp.ja) + '</span>' + oppRank + '</span>' +
-        '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' + videoMarkHtml + expandHtml +
+        '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' + rowTailHtml(videoMarkHtml, expandHtml) +
       '</div>' + panelHtml +
     '</div>';
   }
   const homeRank = rankOf(m.home.idTeam), awayRank = rankOf(m.away.idTeam);
   return '<div class="sched-row-wrap">' +
-    '<div class="sched-row all' + (involvesMe ? " me" : "") + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + '"' + attrHtml + '>' +
+    '<div class="sched-row all' + (involvesMe ? " me" : "") + (derived ? " live" : "") + (hasEvents ? " has-events" : "") + (videoMarkHtml || expandHtml ? " has-tail" : "") + '"' + attrHtml + '>' +
       '<span class="sched-team' + (homeRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.home.idTeam) + '">' + teamSwatchHtml(m.home.idTeam) + esc(m.home.short || m.home.ja) + '</span>' + homeRank + '</span>' +
       '<span class="sched-score">' + centerHtml + pillHtml + dotHtml + '</span>' +
-      '<span class="sched-team away' + (awayRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.away.idTeam) + '">' + teamSwatchHtml(m.away.idTeam) + esc(m.away.short || m.away.ja) + '</span>' + awayRank + '</span>' + videoMarkHtml + expandHtml +
+      '<span class="sched-team away' + (awayRank ? " with-rank" : "") + '"><span class="team-link"' + LINK_A11Y_ATTR + ' data-idteam="' + esc(m.away.idTeam) + '">' + teamSwatchHtml(m.away.idTeam) + esc(m.away.short || m.away.ja) + '</span>' + awayRank + '</span>' + rowTailHtml(videoMarkHtml, expandHtml) +
     '</div>' + panelHtml +
   '</div>';
 }
@@ -4442,15 +4800,42 @@ function renderScheduleTab(matchesData, team, league) {
     roundNumbers.map(r => '<option value="' + r + '"' + (r === state.scheduleRound ? " selected" : "") + '>第' + r + '節</option>').join("") +
   '</select>';
 
-  const blocksHtml = roundNumbers.map(r => {
-    let rows = rounds[r];
-    if (mode === "mine") {
-      rows = rows.filter(m => m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam);
-      if (!rows.length) return "";
+  /* 第69弾: 「自クラブのみ」は月ごとの見出しにする(38節=38個の見出しが並び、見出しだけで画面の約3分の1を使っていた)。
+     節番号は各行の左端に小さく置き、節のidも行に付ける(「今節へ」と節セレクタの行き先)。
+     並びは日付順で、延期された試合は実際に行う月に入る(節の順に並べると、同じ月の見出しが何度も出る)。
+     日時未定の試合は最後の「日時未定」にまとめる。
+     リーグ全体は1節に10試合あって節でまとまっているほうが読みやすいので、従来どおり節ごとの見出し。 */
+  let blocksHtml;
+  if (mode === "mine") {
+    const mineRows = [];
+    roundNumbers.forEach(r => rounds[r].forEach(m => {
+      if (m.home.idTeam === team.idTeam || m.away.idTeam === team.idTeam) mineRows.push(m);
+    }));
+    const dayOf = m => (m.kickoffTbd ? "" : dateOnly(m.kickoffJst)) || "";
+    mineRows.sort((a, b) => {
+      const x = dayOf(a), y = dayOf(b);
+      if (x !== y) return x === "" ? 1 : (y === "" ? -1 : (x < y ? -1 : 1));
+      return (a.round || 0) - (b.round || 0);
+    });
+    const months = [];
+    for (const m of mineRows) {
+      const d = dayOf(m);
+      const key = d ? d.slice(0, 7) : "";
+      let g = months[months.length - 1];
+      if (!g || g.key !== key) { g = { key: key, rows: [] }; months.push(g); }
+      g.rows.push(m);
     }
-    const rowsHtml = rows.map(m => scheduleRowHtml(m, team, mode, league && isOndemandMatch(league, m.idEvent), league, ranks)).join("");
-    return '<div class="sched-round" id="round-' + r + '"><h3 class="sched-round-title">第' + r + '節</h3>' + rowsHtml + '</div>';
-  }).join("");
+    blocksHtml = months.map(g =>
+      '<div class="sched-round"><h3 class="sched-round-title">' + (g.key ? Number(g.key.slice(5)) + "月" : "日時未定") + '</h3>' +
+        g.rows.map(m => scheduleRowHtml(m, team, mode, league && isOndemandMatch(league, m.idEvent), league, ranks, { round: true })).join("") +
+      '</div>'
+    ).join("");
+  } else {
+    blocksHtml = roundNumbers.map(r => {
+      const rowsHtml = rounds[r].map(m => scheduleRowHtml(m, team, mode, league && isOndemandMatch(league, m.idEvent), league, ranks)).join("");
+      return '<div class="sched-round" id="round-' + r + '"><h3 class="sched-round-title">第' + r + '節</h3>' + rowsHtml + '</div>';
+    }).join("");
+  }
 
   return icsHtml + '<section><h2>日程</h2><div class="card">' +
     '<div class="schedule-controls">' + toggleHtml + jumpHtml + selectHtml + '</div>' +
@@ -5878,20 +6263,29 @@ function renderRadarForGroup(stats, team, groupDef) {
     );
   }).join("");
 
+  /* 第67弾: 軸ラベルがSVGの枠(0〜300)の外に描かれて切れていた(「残り日程の難易度」は左へ44px)。
+     文字幅を見積もって、はみ出す側だけ viewBox を広げる。全角は文字サイズ、半角は約0.62倍。 */
+  const textPx = (str, px) => Array.from(String(str)).reduce((w, ch) => w + (ch.charCodeAt(0) > 0x2E7F ? px : px * 0.62), 0);
+  let lblMinX = 0, lblMaxX = 300;
   const labels = axisData.map(d => {
     const [x, y] = polarPoint(cx, cy, R + 20, d.angle);
     let anchor = "middle";
     if (d.angle > 5 && d.angle < 175) anchor = "start";
     else if (d.angle > 185 && d.angle < 355) anchor = "end";
     const rankText = d.available ? (d.rank + "位/" + clubCount) : "データなし";
+    const lblW = Math.max(textPx(d.label, 12) * 1.05, textPx(rankText, 10));   // 第69弾: ラベルの文字サイズ(12/10)に合わせる
+    lblMinX = Math.min(lblMinX, anchor === "end" ? x - lblW : anchor === "middle" ? x - lblW / 2 : x);
+    lblMaxX = Math.max(lblMaxX, anchor === "start" ? x + lblW : anchor === "middle" ? x + lblW / 2 : x);
     return (
       '<text x="' + x.toFixed(1) + '" y="' + (y - 4).toFixed(1) + '" text-anchor="' + anchor + '" class="radar-label-name">' + esc(d.label) + '</text>' +
       '<text x="' + x.toFixed(1) + '" y="' + (y + 9).toFixed(1) + '" text-anchor="' + anchor + '" class="radar-label-rank">' + esc(rankText) + '</text>'
     );
   }).join("");
 
+  const vbX = lblMinX < 0 ? Math.floor(lblMinX) - 4 : 0;
+  const vbW = (lblMaxX > 300 ? Math.ceil(lblMaxX) + 4 : 300) - vbX;
   const svg =
-    '<svg viewBox="0 0 300 300" width="300" height="300" xmlns="http://www.w3.org/2000/svg">' +
+    '<svg viewBox="' + vbX + ' 0 ' + vbW + ' 300" width="' + vbW + '" height="300" xmlns="http://www.w3.org/2000/svg">' +
       rings + spokes.join("") +
       '<polygon points="' + dataPolygon + '" fill="' + fillColor + '" stroke="' + strokeColor + '" stroke-width="2"></polygon>' +
       markers + labels +
@@ -7741,7 +8135,7 @@ const NEWS_SOURCE_LABEL = { official: "Jリーグ公式", soccerdigest: "サッ�
    第14弾: サッカーダイジェストWeb(soccerdigest)もimageUrlを持つので、公式と同様にサムネイルを出す。 */
 /* keywords を渡すと、見出しの中の一致部分を <mark> で囲む(第32弾のマイニュース用)。
    渡さなければ従来どおり esc() したそのままの見出しになる。 */
-function newsItemHtml(item, league, keywords) {
+function newsItemHtml(item, league, keywords, opts) {   // opts.club: クラブのニュースタブ用の表示(日付は見出しへ・ほかN媒体)。第69弾
   const isOfficial = item.sourceType === "official";
   const url = isOfficial
     ? "https://www.jleague.jp/news/article/" + encodeURIComponent(item.id) + "/?navicode=" + esc(league)
@@ -7750,16 +8144,56 @@ function newsItemHtml(item, league, keywords) {
     ? '<img class="news-thumb" src="' + esc(item.imageUrl) + '" alt="" loading="lazy" onerror="this.remove()">'
     : "";
   const sourceLabel = NEWS_SOURCE_LABEL[item.sourceType] || item.source || "";
+  /* 第69弾: Google News経由の見出しは末尾に「 - 媒体名」が付いていて、出典のバッジと重複する。
+     クラブのニュースタブでは、バッジと同じ名前のときだけ見出しから落とす(見出しの中身は触らない)。 */
+  let title = item.title;
+  const club = !!(opts && opts.club);
+  if (club && item.source && String(title).endsWith(" - " + item.source)) title = String(title).slice(0, -(" - " + item.source).length);
   return '<li class="news-item">' +
     thumb +
     '<div class="news-item-body">' +
-      '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + highlightedTitleHtml(item.title, keywords) + '</a>' +
+      '<a href="' + esc(url) + '" target="_blank" rel="noopener">' + highlightedTitleHtml(title, keywords) + '</a>' +
       '<div class="news-meta">' +
-        (item.publishedJst ? '<span class="num">' + esc(fmtDate(item.publishedJst, false)) + '</span>' : '') +
+        (item.publishedJst && !club ? '<span class="num">' + esc(fmtDate(item.publishedJst, false)) + '</span>' : '') +
         (sourceLabel ? '<span class="news-src">' + esc(sourceLabel) + '</span>' : '') +
+        (club && opts.more ? '<span class="news-more">ほか' + esc(opts.more) + '媒体</span>' : '') +
       '</div>' +
     '</div>' +
   '</li>';
+}
+
+/* 第69弾: クラブの「ニュース」タブ。表示だけの変更で、データの形は変えない。
+   ・同じ記事が複数の媒体に出ている行は1行にまとめる。見出しが同じ(末尾の「 - 媒体名」「（媒体名）」を除いて)ものを同じ記事とみなす。
+     代表は一次情報に近いものを優先(公式 > 配信元の直接のフィード > Google News経由)、同順位なら新しいほう。
+   ・日付ごとの見出しで区切り、最初は30件、「さらに見る」で30件ずつ足す。
+   ・すべて/公式/メディアの切替。「公式」は公式配信(sourceType=official)と、出典名に「公式」を含むもの(◯◯公式サイト)。 */
+const NEWS_CLUB_PAGE = 30;
+function isOfficialNews(item) {
+  return item.sourceType === "official" || /公式/.test(item.source || "");
+}
+function newsClubDedupeKey(item) {
+  const t = String(item.title || "")
+    .replace(/\s[-–—]\s[^-–—]{1,30}$/, "")
+    .replace(/\s*[（(][^）)]{1,20}[）)]\s*$/, "");
+  return normalizeForSearch(t) || item.link || item.id || "";
+}
+/* itemsは新しい順。返す配列も、各グループの最新の記事の位置で新しい順になる。 */
+function groupNewsForClub(items) {
+  const groups = new Map();
+  for (const it of items) {
+    const key = newsClubDedupeKey(it);
+    const g = groups.get(key);
+    if (g) g.push(it); else groups.set(key, [it]);
+  }
+  const rank = it => it.sourceType === "official" ? 0 : ((it.sourceType === "feed" || it.sourceType === "soccerdigest") ? 1 : 2);
+  const label = it => NEWS_SOURCE_LABEL[it.sourceType] || it.source || "";
+  return Array.from(groups.values()).map(arr => {
+    let primary = arr[0];
+    for (const it of arr) if (rank(it) < rank(primary)) primary = it;
+    const others = new Set(arr.map(label).filter(Boolean));
+    others.delete(label(primary));
+    return { item: primary, others: others.size, date: arr[0].publishedJst || "" };
+  });
 }
 
 function renderNews(news, clubExtra, team, league) {
@@ -7779,7 +8213,31 @@ function renderNews(news, clubExtra, team, league) {
   if (!combined.length) {
     mainHtml = '<p class="muted" style="margin:0">関連ニュースが見つかりませんでした。</p>';
   } else {
-    mainHtml = '<ul class="news-list">' + combined.map(item => newsItemHtml(item, league)).join("") + '</ul>';
+    const kind = state.newsClubKind || "all";
+    const pool = kind === "official" ? combined.filter(isOfficialNews)
+      : (kind === "media" ? combined.filter(it => !isOfficialNews(it)) : combined);
+    const groups = groupNewsForClub(pool);
+    const shown = groups.slice(0, state.newsClubLimit || NEWS_CLUB_PAGE);
+    const rest = groups.length - shown.length;
+    const kindHtml = '<div class="stats-subtabs">' +
+      [["all", "すべて"], ["official", "公式"], ["media", "メディア"]].map(pair =>
+        '<button type="button" class="' + (kind === pair[0] ? "active" : "") +
+        '" data-newsclubkind="' + pair[0] + '">' + pair[1] + '</button>').join("") + '</div>';
+    // 新しい順に並んでいるので、同じ日が続くあいだだけ1つの見出しに入れる
+    const days = [];
+    for (const g of shown) {
+      const d = dateOnly(g.date) || "";
+      let day = days[days.length - 1];
+      if (!day || day.date !== d) { day = { date: d, items: [] }; days.push(day); }
+      day.items.push(g);
+    }
+    const listHtml = days.map(day =>
+      '<div class="news-day"><h3 class="news-day-title">' + esc(day.date ? fmtDateOnly(day.date) : "日付なし") + '</h3>' +
+        '<ul class="news-list">' + day.items.map(g => newsItemHtml(g.item, league, undefined, { club: true, more: g.others })).join("") + '</ul></div>'
+    ).join("");
+    mainHtml = kindHtml +
+      (listHtml || '<p class="muted" style="margin:0">この条件のニュースはありません。</p>') +
+      (rest > 0 ? '<button type="button" class="cal-loadmore" data-newsclubmore>さらに見る（残り' + rest.toLocaleString() + '件）</button>' : "");
   }
 
   const obHtml = obNames.map(name => {
