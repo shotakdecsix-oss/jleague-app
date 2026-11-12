@@ -86,27 +86,34 @@
     background:var(--page-bg, var(--accent)); color:var(--ink); /* 地はベタ塗り(縦に長いのでグラデーションにしない) */
     font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI",sans-serif;
     font-size:15px; line-height:1.55;
-    padding-bottom:calc(24px + env(safe-area-inset-bottom));
+    padding-bottom:calc(24px + 56px + env(safe-area-inset-bottom));   /* 第70弾 D2: 下部固定ナビ(56px)の分。末尾のフッターが隠れないように */
   }
 
-  /* ヘッダー+タブバーをまとめて上部固定 */
+  /* 第70弾 D1: 上部に固定するのはクラブ選択の段(#headerWrap > .header-main)だけにした。
+     アプリ名と ⟳ / i / テーマの段(.top-bar)は固定の外に出し、スクロールすると流れて消える
+     (常時表示 150px → 約56px)。⟳ は一番上でしか使わず、引っ張って更新も一番上専用なので支障は小さい。
+     タブは下部ナビ(#tabbar)へ移した(D2)。 */
+  .top-bar{
+    background:var(--accent); color:var(--accent-ink);
+    padding:12px calc(14px + env(safe-area-inset-right)) 0 calc(14px + env(safe-area-inset-left));
+  }
   #headerWrap{position:sticky; top:0; z-index:10}
-  header{
+  .header-main{
     /* 1stカラーを地にしたまま、下端に向けてだけわずかに沈める。色が変わったと分かるほどの
        グラデーションにはしない(第29弾。それ以前は完全なベタ塗りだった)。 */
     background:linear-gradient(180deg, var(--accent) 0%, var(--accent-grad-to) 100%);
     color:var(--accent-ink);
-    padding:12px calc(14px + env(safe-area-inset-right)) 12px calc(14px + env(safe-area-inset-left));
+    padding:8px calc(14px + env(safe-area-inset-right)) 10px calc(14px + env(safe-area-inset-left));
     box-shadow:var(--elev-2);
     position:relative; /* トースト/ポップオーバーをこの下端にオーバーレイ表示するための基準 */
   }
   /* ヘッダを役割で2段に分ける(第10弾改訂2): 上段=アプリ全体・データの状態、下段=表示対象の選択 */
-  .header-row1{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px}
+  .header-row1{display:flex; align-items:center; justify-content:space-between; gap:8px}
   /* h1はflexアイテムとして縮む対象になる。右側のボタン群(⟳/i/deployBadge)で幅が圧迫されると、
      white-spaceの指定が無いと日本語は任意の位置で改行できるため1文字ずつ縦に積まれてしまう。
      flex:1 1 auto + min-width:0 + white-space:nowrap + overflow:hidden の4点セットで
      「入らなければ末尾を…で省略」という単一行の挙動にする(改訂: fix-header-layout)。 */
-  header h1{
+  .top-bar h1{
     margin:0; font-size:15px; font-weight:600; letter-spacing:.04em; opacity:.9;
     flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
@@ -114,7 +121,7 @@
   /* デプロイ日時・バージョンのデバッグ表示。目立たせない(色はh1と同じaccent-ink継承、不透明度だけ落とす)。
      狭い画面では優先度が低いので隠す(更新ボタンは常に出す)。 */
   .deploy-badge{font-size:10px; opacity:.55; letter-spacing:.02em; white-space:nowrap}
-  @media (max-width:360px){ .deploy-badge{display:none} header h1{font-size:13px} }
+  @media (max-width:360px){ .deploy-badge{display:none} .top-bar h1{font-size:13px} }
   .header-row2{display:flex; gap:8px; align-items:center}
   .header-row2 select{flex:1; min-width:0; padding:8px 12px} /* 本文中の汎用select{padding:10px 12px}をヘッダ内だけ上書き */
   /* 第68弾: クラブ名をタップして見ているあいだ(表示中のクラブ ≠ 応援クラブ)だけ出す帯。
@@ -131,36 +138,40 @@
   .viewing-bar button[data-setfav]{background:var(--accent-ink); color:var(--accent); border-color:var(--accent-ink)}   /* 主な操作。地(--accent)と文字(--accent-ink)を入れ替えて、ダークでも読める */
   @media (max-width:374px){ .viewing-bar .vb-opt{display:none} }
   /* モード切替(クラブ/全体)。タブバーと同じ2ndカラーのベタ塗りの上に、さらに一段浮かせた見た目にする */
-  .mode-toggle{display:flex; gap:6px; flex:none; width:120px}
+  .mode-toggle{display:flex; gap:0; flex:none; width:120px}
   .mode-toggle button{
     flex:1; border:1px solid var(--on-accent-line); background:var(--on-accent-soft);
     color:var(--accent-ink); opacity:.75; font-size:12px; font-weight:700; padding:7px 4px;
-    border-radius:999px; cursor:pointer; font-family:inherit;
+    border-radius:0; cursor:pointer; font-family:inherit;
   }
-  .mode-toggle button.active{background:var(--card); color:var(--accent-on-light); opacity:1; border-color:var(--card)}
+  /* 第70弾 D3: 連結型。外側だけ丸め、境界の線は1本にする。overflow:hiddenで切ると44pxの当たり判定(::before)まで切れるので使わない */
+  .mode-toggle button:first-child{border-radius:999px 0 0 999px}
+  .mode-toggle button:last-child{border-radius:0 999px 999px 0; margin-left:-1px}
+  .mode-toggle button.active{background:var(--card); color:var(--accent-on-light); opacity:1; border-color:var(--card); z-index:1}
   @media (max-width:360px){ .mode-toggle{width:96px} .mode-toggle button{font-size:11px; padding:7px 2px} }
 
+  /* 第70弾 D2: タブは画面下に固定するナビへ(5項目)。クラブのタブ7個のうち、スタッツ・選手を「データ」、
+     ニュース・注目を「ニュース」にまとめ、中の切り替えは各画面の先頭(.seg-sub)に置く。
+     内部のタブidとハッシュは7個のまま変えていない(古いURLもそのまま開け、左右スワイプも従来の順)。
+     高さは56px+ホームバーの余白。ラベルはどの幅でも11px。全体モードは4項目。 */
   #tabbar{
-    display:flex; background:var(--accent-sub); /* 2ndカラーのベタ塗り */
-    box-shadow:var(--elev-1);
-    padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right);
+    position:fixed; left:0; right:0; bottom:0; z-index:10;
+    display:flex; justify-content:center; background:var(--accent-sub); /* 2ndカラーのベタ塗り */
+    box-shadow:0 -2px 10px rgba(0,0,0,.18);
+    padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   #tabbar button{
-    flex:1; border:none; background:none; padding:12px 3px 10px;
-    font-size:12px; font-weight:700; color:var(--accent-sub-ink); opacity:.7;
-    font-family:inherit; cursor:pointer;
-    border-bottom:3px solid transparent;
+    flex:1 1 0; min-width:0; max-width:140px; height:56px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    border:none; border-top:3px solid transparent; background:none; padding:2px 2px 0;
+    font-size:11px; font-weight:700; line-height:1.2; white-space:nowrap;
+    color:var(--accent-sub-ink); opacity:.7; font-family:inherit; cursor:pointer;
   }
-  /* 第32弾でタブが7個になった。390px幅だと1つあたり約56pxしか無く、12pxのままでは
-     「スタッツ」「ニュース」が2行に折り返して他のタブと高さが揃わなくなる。
-     タブを減らすかスクロールさせるかではなく、狭い端末で文字を1段落とす方を選んだ
-     (全部のタブが常に見えている方が、この画面では迷わない)。
-     幅を変えて確認済み: 320 / 360 / 390 / 430px のいずれでも1行に収まる。 */
-  @media (max-width:420px){ #tabbar button{font-size:11px} }
-  @media (max-width:344px){ #tabbar button{font-size:10px; padding-left:2px; padding-right:2px} }
-  /* 選択中のタブは下線だけでなく面もわずかに持ち上げる。半透明の向き(白/黒)はタブバーの
-     地色に載る文字色と揃えてあるので、明るい2ndカラーでも消えない。 */
-  #tabbar button.active{opacity:1; border-bottom-color:var(--accent-sub-ink); background:var(--on-sub-soft)}
+  #tabbar button svg{width:22px; height:22px; flex:none; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+  /* 選択中は上端の線と面でも示す(色だけに頼らない)。半透明の向き(白/黒)はナビの地色に載る文字色と揃えてある。 */
+  #tabbar button.active{opacity:1; border-top-color:var(--accent-sub-ink); background:var(--on-sub-soft)}
+  /* 入力欄にフォーカスがあるあいだ(キーボードが出ている)は隠す。キーボードの上に残って画面を狭めないため。 */
+  body.kbd-open #tabbar{display:none}
   select{
     width:100%; padding:10px 12px; font-size:16px; font-weight:600;
     border:none; border-radius:12px; background:var(--card); color:var(--ink);
@@ -199,7 +210,7 @@
   /* 第37弾: 触ったときの反応。transitionが7箇所しか無く、タブもアコーディオンも
      瞬間的に切り替わっていた。動きが苦手な人のために prefers-reduced-motion では全部止める。 */
   @media (prefers-reduced-motion: no-preference){
-    #tabbar button{transition:border-bottom-color .18s ease, opacity .18s ease, background-color .18s ease}
+    #tabbar button{transition:border-top-color .18s ease, opacity .18s ease, background-color .18s ease}
     .card, .ec-row, .sched-row, .cal-row, .r-row, .predict-row{transition:background-color .15s ease, transform .12s ease}
     /* 第66弾: .card を外した。ニュースや日程は何十〜百行が入った1枚のカードなので、中のリンクや行を押すと
        :active がカードにも付き、カード全体が中心に向かって縮む。scale(.995) でも高さ9,000pxのカードでは
@@ -962,8 +973,9 @@
   }
   .theme-toggle-btn svg{display:block}
   /* headerの通常フローに置くと、表示/非表示のたびにヘッダの高さが変わり下のコンテンツが飛ぶ
-     (stickyヘッダなので特に目立つ)。header{position:relative}を基準にオーバーレイ表示する
-     (改訂: fix-header-layout)。#headerWrapのposition/z-indexはタブバー固定に関わるため触らない。 */
+     (stickyヘッダなので特に目立つ)。.header-main{position:relative}を基準にオーバーレイ表示する
+     (改訂: fix-header-layout)。第70弾: 基準は固定側(クラブ選択の段)に変わったので、一番上でも
+     スクロールした後でも、固定ヘッダの真下に出る。#headerWrapのposition/z-indexは触らない。 */
   .ondemand-toast{
     position:absolute; top:100%; left:calc(12px + env(safe-area-inset-left)); right:calc(12px + env(safe-area-inset-right)); z-index:20;
     margin:6px 0 0; padding:8px 12px; border-radius:10px; background:rgba(0,0,0,.28);
@@ -990,6 +1002,7 @@
     position:absolute; top:100%; left:calc(12px + env(safe-area-inset-left)); right:calc(12px + env(safe-area-inset-right)); z-index:20;
     margin:6px 0 0; padding:12px 14px; border-radius:var(--radius); background:var(--card); color:var(--ink);
     box-shadow:0 4px 16px rgba(0,0,0,.18); font-size:12px;
+    max-height:calc(100vh - 150px); overflow-y:auto;   /* 第70弾: 固定ヘッダが短くなり下部ナビが入ったので、背の低い画面でもナビの下へはみ出さない */
   }
   .ondemand-popover h4{margin:0 0 8px; font-size:11px; font-weight:700; color:var(--sub); letter-spacing:.06em}
   .ondemand-popover-row{display:flex; justify-content:space-between; gap:10px; padding:4px 0}
@@ -1136,6 +1149,48 @@
   button, a, .predict-row, .sched-row, .cal-row, .ec-row, .team-link{
     -webkit-tap-highlight-color:transparent;
   }
+  /* 第70弾 D3: 切り替え(セグメント)の見た目を1種類にそろえた。これまでは .seg-toggle だけが連結型で、
+     .stats-subtabs / .chart-series-tabs / .cal-league-filter は離れた丸ボタン、ヘッダーの .mode-toggle は別物と、
+     見た目が5系統あった。角丸の連結型・高さ44px(タップ下限。提案の40pxでなく既存の下限に合わせた)・
+     選択中は1stカラーのベタ塗り。幅が足りないときは折り返さず横スクロールにする(スクロールバーは出さない)。
+     マークアップとJSは変えていない。ヘッダーの .mode-toggle は上の定義で同じ連結型にしてある。 */
+  .seg-toggle,
+  .stats-subtabs,
+  .chart-series-tabs,
+  .cal-league-filter{
+    display:flex; flex-wrap:nowrap; gap:0; align-items:stretch;
+    border:1px solid var(--line); border-radius:999px; background:var(--card);
+    overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  }
+  .seg-toggle::-webkit-scrollbar,
+  .stats-subtabs::-webkit-scrollbar,
+  .chart-series-tabs::-webkit-scrollbar,
+  .cal-league-filter::-webkit-scrollbar{display:none}
+  .seg-toggle button,
+  .stats-subtabs button,
+  .chart-series-tabs button,
+  .cal-league-filter button{
+    flex:1 0 auto; min-width:0; border:none; border-radius:0; background:transparent; color:var(--sub);
+    font-size:12px; font-weight:700; padding:0 10px; white-space:nowrap; cursor:pointer; font-family:inherit;
+  }
+  .seg-toggle button + button,
+  .stats-subtabs button + button,
+  .chart-series-tabs button + button,
+  .cal-league-filter button + button{box-shadow:inset 1px 0 0 var(--line)}
+  .seg-toggle button.active,
+  .stats-subtabs button.active,
+  .chart-series-tabs button.active,
+  .cal-league-filter button.active{background:var(--accent); color:var(--accent-ink); box-shadow:none}
+  .seg-toggle button.active + button,
+  .stats-subtabs button.active + button,
+  .chart-series-tabs button.active + button,
+  .cal-league-filter button.active + button{box-shadow:none}
+  .seg-toggle button:focus-visible,
+  .stats-subtabs button:focus-visible,
+  .chart-series-tabs button:focus-visible,
+  .cal-league-filter button:focus-visible{outline-offset:-3px; border-radius:0}   /* 外側へ出すと、はみ出し判定の箱で切れる */
+  .seg-sub{margin-bottom:12px}   /* 第70弾 D2: 「データ」「ニュース」の中の切り替え(画面の先頭) */
+
   /* 指のタップ領域の下限(44px, Apple HIG)。paddingを増やすのではなくmin-heightで
      下限だけ決め、中身はflexで中央に置く。既に44pxを超えている#tabbar/a.btnは対象外。 */
   .seg-toggle button, .stats-subtabs button, .chart-series-tabs button,
@@ -1174,8 +1229,8 @@
 </head>
 <body>
 
-<div id="headerWrap">
-<header>
+<!-- 第70弾 D1: アプリ名と ⟳ / i / テーマの段。固定せず、スクロールすると流れて消える -->
+<header class="top-bar" id="topBar">
   <div class="header-row1">
     <h1>Jリーグ ダッシュボード</h1>
     <div class="header-row1-right">
@@ -1190,6 +1245,10 @@
            1行に ⟳/i/テーマ/版数/日時 が詰まってアプリ名が「Jリー…」と切れていたため。 -->
     </div>
   </div>
+</header>
+<!-- 第70弾 D1: 画面上部に固定するのはクラブ選択の段だけ(トースト・更新バナー・ポップオーバーもこの中) -->
+<div id="headerWrap">
+<div class="header-main">
   <!-- 第37弾: 取得結果を伝える唯一の手段なので、支援技術にも届くようにする(#updateBannerと揃える) -->
   <div id="ondemandToast" class="ondemand-toast" role="status" aria-live="polite" hidden></div>
   <div id="updateBanner" class="update-banner" role="status" hidden>
@@ -1205,8 +1264,7 @@
     <select id="clubSelect" aria-label="応援クラブを選ぶ"></select>
   </div>
   <div id="viewingBar" class="viewing-bar" role="status" hidden></div>
-</header>
-<nav id="tabbar"></nav>
+</div>
 </div>
 
 <main id="app">
@@ -1214,6 +1272,9 @@
 </main>
 
 <footer id="footer"></footer>
+
+<!-- 第70弾 D2: 画面下に固定するナビ。中身は renderTabButtons() が入れる -->
+<nav id="tabbar" aria-label="メインメニュー"></nav>
 
 <script>
 "use strict";
@@ -1283,6 +1344,7 @@ const state = {
   leagueCup: undefined,       // leaguecup.json。undefined=未取得, null=データ無し
   leagueCupEvents: undefined, // leaguecup_match_events.json(得点者/カード/交代/メンバー/動画)
   emperorsCupEvents: undefined, // 第23弾フェーズ2: 天皇杯の試合詳細(emperors_cup_events.json)
+  navLast: {},           // 第70弾: 下部ナビの項目ごとに最後に開いたタブ(データ→選手 など)。保存はしない
   activeTab: "home",
   statsGroup: "model", // スタッツタブのレーダー切替(既定は「モデル」)
   scheduleMode: "mine", // 日程タブ: "mine"=自クラブのみ(既定) / "all"=リーグ全体
@@ -1700,6 +1762,59 @@ function errorHtml(message) {
 
 /* ---------- タブ ---------- */
 
+/* 第70弾 D2: 下部ナビの項目。tabs=その項目に属する内部タブid(TABS/ALL_TABSのid)。
+   内部のタブ・ハッシュ・state.activeTab/allTab は従来のまま(下部ナビは見せ方だけ)。
+   タブを2つ以上持つ項目(データ/ニュース)は、画面の先頭の切り替え(.seg-sub)で行き来する。 */
+const NAV_ICONS = {
+  home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/>',
+  schedule: '<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  standings: '<path d="M3 20.5h18"/><path d="M9 20.5V9h6v11.5"/><path d="M3.5 20.5V14H9"/><path d="M15 20.5V16h5.5v4.5"/>',
+  stats: '<path d="M3.5 4v16.5h17"/><path d="M7.5 15.5l4-5 3 3 5-6.5"/>',
+  news: '<rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8 9h8M8 13h8M8 17h5"/>',
+  predict: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><path d="M12 12h.01"/>',
+  cup: '<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H4.5v1.5A3.5 3.5 0 0 0 8 11M16 6h3.5v1.5A3.5 3.5 0 0 1 16 11"/><path d="M12 13.5V17M8.5 20h7M10 17h4"/>',
+};
+const NAV_CLUB = [
+  { id: "home", label: "ホーム", tabs: ["home"] },
+  { id: "schedule", label: "日程", tabs: ["schedule"] },
+  { id: "standings", label: "順位", tabs: ["standings"] },
+  { id: "stats", label: "データ", tabs: ["stats", "players"] },
+  { id: "news", label: "ニュース", tabs: ["news", "mynews"] },
+];
+const NAV_ALL = ALL_TABS.map(t => ({ id: t.id, label: t.label, tabs: [t.id] }));
+/* 画面の先頭の切り替えに出す名前。下部ナビの名前や旧タブ名(「注目」)とは別に、中身が分かる名前にする。 */
+const SUB_LABELS = { stats: "スタッツ", players: "選手", news: "クラブのニュース", mynews: "注目" };
+function navGroupOf(tabId) {
+  return NAV_CLUB.find(i => i.tabs.length > 1 && i.tabs.includes(tabId)) || null;
+}
+function rememberNavTab(tabId) {
+  const g = navGroupOf(tabId);
+  if (g) state.navLast[g.id] = tabId;
+}
+/* 下部ナビを押したときの行き先。データ/ニュースは、その項目で最後に開いていたタブへ戻る。 */
+function navTargetTab(navId) {
+  const item = NAV_CLUB.find(i => i.id === navId);
+  if (!item) return navId;
+  const last = state.navLast[item.id];
+  return (last && item.tabs.includes(last)) ? last : item.tabs[0];
+}
+function clubSubSwitchHtml(tabId) {
+  const g = navGroupOf(tabId);
+  if (!g) return "";
+  return '<div class="seg-toggle seg-sub" role="group" aria-label="' + esc(g.label) + 'の表示切り替え">' +
+    g.tabs.map(id =>
+      '<button type="button" class="' + (id === tabId ? "active" : "") + '" aria-current="' + (id === tabId ? "page" : "false") +
+      '" data-subtab="' + id + '">' + esc(SUB_LABELS[id] || id) + '</button>'
+    ).join("") + '</div>';
+}
+/* 入力欄にフォーカスがあるあいだ(=キーボードが出ている)は下部ナビを隠す(CSSの body.kbd-open)。 */
+function isTextEntry(el) {
+  return !!(el && el.matches && el.matches("textarea, input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=range])"));
+}
+function syncKbdOpen() {
+  document.body.classList.toggle("kbd-open", isTextEntry(document.activeElement));
+}
+
 /* タブの一覧はモードで差し替わる(クラブ=TABS / 全体=ALL_TABS)。ボタンの描画(renderTabButtons)と
    クリックの購読(bindTabBarEvents)を分けてあるのは、#tabbar要素自体は使い回し、モード切替のたびに
    innerHTMLだけ差し替えるため(addEventListenerを毎回積み増すと多重発火するので1回しか呼ばない)。 */
@@ -1711,8 +1826,10 @@ function currentActiveTabId() {
 }
 function renderTabButtons() {
   const bar = document.getElementById("tabbar");
-  bar.innerHTML = currentTabList().map(t =>
-    '<button type="button" data-tab="' + t.id + '" aria-current="false">' + esc(t.label) + '</button>'
+  bar.innerHTML = (state.viewMode === "all" ? NAV_ALL : NAV_CLUB).map(t =>
+    '<button type="button" data-tab="' + t.id + '" data-tabs="' + t.tabs.join(" ") + '" aria-current="false">' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + (NAV_ICONS[t.id] || "") + '</svg>' +
+      '<span>' + esc(t.label) + '</span></button>'
   ).join("");
 }
 /* 左右スワイプでの隣タブ移動(第27弾)。
@@ -1730,6 +1847,10 @@ function bindSwipeNavigation() {
     /* 横スクロールを持つ要素の上から始まったスワイプは、その要素のものとして扱う。
        .chart-scroll(確率推移グラフ)と .ec-rounds(カップのラウンド切替)が該当する。 */
     if (ev.target.closest && ev.target.closest(".chart-scroll, .ec-rounds")) { active = false; return; }
+    /* 第70弾 D3: 切り替え(セグメント)は幅が足りないと横スクロールする。実際にあふれているときだけ、
+       その上の指の動きは切り替え側のものとして扱う(あふれていなければ従来どおりタブ移動のスワイプ)。 */
+    const seg = ev.target.closest && ev.target.closest(".seg-toggle, .stats-subtabs, .chart-series-tabs, .cal-league-filter");
+    if (seg && seg.scrollWidth > seg.clientWidth + 1) { active = false; return; }
     const t = ev.touches[0];
     sx = t.clientX; sy = t.clientY; st = Date.now(); active = true;
   }, { passive: true });
@@ -1801,14 +1922,24 @@ function bindTabBarEvents() {
     const btn = ev.target.closest("button[data-tab]");
     if (!btn) return;
     if (state.viewMode === "all") setAllTab(btn.dataset.tab);
-    else setActiveTab(btn.dataset.tab);
+    else setActiveTab(navTargetTab(btn.dataset.tab));   // 第70弾: データ/ニュースは最後に開いたタブへ
+  });
+  /* 第70弾 D2: 入力欄(注目タブのキーワード欄)にフォーカスがあるあいだ、下部ナビを隠す。
+     閉じる側は focusout で外す。入力欄ごと作り直される場合は setAppHtml / updateTabBarActive でも合わせ直す。 */
+  document.addEventListener("focusin", ev => {
+    document.body.classList.toggle("kbd-open", isTextEntry(ev.target));
+  });
+  document.addEventListener("focusout", () => {
+    document.body.classList.remove("kbd-open");
   });
 }
 function updateTabBarActive() {
   const bar = document.getElementById("tabbar");
   const active = currentActiveTabId();
+  if (state.viewMode !== "all") rememberNavTab(active);   // 第70弾: ハッシュ・スワイプ・戻る操作のどれで開いても覚える
+  syncKbdOpen();
   for (const btn of bar.querySelectorAll("button[data-tab]")) {
-    const on = btn.dataset.tab === active;
+    const on = (btn.dataset.tabs || btn.dataset.tab).split(" ").includes(active);
     btn.classList.toggle("active", on);
     btn.setAttribute("aria-current", on ? "page" : "false");
   }
@@ -2670,6 +2801,13 @@ async function init() {
       return;
     }
 
+    /* 第70弾 D2: 「データ」「ニュース」の中の切り替え(スタッツ⇔選手 / クラブのニュース⇔マイニュース)。 */
+    const subBtn = ev.target.closest("[data-subtab]");
+    if (subBtn) {
+      if (subBtn.dataset.subtab !== state.activeTab) setActiveTab(subBtn.dataset.subtab);
+      return;
+    }
+
     const groupBtn = ev.target.closest("[data-statsgroup]");
     if (groupBtn) {
       state.statsGroup = groupBtn.dataset.statsgroup;
@@ -2964,6 +3102,7 @@ function setAppHtml(app, html) {
   };
 
   app.innerHTML = html;
+  syncKbdOpen();   // 第70弾: 入力欄ごと作り直されたときに、下部ナビの隠れっぱなしを防ぐ
   const t0 = resolve();
   if (Math.abs(window.scrollY - t0) > 0.5) window.scrollTo(0, t0);
   /* 差し替え直後だけでなく、レイアウトが確定したあとにもう一度見る。 */
@@ -3073,6 +3212,7 @@ function renderActiveTabBody(league, team, master, app) {
     const round = state.scheduleRound;
     nextScrollAnchor = () => findRoundBlock(round);
   }
+  html = clubSubSwitchHtml(state.activeTab) + html;   // 第70弾 D2: データ/ニュースの先頭に切り替えを置く
   setAppHtml(app, html);   // 第55弾
   /* 第43弾: 戦闘画面が出ているならメッセージ送りを動かす */
   if (state.battle && document.getElementById("battleRoot")) battleScheduleAdvance();
