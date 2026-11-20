@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-11-20T20:45:06+09:00",
+    "generatedAtJst": "2026-11-20T20:50:06+09:00",
     "windowHours": 36,
     "candidateCount": 3,
     "skippedPreKickoff": 0,
@@ -51259,8 +51259,17 @@
     "2492922": {
       "code": "112002",
       "url": "https://www.jleague.jp/match/j1/2026/112002/livetxt/",
-      "fetchedAtJst": "2026-11-20T20:45:12+09:00",
+      "fetchedAtJst": "2026-11-20T20:50:10+09:00",
       "goals": [
+        {
+          "minute": "88",
+          "club": "鹿島アントラーズ",
+          "player": "レオ セアラ",
+          "position": "FW 9",
+          "scoreAfter": "1-1",
+          "idTeam": "137707",
+          "playerId": "1600257"
+        },
         {
           "minute": "73",
           "club": "清水エスパルス",
@@ -51271,8 +51280,37 @@
           "playerId": "1400298"
         }
       ],
-      "cards": [],
+      "cards": [
+        {
+          "minute": "86",
+          "type": "yellow",
+          "player": "ジャーメイン 良",
+          "position": "FW 13",
+          "club": "清水エスパルス",
+          "idTeam": "137714",
+          "playerId": "1503337"
+        }
+      ],
       "subs": [
+        {
+          "minute": null,
+          "club": null,
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 30",
+              "name": "吉田 湊海",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "マテウス ブエノ",
+              "playerId": null
+            }
+          ],
+          "idTeam": null
+        },
         {
           "minute": "78",
           "club": "清水エスパルス",
@@ -51689,7 +51727,7 @@
     "2492923": {
       "code": "112001",
       "url": "https://www.jleague.jp/match/j1/2026/112001/livetxt/",
-      "fetchedAtJst": "2026-11-20T20:45:16+09:00",
+      "fetchedAtJst": "2026-11-20T20:50:14+09:00",
       "goals": [
         {
           "minute": "76",
@@ -51703,7 +51741,7 @@
       ],
       "cards": [
         {
-          "minute": "83",
+          "minute": "78",
           "type": "yellow",
           "player": "原田 亘",
           "position": "DF 42",
@@ -51713,6 +51751,63 @@
         }
       ],
       "subs": [
+        {
+          "minute": "86",
+          "club": "ジェフユナイテッド千葉",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 39",
+              "name": "石尾 陸登",
+              "playerId": "1641392"
+            },
+            {
+              "variant": "out",
+              "position": "MF 67",
+              "name": "日高 大",
+              "playerId": "1630056"
+            }
+          ],
+          "idTeam": "139886"
+        },
+        {
+          "minute": "86",
+          "club": "ジェフユナイテッド千葉",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 5",
+              "name": "小林 祐介",
+              "playerId": "1200953"
+            },
+            {
+              "variant": "out",
+              "position": "MF 6",
+              "name": "エドゥアルド",
+              "playerId": "1636316"
+            }
+          ],
+          "idTeam": "139886"
+        },
+        {
+          "minute": "76",
+          "club": "ジェフユナイテッド千葉",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 18",
+              "name": "杉山 直宏",
+              "playerId": "1632219"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "津久井 匠海",
+              "playerId": "1622683"
+            }
+          ],
+          "idTeam": "139886"
+        },
         {
           "minute": "75",
           "club": "柏レイソル",
@@ -52085,16 +52180,16 @@
     "2492929": {
       "code": "112003",
       "url": "https://www.jleague.jp/match/j1/2026/112003/livetxt/",
-      "fetchedAtJst": "2026-11-20T20:45:21+09:00",
+      "fetchedAtJst": "2026-11-20T20:50:19+09:00",
       "goals": [
         {
-          "minute": "51",
-          "club": "ヴィッセル神戸",
-          "player": "大迫 勇也",
-          "position": "FW 10",
-          "scoreAfter": "1-1",
-          "idTeam": "137717",
-          "playerId": "900142"
+          "minute": "89",
+          "club": "水戸ホーリーホック",
+          "player": "木本 恭生",
+          "position": "DF 15",
+          "scoreAfter": "1-2",
+          "idTeam": "139891",
+          "playerId": "1400642"
         },
         {
           "minute": "6",
@@ -52104,6 +52199,15 @@
           "scoreAfter": "0-1",
           "idTeam": "139891",
           "playerId": "1646181"
+        },
+        {
+          "minute": "51",
+          "club": "ヴィッセル神戸",
+          "player": "大迫 勇也",
+          "position": "FW 10",
+          "scoreAfter": "1-1",
+          "idTeam": "137717",
+          "playerId": "900142"
         }
       ],
       "cards": [
