@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-11-20T20:30:05+09:00",
+    "generatedAtJst": "2026-11-20T20:35:05+09:00",
     "windowHours": 36,
     "candidateCount": 3,
     "skippedPreKickoff": 0,
@@ -51259,8 +51259,18 @@
     "2492922": {
       "code": "112002",
       "url": "https://www.jleague.jp/match/j1/2026/112002/livetxt/",
-      "fetchedAtJst": "2026-11-20T20:30:09+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-11-20T20:35:09+09:00",
+      "goals": [
+        {
+          "minute": "73",
+          "club": "清水エスパルス",
+          "player": "北川 航也",
+          "position": "FW 49",
+          "scoreAfter": "0-1",
+          "idTeam": "137714",
+          "playerId": "1400298"
+        }
+      ],
       "cards": [],
       "subs": [
         {
@@ -51565,12 +51575,25 @@
     "2492923": {
       "code": "112001",
       "url": "https://www.jleague.jp/match/j1/2026/112001/livetxt/",
-      "fetchedAtJst": "2026-11-20T20:30:13+09:00",
+      "fetchedAtJst": "2026-11-20T20:35:14+09:00",
       "goals": [],
       "cards": [],
       "subs": [
         {
-          "minute": null,
+          "minute": "75",
+          "club": "柏レイソル",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 9",
+              "name": "細谷 真大",
+              "playerId": "1625303"
+            }
+          ],
+          "idTeam": "137708"
+        },
+        {
+          "minute": "66",
           "club": "ジェフユナイテッド千葉",
           "items": [
             {
@@ -51922,7 +51945,7 @@
     "2492929": {
       "code": "112003",
       "url": "https://www.jleague.jp/match/j1/2026/112003/livetxt/",
-      "fetchedAtJst": "2026-11-20T20:30:17+09:00",
+      "fetchedAtJst": "2026-11-20T20:35:19+09:00",
       "goals": [
         {
           "minute": "51",
@@ -51945,6 +51968,15 @@
       ],
       "cards": [
         {
+          "minute": "72",
+          "type": "yellow",
+          "player": "真瀬 拓海",
+          "position": "DF 25",
+          "club": "水戸ホーリーホック",
+          "idTeam": "139891",
+          "playerId": "1607143"
+        },
+        {
           "minute": "58",
           "type": "red",
           "player": "山川 哲史",
@@ -51964,6 +51996,12 @@
               "position": "FW 22",
               "name": "谷口 海斗",
               "playerId": "1611450"
+            },
+            {
+              "variant": "out",
+              "position": "MF 30",
+              "name": "奥村 仁",
+              "playerId": "1645880"
             }
           ],
           "idTeam": "139891"
