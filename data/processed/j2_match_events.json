@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j2",
-    "generatedAtJst": "2026-11-21T15:40:05+09:00",
+    "generatedAtJst": "2026-11-21T15:45:05+09:00",
     "windowHours": 36,
     "candidateCount": 9,
     "skippedPreKickoff": 0,
@@ -65064,7 +65064,7 @@
     "2551877": {
       "code": "112115",
       "url": "https://www.jleague.jp/match/j2/2026/112115/livetxt/",
-      "fetchedAtJst": "2026-11-21T15:41:12+09:00",
+      "fetchedAtJst": "2026-11-21T15:46:10+09:00",
       "goals": [
         {
           "minute": "56",
@@ -65116,7 +65116,7 @@
       ],
       "subs": [
         {
-          "minute": null,
+          "minute": "78",
           "club": "ＲＢ大宮アルディージャ",
           "items": [
             {
@@ -65493,7 +65493,7 @@
     "2551878": {
       "code": "112117",
       "url": "https://www.jleague.jp/match/j2/2026/112117/livetxt/",
-      "fetchedAtJst": "2026-11-21T15:41:17+09:00",
+      "fetchedAtJst": "2026-11-21T15:46:16+09:00",
       "goals": [
         {
           "minute": "23",
@@ -65506,6 +65506,15 @@
         }
       ],
       "cards": [
+        {
+          "minute": "78",
+          "type": "yellow",
+          "player": "髙橋 利樹",
+          "position": "FW 9",
+          "club": "サガン鳥栖",
+          "idTeam": "137712",
+          "playerId": "1629414"
+        },
         {
           "minute": "53",
           "type": "yellow",
@@ -65526,19 +65535,6 @@
         }
       ],
       "subs": [
-        {
-          "minute": "77",
-          "club": "サガン鳥栖",
-          "items": [
-            {
-              "variant": "in",
-              "position": "MF 41",
-              "name": "松岡 響祈",
-              "playerId": "1656002"
-            }
-          ],
-          "idTeam": "137712"
-        },
         {
           "minute": "69",
           "club": "ベガルタ仙台",
@@ -65911,7 +65907,7 @@
     "2551879": {
       "code": "112112",
       "url": "https://www.jleague.jp/match/j2/2026/112112/livetxt/",
-      "fetchedAtJst": "2026-11-21T15:41:21+09:00",
+      "fetchedAtJst": "2026-11-21T15:46:23+09:00",
       "goals": [
         {
           "minute": "71",
@@ -65925,6 +65921,15 @@
       ],
       "cards": [
         {
+          "minute": "71",
+          "type": "yellow",
+          "player": "ヴィニ ペイショット",
+          "position": "FW 70",
+          "club": "北海道コンサドーレ札幌",
+          "idTeam": "137706",
+          "playerId": "1657476"
+        },
+        {
           "minute": "66",
           "type": "yellow",
           "player": "大森 真吾",
@@ -65936,23 +65941,61 @@
       ],
       "subs": [
         {
-          "minute": null,
-          "club": null,
+          "minute": "82",
+          "club": "横浜ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 15",
+              "name": "林 賢吾",
+              "playerId": "1644494"
+            },
+            {
+              "variant": "out",
+              "position": "DF 29",
+              "name": "中村 琉聖",
+              "playerId": "1638462"
+            }
+          ],
+          "idTeam": "137720"
+        },
+        {
+          "minute": "82",
+          "club": "横浜ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 49",
+              "name": "駒沢 直哉",
+              "playerId": "1632808"
+            },
+            {
+              "variant": "out",
+              "position": "MF 77",
+              "name": "髙江 麗央",
+              "playerId": "1504489"
+            }
+          ],
+          "idTeam": "137720"
+        },
+        {
+          "minute": "74",
+          "club": "横浜ＦＣ",
           "items": [
             {
               "variant": "in",
               "position": "MF 26",
               "name": "横山 暁之",
-              "playerId": null
+              "playerId": "1629453"
             },
             {
               "variant": "out",
               "position": "MF 18",
               "name": "島村 拓弥",
-              "playerId": null
+              "playerId": "1607206"
             }
           ],
-          "idTeam": null
+          "idTeam": "137720"
         },
         {
           "minute": "74",
@@ -66259,6 +66302,12 @@
               "position": "GK"
             },
             {
+              "id": "1601488",
+              "name": "キム ゴヌン",
+              "number": "29",
+              "position": "DF"
+            },
+            {
               "id": "1650549",
               "name": "野瀬 翔也",
               "number": "43",
@@ -66307,7 +66356,7 @@
     "2551880": {
       "code": "112113",
       "url": "https://www.jleague.jp/match/j2/2026/112113/livetxt/",
-      "fetchedAtJst": "2026-11-21T15:41:28+09:00",
+      "fetchedAtJst": "2026-11-21T15:46:28+09:00",
       "goals": [
         {
           "minute": "28",
@@ -66331,6 +66380,101 @@
         }
       ],
       "subs": [
+        {
+          "minute": "81",
+          "club": "ヴァンラーレ八戸",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 11",
+              "name": "雪江 悠人",
+              "playerId": "1624395"
+            },
+            {
+              "variant": "out",
+              "position": "DF 3",
+              "name": "澤田 雄大",
+              "playerId": "1646003"
+            }
+          ],
+          "idTeam": "141255"
+        },
+        {
+          "minute": "81",
+          "club": "ヴァンラーレ八戸",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 30",
+              "name": "井波 勇太",
+              "playerId": "1650554"
+            },
+            {
+              "variant": "out",
+              "position": "MF 6",
+              "name": "鵜木 郁哉",
+              "playerId": "1625562"
+            }
+          ],
+          "idTeam": "141255"
+        },
+        {
+          "minute": "78",
+          "club": "ヴァンフォーレ甲府",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 29",
+              "name": "大島 康樹",
+              "playerId": "1400847"
+            },
+            {
+              "variant": "out",
+              "position": "FW 14",
+              "name": "藤井 一志",
+              "playerId": "1641522"
+            }
+          ],
+          "idTeam": "139900"
+        },
+        {
+          "minute": "78",
+          "club": "ヴァンフォーレ甲府",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 23",
+              "name": "スタチオーリ ミケーレ",
+              "playerId": "1655812"
+            },
+            {
+              "variant": "out",
+              "position": "MF 96",
+              "name": "黒川 淳史",
+              "playerId": "1501609"
+            }
+          ],
+          "idTeam": "139900"
+        },
+        {
+          "minute": "78",
+          "club": "ヴァンフォーレ甲府",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 19",
+              "name": "水野 颯太",
+              "playerId": "1635475"
+            },
+            {
+              "variant": "out",
+              "position": "MF 11",
+              "name": "熊倉 弘達",
+              "playerId": "1641562"
+            }
+          ],
+          "idTeam": "139900"
+        },
         {
           "minute": "73",
           "club": "ヴァンラーレ八戸",
@@ -66671,7 +66815,7 @@
     "2551881": {
       "code": "112110",
       "url": "https://www.jleague.jp/match/j2/2026/112110/livetxt/",
-      "fetchedAtJst": "2026-11-21T15:41:34+09:00",
+      "fetchedAtJst": "2026-11-21T15:46:33+09:00",
       "goals": [
         {
           "minute": "81",
@@ -66703,6 +66847,15 @@
       ],
       "cards": [
         {
+          "minute": "83",
+          "type": "yellow",
+          "player": "水谷 拓磨",
+          "position": "MF 7",
+          "club": "ブラウブリッツ秋田",
+          "idTeam": "140509",
+          "playerId": "1400296"
+        },
+        {
           "minute": "13",
           "type": "yellow",
           "player": "岡﨑 亮平",
@@ -66713,6 +66866,25 @@
         }
       ],
       "subs": [
+        {
+          "minute": null,
+          "club": "モンテディオ山形",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 8",
+              "name": "土居 聖真",
+              "playerId": "1100134"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "中村 亮太朗",
+              "playerId": "1627189"
+            }
+          ],
+          "idTeam": "139892"
+        },
         {
           "minute": "70",
           "club": "モンテディオ山形",
@@ -67009,7 +67181,7 @@
     "2551882": {
       "code": "112116",
       "url": "https://www.jleague.jp/match/j2/2026/112116/livetxt/",
-      "fetchedAtJst": "2026-11-21T15:41:39+09:00",
+      "fetchedAtJst": "2026-11-21T15:46:40+09:00",
       "goals": [
         {
           "minute": "63",
@@ -67022,6 +67194,15 @@
         }
       ],
       "cards": [
+        {
+          "minute": "84",
+          "type": "yellow",
+          "player": "中村 優斗",
+          "position": "MF 13",
+          "club": "藤枝ＭＹＦＣ",
+          "idTeam": "141245",
+          "playerId": "1653374"
+        },
         {
           "minute": "9",
           "type": "yellow",
@@ -67042,6 +67223,12 @@
               "position": "MF 36",
               "name": "久保 恵音",
               "playerId": "1655863"
+            },
+            {
+              "variant": "out",
+              "position": "MF 8",
+              "name": "森 晃太",
+              "playerId": "1600185"
             }
           ],
           "idTeam": "141249"
@@ -67443,7 +67630,7 @@
     "2551883": {
       "code": "112114",
       "url": "https://www.jleague.jp/match/j2/2026/112114/livetxt/",
-      "fetchedAtJst": "2026-11-21T15:41:44+09:00",
+      "fetchedAtJst": "2026-11-21T15:46:46+09:00",
       "goals": [
         {
           "minute": "23",
@@ -67863,7 +68050,7 @@
     "2551884": {
       "code": "112111",
       "url": "https://www.jleague.jp/match/j2/2026/112111/livetxt/",
-      "fetchedAtJst": "2026-11-21T15:41:50+09:00",
+      "fetchedAtJst": "2026-11-21T15:46:51+09:00",
       "goals": [
         {
           "minute": "69",
@@ -67906,7 +68093,7 @@
       ],
       "subs": [
         {
-          "minute": null,
+          "minute": "78",
           "club": "栃木シティ",
           "items": [
             {
@@ -68315,7 +68502,7 @@
     "2551885": {
       "code": "112118",
       "url": "https://www.jleague.jp/match/j2/2026/112118/livetxt/",
-      "fetchedAtJst": "2026-11-21T15:41:55+09:00",
+      "fetchedAtJst": "2026-11-21T15:46:56+09:00",
       "goals": [
         {
           "minute": "72",
@@ -68338,6 +68525,38 @@
       ],
       "cards": [],
       "subs": [
+        {
+          "minute": "82",
+          "club": "いわきＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 2",
+              "name": "今野 息吹",
+              "playerId": "1635458"
+            }
+          ],
+          "idTeam": "144685"
+        },
+        {
+          "minute": "81",
+          "club": "テゲバジャーロ宮崎",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 10",
+              "name": "井上 怜",
+              "playerId": "1624327"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "阿野 真拓",
+              "playerId": "1629686"
+            }
+          ],
+          "idTeam": "141254"
+        },
         {
           "minute": "69",
           "club": "いわきＦＣ",
