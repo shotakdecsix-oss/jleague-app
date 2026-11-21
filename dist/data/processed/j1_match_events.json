@@ -1,13 +1,13 @@
 {
   "meta": {
     "league": "j1",
-    "generatedAtJst": "2026-11-21T13:55:05+09:00",
+    "generatedAtJst": "2026-11-21T14:00:05+09:00",
     "windowHours": 36,
-    "candidateCount": 3,
-    "skippedPreKickoff": 6,
-    "fetchedCount": 3,
+    "candidateCount": 8,
+    "skippedPreKickoff": 2,
+    "fetchedCount": 8,
     "failed": [],
-    "eventCount": 115
+    "eventCount": 116
   },
   "events": {
     "2492803": {
@@ -51259,7 +51259,7 @@
     "2492922": {
       "code": "112002",
       "url": "https://www.jleague.jp/match/j1/2026/112002/livetxt/",
-      "fetchedAtJst": "2026-11-21T13:55:15+09:00",
+      "fetchedAtJst": "2026-11-21T14:00:13+09:00",
       "goals": [
         {
           "minute": "88",
@@ -51727,7 +51727,7 @@
     "2492923": {
       "code": "112001",
       "url": "https://www.jleague.jp/match/j1/2026/112001/livetxt/",
-      "fetchedAtJst": "2026-11-21T13:55:33+09:00",
+      "fetchedAtJst": "2026-11-21T14:00:20+09:00",
       "goals": [
         {
           "minute": "76",
@@ -52180,7 +52180,7 @@
     "2492929": {
       "code": "112003",
       "url": "https://www.jleague.jp/match/j1/2026/112003/livetxt/",
-      "fetchedAtJst": "2026-11-21T13:55:42+09:00",
+      "fetchedAtJst": "2026-11-21T14:00:28+09:00",
       "goals": [
         {
           "minute": "89",
@@ -52666,7 +52666,7 @@
     "2492925": {
       "code": "112108",
       "url": "https://www.jleague.jp/match/j1/2026/112108/livetxt/",
-      "fetchedAtJst": "2026-11-21T12:20:33+09:00",
+      "fetchedAtJst": "2026-11-21T14:00:33+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -52908,7 +52908,7 @@
     "2492926": {
       "code": "112102",
       "url": "https://www.jleague.jp/match/j1/2026/112102/livetxt/",
-      "fetchedAtJst": "2026-11-21T12:20:37+09:00",
+      "fetchedAtJst": "2026-11-21T14:00:37+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -52923,7 +52923,7 @@
           "players": [
             {
               "id": 1602204,
-              "name": "谷",
+              "name": "谷 晃生",
               "number": "1"
             },
             {
@@ -52933,51 +52933,106 @@
             },
             {
               "id": 1500538,
-              "name": "キムミンテ",
+              "name": "キム ミンテ",
               "number": "24"
             },
             {
               "id": 1635501,
-              "name": "望月",
+              "name": "望月 ヘンリー海輝",
               "number": "6"
             },
             {
               "id": 1627745,
-              "name": "中村",
+              "name": "中村 帆高",
               "number": "88"
             },
             {
               "id": 1640980,
-              "name": "ネタラヴィ",
+              "name": "ネタ ラヴィ",
               "number": "31"
             },
             {
               "id": 1400075,
-              "name": "前",
+              "name": "前 寛之",
               "number": "16"
             },
             {
               "id": 1629442,
-              "name": "明本",
+              "name": "明本 考浩",
               "number": "33"
             },
             {
               "id": 1500452,
-              "name": "西村",
+              "name": "西村 拓真",
               "number": "20"
             },
             {
               "id": 1604777,
-              "name": "相馬",
+              "name": "相馬 勇紀",
               "number": "7"
             },
             {
               "id": 1600008,
-              "name": "小川",
+              "name": "小川 航基",
               "number": "9"
             }
           ],
-          "bench": []
+          "bench": [
+            {
+              "id": "900072",
+              "name": "守田 達弥",
+              "number": "13",
+              "position": "GK"
+            },
+            {
+              "id": "1641608",
+              "name": "西川 楓人",
+              "number": "29",
+              "position": "DF"
+            },
+            {
+              "id": "1500301",
+              "name": "岡村 大八",
+              "number": "50",
+              "position": "DF"
+            },
+            {
+              "id": "1400049",
+              "name": "下田 北斗",
+              "number": "18",
+              "position": "MF"
+            },
+            {
+              "id": "1200059",
+              "name": "白崎 凌兵",
+              "number": "23",
+              "position": "MF"
+            },
+            {
+              "id": "1607204",
+              "name": "仙頭 啓矢",
+              "number": "8",
+              "position": "FW"
+            },
+            {
+              "id": "1300318",
+              "name": "ミッチェル デューク",
+              "number": "15",
+              "position": "FW"
+            },
+            {
+              "id": "1654126",
+              "name": "徳村 楓大",
+              "number": "34",
+              "position": "FW"
+            },
+            {
+              "id": "1656011",
+              "name": "テテ イェンギ",
+              "number": "99",
+              "position": "FW"
+            }
+          ]
         },
         "away": {
           "idTeam": "139899",
@@ -52985,68 +53040,117 @@
           "players": [
             {
               "id": 1604772,
-              "name": "後藤",
+              "name": "後藤 雅明",
               "number": "1"
             },
             {
               "id": 1607375,
-              "name": "江川",
+              "name": "江川 湧清",
               "number": "6"
             },
             {
               "id": 1636505,
-              "name": "土肥",
+              "name": "土肥 幹太",
               "number": "31"
             },
             {
               "id": 1607170,
-              "name": "翁長",
+              "name": "翁長 聖",
               "number": "22"
             },
             {
               "id": 1500418,
-              "name": "岩崎",
+              "name": "岩崎 悠人",
               "number": "8"
             },
             {
               "id": 400761,
-              "name": "山口",
+              "name": "山口 蛍",
               "number": "5"
             },
             {
               "id": 1503694,
-              "name": "米田",
+              "name": "米田 隼也",
               "number": "23"
             },
             {
               "id": 1641590,
-              "name": "鍋島",
+              "name": "鍋島 暖歩",
               "number": "44"
             },
             {
               "id": 1656010,
-              "name": "Ｎキャンベル",
+              "name": "ノーマン キャンベル",
               "number": "11"
             },
             {
               "id": 1618765,
-              "name": "Ｍジェズス",
+              "name": "マテウス ジェズス",
               "number": "10"
             },
             {
               "id": 1632264,
-              "name": "チアゴサンタナ",
+              "name": "チアゴ サンタナ",
               "number": "9"
             }
           ],
-          "bench": []
+          "bench": [
+            {
+              "id": "1501611",
+              "name": "波多野 豪",
+              "number": "13",
+              "position": "GK"
+            },
+            {
+              "id": "1600191",
+              "name": "大南 拓磨",
+              "number": "25",
+              "position": "DF"
+            },
+            {
+              "id": "1635204",
+              "name": "保田 堅心",
+              "number": "7",
+              "position": "MF"
+            },
+            {
+              "id": "1400116",
+              "name": "澤田 崇",
+              "number": "19",
+              "position": "MF"
+            },
+            {
+              "id": "1632395",
+              "name": "ディエゴ ピトゥカ",
+              "number": "21",
+              "position": "MF"
+            },
+            {
+              "id": "1648378",
+              "name": "松本 天夢",
+              "number": "34",
+              "position": "MF"
+            },
+            {
+              "id": "1301036",
+              "name": "山﨑 凌吾",
+              "number": "18",
+              "position": "FW"
+            },
+            {
+              "id": "1658985",
+              "name": "ジョナタン ジュニオール",
+              "number": "99",
+              "position": "FW"
+            }
+          ]
         }
       }
     },
     "2492927": {
       "code": "112103",
       "url": "https://www.jleague.jp/match/j1/2026/112103/livetxt/",
-      "fetchedAtJst": "2026-11-21T12:15:40+09:00",
+      "fetchedAtJst": "2026-11-21T14:00:42+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -53300,7 +53404,7 @@
     "2492928": {
       "code": "112101",
       "url": "https://www.jleague.jp/match/j1/2026/112101/livetxt/",
-      "fetchedAtJst": "2026-11-21T12:01:17+09:00",
+      "fetchedAtJst": "2026-11-21T14:00:45+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -54034,6 +54138,19 @@
           ]
         }
       }
+    },
+    "2492921": {
+      "code": "112106",
+      "url": "https://www.jleague.jp/match/j1/2026/112106/livetxt/",
+      "fetchedAtJst": "2026-11-21T14:00:50+09:00",
+      "goals": [],
+      "cards": [],
+      "subs": [],
+      "highlightVideoId": null,
+      "daznVideoId": null,
+      "daznSearchAttempts": 0,
+      "daznLastSearchedAtJst": null,
+      "lineups": null
     }
   }
 }
