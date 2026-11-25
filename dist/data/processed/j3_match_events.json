@@ -1,21 +1,16 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-11-25T20:10:05+09:00",
+    "generatedAtJst": "2026-11-25T20:15:06+09:00",
     "windowHours": 36,
     "candidateCount": 10,
     "skippedPreKickoff": 0,
-    "fetchedCount": 8,
+    "fetchedCount": 9,
     "failed": [
       {
         "idEvent": "2492565",
         "reason": "regression_zero_events",
         "url": "https://www.jleague.jp/match/j3/2026/112527/livetxt/"
-      },
-      {
-        "idEvent": "2492572",
-        "reason": "regression_zero_events",
-        "url": "https://www.jleague.jp/match/j3/2026/112524/livetxt/"
       }
     ],
     "eventCount": 159
@@ -70174,7 +70169,7 @@
     "2492567": {
       "code": "112518",
       "url": "https://www.jleague.jp/match/j3/2026/112518/livetxt/",
-      "fetchedAtJst": "2026-11-25T20:11:20+09:00",
+      "fetchedAtJst": "2026-11-25T20:16:05+09:00",
       "goals": [],
       "cards": [
         {
@@ -70632,7 +70627,7 @@
     "2492566": {
       "code": "112519",
       "url": "https://www.jleague.jp/match/j3/2026/112519/livetxt/",
-      "fetchedAtJst": "2026-11-25T20:11:24+09:00",
+      "fetchedAtJst": "2026-11-25T20:16:09+09:00",
       "goals": [
         {
           "minute": "69",
@@ -71103,7 +71098,7 @@
     "2492570": {
       "code": "112520",
       "url": "https://www.jleague.jp/match/j3/2026/112520/livetxt/",
-      "fetchedAtJst": "2026-11-25T20:11:27+09:00",
+      "fetchedAtJst": "2026-11-25T20:16:13+09:00",
       "goals": [
         {
           "minute": "8",
@@ -71533,7 +71528,7 @@
     "2492569": {
       "code": "112521",
       "url": "https://www.jleague.jp/match/j3/2026/112521/livetxt/",
-      "fetchedAtJst": "2026-11-25T20:11:31+09:00",
+      "fetchedAtJst": "2026-11-25T20:16:17+09:00",
       "goals": [
         {
           "minute": "67",
@@ -71558,6 +71553,25 @@
       "subs": [
         {
           "minute": null,
+          "club": "ＳＣ相模原",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 11",
+              "name": "武藤 雄樹",
+              "playerId": "800932"
+            },
+            {
+              "variant": "out",
+              "position": "FW 7",
+              "name": "棚橋 尭士",
+              "playerId": "1604180"
+            }
+          ],
+          "idTeam": "140510"
+        },
+        {
+          "minute": "77",
           "club": "ＳＣ相模原",
           "items": [
             {
@@ -71890,7 +71904,7 @@
     "2492563": {
       "code": "112523",
       "url": "https://www.jleague.jp/match/j3/2026/112523/livetxt/",
-      "fetchedAtJst": "2026-11-25T20:11:34+09:00",
+      "fetchedAtJst": "2026-11-25T20:16:20+09:00",
       "goals": [
         {
           "minute": "30",
@@ -72103,11 +72117,21 @@
     "2492564": {
       "code": "112526",
       "url": "https://www.jleague.jp/match/j3/2026/112526/livetxt/",
-      "fetchedAtJst": "2026-11-25T20:11:37+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-11-25T20:16:24+09:00",
+      "goals": [
+        {
+          "minute": "51",
+          "club": "レノファ山口ＦＣ",
+          "player": "山本 駿亮",
+          "position": "FW 19",
+          "scoreAfter": "1-0",
+          "idTeam": "139894",
+          "playerId": "1632224"
+        }
+      ],
       "cards": [
         {
-          "minute": "48",
+          "minute": "51",
           "type": "yellow",
           "player": "清水 一雅",
           "position": "FW 9",
@@ -72116,7 +72140,27 @@
           "playerId": "1626004"
         }
       ],
-      "subs": [],
+      "subs": [
+        {
+          "minute": "45",
+          "club": "レノファ山口ＦＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 4",
+              "name": "中島 賢星",
+              "playerId": "1500465"
+            },
+            {
+              "variant": "out",
+              "position": "FW 13",
+              "name": "渡邉 颯太",
+              "playerId": "1645965"
+            }
+          ],
+          "idTeam": "139894"
+        }
+      ],
       "highlightVideoId": null,
       "daznVideoId": null,
       "daznSearchAttempts": 0,
@@ -72607,8 +72651,18 @@
     "2492568": {
       "code": "112522",
       "url": "https://www.jleague.jp/match/j3/2026/112522/livetxt/",
-      "fetchedAtJst": "2026-11-25T20:11:44+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-11-25T20:16:31+09:00",
+      "goals": [
+        {
+          "minute": "55",
+          "club": "鹿児島ユナイテッドＦＣ",
+          "player": "江川 慶城",
+          "position": "DF 35",
+          "scoreAfter": "0-1",
+          "idTeam": "139903",
+          "playerId": "1624359"
+        }
+      ],
       "cards": [],
       "subs": [],
       "highlightVideoId": null,
@@ -72849,7 +72903,7 @@
     "2492571": {
       "code": "112525",
       "url": "https://www.jleague.jp/match/j3/2026/112525/livetxt/",
-      "fetchedAtJst": "2026-11-25T20:11:51+09:00",
+      "fetchedAtJst": "2026-11-25T20:16:34+09:00",
       "goals": [
         {
           "minute": "49",
@@ -72882,6 +72936,25 @@
         }
       ],
       "subs": [
+        {
+          "minute": "45",
+          "club": "奈良クラブ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 40",
+              "name": "吉村 弦",
+              "playerId": "1624397"
+            },
+            {
+              "variant": "out",
+              "position": "DF 22",
+              "name": "生駒 稀生",
+              "playerId": "1644237"
+            }
+          ],
+          "idTeam": "147069"
+        },
         {
           "minute": "45",
           "club": "松本山雅ＦＣ",
@@ -73140,9 +73213,19 @@
     "2492572": {
       "code": "112524",
       "url": "https://www.jleague.jp/match/j3/2026/112524/livetxt/",
-      "fetchedAtJst": "2026-11-25T20:06:37+09:00",
+      "fetchedAtJst": "2026-11-25T20:16:37+09:00",
       "goals": [],
-      "cards": [],
+      "cards": [
+        {
+          "minute": null,
+          "type": "yellow",
+          "player": "島田 拓海",
+          "position": "FW 9",
+          "club": "ＦＣ大阪",
+          "idTeam": "147070",
+          "playerId": "1624570"
+        }
+      ],
       "subs": [
         {
           "minute": "45",
@@ -73153,6 +73236,12 @@
               "position": "MF 11",
               "name": "吉田 源太郎",
               "playerId": "1637296"
+            },
+            {
+              "variant": "out",
+              "position": "MF 7",
+              "name": "木匠 貴大",
+              "playerId": "1625702"
             }
           ],
           "idTeam": "147070"
