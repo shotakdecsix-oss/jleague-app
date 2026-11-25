@@ -1,13 +1,13 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-11-25T15:55:06+09:00",
+    "generatedAtJst": "2026-11-25T16:00:06+09:00",
     "windowHours": 36,
-    "candidateCount": 2,
+    "candidateCount": 3,
     "skippedPreKickoff": 0,
-    "fetchedCount": 2,
+    "fetchedCount": 3,
     "failed": [],
-    "eventCount": 151
+    "eventCount": 152
   },
   "events": {
     "2492404": {
@@ -70163,7 +70163,7 @@
     "2492567": {
       "code": "112518",
       "url": "https://www.jleague.jp/match/j3/2026/112518/livetxt/",
-      "fetchedAtJst": "2026-11-25T15:55:10+09:00",
+      "fetchedAtJst": "2026-11-25T16:00:10+09:00",
       "goals": [],
       "cards": [
         {
@@ -70621,7 +70621,7 @@
     "2492566": {
       "code": "112519",
       "url": "https://www.jleague.jp/match/j3/2026/112519/livetxt/",
-      "fetchedAtJst": "2026-11-25T15:55:13+09:00",
+      "fetchedAtJst": "2026-11-25T16:00:13+09:00",
       "goals": [
         {
           "minute": "69",
@@ -70663,6 +70663,25 @@
         }
       ],
       "subs": [
+        {
+          "minute": null,
+          "club": "ツエーゲン金沢",
+          "items": [
+            {
+              "variant": "in",
+              "position": "DF 71",
+              "name": "櫻井 風我",
+              "playerId": "1635338"
+            },
+            {
+              "variant": "out",
+              "position": "DF 29",
+              "name": "宮崎 海冬",
+              "playerId": "1635563"
+            }
+          ],
+          "idTeam": "139902"
+        },
         {
           "minute": null,
           "club": "ツエーゲン金沢",
@@ -71069,6 +71088,19 @@
           ]
         }
       }
+    },
+    "2492570": {
+      "code": "112520",
+      "url": "https://www.jleague.jp/match/j3/2026/112520/livetxt/",
+      "fetchedAtJst": "2026-11-25T16:00:17+09:00",
+      "goals": [],
+      "cards": [],
+      "subs": [],
+      "highlightVideoId": null,
+      "daznVideoId": null,
+      "daznSearchAttempts": 0,
+      "daznLastSearchedAtJst": null,
+      "lineups": null
     }
   }
 }
