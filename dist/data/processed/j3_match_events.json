@@ -1,12 +1,18 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-11-25T19:20:06+09:00",
+    "generatedAtJst": "2026-11-25T19:25:07+09:00",
     "windowHours": 36,
     "candidateCount": 10,
     "skippedPreKickoff": 0,
-    "fetchedCount": 10,
-    "failed": [],
+    "fetchedCount": 9,
+    "failed": [
+      {
+        "idEvent": "2492565",
+        "reason": "regression_zero_events",
+        "url": "https://www.jleague.jp/match/j3/2026/112527/livetxt/"
+      }
+    ],
     "eventCount": 159
   },
   "events": {
@@ -70163,7 +70169,7 @@
     "2492567": {
       "code": "112518",
       "url": "https://www.jleague.jp/match/j3/2026/112518/livetxt/",
-      "fetchedAtJst": "2026-11-25T19:21:07+09:00",
+      "fetchedAtJst": "2026-11-25T19:26:09+09:00",
       "goals": [],
       "cards": [
         {
@@ -70621,7 +70627,7 @@
     "2492566": {
       "code": "112519",
       "url": "https://www.jleague.jp/match/j3/2026/112519/livetxt/",
-      "fetchedAtJst": "2026-11-25T19:21:11+09:00",
+      "fetchedAtJst": "2026-11-25T19:26:12+09:00",
       "goals": [
         {
           "minute": "69",
@@ -71092,7 +71098,7 @@
     "2492570": {
       "code": "112520",
       "url": "https://www.jleague.jp/match/j3/2026/112520/livetxt/",
-      "fetchedAtJst": "2026-11-25T19:21:15+09:00",
+      "fetchedAtJst": "2026-11-25T19:26:16+09:00",
       "goals": [
         {
           "minute": "8",
@@ -71106,6 +71112,44 @@
       ],
       "cards": [],
       "subs": [
+        {
+          "minute": null,
+          "club": "高知ユナイテッドＳＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 33",
+              "name": "長 疾風",
+              "playerId": "1646921"
+            },
+            {
+              "variant": "out",
+              "position": "MF 11",
+              "name": "三好 麟大",
+              "playerId": "1624265"
+            }
+          ],
+          "idTeam": "150223"
+        },
+        {
+          "minute": "62",
+          "club": "高知ユナイテッドＳＣ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 19",
+              "name": "オリグバッジョ イスマイラ",
+              "playerId": "1625673"
+            },
+            {
+              "variant": "out",
+              "position": "FW 18",
+              "name": "青戸 翔",
+              "playerId": "1636296"
+            }
+          ],
+          "idTeam": "150223"
+        },
         {
           "minute": "45",
           "club": "レイラック滋賀ＦＣ",
@@ -71402,7 +71446,7 @@
     "2492569": {
       "code": "112521",
       "url": "https://www.jleague.jp/match/j3/2026/112521/livetxt/",
-      "fetchedAtJst": "2026-11-25T19:21:18+09:00",
+      "fetchedAtJst": "2026-11-25T19:26:20+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -71644,9 +71688,19 @@
     "2492563": {
       "code": "112523",
       "url": "https://www.jleague.jp/match/j3/2026/112523/livetxt/",
-      "fetchedAtJst": "2026-11-25T19:21:22+09:00",
+      "fetchedAtJst": "2026-11-25T19:26:24+09:00",
       "goals": [],
-      "cards": [],
+      "cards": [
+        {
+          "minute": "21",
+          "type": "yellow",
+          "player": "横山 智也",
+          "position": "FW 21",
+          "club": "ＦＣ岐阜",
+          "idTeam": "139904",
+          "playerId": "1640671"
+        }
+      ],
       "subs": [],
       "highlightVideoId": null,
       "daznVideoId": null,
@@ -71837,7 +71891,7 @@
     "2492564": {
       "code": "112526",
       "url": "https://www.jleague.jp/match/j3/2026/112526/livetxt/",
-      "fetchedAtJst": "2026-11-25T19:21:25+09:00",
+      "fetchedAtJst": "2026-11-25T19:26:27+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -72331,7 +72385,7 @@
     "2492568": {
       "code": "112522",
       "url": "https://www.jleague.jp/match/j3/2026/112522/livetxt/",
-      "fetchedAtJst": "2026-11-25T19:21:32+09:00",
+      "fetchedAtJst": "2026-11-25T19:26:35+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
@@ -72573,7 +72627,7 @@
     "2492571": {
       "code": "112525",
       "url": "https://www.jleague.jp/match/j3/2026/112525/livetxt/",
-      "fetchedAtJst": "2026-11-25T19:21:37+09:00",
+      "fetchedAtJst": "2026-11-25T19:26:38+09:00",
       "goals": [
         {
           "minute": "13",
@@ -72825,7 +72879,7 @@
     "2492572": {
       "code": "112524",
       "url": "https://www.jleague.jp/match/j3/2026/112524/livetxt/",
-      "fetchedAtJst": "2026-11-25T19:21:41+09:00",
+      "fetchedAtJst": "2026-11-25T19:26:42+09:00",
       "goals": [],
       "cards": [],
       "subs": [],
