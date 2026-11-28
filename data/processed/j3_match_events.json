@@ -1,7 +1,7 @@
 {
   "meta": {
     "league": "j3",
-    "generatedAtJst": "2026-11-28T15:35:06+09:00",
+    "generatedAtJst": "2026-11-28T15:40:06+09:00",
     "windowHours": 36,
     "candidateCount": 1,
     "skippedPreKickoff": 0,
@@ -74540,8 +74540,18 @@
     "2492582": {
       "code": "112810",
       "url": "https://www.jleague.jp/match/j3/2026/112810/livetxt/",
-      "fetchedAtJst": "2026-11-28T15:35:24+09:00",
-      "goals": [],
+      "fetchedAtJst": "2026-11-28T15:40:24+09:00",
+      "goals": [
+        {
+          "minute": "79",
+          "club": "高知ユナイテッドＳＣ",
+          "player": "杉山 伶央",
+          "position": "FW 20",
+          "scoreAfter": "1-0",
+          "idTeam": "150223",
+          "playerId": "1636325"
+        }
+      ],
       "cards": [
         {
           "minute": "42",
@@ -74554,6 +74564,63 @@
         }
       ],
       "subs": [
+        {
+          "minute": null,
+          "club": null,
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 20",
+              "name": "杉山 伶央",
+              "playerId": null
+            },
+            {
+              "variant": "out",
+              "position": "MF 10",
+              "name": "佐々木 敦河",
+              "playerId": null
+            }
+          ],
+          "idTeam": null
+        },
+        {
+          "minute": "75",
+          "club": "奈良クラブ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "FW 99",
+              "name": "森本 ヒマン",
+              "playerId": "1619692"
+            },
+            {
+              "variant": "out",
+              "position": "MF 13",
+              "name": "安藤 陸登",
+              "playerId": "1650518"
+            }
+          ],
+          "idTeam": "147069"
+        },
+        {
+          "minute": "75",
+          "club": "奈良クラブ",
+          "items": [
+            {
+              "variant": "in",
+              "position": "MF 7",
+              "name": "田村 亮介",
+              "playerId": "1400102"
+            },
+            {
+              "variant": "out",
+              "position": "FW 54",
+              "name": "川﨑 修平",
+              "playerId": "1626011"
+            }
+          ],
+          "idTeam": "147069"
+        },
         {
           "minute": "65",
           "club": "高知ユナイテッドＳＣ",
